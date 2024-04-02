@@ -1,5 +1,6 @@
 export class ParametersBag extends Map {
   constructor(object) {
+    super()
     this._patch(object)
   }
   _patch(object) {

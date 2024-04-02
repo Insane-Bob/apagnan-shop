@@ -1,5 +1,7 @@
 import fs from 'fs'
 import path from 'path'
+import { pathToFileURL } from 'url'
+import { Request } from './Request.js'
 
 export class RouteGroup {
   constructor(path, callback) {
@@ -42,7 +44,22 @@ export class Router extends RouteGroup {
     this.app = app
   }
 
-  registerRoutes(app) {}
+  registerRoutes(app) {
+    //console.log(this.routes)
+    for (let route of this.routes) {
+      if (route instanceof Route) {
+        const { path, controller, action, method } = route
+        app[method](this.path + path, (req, res) => {
+          const request = new Request(req)
+          const controllerInstance = new controller(request, res)
+          controllerInstance[action]()
+        })
+      } else if (route instanceof RouteGroup) {
+        const router = new Router(app, this.path + route.path, route.callback)
+        router.registerRoutes(app)
+      }
+    }
+  }
 
   async discoverRoutes() {
     /**read all files and sub files in routes */
@@ -62,13 +79,13 @@ export class Router extends RouteGroup {
 
     const files = readDir(normalizedPath)
     for (let file of files) {
-      const module = await import(file)
+      const module = await import(pathToFileURL(file).toString())
       module.default(this)
     }
   }
 
-  init(app) {
-    this.discoverRoutes()
+  async init(app) {
+    await this.discoverRoutes()
     this.registerRoutes(app)
   }
 }

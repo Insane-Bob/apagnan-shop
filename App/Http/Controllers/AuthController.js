@@ -6,7 +6,11 @@ export class AuthController extends Controller {
   }
 
   login() {
-    // Login logic here
+    this.res.send('Login route')
   }
   logout() {}
+
+  test() {
+    this.res.send('Test route')
+  }
 }
