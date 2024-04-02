@@ -5,6 +5,7 @@ import ToolingIcon from './icons/IconTooling.vue'
 import EcosystemIcon from './icons/IconEcosystem.vue'
 import CommunityIcon from './icons/IconCommunity.vue'
 import SupportIcon from './icons/IconSupport.vue'
+import { Button } from '@/components/ui/button'
 </script>
 
 <template>
@@ -22,6 +23,7 @@ import SupportIcon from './icons/IconSupport.vue'
   <WelcomeItem>
     <template #icon>
       <ToolingIcon />
+      <Button>Click me</Button>
     </template>
     <template #heading>Tooling</template>
 
