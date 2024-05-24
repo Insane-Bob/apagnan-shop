@@ -7,8 +7,8 @@ function main(){
         privateKeyEncoding: { type: "pkcs8", format: "pem" },
     });
     const dirname = process.cwd()
-    fs.writeFileSync(`${dirname}/App/private.key`, privateKey);
-    fs.writeFileSync(`${dirname}/App/public.key`, publicKey);
+    fs.writeFileSync(`${dirname}/private.key`, privateKey);
+    fs.writeFileSync(`${dirname}/public.key`, publicKey);
 }
 
 main()
