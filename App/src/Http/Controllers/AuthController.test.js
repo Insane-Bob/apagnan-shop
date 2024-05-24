@@ -101,7 +101,6 @@ describe("AuthController test routes", () => {
         token.expireAt = new Date("2021-01-01")
         await token.save()
         const accessToken = TokenServices.generateAccessToken(token)
-        console.log(accessToken)
         const response =  await request(app)
             .get("/api/me")
             .set('Accept', 'application/json')

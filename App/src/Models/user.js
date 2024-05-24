@@ -9,7 +9,6 @@ function model(sequelize, DataTypes) {
      */
     static associate(models) {
       // define association here
-      console.log(models)
     }
   }
   User.init({
