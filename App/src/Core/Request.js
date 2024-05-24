@@ -9,5 +9,14 @@ export class Request {
     if (this.headers.get('content-type') === 'application/json') {
       this.body = new ParametersBag(req.body)
     }
+    this.user = null
+    this.token = null
+  }
+
+  setUser(user){
+    this.user = user
+  }
+  setToken(token){
+    this.token = token
   }
 }
