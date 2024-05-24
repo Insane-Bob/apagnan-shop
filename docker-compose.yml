@@ -2,7 +2,7 @@ services:
   npm-frontend:
     image: node:20
     volumes:
-      - ./:/app/frontend
+      - ./frontend:/app/frontend
     working_dir: /app/frontend
     command: ["npm", "install"]
   frontend:
@@ -10,9 +10,9 @@ services:
         context: .
         dockerfile: ./docker/frontend.Dockerfile
     ports:
-      - "3000:3000"
+      - "5173:5173"
     volumes:
-      - ./:/app/frontend
+      - ./frontend:/app/frontend
     depends_on:
       backend:
         condition: service_started
@@ -21,7 +21,7 @@ services:
   npm-backend:
     image: node:20
     volumes:
-      - ./App:/app/backend
+      - ./backend:/app/backend
     working_dir: /app/backend
     command: ["npm", "install"]
   backend:
@@ -31,7 +31,7 @@ services:
     ports:
       - "80:3000"
     volumes:
-      - ./App:/app/backend
+      - ./backend:/app/backend
     depends_on:
       db:
         condition: service_started
