@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import Button from '../ui/button/Button.vue';
-
+import ProductCard from '../cards/ProductCard.vue';
 
 let isOnTop = true;
   
-
-
-
 function changeBrightness() {
   const mainShopPage = document.querySelector('.main-shop-page');
   const mainTitle = document.querySelector('.main-title');
@@ -97,14 +94,18 @@ window.addEventListener('scroll', scrollFunction);
       </div>
     </div>
 
-    <div id="shop" class="w-screen h-screen bg-white py-14 px-24 grid col-span-3 gap-20">
-      <article class="flex-col">
-        <div class="w-[366px] h-[471px] bg-red-400"></div>
-        <div class="flex flex-col">
-          <h1 class="text-[#C9C9C9]">Nain’Ventif 2024</h1>
-          <h2>Le Nain’Ble</h2>
-        </div>
-      </article>
+    <div id="shop" class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-3 gap-20">
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
+
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
+
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
+
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
+
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
+
+      <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
     </div>
   </div>
 </template>
