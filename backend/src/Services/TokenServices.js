@@ -48,27 +48,33 @@ export class TokenServices{
             expireAt,
             refreshToken
         })
-
         return token
     }
 
     static async generateUniqueIdentifier(){
+        let attempts = 0
         do{
             const identifier = crypto.randomBytes(32).toString('hex')
             const token = await this.retrieveTokenFromIdentifier(identifier)
+
             if(!token) {
                 return identifier
             }
-        }while (true)
+            attempts++
+        }while (attempts < 20)
+        throw new Error("Could not generate a unique token")
     }
     static async generateUniqueRefreshToken(){
+        let attempts = 0
         do{
             const identifier = crypto.randomBytes(64).toString('hex')
             const token = await this.retrieveTokenFromRefreshToken(identifier)
             if(!token) {
                 return identifier
             }
-        }while (true)
+            attempts++
+        }while (attempts < 20)
+        throw new Error("Could not generate a unique token")
     }
     static generateAccessToken(token){
         // eslint-disable-next-line no-undef
