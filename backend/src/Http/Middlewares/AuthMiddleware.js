@@ -21,7 +21,7 @@ export class AuthMiddleware extends Middleware{
         try{
             decoded = TokenServices.verifyAccessToken(accessToken)
         }catch(e){
-            return next()
+            UnauthorizedException.abort()
         }
         const token = await TokenServices.retrieveTokenFromIdentifier(decoded.id)
         UnauthorizedException.abortIf(!token)

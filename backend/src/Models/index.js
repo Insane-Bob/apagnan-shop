@@ -3,8 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import Sequelize from 'sequelize';
 import process from 'process';
+import {mockDatabase} from "../tests/databaseUtils.js";
 
-export async function initDatabase(){
+;
+
+async function initDatabase(){
   // eslint-disable-next-line no-undef
   const __MODEL_DIR__ = path.resolve("src/Models/")
   const basename = path.basename(__MODEL_DIR__ + "/index.js");
@@ -43,7 +46,6 @@ export async function initDatabase(){
 
   db.sequelize = sequelize;
   db.Sequelize = Sequelize;
-
   globalThis.db = db
   return db
 }
@@ -51,19 +53,49 @@ export async function initDatabase(){
 
 export class Database{
     static instance  = null
+    static initialized = false
     constructor(sequelize, Sequelize){
         this.sequelize = sequelize
         this.Sequelize = Sequelize
     }
 
-    get models(){
-        return this.sequelize.models
+    static mock(){
+        mockDatabase(this)
     }
+
+    static unmock(){
+        if(!this.initialized) throw new Error("Database is not initialized")
+        Database.getInstance = ()=> Database._getInstance()
+    }
+
+    static async initialize(){
+        if(this.initialized) throw new Error("Database is already initialized")
+        await initDatabase()
+        console.log("Database initialized")
+        this.initialized = true
+        return true
+    }
+
+    static async close(){
+        if(!this.initialized) throw new Error("Database is not initialized")
+        await Database.getInstance().sequelize.close()
+        this.initialized = false
+        return true
+    }
+
     static getInstance(){
+        return Database._getInstance()
+    }
+
+    static _getInstance(){
         if(!Database.instance){
-            Database.instance = new Database(globalThis.db.sequelize, globalThis.db.Sequelize)
+            Database.instance = new Database(globalThis?.db?.sequelize, globalThis?.db?.Sequelize)
         }
         return Database.instance
+    }
+
+    get models(){
+        return this.sequelize.models
     }
 }
 

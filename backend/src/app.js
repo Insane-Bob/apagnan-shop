@@ -6,7 +6,6 @@ import {Router} from "./Core/Router.js";
 async function setUpApp(){
     const app = express()
     const router = new Router(app)
-    await initDatabase()
     app.use(express.json())
     router
         .middleware(AuthMiddleware)

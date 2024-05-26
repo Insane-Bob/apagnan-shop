@@ -11,7 +11,8 @@
     "password": "postgres",
     "database": "postgres_test",
     "host": "db",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "logging": false
   },
   "production": {
     "username": "postgres",
