@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import HeaderComponent from '../header/HeaderComponent.vue';
-import LinkCard from '../cards/LinkCard.vue';
+import HeaderComponent from '@components/header/HeaderComponent.vue';
+import LinkCard from '@components/cards/LinkCard.vue';
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { Button } from '../ui/button';
+import { Button } from '@components/ui/button';
 
 const props = defineProps({
   name: String,

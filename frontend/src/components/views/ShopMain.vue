@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Button from '../ui/button/Button.vue';
-import ProductCard from '../cards/ProductCard.vue';
+import Button from '@components/ui/button/Button.vue';
+import ProductCard from '@components/cards/ProductCard.vue';
 import { onUnmounted } from 'vue';
 
 let isOnTop = true;
