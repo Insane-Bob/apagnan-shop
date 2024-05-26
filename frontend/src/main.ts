@@ -5,16 +5,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import './assets/index.css'
 
-// IMPORT COMPONENTS
+// IMPORT Routes
+import { backofficeRoutes } from './routes/backoffice'
+
 import ShopMain from '@components/views/ShopMain.vue'
-import MyProfile from '@components/views/MyProfile.vue'
 
 const app = createApp(App)
 
-const routes = [
-  { path: '/', component: ShopMain },
-  { path: '/profile', component: MyProfile }
-]
+const routes = [{ path: '/', component: ShopMain }].push(...backofficeRoutes)
 
 const router = createRouter({
   history: createWebHistory(),
