@@ -4,8 +4,8 @@ import path from 'path';
 import Sequelize from 'sequelize';
 import process from 'process';
 import {mockDatabase} from "../tests/databaseUtils.js";
+import {MongoClient} from "mongodb";
 
-;
 
 async function initDatabase(){
   // eslint-disable-next-line no-undef
@@ -45,7 +45,6 @@ async function initDatabase(){
   });
 
   db.sequelize = sequelize;
-  db.Sequelize = Sequelize;
   globalThis.db = db
   return db
 }
@@ -54,9 +53,19 @@ async function initDatabase(){
 export class Database{
     static instance  = null
     static initialized = false
-    constructor(sequelize, Sequelize){
+    constructor(sequelize){
         this.sequelize = sequelize
-        this.Sequelize = Sequelize
+        this.mongoClient = new MongoClient(process.env.MONGO_URI);
+        this.mongoDB = this.mongoClient.db(process.env.MONGO_DB);
+        this.initializeNormalizers()
+    }
+
+    initializeNormalizers(){
+        for(let modelName in this.models){
+            if(!this.models[modelName]?.denormalizers?.length) continue;
+            if(!Array.isArray(this.models[modelName].denormalizers)) continue;
+            this.models[modelName].denormalizers.forEach(d => d(this))
+        }
     }
 
     static mock(){
@@ -89,7 +98,7 @@ export class Database{
 
     static _getInstance(){
         if(!Database.instance){
-            Database.instance = new Database(globalThis?.db?.sequelize, globalThis?.db?.Sequelize)
+            Database.instance = new Database(globalThis?.db?.sequelize)
         }
         return Database.instance
     }

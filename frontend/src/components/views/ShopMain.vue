@@ -44,7 +44,6 @@ const scrollFunction = () => {
 
   if((document.body.getBoundingClientRect()).top < 0) {
     if(isOnTop) {
-      console.log("test")
       isOnTop = false;
       changeBrightness();
     }
