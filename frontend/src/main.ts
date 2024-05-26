@@ -6,8 +6,8 @@ import App from './App.vue'
 import './assets/index.css'
 
 // IMPORT COMPONENTS
-import ShopMain from './components/views/ShopMain.vue'
-import MyProfile from './components/views/MyProfile.vue'
+import ShopMain from '@components/views/ShopMain.vue'
+import MyProfile from '@components/views/MyProfile.vue'
 
 const app = createApp(App)
 
