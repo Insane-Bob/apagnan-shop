@@ -5,7 +5,6 @@ import LinkCard from '@components/cards/LinkCard.vue';
 
 <template>
     <div class="relative">
-        <HeaderComponent></HeaderComponent>
             <div class="sticky top-0 z-10">
                 <img src="/src/assets/images/myProfileMenu.webp" 
                 class="w-full md:h-[60vw] lg:h-[30vw] object-cover "
