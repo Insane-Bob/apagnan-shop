@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import LinkCard from '@components/cards/LinkCard.vue';
-
-import { reactive } from 'vue';
 </script>
 
 <template>
