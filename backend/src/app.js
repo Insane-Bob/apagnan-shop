@@ -1,5 +1,9 @@
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({
+    path: path.resolve(".env")
+});
 import express from "express";
-import {initDatabase} from "./Models/index.js";
 import {AuthMiddleware} from "./Http/Middlewares/AuthMiddleware.js";
 import {Router} from "./Core/Router.js";
 

@@ -11,8 +11,13 @@ export class RequestHandler{
         this.res = res
     }
 
+    provideDependencies(){
+        return
+    }
     async handleRequest(action, ...args){
         try{
+            this.req.loadParams()
+            await this.provideDependencies()
             await this[action](...args)
         }catch (e){
             console.error(e)

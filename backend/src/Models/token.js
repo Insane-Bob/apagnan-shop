@@ -8,7 +8,7 @@ function model(sequelize, DataTypes) {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+        models.Token.belongsTo(models.User, {foreignKey: 'userId'})
     }
   }
   Token.init({
@@ -16,7 +16,15 @@ function model(sequelize, DataTypes) {
     identifier: DataTypes.STRING,
     expireAt: DataTypes.DATE,
     refreshToken: DataTypes.STRING,
-    revoked: DataTypes.BOOLEAN
+    revoked: DataTypes.BOOLEAN,
+    createdAt:{
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
   }, {
     sequelize,
     modelName: 'Token',

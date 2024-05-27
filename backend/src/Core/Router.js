@@ -3,19 +3,22 @@ import path from 'path'
 import { pathToFileURL } from 'url'
 import { Request } from './Request.js'
 import {Middleware} from "./Middleware.js";
+import {Provider} from "./Provider.js";
 
 
 export class RouteGroup {
-  constructor(path, callback, middlewares = []) {
+  constructor(path, callback, middlewares = [], providers=[]) {
     this.path = path
     this.callback = callback
     this.routes = []
     this.middlewares = middlewares
+    this.providers = providers
   }
 
-  createRoute(method, path, controller, action, middlewares = []) {
+  createRoute(method, path, controller, action, middlewares = [], providers = []) {
     const routesMiddlewares = [...this.middlewares, ...middlewares]
-    const route = new Route(path, controller, action, method, routesMiddlewares)
+    const routesProviders = [...this.providers, ...providers]
+    const route = new Route(path, controller, action, method, routesMiddlewares, routesProviders)
     this.routes.push(route)
     return route
   }
@@ -32,7 +35,7 @@ export class RouteGroup {
     return this.createRoute('delete',...args)
   }
   group(path, callback) {
-    const group = new RouteGroup(path, callback, this.middlewares)
+    const group = new RouteGroup(path, callback, this.middlewares, this.providers)
     this.routes.push(group)
     return group
   }
@@ -42,6 +45,12 @@ export class RouteGroup {
   middleware(middleware){
     if(middleware.prototype instanceof Middleware)
       this.middlewares.push(middleware)
+    return this
+  }
+
+  provide(provider){
+    if(provider.prototype instanceof Provider)
+      this.providers.push(provider)
     return this
   }
 }
@@ -56,8 +65,8 @@ export class Router extends RouteGroup {
     return Router.instance
   }
 
-  constructor(app, path = '', callback = () => {}, middlewares = []) {
-    super(path, callback, middlewares)
+  constructor(app, path = '', callback = () => {}, middlewares = [], providers = []) {
+    super(path, callback, middlewares, providers)
     this.app = app
   }
 
@@ -67,11 +76,12 @@ export class Router extends RouteGroup {
         const { path, controller, action, method } = route
         const middlewareHandlers = route.middlewares.map((middleware) =>  new middleware().getExpressHandler())
         app[method](this.path + path, ...middlewareHandlers, (req, res) => {
+          req.request.setRoute(route)
           const controllerInstance = new controller(req.request, res)
           return controllerInstance.handleRequest(action)
         })
       } else if (route instanceof RouteGroup) {
-        const router = new Router(app, this.path + route.path, route.callback, route.middlewares)
+        const router = new Router(app, this.path + route.path, route.callback, route.middlewares,route.providers)
         router.loadRoutes()
         router.registerRoutes(app)
       }
@@ -98,7 +108,8 @@ export class Router extends RouteGroup {
     const files = readDir(normalizedPath)
     for (let file of files) {
       const module = await import(file)
-      module.default(this)
+      if(module.default instanceof Function)
+        module.default(this)
     }
   }
 
@@ -114,17 +125,24 @@ export class Router extends RouteGroup {
 }
 
 export class Route {
-  constructor(path, controller, action, method, middlewares = []) {
+  constructor(path, controller, action, method, middlewares = [], providers = []) {
     this.path = path
     this.controller = controller
     this.action = action
     this.method = method
     this.middlewares = middlewares
+    this.providers = providers
   }
 
   middleware(middleware){
     if(middleware.prototype instanceof Middleware)
       this.middlewares.push(middleware)
     return this
+  }
+
+  provide(provider){
+        if(provider.prototype instanceof Provider)
+        this.providers.push(provider)
+        return this
   }
 }

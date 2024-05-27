@@ -7,7 +7,6 @@ describe("TokenServices", () => {
     let token = null
     useFreshDatabase(
         async ()=>{
-            console.log("Create user for token tests")
             user = await UserServices.registerUser(
                 "Test",
                 "User",
