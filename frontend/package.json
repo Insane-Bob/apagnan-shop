@@ -26,7 +26,7 @@
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",
     "@tsconfig/node20": "^20.1.2",
-    "@types/node": "^20.11.28",
+    "@types/node": "^20.12.12",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/eslint-config-prettier": "^8.0.0",
@@ -42,5 +42,16 @@
     "typescript": "~5.4.0",
     "vite": "^5.1.6",
     "vue-tsc": "^2.0.6"
+  },
+  "vite": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ]
+    }
   }
 }
