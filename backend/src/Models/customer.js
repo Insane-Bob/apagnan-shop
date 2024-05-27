@@ -1,5 +1,6 @@
 'use strict';
 import {Model} from "sequelize";
+import {Denormalizer} from "../lib/ModelDenormalizer/core/Denormalizer.js";
 function model(sequelize, DataTypes) {
     class Customer extends Model {
         static associate(models) {
@@ -7,6 +8,7 @@ function model(sequelize, DataTypes) {
             models.Customer.hasMany(models.BillingAddress, {foreignKey: 'customerId'})
             models.Customer.hasMany(models.Order, {foreignKey: 'customerId'})
         }
+
     }
     Customer.init({
         userId: DataTypes.INTEGER,

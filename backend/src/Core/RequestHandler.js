@@ -13,6 +13,7 @@ export class RequestHandler{
 
     async handleRequest(action, ...args){
         try{
+            this.req.loadParams()
             await this[action](...args)
         }catch (e){
             console.error(e)
