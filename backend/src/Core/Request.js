@@ -8,6 +8,7 @@ export class Request {
     if (this.headers.get('content-type') === 'application/json') {
       this.body = new ParametersBag(req.body)
     }
+    this.route = null
     this.user = null
     this.token = null
   }
@@ -19,5 +20,12 @@ export class Request {
   }
   setToken(token){
     this.token = token
+  }
+
+  /**
+   * @param {Route} route
+   */
+  setRoute(route){
+    this.route = route
   }
 }

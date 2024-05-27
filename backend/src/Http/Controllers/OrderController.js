@@ -1,17 +1,14 @@
 import { Controller } from '../../Core/Controller.js'
-import {Database} from "../../Models/index.js";
 
-export class CustomerController extends Controller {
-
+export class OrderController extends Controller {
     async index(){
-        const customers = await Database.getInstance().models.Customer.findAll()
         this.res.json({
-            customers: customers
+            orders: await this.customer.getOrders()
         })
     }
     show(){
         this.res.json({
-            customer: this.customer
+            order: this.order
         })
     }
     store(){
