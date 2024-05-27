@@ -103,7 +103,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div id="shop" class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-3 gap-20">
+    <div id="shop" class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20">
       <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
 
       <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
