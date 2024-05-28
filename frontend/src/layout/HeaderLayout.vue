@@ -3,6 +3,8 @@ import HeaderComponent from '@components/header/HeaderComponent.vue';
 </script>
 
 <template>
-    <HeaderComponent></HeaderComponent>
-    <router-view />
+    <div class="mt-24">
+        <HeaderComponent></HeaderComponent>
+        <router-view />
+    </div>
 </template>

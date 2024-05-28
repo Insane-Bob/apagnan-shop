@@ -3,7 +3,7 @@ import LinkCard from '@components/cards/LinkCard.vue';
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative -mt-24">
             <div class="sticky top-0 z-10">
                 <img src="/src/assets/images/myProfileMenu.webp" 
                 class="w-full md:h-[60vw] lg:h-[30vw] object-cover "
@@ -18,7 +18,9 @@ import LinkCard from '@components/cards/LinkCard.vue';
             
                 <LinkCard name="Mes informations" shortDescription="Modifiez vos informations personnelles" image="/src/assets/images/profileMe.webp"></LinkCard>
 
-                <LinkCard name="Mes commandes" shortDescription="Consultez l'historique de vos commandes" image="/src/assets/images/commandesListe.webp"></LinkCard>
+                <RouterLink to="/profile/commands">
+                    <LinkCard name="Mes commandes" shortDescription="Consultez l'historique de vos commandes" image="/src/assets/images/commandesListe.webp"></LinkCard>
+                </RouterLink>
             </div>
         </main>
     </div>
