@@ -2,7 +2,7 @@
 import SimplePagination from '@components/paginations/SimplePagination.vue';
 import HeaderTable from '@components/tables/utils/HeaderTable.vue';
 import CellTable from '@components/tables/utils/CellTable.vue';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 const isAllSelected = ref(false);
 
@@ -46,12 +46,15 @@ const sorting = reactive({
     direction: ''
 });
 
-const rows = reactive(props.rows.map(row => {
-    return {
-        ...row,
-        selected: false
-    }
-}));
+const rows = computed(
+    () => props.rows.map(row => {
+        return {
+            ...row,
+            selected: false
+        }
+    })
+
+);
 
 function onSort(key: string) {
     if (sorting.key === key) {
@@ -66,7 +69,7 @@ function onSort(key: string) {
         return
     }
 
-    rows.sort((a, b) => {
+    rows.value.sort((a, b) => {
         if (sorting.direction === 'asc') {
             return a[key] > b[key] ? 1 : -1;
         } else {
@@ -76,7 +79,7 @@ function onSort(key: string) {
 }
 
 function sortDate(key: string) {
-    rows.sort((a, b) => {
+    rows.value.sort((a, b) => {
         if (sorting.direction === 'asc') {
             return new Date(a[key]) > new Date(b[key]) ? 1 : -1;
         } else {
@@ -86,16 +89,16 @@ function sortDate(key: string) {
 }
 
 function onSelectAll() {
-    const allSelected = rows.every(row => row.selected);
-    rows.forEach(row => row.selected = !allSelected);
+    const allSelected = rows.value.every(row => row.selected);
+    rows.value.forEach(row => row.selected = !allSelected);
     isAllSelected.value = !allSelected;
 }
 
 function onSelect(id: number) {
-    const row = rows.find(row => row.id === id);
+    const row = rows.value.find(row => row.id === id);
     if (row) {
         row.selected = !row.selected;
-        isAllSelected.value = rows.every(row => row.selected);
+        isAllSelected.value = rows.value.every(row => row.selected);
     }
 }
 
