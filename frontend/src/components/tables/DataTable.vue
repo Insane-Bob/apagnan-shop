@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import  Button from "@components/ui/button/Button.vue"
+import SimplePagination from '@components/paginations/SimplePagination.vue';
 import { reactive, ref } from 'vue';
 
 const isAllSelected = ref(false);
@@ -118,7 +118,7 @@ function onNextPage() {
 
 <template>
     <div class="relative py-12">
-        <div v-if="props.multiActions.length > 0 && rows.some(row => row.selected)" class="absolute top-0 flex gap-x-2 w-full justify-end duration-150">
+        <div v-if="props.multiActions && props.multiActions.length > 0 && rows.some(row => row.selected)" class="absolute top-0 flex gap-x-2 w-full justify-end duration-150">
             <Button v-for="action in multiActions" :key="'multi-' + action.label" :class="action.class">
                 <ion-icon :name="action.icon"></ion-icon>
                 <span>{{ action.label }}</span>
@@ -128,22 +128,22 @@ function onNextPage() {
         <table class="w-full text-sm text-left text-gray-500 rounded-md">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
-                    <th class="pl-4"><ion-icon v-if="props.multiActions.length > 0" @click="onSelectAll()" :name="isAllSelected?'checkbox':'square-outline'" class="text-lg"></ion-icon></th>
-                    <th v-for="column in props.columns" :key="column.key" :class="{'text-right':column.position === 'right', 'text-center':column.position === 'center', 'pl-4':props.multiActions.length === 0 }" class="px-6 py-3">
+                    <th class="pl-4" v-if="props.multiActions?.length > 0"><ion-icon @click="onSelectAll()" :name="isAllSelected?'checkbox':'square-outline'" class="text-lg"></ion-icon></th>
+                    <th v-for="column in props.columns" :key="column.key" :class="{'text-right':column.position === 'right', 'text-center':column.position === 'center', 'pl-4':props.multiActions?.length === 0 }" class="px-6 py-3">
                         {{ column.label }}
                         <ion-icon v-if="column.sorting" @click="onSort(column.key)" class=" cursor-pointer" name="chevron-expand-outline"></ion-icon>
                     </th>
-                    <th v-if="props.actions.length > 0">Actions</th>
+                    <th v-if="props.actions?.length > 0">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="row in props.page?rows.slice((props.page.current-1)*props.page.perPage, props.page.current*props.page.perPage):rows" :key="row.id" class="bg-white border-b even:bg-gray-50 odd:bg-white">
-                    <td v-if="props.multiActions.length > 0" class="pl-4"><ion-icon @click="onSelect(row.id)" :name="row.selected ? 'checkbox' : 'square-outline'" class="text-lg"></ion-icon></td>
-                    <td v-for="column in props.columns" :key="column.key" :class="{'text-right':column.position === 'right', 'text-center':column.position === 'center',  'pl-4':props.multiActions.length === 0 }" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    <td v-if="props.multiActions && props.multiActions.length > 0" class="pl-4"><ion-icon @click="onSelect(row.id)" :name="row.selected ? 'checkbox' : 'square-outline'" class="text-lg"></ion-icon></td>
+                    <td v-for="column in props.columns" :key="column.key" :class="{'text-right':column.position === 'right', 'text-center':column.position === 'center',  'pl-4':props.multiActions?.length === 0 }" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {{ column.toDisplay? column.toDisplay(row[column.key]) : row[column.key] }}
                     </td>
 
-                    <td>
+                    <td v-if="props.actions">
                         <div class="flex justify-center space-x-2 ">
                             <div v-for="action in props.actions" :key="action.label" class="relative group transition delay-1000">
                                 <ion-icon  @click="action.action(row)" class="cursor-pointer hover:scale-105 duration-200 text-xl"  :class="action.class"  :name="action.icon"></ion-icon>
@@ -154,13 +154,13 @@ function onNextPage() {
                 </tr>
             </tbody>
         </table>
-        <div v-if="props.page" class="text-sm w-full flex justify-center items-center gap-x-3 mt-2">
-        <button @click="onPreviousPage()" :class="{'text-gray-300 cursor-not-allowed':props.page.current === 1}"><ion-icon name="chevron-back-outline"></ion-icon></button>
-        <button v-if="props.page.current > 1" @click="onPreviousPage()">{{ props.page.current-1 }}</button>
-        <button class="bg-primary text-white h-6 w-6 rounded-sm">{{ props.page.current }}</button>
-        <button v-if="props.page.current < props.page.total/props.page.perPage" @click="onNextPage()">{{ props.page.current+1 }}</button>
-        <button @click="onNextPage()" :class="{'text-gray-300 cursor-not-allowed':props.page.current*props.page.perPage >= props.page.total}"><ion-icon name="chevron-forward-outline" ></ion-icon></button>
-    </div>
+        <SimplePagination
+            v-if="props.page"
+            :page="props.page"
+            @emitNextPage="onNextPage"
+            @emitPreviousPage="onPreviousPage">
+        </SimplePagination>
+
     </div>
     
 </template>

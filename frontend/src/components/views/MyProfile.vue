@@ -1,5 +1,194 @@
 <script lang="ts" setup>
 import LinkCard from '@components/cards/LinkCard.vue';
+
+import DataTable from '@components/tables/DataTable.vue';
+import { reactive } from 'vue';
+
+const data = reactive({
+    columns: [
+        {
+            label: 'Nom',
+            key: 'lastname',
+            sorting: true
+        },
+        {
+            label: 'Prénom',
+            key: 'firstname',
+            sorting: true,
+            position: 'right',
+        },
+        {
+            label: 'Email',
+            key: 'email',
+            sorting: false
+        },
+       
+        {
+            label: "Date de Naissance",
+            key: "birthdate",
+            sorting: true,
+            toDisplay: (value: Date) => {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                return value.toLocaleDateString('fr-FR', options);
+            },
+            sortingType: 'date'
+        },
+
+        {
+            label: 'Statut',
+            key: 'status',
+            toDisplay: (value: boolean) => value ? 'Actif' : 'Inactif',
+            sortingType: 'boolean',
+            sorting: true
+        },
+
+        {
+            label: 'Type',
+            key: 'type',
+            sorting: false,
+            toDisplay: (value: string) => {
+                switch (value) {
+                    case 'admin':
+                        return 'Administrateur';
+                    case 'user':
+                        return 'Utilisateur';
+                    case 'ban':
+                        return 'Banni';
+                    default:
+                        return value;
+                }
+            }
+        }
+    ],
+    rows: [
+        {
+            id: 1,
+            lastname: 'Doe',
+            firstname: 'John',
+            email: 'johndoe@mail.fr',
+            birthdate: new Date('02/01/2002'),
+            status: true,
+            type: 'admin'
+        },
+        {
+            id: 2,
+            lastname: 'Doe',
+            firstname: 'Jane',
+            email: 'janedoe@mail.fr',
+            birthdate: new Date('04/01/2000'),
+            status: false,
+            type: 'user'
+        },
+        {
+            id: 3,
+            lastname: 'Prudhomme',
+            firstname: 'Aurélien',
+            email: 'aurelien23.p@gmail.com',
+            birthdate: new Date('02/23/2002'),
+            status: true,
+            type: 'ban'
+
+        },
+        {
+            id: 4,
+            lastname: 'Prudhomme',
+            firstname: 'Aurélien',
+            email: 'aurelien23.p@gmail.com',
+            birthdate: new Date('02/23/2002'),
+            status: true,
+            type: 'ban'
+
+        },
+        {
+            id: 5,
+            lastname: 'Prudhomme',
+            firstname: 'Aurélien',
+            email: 'aurelien23.p@gmail.com',
+            birthdate: new Date('02/23/2002'),
+            status: true,
+            type: 'ban'
+
+        },
+        {
+            id: 6,
+            lastname: 'Prudhomme',
+            firstname: 'Aurélien',
+            email: 'aurelien23.p@gmail.com',
+            birthdate: new Date('02/23/2002'),
+            status: true,
+            type: 'ban'
+
+        },
+        {
+            id: 7,
+            lastname: 'Prudhomme',
+            firstname: 'Aurélien',
+            email: 'aurelien23.p@gmail.com',
+            birthdate: new Date('02/23/2002'),
+            status: true,
+            type: 'ban'
+
+        },
+
+    ],
+    actions: 
+    [
+    
+    {
+        label: 'Modifier',
+        icon: 'pencil',
+        class: "text-blue-500",
+        action: (row: any) => {
+            console.log('Modifier', row);
+        }
+    },
+
+    {
+        label: 'Supprimer',
+        icon: 'trash',
+        class: "text-red-500",
+        action: (row: any) => {
+            console.log('Supprimer', row);
+        }
+    },
+    ],
+
+    multiActions: 
+    [
+    
+    {
+        label: 'Modifier',
+        icon: 'pencil',
+        action: (row: any) => {
+            console.log('Modifier', row);
+        }
+    },
+
+    {
+        label: 'Supprimer',
+        icon: 'trash',
+        class: "text-white bg-red-500",
+        action: (row: any) => {
+            console.log('Supprimer', row);
+        }
+    },
+    ],
+})
+
+const page = reactive({    
+        current: 1,
+        total: data.rows.length,
+        perPage: 5
+    })
+
+
+    function onNextPage() {
+        page.current++;
+    }
+
+    function onPreviousPage() {
+        page.current--;
+    }
 </script>
 
 <template>
@@ -19,6 +208,18 @@ import LinkCard from '@components/cards/LinkCard.vue';
                 <LinkCard name="Mes informations" shortDescription="Modifiez vos informations personnelles" image="/src/assets/images/profileMe.webp"></LinkCard>
 
                 <LinkCard name="Mes commandes" shortDescription="Consultez l'historique de vos commandes" image="/src/assets/images/commandesListe.webp"></LinkCard>
+            </div>
+            
+            <hr class="my-24">
+            
+            <div class="mx-12">
+                <DataTable
+                :columns="data.columns"
+                :rows="data.rows"
+                :page="page"
+                @emitNextPage="onNextPage"
+                @emitPreviousPage="onPreviousPage"
+                ></DataTable>
             </div>
         </main>
     </div>
