@@ -217,6 +217,8 @@ const page = reactive({
                 :columns="data.columns"
                 :rows="data.rows"
                 :page="page"
+                :actions="data.actions"
+                :multiActions="data.multiActions"
                 @emitNextPage="onNextPage"
                 @emitPreviousPage="onPreviousPage"
                 ></DataTable>
