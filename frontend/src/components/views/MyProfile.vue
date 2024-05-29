@@ -20,7 +20,7 @@ const data = reactive({
         {
             label: 'Email',
             key: 'email',
-            sorting: false,
+            sorting: true,
         },
        
         {
@@ -148,7 +148,7 @@ const data = reactive({
         icon: 'trash',
         class: "text-red-500",
         action: (row: any) => {
-            console.log('Supprimer', row);
+            console.log('Supprimer', row.id);
         }
     },
     ],
@@ -160,7 +160,7 @@ const data = reactive({
         label: 'Modifier',
         icon: 'pencil',
         action: (row: any) => {
-            console.log('Modifier', row);
+            console.log('Modifier', row.id);
         }
     },
 
@@ -169,10 +169,17 @@ const data = reactive({
         icon: 'trash',
         class: "text-white bg-red-500",
         action: (row: any) => {
-            console.log('Supprimer', row);
+            console.log('Supprimer', row.id);
         }
     },
     ],
+})
+
+data.rows = data.rows.map(row => {
+    return {
+        ...row,
+        selected: false
+    }
 })
 
 const page = reactive({    
@@ -226,6 +233,14 @@ const search = reactive([
         }
     }
 
+    function affectAction(action: any) {
+        const selectedRows = data.rows.filter(row => {
+            return row.selected});
+            selectedRows.forEach(row => {
+                action(row);
+            });
+    }
+
 </script>
 
 <template>
@@ -252,16 +267,15 @@ const search = reactive([
                 <button @click="addData()">Add data</button>
                 <DataTable
                 :columns="data.columns"
-                :originalRows="data.rows"
                 :rows="data.rows"
                 :search="search"
                 @updateSearch="onUpdatedSearch($event)"
                 @updateRows="data.rows = $event"
                 :page="page"
-                :actions="data.actions"
                 :multiActions="data.multiActions"
                 @emitNextPage="onNextPage"
                 @emitPreviousPage="onPreviousPage"
+                @multiAction="affectAction($event)"
                 ></DataTable>
             </div>
         </main>

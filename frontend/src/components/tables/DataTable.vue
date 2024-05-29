@@ -2,11 +2,12 @@
 import SimplePagination from '@components/paginations/SimplePagination.vue';
 import HeaderTable from '@components/tables/utils/HeaderTable.vue';
 import CellTable from '@components/tables/utils/CellTable.vue';
+import Button from '@components/ui/button/Button.vue';
 import { computed, reactive, ref } from 'vue';
 
 const isAllSelected = ref(false);
 
-const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch'])
+const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch', 'multiAction'])
 
 const props = defineProps<{
     columns: 
@@ -48,18 +49,16 @@ const props = defineProps<{
     }[]
 }>();
 
+
 const sorting = reactive({
     key: '',
     direction: ''
 });
 
 const rows = computed(
-    () => props.rows.map(row => {
-        return {
-            ...row,
-            selected: false
-        }
-    })
+    () => {
+    return props.rows
+}
 );
 
 
@@ -97,12 +96,16 @@ function sortDate(key: string) {
 
 function onSelectAll() {
     const allSelected = rows.value.every(row => row.selected);
-    rows.value.forEach(row => row.selected = !allSelected);
+    rows.value.forEach(selectedRows => selectedRows.selected = !allSelected);
     isAllSelected.value = !allSelected;
+
+    emit('updateRows', rows.value);
+
 }
 
 function onSelect(id: number) {
     const row = rows.value.find(row => row.id === id);
+    emit('updateRows', rows.value);
     if (row) {
         row.selected = !row.selected;
         isAllSelected.value = rows.value.every(row => row.selected);
@@ -129,13 +132,17 @@ function onSearchIn(event: any,key: string) {
         emit('updateSearch', {key, value: event.target.value});
 }
 
+function onExecMultiAction(callBack: (item: any) => void){
+    emit('multiAction', callBack)
+}
+
 
 </script>
 
 <template>
     <div class="relative py-12">
         <div v-if="props.multiActions && props.multiActions.length > 0 && rows.some(row => row.selected)" class="absolute top-0 flex gap-x-2 w-full justify-end duration-150">
-            <Button v-for="action in multiActions" :key="'multi-' + action.label" :class="action.class">
+            <Button v-for="action in multiActions" :key="'multi-' + action.label" :class="action.class" @click="onExecMultiAction(action.action)">
                 <ion-icon :name="action.icon"></ion-icon>
                 <span>{{ action.label }}</span>
             </Button>
