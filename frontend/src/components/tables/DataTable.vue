@@ -7,7 +7,7 @@ import { computed, reactive, ref } from 'vue';
 
 const isAllSelected = ref(false);
 
-const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch', 'multiAction'])
+const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch', 'multiAction', 'simpleAction']);
 
 const props = defineProps<{
     columns: 
@@ -136,6 +136,10 @@ function onExecMultiAction(callBack: (item: any) => void){
     emit('multiAction', callBack)
 }
 
+function onExecSimpleAction(callback: (item: any) => void, row: any){
+    emit('simpleAction', {callback, row})
+}
+
 
 </script>
 
@@ -180,7 +184,7 @@ function onExecMultiAction(callBack: (item: any) => void){
 
                     <CellTable v-if="props.actions">
                         <div class="flex justify-center space-x-2 ">
-                            <div v-for="action in props.actions" :key="action.label" class="relative group transition delay-1000">
+                            <div v-for="action in props.actions" :key="action.label" class="relative group transition delay-1000" @click="onExecSimpleAction(action.action, row)">
                                 <ion-icon  @click="action.action(row)" class="cursor-pointer hover:scale-105 duration-200 text-xl"  :class="action.class"  :name="action.icon"></ion-icon>
                                 <span class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none">{{ action.label }}</span>
                             </div>

@@ -28,7 +28,7 @@ const data = reactive({
             key: "birthdate",
             sorting: true,
             toDisplay: (value: Date) => {
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const options = { year: 'numeric', month: 'long', day: 'numeric' }
                 return value.toLocaleDateString('fr-FR', options);
             },
             sortingType: 'date'
@@ -139,7 +139,7 @@ const data = reactive({
         icon: 'pencil',
         class: "text-blue-500",
         action: (row: any) => {
-            console.log('Modifier', row);
+            return {...row,firstname: row.firstname + '_updated'}
         }
     },
 
@@ -148,7 +148,7 @@ const data = reactive({
         icon: 'trash',
         class: "text-red-500",
         action: (row: any) => {
-            console.log('Supprimer', row.id);
+            return {...row,firstname: row.firstname + '_deleted'}
         }
     },
     ],
@@ -160,7 +160,7 @@ const data = reactive({
         label: 'Modifier',
         icon: 'pencil',
         action: (row: any) => {
-            console.log('Modifier', row.id);
+            return {...row,lastname: row.lastname + '_updated'}
         }
     },
 
@@ -169,7 +169,7 @@ const data = reactive({
         icon: 'trash',
         class: "text-white bg-red-500",
         action: (row: any) => {
-            console.log('Supprimer', row.id);
+            return {...row,lastname: row.lastname + '_deleted'}
         }
     },
     ],
@@ -234,12 +234,27 @@ const search = reactive([
     }
 
     function affectAction(action: any) {
-        const selectedRows = data.rows.filter(row => {
-            return row.selected});
-            selectedRows.forEach(row => {
-                action(row);
+        // console.log(typeof action)
+        // console.log(action)
+        data.rows = data.rows.
+            map(row => {
+                if (row.selected)
+                return {...action(row), selected: false};
+            else
+                return row;
             });
     }
+
+    function affectSimpleAction(event: {callback: Function, row: any}) {
+        data.rows = data.rows.map(row => {
+            if (row.id === event.row.id) {
+                return event.callback(row);
+            } else {
+                return row;
+            }
+        });
+    }
+
 
 </script>
 
@@ -273,9 +288,11 @@ const search = reactive([
                 @updateRows="data.rows = $event"
                 :page="page"
                 :multiActions="data.multiActions"
+                :actions="data.actions"
                 @emitNextPage="onNextPage"
                 @emitPreviousPage="onPreviousPage"
                 @multiAction="affectAction($event)"
+                @simpleAction="affectSimpleAction($event)"
                 ></DataTable>
             </div>
         </main>
