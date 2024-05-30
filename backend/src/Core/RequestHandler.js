@@ -1,4 +1,4 @@
-import {HTTPException, InternalError} from "../Exceptions/HTTPException.js";
+import {HTTPException, InternalError, UnprocessableEntity} from "../Exceptions/HTTPException.js";
 
 export class RequestHandler{
     /**
@@ -37,6 +37,19 @@ export class RequestHandler{
             }
             let json = new InternalError().toJSON()
             this.res.status(json.status).json(json)
+        }
+    }
+
+    validate(validator, data) {
+        try {
+            validator.validate(data);
+        } catch (e) {
+            if (e instanceof ValidationException) {
+                const json = e.toJSON();
+                this.res.status(json.status).json(json);
+            } else {
+                throw e;
+            }
         }
     }
 }
