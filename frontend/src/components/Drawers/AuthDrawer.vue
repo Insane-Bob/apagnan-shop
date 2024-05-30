@@ -7,22 +7,18 @@
       ></ion-icon>
     </SheetTrigger>
     <SheetContent>
-      <SheetHeader class="gap-y-6">
-        <SheetTitle class="">Vous êtes déjà client ?</SheetTitle>
-        <SheetDescription> Accéder à votre espace et continuer votre shopping </SheetDescription>
-      </SheetHeader>
       <!-- Login Form -->
-      <LoginForm class="mt-6" />
-      <SheetFooter>
-        <SheetClose as-child> </SheetClose>
-      </SheetFooter>
+      <!-- <LoginForm /> -->
+      <!-- Register Form -->
+      <RegisterForm />
     </SheetContent>
   </Sheet>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
-import LoginForm from '@/components/Forms/LoginForm.vue'
+import LoginForm from '@/components/Forms/Auth/LoginForm.vue'
+import RegisterForm from '@/components/Forms/Auth/RegisterForm.vue'
 import Label from '@/components/ui/label/Label.vue'
 import {
   Sheet,

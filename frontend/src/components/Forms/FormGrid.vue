@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-12">
+  <div class="grid grid-cols-12 mt-6">
     <slot />
   </div>
 </template>

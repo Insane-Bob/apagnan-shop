@@ -15,13 +15,12 @@
     >
       <ion-icon
         :name="showPassword ? 'eye' : 'eye-off'"
-        class="h-4 w-4"
+        class="fixed h-4 w-4"
         aria-hidden="true"
       ></ion-icon>
       <span class="sr-only">{{ showPassword ? 'Hide password' : 'Show password' }}</span>
     </Button>
   </div>
-  <small class="text-xs text-primary-accent/60 hover:underline">Forgot your password?</small>
 </template>
 
 <script setup>

@@ -23,8 +23,8 @@
             name="cart-outline"
             class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
           ></ion-icon>
-          <!-- USER -->
-          <LoginDrawer class="header-icon" />
+          <!-- AUTHENTICATION -->
+          <AuthDrawer class="header-icon" />
           <!-- SEARCH BAR -->
           <ion-icon
             name="search-outline"
@@ -78,6 +78,7 @@ import FooterComponent from '@components/footer/FooterComponent.vue';
 import { onBeforeMount, onUnmounted, reactive, ref } from 'vue';
 import Navbar from '../ui/navigation/Navbar.vue'
 import LoginDrawer from '../Drawers/LoginDrawer.vue'
+import AuthDrawer from '../Drawers/AuthDrawer.vue'
 
 const loading = ref(true);
 
