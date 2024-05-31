@@ -14,6 +14,15 @@ export class RequestHandler{
     provideDependencies(){
         return
     }
+
+    can(action,...args){
+        if(!this.req.getUser()) return false
+        return action(this.req.getUser(),...args)
+    }
+    cannot(...args){
+        return !this.can(...args)
+    }
+
     async handleRequest(action, ...args){
         try{
             this.req.loadParams()

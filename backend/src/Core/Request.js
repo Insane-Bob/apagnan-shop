@@ -18,6 +18,9 @@ export class Request {
   setUser(user){
     this.user = user
   }
+  getUser(){
+    return this.user
+  }
   setToken(token){
     this.token = token
   }
