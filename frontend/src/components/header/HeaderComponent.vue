@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { onUnmounted, reactive } from 'vue';
+import { onUnmounted, reactive, ref } from 'vue';
+import MobileMenu from '@components/mobile/MobileMenu.vue';
 
 const search = reactive({
   query: '',
   show: false,
 });
 
+const menuMobileOpen = ref(false);
+
 const onOpenBurgerMenu = () => {
-  alert('open burger menu');
+  menuMobileOpen.value = !menuMobileOpen.value;
 };
 
 const onSearch = () => {
@@ -40,4 +43,5 @@ const onSearch = () => {
           </div>
         </nav>
       </header>
+      <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
 </template>
