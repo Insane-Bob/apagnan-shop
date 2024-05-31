@@ -1,9 +1,26 @@
 <script setup lang="ts">
 import Button from '@components/ui/button/Button.vue';
 import ProductCard from '@components/cards/ProductCard.vue';
-import { onUnmounted } from 'vue';
+import { onUnmounted, reactive, ref } from 'vue';
 
-let isOnTop = true;
+
+const search = reactive({
+  query: '',
+  show: false,
+});
+
+
+const onSearch = () => {
+  if(!search.show) {
+    search.show = true;
+    return;
+  }
+
+  alert(`searching for ${search.query}`);
+
+};
+
+let isOnTop = ref(true);
   
 function changeBrightness() {
   const mainShopPage = document.querySelector('.main-shop-page');
@@ -11,6 +28,7 @@ function changeBrightness() {
   const mainHeader = document.querySelector('.main-header');
   const HeaderIcons = document.querySelectorAll('.header-icon');
   const headerTitle = document.querySelector('.header-title');
+
   if (mainShopPage) {
     mainShopPage.classList.toggle('brightness-50');
   }
@@ -35,6 +53,7 @@ function changeBrightness() {
   if (headerTitle) {
     headerTitle.classList.toggle('opacity-0');
   }
+
 }
 
 const onOpenBurgerMenu = () => {
@@ -44,25 +63,17 @@ const onOpenBurgerMenu = () => {
 const scrollFunction = () => {
 
   if((document.body.getBoundingClientRect()).top < 0) {
-    if(isOnTop) {
-      isOnTop = false;
+    if(isOnTop.value) {
+      isOnTop.value = false;
       changeBrightness();
     }
   } else {
-    if(!isOnTop) {
-      isOnTop = true;
+    if(!isOnTop.value) {
+      isOnTop.value = true;
       changeBrightness();
     }
     
   }
-  // const mainHeader = document.querySelector('.main-header');
-  // if (mainHeader) {
-  //   if (document.body.scrollTop > 80 || document.documentElement.scrollTop > 80) {
-  //     changeBrightness();
-  //   } else {
-  //     changeBrightness();
-  //   }
-  // }
 };
 
 window.addEventListener('scroll', scrollFunction);
@@ -83,12 +94,15 @@ onUnmounted(() => {
         <RouterLink to="/">
           <p class="header-title tracking-widest uppercase text-black font-bold text-xl md:text-4xl absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 opacity-0">Apagnain</p>
         </RouterLink>
-        <nav class="flex justy-center gap-x-6">
+        <nav class="flex justy-center items-center gap-x-6">
           <ion-icon name="cart-outline" class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"></ion-icon>
-          <RouterLink to="/profile" >
+          <RouterLink to="/profile" class="flex items-center">
             <ion-icon name="person-outline" class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"></ion-icon>
           </RouterLink>
-          <ion-icon name="search-outline" class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"></ion-icon>
+          <form @submit.prevent="onSearch()" class="flex justify-center items-center -ml-6 gap-x-2">
+            <input v-model="search.query" name="search" type="text" class="rounded-sm duration-500 px-2 py-1 max-w-44 text-current" :class="{'w-0 border-0 bg-transparent': !search.show, 'w-[30vw] border ml-2': search.show}" placeholder="Search..." />
+            <button class="flex justify-center items-center"><ion-icon name="search-outline" class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 "></ion-icon></button>
+          </form>
           <div @click="onOpenBurgerMenu()" class="header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white ">
             <ion-icon name="menu-outline" class="text-2xl group-hover:scale-105 duration-100"></ion-icon>
             <p class="group-hover:scale-105 hidden md:block duration-100">Menu</p>
