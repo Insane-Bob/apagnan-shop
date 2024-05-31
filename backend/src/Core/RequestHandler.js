@@ -1,4 +1,4 @@
-import {HTTPException, InternalError} from "../Exceptions/HTTPException.js";
+import {HTTPException, InternalError, UnauthorizedException} from "../Exceptions/HTTPException.js";
 
 export class RequestHandler{
     /**
@@ -16,11 +16,9 @@ export class RequestHandler{
     }
 
     can(action,...args){
-        if(!this.req.getUser()) return false
-        return action(this.req.getUser(),...args)
-    }
-    cannot(...args){
-        return !this.can(...args)
+        UnauthorizedException.abortIf(!this.req.getUser())
+        let res = action(this.req.getUser(),...args)
+        UnauthorizedException.abortIf(!res)
     }
 
     async handleRequest(action, ...args){
