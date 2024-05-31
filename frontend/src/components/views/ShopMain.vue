@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import Button from '@components/ui/button/Button.vue';
 import ProductCard from '@components/cards/ProductCard.vue';
+import MobileMenu from '@components/mobile/MobileMenu.vue';
 import { onUnmounted, reactive, ref } from 'vue';
-
 
 const search = reactive({
   query: '',
   show: false,
 });
+
+const menuMobileOpen = ref(false);
+
+const onOpenBurgerMenu = () => {
+  menuMobileOpen.value = !menuMobileOpen.value;
+
+};
 
 
 const onSearch = () => {
@@ -56,9 +63,6 @@ function changeBrightness() {
 
 }
 
-const onOpenBurgerMenu = () => {
-  alert('open burger menu');
-};
 
 const scrollFunction = () => {
 
@@ -86,6 +90,7 @@ onUnmounted(() => {
 </script>
 
 <template >
+  <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
   <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
     <div class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20 ">
       <img src="/src/assets/images/main-gnome.webp" alt="Main Gnome" class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10" />
