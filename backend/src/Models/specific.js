@@ -26,3 +26,5 @@ function model(sequelize, DataTypes) {
   );
   return Specific;
 }
+
+export default model;
