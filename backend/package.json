@@ -5,12 +5,14 @@
   "scripts": {
     "key:generate": "node scripts/generateRSA256Keys.js",
     "test:server": "jest",
-    "babel-node": "babel-node --presets='@babel/preset-env'",
+    "babel-node": "babel-node --inspect=0.0.0.0 --presets='@babel/preset-env'",
     "dev": "nodemon --exec npm run babel-node -- src/server.js"
   },
+
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
+
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "6.6",

@@ -1,29 +1,32 @@
 import { Controller } from '../../Core/Controller.js'
 import {Database} from "../../Models/index.js";
-import {CustomerPolicy} from "../Policies/CustomerPolicy.js";
+import crypto from "crypto";
+export class UserController extends Controller {
 
-export class CustomerController extends Controller {
-    show(){
-        this.can(CustomerPolicy.show, this.customer)
+    async index(){
+        const users = await Database.getInstance().models.User.findAll()
         this.res.json({
-            customer: this.customer
+            users
+        })
+    }
+    async show(){
+        this.res.json({
+            user: this.user_resource
         })
     }
     store(){
-        this.can(CustomerPolicy.store)
+        console.log(this.req.body)
         this.res.json({
             message: 'Store'
         })
     }
     update(){
-        this.can(CustomerPolicy.update, this.customer)
         this.res.json({
             message: 'Update'
         })
     }
 
     delete(){
-        this.can(CustomerPolicy.delete, this.customer)
         this.res.json({
             message: 'Delete'
         })
