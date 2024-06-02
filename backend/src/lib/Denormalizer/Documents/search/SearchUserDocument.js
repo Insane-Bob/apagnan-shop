@@ -1,7 +1,8 @@
-import { Document } from '../core/Document.js'
-import {CustomerDocument} from "./CustomerDocument.js";
+import {Document} from "../Document.js";
+import {SearchCustomerDocument} from "./SearchCustomerDocument.js";
 
-export class UserDocument extends Document{
+
+export class SearchUserDocument extends Document{
     static structure = {
         id: null,
         firstName: null,
@@ -17,6 +18,6 @@ export class UserDocument extends Document{
         this.lastName = this.modelInstance.lastName
         this.email = this.modelInstance.email
         this.password = this.modelInstance.password
-        this.customer = CustomerDocument.loadFromInstance(await this.modelInstance.getCustomer())
+        this.customer = SearchCustomerDocument.loadFromInstance(await this.modelInstance.getCustomer())
     }
 }

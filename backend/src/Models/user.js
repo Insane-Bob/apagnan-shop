@@ -1,24 +1,24 @@
 'use strict';
-import {Model} from "sequelize";
-import {UserDocument} from "../lib/ModelDenormalizer/documents/UserDocument.js";
-import {Denormalizer} from "../lib/ModelDenormalizer/core/Denormalizer.js";
+
+import {DenormalizableModel} from "../lib/Denormalizer/DenormalizableModel.js";
+import {DenormalizerTaskBuilder} from "../lib/Denormalizer/DenormalizerTaskBuilder.js";
+import {SearchUserDocument} from "../lib/Denormalizer/Documents/search/SearchUserDocument.js";
 
 function model(sequelize, DataTypes) {
-  class User extends Model {
-    static associate(models) {
-       models.User.hasOne(models.Customer, {foreignKey: 'userId'})
-       models.User.hasMany(models.Token, {foreignKey: 'userId'})
-    }
 
-    static denormalizers = [
-      (databaseInstance)=>
-          new Denormalizer()
-          .from(this)
-          .to(UserDocument)
-          .in(databaseInstance.mongoDB.collection('users'))
-          .listen()
-    ]
+  class User extends DenormalizableModel {
+    static associate(models) {
+      models.User.hasOne(models.Customer, {foreignKey: 'userId'})
+      models.User.hasMany(models.Token, {foreignKey: 'userId'})
+    }
   }
+
+  User.registerDenormalizerTask(
+      DenormalizerTaskBuilder
+          .create()
+          .in('search_user')
+          .to(SearchUserDocument)
+  )
 
   User.init({
     firstName: DataTypes.STRING,

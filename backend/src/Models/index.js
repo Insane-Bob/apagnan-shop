@@ -5,6 +5,7 @@ import Sequelize from 'sequelize';
 import process from 'process';
 import {mockDatabase} from "../tests/databaseUtils.js";
 import {MongoClient} from "mongodb";
+import {DenormalizerModelListener} from "../lib/Denormalizer/DenormalizerModelListener.js";
 
 
 async function initDatabase(){
@@ -57,14 +58,12 @@ export class Database{
         this.sequelize = sequelize
         this.mongoClient = new MongoClient(process.env.MONGO_URI);
         this.mongoDB = this.mongoClient.db(process.env.MONGO_DB);
-        this.initializeNormalizers()
+        this.initializeDenormalizerListeners()
     }
 
-    initializeNormalizers(){
+    initializeDenormalizerListeners(){
         for(let modelName in this.models){
-            if(!this.models[modelName]?.denormalizers?.length) continue;
-            if(!Array.isArray(this.models[modelName].denormalizers)) continue;
-            this.models[modelName].denormalizers.forEach(d => d(this))
+            this.models[modelName]._denormalizerListener = new DenormalizerModelListener(this.models[modelName])
         }
     }
 
@@ -79,8 +78,10 @@ export class Database{
 
     static async initialize(){
         if(this.initialized) throw new Error("Database is already initialized")
+        console.time("Database initialized")
         await initDatabase()
-        console.log("Database initialized")
+        this.getInstance()
+        console.timeEnd("Database initialized")
         this.initialized = true
         return true
     }
