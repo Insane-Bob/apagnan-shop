@@ -3,29 +3,53 @@ import SmallProductCard from '@components/cards/SmallProductCard.vue';
 import Slider from '@components/ui/slider/Slider.vue';
 import { reactive } from 'vue';
 
-const selectedColor = reactive([]);
-const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'black', 'white', 'grey', 'brown'];
+interface ProductFilter {
+  keyword: string;
+  price: {
+    min: number;
+    max: number;
+  };
+  collection: string[];
+  color: string[];
+}
 
-const price = reactive({
-  min:0, 
-  max: 1000
+const filters: ProductFilter = reactive({
+  keyword: '',
+  price: {
+    min: 0,
+    max: 1000
+  },
+  collection: [],
+  color: []
 });
 
+const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'black', 'white', 'grey', 'brown'];
+
+const collections = ['nain\'straunote 2024', 'nain\'ble', 'nain\'gare', 'nain\'capable', 'nain\'vulnérable', 'nain\'vain', 'nain\'vivable', 'nain\'vendable', 'nain\'vaincu', 'nain\'vainqueur']
+
 const addColor = (color: string) => {
-  if (selectedColor.includes(color)) {
-    selectedColor.splice(selectedColor.indexOf(color), 1);
+  if (filters.color.includes(color)) {
+    filters.color.splice(filters.color.indexOf(color), 1);
   } else {
-    selectedColor.push(color);
+    filters.color.push(color);
+  }
+};
+
+const addCollection = (collection: string) => {
+  if (filters.collection.includes(collection)) {
+    filters.collection.splice(filters.collection.indexOf(collection), 1);
+  } else {
+    filters.collection.push(collection);
   }
 };
 
 const updatePrice = (values: number[] | undefined) => {
-  price.min = values? values[0]: 0
-  price.max = values? values[1]: 1000
-    if(price.min > price.max) {
-      let temp = price.min;
-      price.min = price.max;
-      price.max = temp;
+  filters.price.min = values? values[0]: 0
+  filters.price.max = values? values[1]: 1000
+    if(filters.price.min > filters.price.max) {
+      let temp = filters.price.min;
+      filters.price.min = filters.price.max;
+      filters.price.max = temp;
     }
 };
 
@@ -51,23 +75,24 @@ const updatePrice = (values: number[] | undefined) => {
 
         <div class="flex flex-col gap-2">
           <h2 class="text-lg font-bold">Prix</h2>
-          <Slider :modelValue="[price.min, price.max]" :onUpdate:modelValue="(values) => updatePrice(values)" :min="0" :max="1000" :step="1" :defaultValue="[0, 1000]" />
+          <Slider :modelValue="[filters.price.min, filters.price.max]" :onUpdate:modelValue="(values) => updatePrice(values)" :min="0" :max="1000" :step="1" :defaultValue="[0, 1000]" />
           <div class="flex justify-between">
-            <p>{{ price.min }}€</p>
-            <p>{{ price.max }}€</p>
+            <p>{{ filters.price.min }}€</p>
+            <p>{{ filters.price.max }}€</p>
             </div>
         </div>
 
         <hr class="border-primary border-t-2 my-2" />
 
         <div class="flex flex-col gap-2">
-          <h2 class="text-lg font-bold">Collection</h2>
-          <select class="w-full">
-            <option value="nain'ble">Nain'ble</option>
-            <option value="nain'cool">Nain'cool</option>
-            <option value="nain'génieux">Nain'génieux</option>
-            <option value="nain'génial">Nain'génial</option>
-          </select>
+          <h2 class="text-lg font-bold">Collection(s)</h2>
+          <div class="flex flex-col gap-y-1">
+            <div @click="addCollection(collection)" class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer" v-for="(collection, index) in collections" :key="index">
+              <ion-icon name="checkbox" v-if="filters.collection.includes(collection)"></ion-icon>
+              <ion-icon name="square-outline" v-else></ion-icon>
+              <label :for="collection" class="cursor-pointer">{{ collection }}</label>
+            </div>
+          </div>
         </div>
 
         <hr class="border-primary border-t-2 my-2" />
@@ -75,7 +100,7 @@ const updatePrice = (values: number[] | undefined) => {
         <div class="flex flex-col gap-2">
           <h2 class="text-lg font-bold">Couleur(s)</h2>
           <div class="flex flex-wrap gap-3">
-            <div v-for="color in colors" :key="color" @click="addColor(color)" :class="`w-6 h-6 rounded-full  cursor-pointer ${color === 'white' ? 'border border-black' : ''} ${selectedColor.includes(color) ? 'outline outline-2 outline-offset-2 outline-primary' : ''}`" :style="{ backgroundColor: color }"></div>
+            <div v-for="color in colors" :key="color" @click="addColor(color)" :class="`w-6 h-6 rounded-full  cursor-pointer ${color === 'white' ? 'border border-black' : ''} ${filters.color.includes(color) ? 'outline outline-2 outline-offset-2 outline-primary' : ''}`" :style="{ backgroundColor: color }"></div>
           </div>
         </div>
       </div>
@@ -85,3 +110,9 @@ const updatePrice = (values: number[] | undefined) => {
     <SmallProductCard v-for="index in 9" :key="index" name="Nain'Garde" collection="Nain'ble" :price="1900 + (11 * index)" image="/src/assets/images/green-gnome.png" />
   </div>
 </template>
+
+<style scoped>
+[name="checkbox"] {
+  color: hsl(var(--primary));
+}
+</style>
