@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SmallProductCard from '@components/cards/SmallProductCard.vue';
 import Slider from '@components/ui/slider/Slider.vue';
-import { reactive, ref } from 'vue';
+import { onBeforeMount, onUpdated, reactive, ref } from 'vue';
 
 interface ProductFilter {
   keyword: string;
@@ -22,8 +22,10 @@ const filters: ProductFilter = reactive({
   collection: [],
   color: []
 });
+;
 
 const extendCollection = ref(false);
+const loading = ref(true);
 
 const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'black', 'white', 'grey', 'brown'];
 
@@ -54,6 +56,24 @@ const updatePrice = (values: number[] | undefined) => {
       filters.price.max = temp;
     }
 };
+
+// ########################
+// ####### HOOKS ##########
+// ########################
+
+
+// Call the function when the filters object is updated
+onUpdated(() => {
+  console.log(filters);
+})
+
+
+// Simulate a loading time of 2 seconds
+onBeforeMount(() => {
+  setTimeout(() => {
+    loading.value = false;
+  }, 2000);
+});
 
 </script>
 
@@ -113,7 +133,7 @@ const updatePrice = (values: number[] | undefined) => {
 
     </div>
 
-    <SmallProductCard v-for="index in 9" :key="index" name="Nain'Garde" collection="Nain'ble" :price="1900 + (11 * index)" image="/src/assets/images/green-gnome.png" />
+    <SmallProductCard :loading="loading" v-for="index in 9" :key="index" name="Nain'Garde" collection="Nain'ble" :price="1900 + (11 * index)" image="/src/assets/images/green-gnome.png" />
   </div>
 </template>
 

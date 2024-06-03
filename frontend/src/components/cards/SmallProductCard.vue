@@ -1,18 +1,20 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { Button } from '@components/ui/button';
+import SmallProductCardSkeleton from './SmallProductCardSkeleton.vue';
 
 const props = defineProps({
   name: String,
   collection: String,
   price: Number,
   image: String,
+  loading: Boolean,
 });
 
 </script>
 
 <template>
-  <article class="flex-col w-[272px]">
+  <article v-if="!loading" class="flex-col w-[272px]">
         <div class="w-[272px] h-[350px] bg-primary">
             <img :src="props.image" alt="product image" class="w-full h-full object-cover">
         </div>
@@ -24,5 +26,6 @@ const props = defineProps({
           </div>
 
         </div>
-      </article>
+    </article>
+    <SmallProductCardSkeleton v-else />
 </template>
