@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SmallProductCard from '@components/cards/SmallProductCard.vue';
 import Slider from '@components/ui/slider/Slider.vue';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
 interface ProductFilter {
   keyword: string;
@@ -22,6 +22,8 @@ const filters: ProductFilter = reactive({
   collection: [],
   color: []
 });
+
+const extendCollection = ref(false);
 
 const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'black', 'white', 'grey', 'brown'];
 
@@ -87,10 +89,14 @@ const updatePrice = (values: number[] | undefined) => {
         <div class="flex flex-col gap-2">
           <h2 class="text-lg font-bold">Collection(s)</h2>
           <div class="flex flex-col gap-y-1">
-            <div @click="addCollection(collection)" class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer" v-for="(collection, index) in collections" :key="index">
+            <div @click="addCollection(collection)" class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer" v-for="(collection, index) in extendCollection?collections:collections.slice(0,4)" :key="index">
               <ion-icon name="checkbox" v-if="filters.collection.includes(collection)"></ion-icon>
               <ion-icon name="square-outline" v-else></ion-icon>
               <label :for="collection" class="cursor-pointer">{{ collection }}</label>
+            </div>
+            <div @click="extendCollection = !extendCollection" class="flex items-center gap-x-2 cursor-pointer">
+              <ion-icon :name="extendCollection?'chevron-up-outline':'chevron-down-outline'"></ion-icon>
+              <p>{{ extendCollection?'Réduire':'Voir plus' }}</p>
             </div>
           </div>
         </div>
