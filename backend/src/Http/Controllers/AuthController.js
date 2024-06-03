@@ -7,6 +7,8 @@ import { UserServices } from "../../Services/UserServices.js";
 import { TokenServices } from "../../Services/TokenServices.js";
 import { z } from "zod";
 
+
+// @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
   static schema = z.object({
     email: z.string().email(),

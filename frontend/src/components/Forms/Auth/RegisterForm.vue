@@ -1,69 +1,123 @@
 <template>
   <form @submit.prevent="submit">
     <FormHeader>
-      <h1 class="text-md text-primary-accent font-medium">Vous n'êtes pas encore client ?</h1>
-      <small class="text-sm text-gray-500"> Inscrivez-vous pour accéder à votre compte </small>
+      <h1 class="text-md text-primary-accent font-medium">Rejoignez notre communauté !</h1>
+      <small class="text-sm text-gray-500">
+        Inscrivez-vous pour accéder à votre compte et découvrir un monde miniature rempli de
+        surprises.
+      </small>
     </FormHeader>
     <FormGrid>
       <div class="flex flex-col col-span-full gap-4">
         <div class="grid grid-cols-2 gap-4">
           <!-- LASTNAME -->
-          <div class="flex flex-col">
-            <Label for="lastname">Nom</Label>
-            <Input
-              id="lastname"
-              v-model="lastname"
-              type="text"
-              placeholder="Nom"
-              :error="lastnameError"
-            />
-          </div>
+          <FormInput class="col-span-1" required>
+            <template #label>Nom</template>
+            <template #input="inputProps">
+              <Input type="text" v-model="lastname" v-bind="inputProps" />
+            </template>
+          </FormInput>
 
           <!-- FIRSTNAME -->
-          <div class="flex flex-col">
-            <Label for="firstname">Prénom</Label>
-            <Input
-              id="firstname"
-              v-model="firstname"
-              type="text"
-              placeholder="Prénom"
-              :error="firstnameError"
-            />
-          </div>
+          <FormInput class="col-span-1" required>
+            <template #label>Prénom</template>
+            <template #input="inputProps">
+              <Input type="text" v-model="firstname" v-bind="inputProps" />
+            </template>
+          </FormInput>
         </div>
 
         <!-- EMAIL -->
-        <Label for="email">Email</Label>
-        <Input id="email" v-model="email" type="email" placeholder="Email" :error="emailError" />
+        <FormInput class="row-span-1 col-start-1 col-span-full" required>
+          <template #label>Adresse mail</template>
+          <template #input="inputProps">
+            <Input type="email" v-model="email" v-bind="inputProps" />
+          </template>
+        </FormInput>
 
         <!-- PASSWORD -->
-        <Label for="password">Password</Label>
-        <PasswordInput id="password" v-model="password" :error="passwordError" />
+        <FormInput class="row-span-1 col-start-1 col-span-full" required>
+          <template #label>Mot de passe</template>
+          <template #input="inputProps">
+            <input :type="passwordManager.inputType" v-model="password" v-bind="inputProps" />
+          </template>
+          <template #after-input>
+            <div class="flex items-center">
+              <ion-icon
+                :name="passwordManager.isShown ? 'eye-outline' : 'eye-off-outline'"
+                class="mr-2 h-4 w-4 cursor-pointer"
+                @click="passwordManager.toggle()"
+              ></ion-icon>
+            </div>
+          </template>
+        </FormInput>
 
+        <!-- PASSWORD VALIDATION -->
+        <div class="flex flex-wrap">
+          <small
+            v-for="rule in passwordRules"
+            :key="rule.message"
+            :class="rule.isValid ? 'text-green-600' : 'text-red-600'"
+            class="text-sm w-1/2 flex items-center"
+          >
+            <ion-icon
+              :name="rule.isValid ? 'checkmark-outline' : 'close-outline'"
+              class="mr-1"
+            ></ion-icon>
+            {{ rule.message }}
+          </small>
+        </div>
+        
         <!-- CONFIRM PASSWORD -->
-        <Label for="confirmPassword">Confirm Password</Label>
-        <PasswordInput
-          id="confirmPassword"
-          v-model="confirmPassword"
-          :error="confirmPasswordError"
-        />
+        <FormInput class="row-span-1 col-start-1 col-span-full" required>
+          <template #label>Confirmation du mot de passe</template>
+          <template #input="inputProps">
+            <input
+              :type="passwordManager.inputType"
+              v-model="confirmPassword"
+              v-bind="inputProps"
+            />
+          </template>
+          <template #after-input>
+            <ion-icon
+              :name="passwordManager.isShown ? 'eye-outline' : 'eye-off-outline'"
+              class="mr-2 h-4 w-4 cursor-pointer"
+              @click="passwordManager.toggle()"
+            ></ion-icon>
+          </template>
+        </FormInput>
+
         <!-- SUBMIT -->
-        <Button type="submit">Se connecter</Button>
+        <Button type="submit">Rejoindre la communauté</Button>
       </div>
     </FormGrid>
   </form>
+
+  <Separator class="mt-6 mb-6" />
+
+  <!-- Login -->
+  <div class="flex flex-col gap-4 mt-4">
+    <h2 class="text-sm text-primary-accent font-medium">Déjà membre de la communauté ?</h2>
+    <small class="text-sm text-gray-500">
+      Connectez-vous pour retrouver tous vos amis nains et leurs aventures passionnantes.
+    </small>
+    <div class="flex justify-center w-full">
+      <Button @click="$emit('switch-to-login')" variant="outline" class="w-full">
+        Se connecter
+      </Button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import axios from 'axios'
-import { z } from 'zod'
 import FormHeader from '@/components/Forms/FormHeader.vue'
 import FormGrid from '@/components/Forms/FormGrid.vue'
-import PasswordInput from '@/components/Inputs/PasswordInput.vue'
 import Button from '@/components/ui/button/Button.vue'
-import Label from '@/components/ui/label/Label.vue'
 import Input from '@/components/ui/input/Input.vue'
+import FormInput from '@/components/Inputs/FormInput.vue'
+import Separator from '@/components/ui/separator/Separator.vue'
 
 // Reactive variables
 const lastname = ref('')
@@ -73,90 +127,53 @@ const password = ref('')
 const confirmPassword = ref('')
 const errors = ref([])
 
-// Computed properties for individual field errors
-const lastnameError = computed(
-  () => errors.value.find((error) => error.path.includes('lastname'))?.message
-)
-const firstnameError = computed(
-  () => errors.value.find((error) => error.path.includes('firstname'))?.message
-)
-const emailError = computed(
-  () => errors.value.find((error) => error.path.includes('email'))?.message
-)
-const passwordError = computed(
-  () => errors.value.find((error) => error.path.includes('password'))?.message
-)
-const confirmPasswordError = computed(
-  () => errors.value.find((error) => error.path.includes('confirmPassword'))?.message
-)
+// Password validation logic
+const passwordRules = computed(() => [
+  {
+    message: 'Minimum 8 caractères',
+    isValid: password.value.length >= 8
+  },
+  {
+    message: 'Une lettre majuscule',
+    isValid: /[A-Z]/.test(password.value)
+  },
+  {
+    message: 'Un chiffre',
+    isValid: /\d/.test(password.value)
+  },
+  {
+    message: 'Un caractère spécial',
+    isValid: /[!@#$%^&*(),.?":{}|<>]/.test(password.value)
+  }
+])
 
-// Functions to filter errors for each field
-const lastnameErrors = computed(() =>
-  errors.value.filter((error) => error.path.includes('lastname')).map((error) => error.message)
-)
-const firstnameErrors = computed(() =>
-  errors.value.filter((error) => error.path.includes('firstname')).map((error) => error.message)
-)
-const emailErrors = computed(() =>
-  errors.value.filter((error) => error.path.includes('email')).map((error) => error.message)
-)
-const passwordErrors = computed(() =>
-  errors.value.filter((error) => error.path.includes('password')).map((error) => error.message)
-)
-const confirmPasswordErrors = computed(() =>
-  errors.value
-    .filter((error) => error.path.includes('confirmPassword'))
-    .map((error) => error.message)
-)
-
-// Zod for form validation
-const registerSchema = z
-  .object({
-    lastname: z.string().min(2, { message: 'Le nom doit contenir au moins 2 caractères' }),
-    firstname: z.string().min(2, { message: 'Le prénom doit contenir au moins 2 caractères' }),
-    email: z.string().email({ message: 'Email invalide' }),
-    password: z
-      .string()
-      .min(8, { message: 'Le mot de passe doit contenir 8 charactères min' })
-      .regex(/[a-z]/, {
-        message: 'Le mot de passe doit contenir au moins une lettre minuscule'
-      })
-      .regex(/[A-Z]/, {
-        message: 'Le mot de passe doit contenir au moins une lettre majuscule'
-      })
-      .regex(/[0-9]/, { message: 'Le mot de passe doit contenir au moins 1 chiffre' }),
-    confirmPassword: z.string().refine((data) => data === password.value, {
-      message: 'Les mots de passe ne correspondent pas',
-      path: ['confirmPassword']
-    })
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Les mots de passe ne correspondent pas',
-    path: ['confirmPassword']
-  })
+// Password manager for showing/hiding password
+const passwordManager = reactive({
+  inputType: 'password',
+  isShown: false,
+  toggle() {
+    this.isShown = !this.isShown
+    this.inputType = this.isShown ? 'text' : 'password'
+  }
+})
 
 // Submit function
+// @TODO : Add custom validation with the Validator
 async function submit() {
   try {
-    // Validating data with zod
-    const result = registerSchema.safeParse({
+    const data = {
       lastname: lastname.value,
       firstname: firstname.value,
       email: email.value,
       password: password.value,
       confirmPassword: confirmPassword.value
-    })
-    if (!result.success) {
-      errors.value = result.error.errors
-      return
     }
-    errors.value = []
 
     const response = await axios.post('/api/auth/register', {
-      lastname: lastname.value,
-      firstname: firstname.value,
-      email: email.value,
-      password: password.value
+      lastname: data.lastname,
+      firstname: data.firstname,
+      email: data.email,
+      password: data.password
     })
     console.log('Registration successful', response.data)
 
