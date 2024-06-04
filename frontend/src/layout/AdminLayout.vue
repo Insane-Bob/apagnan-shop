@@ -3,8 +3,6 @@ import Button from '@/components/ui/button/Button.vue';
 import { adminRoutes } from '@/routes/admin';
 import { computed } from 'vue';
 
-console.log(adminRoutes)
-
 const routes = computed(() => {
 return adminRoutes[0].children.map((route) => {
     return {
