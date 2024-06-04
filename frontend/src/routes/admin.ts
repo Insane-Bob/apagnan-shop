@@ -7,13 +7,42 @@ export const adminRoutes = [
     component: AdminLayout,
     redirect: '/admin/dashboard',
     children: [
-      { path: 'dashboard', component: WorkInProgress, name: 'Dashboard' },
-      { path: 'products', component: WorkInProgress, name: 'Produits' },
-      { path: 'collections', component: WorkInProgress, name: 'Collections' },
-      { path: 'orders', component: WorkInProgress, name: 'Commandes' },
-      { path: 'customers', component: WorkInProgress, name: 'Clients' },
-      { path: 'users', component: WorkInProgress, name: 'Utilisateurs' },
-      { path: 'settings', component: WorkInProgress, name: 'Paramètres' }
+      {
+        path: 'dashboard',
+        component: WorkInProgress,
+        name: 'Dashboard',
+        meta: { label: 'Dashboard', icon: 'home' }
+      },
+      {
+        path: 'products',
+        component: WorkInProgress,
+        name: 'Produits',
+        meta: { label: 'Produits', icon: 'cube' }
+      },
+      {
+        path: 'collections',
+        component: WorkInProgress,
+        name: 'Collections',
+        meta: { label: 'Collections', icon: 'albums' }
+      },
+      {
+        path: 'orders',
+        component: WorkInProgress,
+        name: 'Commandes',
+        meta: { label: 'Commandes', icon: 'cart' }
+      },
+      {
+        path: 'customers',
+        component: WorkInProgress,
+        name: 'Clients',
+        meta: { label: 'Clients', icon: 'people' }
+      },
+      {
+        path: 'users',
+        component: WorkInProgress,
+        name: 'Utilisateurs',
+        meta: { label: 'Utilisateurs', icon: 'people-circle' }
+      }
     ]
   }
 ]
