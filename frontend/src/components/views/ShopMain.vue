@@ -130,7 +130,9 @@ onUnmounted(() => {
 
       <div class="flex flex-col justify-center items-center gap-y-3">
         <p class="text-white text-lg md:text-[20px] uppercase">Nain’TERstellar 2024</p>
-        <Button variant="secondary" class="uppercase">Découvrir la collection</Button>
+        <RouterLink to="/products">
+          <Button variant="secondary" class="uppercase">Découvrir la collection</Button>
+        </RouterLink>
       </div>
     </div>
 
