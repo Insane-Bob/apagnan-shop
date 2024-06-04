@@ -24,6 +24,15 @@ import Button from '@/components/ui/button/Button.vue';
                             </span>
                         </router-link>
                     </li>
+
+                    <li class="w-full">
+                        <router-link to="/admin/collections">
+                            <span class="flex items-center gap-x-2 px-3 py-2 rounded-sm duration-200 hover:bg-primary-accent" :class="{'bg-primary-accent':$route.path === '/admin/collections'}">
+                                <ion-icon name="albums"></ion-icon>
+                                Collections
+                            </span>
+                        </router-link>
+                    </li>
                     <li class="w-full">
                         <router-link to="/admin/orders">
                             <span class="flex items-center gap-x-2 px-3 py-2 rounded-sm duration-200 hover:bg-primary-accent" :class="{'bg-primary-accent':$route.path === '/admin/orders'}">
@@ -40,16 +49,33 @@ import Button from '@/components/ui/button/Button.vue';
                             </span>
                         </router-link>
                     </li>
+
+                    <li class="w-full">
+                        <router-link to="/admin/users">
+                            <span class="flex items-center gap-x-2 px-3 py-2 rounded-sm duration-200 hover:bg-primary-accent" :class="{'bg-primary-accent':$route.path === '/admin/users'}">
+                                <ion-icon name="people-circle"></ion-icon>
+                                Users
+                            </span>
+                        </router-link>
+                    </li>
                 </ul>
             </nav>
 
             <div class="flex flex-col gap-y-3 px-3 pb-8">
                 <RouterLink to="/admin/settings">
-                    <Button variant="secondary" class="w-full">Settings</Button>
+                    <Button variant="secondary" class="w-full">Paramètre</Button>
+                </RouterLink>
+
+                <RouterLink to="/home">
+                    <Button variant="secondary" class="w-full flex items-center gap-x-2">
+
+                        <ion-icon name="log-in"></ion-icon>
+                        Revenir au site
+                    </Button>
                 </RouterLink>
 
                 <RouterLink to="/logout">
-                    <Button class="w-full">Sign out</Button>
+                    <Button class="w-full">Deconnexion</Button>
                 </RouterLink>
             </div>
         </aside>
