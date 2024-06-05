@@ -21,7 +21,7 @@ return adminRoutes[0].children.map((route) => {
             <h1 class="uppercase tracking-widest text-center text-2xl pt-8">APAGNAIN</h1>
             <nav class="px-4 pt-8 w-full grow">
                 <ul class="flex flex-col justify-center items-start gap-y-4 w-full">
-                    <li v-for="(route, index) in routes" :key="index">
+                    <li v-for="(route, index) in routes" :key="index" class="w-full">
                         <router-link :to="route.path">
                             <span class="flex items-center gap-x-2 hover:bg-primary-accent rounded-sm px-3 py-2" :class="{'bg-primary-accent':$route.path === route.path}">
                                 <ion-icon :name="route.icon"></ion-icon>
