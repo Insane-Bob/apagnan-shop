@@ -156,11 +156,11 @@ function onExecSimpleAction(callback: (item: any) => void, row: any){
             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
                     <HeaderTable class="pl-4" v-if="props.multiActions?.length > 0">
-                        <ion-icon @click="onSelectAll()" :name="isAllSelected?'checkbox':'square-outline'" class="text-lg"></ion-icon>
+                        <ion-icon @click="onSelectAll()" :name="isAllSelected?'checkbox':'square-outline'" class="text-lg cursor-pointer"></ion-icon>
                     </HeaderTable>
 
                     <HeaderTable v-for="column in props.columns" :key="column.key" :columns="column" :multiActionLength="props.multiActions?.length" :position="column.position">
-                        {{ column.label }}
+                        <slot :name="column.key">{{ column.label }}</slot>
                         <ion-icon v-if="column.sorting" @click="onSort(column.key)" class=" cursor-pointer" name="chevron-expand-outline"></ion-icon>
                     </HeaderTable>
 
@@ -177,9 +177,10 @@ function onExecSimpleAction(callback: (item: any) => void, row: any){
             </thead>
             <tbody>
                 <tr v-for="row in props.page?rows.slice((props.page.current-1)*props.page.perPage, props.page.current*props.page.perPage):rows" :key="row.id" class="bg-white border-b even:bg-gray-50 odd:bg-white">
-                    <CellTable v-if="props.multiActions && props.multiActions.length > 0" class="pl-4"><ion-icon @click="onSelect(row.id)" :name="row.selected ? 'checkbox' : 'square-outline'" class="text-lg"></ion-icon></CellTable>
+                    <CellTable v-if="props.multiActions && props.multiActions.length > 0" class="pl-4"><ion-icon @click="onSelect(row.id)" :name="row.selected ? 'checkbox' : 'square-outline'" class="text-lg  cursor-pointer"></ion-icon></CellTable>
                     <CellTable v-for="column in props.columns" :key="column.key" :multiActionLength="props.multiActions?.length" :columns="column">
-                        {{ column.toDisplay? column.toDisplay(row[column.key]) : row[column.key] }}
+                        <slot :name="column.key" :row="row">{{ column.toDisplay? column.toDisplay(row[column.key]) : row[column.key] }}</slot>
+                        
                     </CellTable>
 
                     <CellTable v-if="props.actions">
