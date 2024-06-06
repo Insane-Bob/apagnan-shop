@@ -32,7 +32,9 @@ const onSearch = () => {
         </RouterLink>
         <nav class="flex justy-center gap-x-6 items-center">
           <ion-icon name="cart-outline" class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100  hidden md:block"></ion-icon>
-          <ion-icon name="person-outline" class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100  hidden md:block"></ion-icon>
+          <RouterLink to="/profile">
+            <ion-icon name="person-outline" class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100  hidden md:block"></ion-icon>
+          </RouterLink>
           <form @submit.prevent="onSearch()" class="flex justify-center items-center -ml-6 gap-2 ">
             <input v-model="search.query" type="text" class="rounded-sm duration-300 px-2 py-1 max-w-44 " :class="{'w-0 border-0': !search.show, 'w-[30vw] border ml-2': search.show}" placeholder="Search..." />
             <button class="flex items-center"><ion-icon name="search-outline" class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 "></ion-icon></button>
