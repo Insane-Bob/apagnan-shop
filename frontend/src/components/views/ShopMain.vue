@@ -3,7 +3,6 @@ import Button from '@components/ui/button/Button.vue';
 import ProductCard from '@components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue';
 import MobileMenu from '@components/mobile/MobileMenu.vue';
-import { onUnmounted, reactive, ref } from 'vue';
 import FooterComponent from '@components/footer/FooterComponent.vue';
 import { onBeforeMount, onUnmounted, reactive, ref } from 'vue';
 
