@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderComponent from '@components/header/HeaderComponent.vue';
+import FooterComponent from '@components/footer/FooterComponent.vue';
 import Button from '@components/ui/button/Button.vue';
 </script>
 
@@ -12,7 +13,7 @@ import Button from '@components/ui/button/Button.vue';
                 >
                 
             </div>
-        <main class="bg-white relative h-screen z-20">
+        <main class="bg-white relative mb-20 z-20">
         
             <div class="text-center  flex flex-col items-center justify-center  gap-y-3 md:gap-y-5 pt-8">
                 <div class="flex w-full px-12 items-center gap-x-4">
@@ -27,5 +28,5 @@ import Button from '@components/ui/button/Button.vue';
         </main>
     </div>
 
-    {# Ajouter le FOOTER #}
+    <FooterComponent></FooterComponent>
 </template>

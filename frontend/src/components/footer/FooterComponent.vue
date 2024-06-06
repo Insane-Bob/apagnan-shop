@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <footer class="bg-black w-full h-80 text-white flex justify-center items-center">
+  <footer class="bg-black w-full h-fit pb-4 md:pb-0 md:h-80 text-white flex justify-center items-center">
     <div class="flex flex-col sm:flex-row sm:gap-10 md:gap-20 pt-7">
       <div>
         <img src="../../assets/new_logo.svg" alt="Apagnain Logo" />
