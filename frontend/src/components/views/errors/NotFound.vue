@@ -2,6 +2,10 @@
 import HeaderComponent from '@components/header/HeaderComponent.vue';
 import FooterComponent from '@components/footer/FooterComponent.vue';
 import Button from '@components/ui/button/Button.vue';
+import { useToast } from '@/components/ui/toast/use-toast'
+
+const { toast } = useToast()
+
 </script>
 
 <template>
@@ -22,6 +26,9 @@ import Button from '@components/ui/button/Button.vue';
                     <hr class="w-4/5 border-t-2 sm:border-t-4 border-primary"/>
                 </div>
                 <h2 class="text-2xl">Page non trouvée</h2>
+                <Button @click="() => {
+                    toast({title: 'Revenir en lieu sûr'})
+                }">Revenir en lieu sûr</Button>
                 <RouterLink to="/" ><Button> Revenir en lieu sûr</Button></RouterLink>
             </div>
 
