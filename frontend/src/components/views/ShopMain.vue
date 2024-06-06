@@ -3,6 +3,8 @@ import Button from '@components/ui/button/Button.vue';
 import ProductCard from '@components/cards/ProductCard.vue';
 import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue';
 import MobileMenu from '@components/mobile/MobileMenu.vue';
+import { onUnmounted, reactive, ref } from 'vue';
+import FooterComponent from '@components/footer/FooterComponent.vue';
 import { onBeforeMount, onUnmounted, reactive, ref } from 'vue';
 
 const loading = ref(true);
@@ -136,7 +138,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="!loading" id="shop" class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20">
+    <div v-if="!loading" id="shop" class="w-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1  lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20">
 
       <ProductCard name="Nain'Garde" shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus" :price="1978" image="/src/assets/images/green-gnome.png" />
 
@@ -157,6 +159,7 @@ onUnmounted(() => {
      <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
     </div>
   </div>
+  <FooterComponent />
 </template>
 
 <style scoped>
