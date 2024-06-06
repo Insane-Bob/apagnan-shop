@@ -7,16 +7,19 @@ import './assets/index.css'
 
 // IMPORT Routes
 import { backofficeRoutes } from './routes/backoffice'
+import { publicRoutes } from './routes/public'
+import { adminRoutes } from './routes/admin'
 import { errorsRoutes } from './routes/errors'
 
 import ShopMain from '@components/views/ShopMain.vue'
 
 const app = createApp(App)
 
-const routes = 
-[{ path: '/', component: ShopMain }]
-.concat(backofficeRoutes)
-.concat(errorsRoutes) // HAVE TO BE IN THE END
+const routes = [{ path: '/home', component: ShopMain }]
+  .concat(backofficeRoutes)
+  .concat(publicRoutes)
+  .concat(adminRoutes)
+  .concat(errorsRoutes) // HAVE TO BE IN THE END
 
 const router = createRouter({
   history: createWebHistory(),

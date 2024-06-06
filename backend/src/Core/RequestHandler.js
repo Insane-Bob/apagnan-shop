@@ -1,19 +1,19 @@
-import {HTTPException, InternalError} from "../Exceptions/HTTPException.js";
+import { HTTPException, InternalError } from "../Exceptions/HTTPException.js";
 
-export class RequestHandler{
-    /**
-     *
-     * @param {?Request} req
-     * @param res
-     */
-    constructor(req = null, res = null) {
-        this.req = req
-        this.res = res
-    }
+export class RequestHandler {
+  /**
+   *
+   * @param {?Request} req
+   * @param res
+   */
+  constructor(req = null, res = null) {
+    this.req = req;
+    this.res = res;
+  }
 
-    provideDependencies(){
-        return
-    }
+  provideDependencies() {
+    return;
+  }
 
     can(action,...args){
         if(!this.req.getUser()) return false
@@ -39,4 +39,10 @@ export class RequestHandler{
             this.res.status(json.status).json(json)
         }
     }
+  }
+
+  validate(validator, data) {
+    const validator = new ValidatorClass();
+    validator.validate(this.req.body);
+  }
 }
