@@ -1,6 +1,5 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
-import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   class?: HTMLAttributes['class']
@@ -8,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div :class="cn('bg-card text-card-foreground', props.class)">
+  <nav aria-label="breadcrumb" :class="props.class">
     <slot />
-  </div>
+  </nav>
 </template>
