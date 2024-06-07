@@ -12,6 +12,14 @@ module.exports = {
         },
         name: Sequelize.STRING,
         content: Sequelize.TEXT,
+        createdAt: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        },
+        updatedAt: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        },
         productId: Sequelize.INTEGER,
       })
       .then(() => {

@@ -17,6 +17,8 @@ function model(sequelize, DataTypes) {
       },
       name: DataTypes.STRING,
       content: DataTypes.STRING,
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
       productId: DataTypes.INTEGER,
     },
     {
