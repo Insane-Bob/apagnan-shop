@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { Validator } from './Validator.js'
 import { USER_ROLES } from '../Models/user.js'
 
-const updateUserSchema = z.object({
+const schema = z.object({
     firstName: z
         .string()
         .min(2, { message: 'First name is required' })
@@ -31,6 +31,6 @@ const updateUserSchema = z.object({
 
 export class UserUpdateValidator extends Validator {
     constructor() {
-        super(updateUserSchema)
+        super(schema)
     }
 }
