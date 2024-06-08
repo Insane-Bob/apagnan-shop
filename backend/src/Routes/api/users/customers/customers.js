@@ -9,10 +9,6 @@ import {CustomerController} from "../../../../Http/Controllers/CustomerControlle
  */
 export function customersRoutes (router) {
     router.group("/:user_resource/customer", function() {
-        this.get('/', CustomerController, 'show')
-        this.post('/', CustomerController, 'store')
-        this.put('/', CustomerController, 'update')
-        this.delete('/', CustomerController, 'destroy')
         ordersRoutes(this)
     }).provide(CustomerProvider)
 }
