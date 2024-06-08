@@ -7,7 +7,6 @@ export class ValidationException extends UnprocessableEntity {
     }
 
     toJSON() {
-        console.log(this.errors)
         return {
             ...super.toJSON(),
             errors: this.errors,
