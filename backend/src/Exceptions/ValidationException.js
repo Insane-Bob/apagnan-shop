@@ -1,15 +1,16 @@
-import { UnprocessableEntity } from "./HTTPException";
+import { UnprocessableEntity } from './HTTPException.js'
 
-export class VAlidationException extends UnprocessableEntity {
-  constructor(errors) {
-    super(errors);
-  }
+export class ValidationException extends UnprocessableEntity {
+    constructor(errors) {
+        super('Validation Error')
+        this.errors = errors
+    }
 
-  toJSON() {
-    return {
-      status: this.status,
-      message: this.message,
-      errors: this.errors,
-    };
-  }
+    toJSON() {
+        console.log(this.errors)
+        return {
+            ...super.toJSON(),
+            errors: this.errors,
+        }
+    }
 }
