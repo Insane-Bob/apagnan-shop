@@ -1,31 +1,29 @@
 export class HTTPException extends Error {
-  constructor(message, status) {
-    super(message)
-    this.status = status
-  }
+    constructor(message, status) {
+        super(message)
+        this.status = status
+    }
 
-  static abort(message= undefined){
-    throw new this(message)
-  }
+    static abort(message = undefined) {
+        throw new this(message)
+    }
 
-  static abortIf(condition, message= undefined){
-    if(condition)
-      this.abort(message)
-  }
+    static abortIf(condition, message = undefined) {
+        if (condition) this.abort(message)
+    }
 
-    toJSON(){
+    toJSON() {
         return {
             message: this.message,
-            status: this.status
+            status: this.status,
         }
-
     }
 }
 
 export class NotFoundException extends HTTPException {
-  constructor(message = 'Not Found') {
-    super(message, 404)
-  }
+    constructor(message = 'Not Found') {
+        super(message, 404)
+    }
 }
 
 export class UnauthorizedException extends HTTPException {
