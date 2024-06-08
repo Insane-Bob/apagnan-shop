@@ -1,6 +1,6 @@
-import {Document} from "../core/Document.js";
+import {Document} from "../Document.js";
 
-export class BillingAddressesDocument extends Document {
+export class SearchBillingAddressesDocument extends Document {
     static structure = {
         id:null,
         street:null,

@@ -1,11 +1,30 @@
 'use strict';
-import {Model} from "sequelize";
+
+import {DenormalizerTaskBuilder} from "../lib/Denormalizer/DenormalizerTaskBuilder.js";
+import {SearchUserDocument} from "../lib/Denormalizer/Documents/search/SearchUserDocument.js";
+import {DenormalizableModel} from "../lib/Denormalizer/DenormalizableModel.js";
 function model(sequelize, DataTypes) {
-    class BillingAddress extends Model {
+    class BillingAddress extends DenormalizableModel {
         static associate(models) {
             models.BillingAddress.belongsTo(models.Customer, {foreignKey: 'customerId'})
         }
+
+        async getUser(){
+            let customer = await this.getCustomer()
+            return await customer.getUser()
+        }
     }
+
+    BillingAddress.registerDenormalizerTask(
+        DenormalizerTaskBuilder
+            .create()
+            .in('search_user')
+            .fetchFrom(async (billingAddressInstance)=>{
+                return await billingAddressInstance.getUser()
+            })
+            .to(SearchUserDocument)
+    )
+
     BillingAddress.init({
         customerId: DataTypes.INTEGER,
         street : DataTypes.STRING,
