@@ -1,6 +1,9 @@
 import { UserProvider } from '../../../Http/Providers/UserProvider.js'
 import { UserController } from '../../../Http/Controllers/UserController.js'
-import { customersRoutes } from './customers/customers.js'
+import { CustomerProvider } from '../../../Http/Providers/CustomerProvider.js'
+import { ordersRoutes } from './orders.js'
+import { billingAddressRoutes } from './billingAddress.js'
+import { basketRoute } from './basket.js'
 
 /**
  * Auth routes
@@ -13,7 +16,13 @@ export default function (router) {
             this.get('/:user_resource', UserController, 'show')
             this.put('/:user_resource', UserController, 'update')
             this.delete('/:user_resource', UserController, 'delete')
-            customersRoutes(this)
+
+            basketRoute(this)
+
+            this.group('/:user_resource', function () {
+                billingAddressRoutes(this)
+                ordersRoutes(this)
+            }).provide(CustomerProvider)
         })
         .provide(UserProvider)
 }
