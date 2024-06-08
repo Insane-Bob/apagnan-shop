@@ -1,34 +1,42 @@
 import { Controller } from '../../Core/Controller.js'
-import {Database} from "../../Models/index.js";
-import crypto from "crypto";
+import { Database } from '../../Models/index.js'
+import { UserPolicy } from '../Policies/UserPolicy.js'
+import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
+import { UserServices } from '../../Services/UserServices.js'
 export class UserController extends Controller {
-
-    async index(){
+    user_resource /** @provide by UserProvider */
+    async index() {
+        this.can(UserPolicy.index)
         const users = await Database.getInstance().models.User.findAll()
         this.res.json({
-            users
+            users,
         })
     }
-    async show(){
-        this.res.json({
-            user: this.user_resource
-        })
+    async show() {
+        this.can(UserPolicy.show, this.user_resource)
+        this.res.json(this.user_resource)
     }
-    store(){
-        console.log(this.req.body)
-        this.res.json({
-            message: 'Store'
+    async update() {
+        this.can(UserPolicy.update, this.user_resource)
+        const payload = this.validate(UserUpdateValidator)
+
+        if (payload.password)
+            payload.password = UserServices.hashPassword(payload.password)
+
+        await this.user_resource.update({
+            ...payload,
         })
-    }
-    update(){
-        this.res.json({
-            message: 'Update'
-        })
+
+        this.res.json(this.user_resource)
     }
 
-    delete(){
+    async delete() {
+        this.can(UserPolicy.delete, this.user_resource)
+        await this.user_resource.destroy()
+
         this.res.json({
-            message: 'Delete'
+            message: 'User deleted',
+            success: true,
         })
     }
 }
