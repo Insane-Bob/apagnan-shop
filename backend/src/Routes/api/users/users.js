@@ -1,18 +1,28 @@
-import {UserProvider} from "../../../Http/Providers/UserProvider.js";
-import {UserController} from "../../../Http/Controllers/UserController.js";
-import {customersRoutes} from "./customers/customers.js";
+import { UserProvider } from '../../../Http/Providers/UserProvider.js'
+import { UserController } from '../../../Http/Controllers/UserController.js'
+import { CustomerProvider } from '../../../Http/Providers/CustomerProvider.js'
+import { ordersRoutes } from './orders.js'
+import { billingAddressRoutes } from './billingAddress.js'
+import { basketRoute } from './basket.js'
 
 /**
  * Auth routes
  * @param {Router} router
  */
 export default function (router) {
-    router.group("/api/users", function() {
-        this.get('/', UserController, 'index')
-        this.get('/:user_resource', UserController, 'show')
-        this.post('/', UserController, 'store')
-        this.put('/:user_resource', UserController, 'update')
-        this.delete('/:user_resource', UserController, 'destroy')
-        customersRoutes(this)
-    }).provide(UserProvider)
+    router
+        .group('/api/users', function () {
+            this.get('/', UserController, 'index')
+            this.get('/:user_resource', UserController, 'show')
+            this.put('/:user_resource', UserController, 'update')
+            this.delete('/:user_resource', UserController, 'delete')
+
+            basketRoute(this)
+
+            this.group('/:user_resource', function () {
+                billingAddressRoutes(this)
+                ordersRoutes(this)
+            }).provide(CustomerProvider)
+        })
+        .provide(UserProvider)
 }
