@@ -4,7 +4,7 @@ import { Model } from 'sequelize'
 
 export class UserBasket extends Model {
     static associate(models) {
-        models.UserBasket.hasOne(models.User, { foreignKey: 'userId' })
+        models.UserBasket.belongsTo(models.User, { foreignKey: 'userId' })
         //models.UserBasket.hasOne(models.Product, { foreignKey: 'productId' })
     }
 
