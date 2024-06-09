@@ -1,5 +1,7 @@
 "use strict";
 import { Model } from "sequelize";
+import slugify from "slugify";
+
 function model(sequelize, DataTypes) {
   class Product extends Model {
     static associate(models) {
@@ -22,6 +24,7 @@ function model(sequelize, DataTypes) {
         autoIncrement: true,
       },
       name: DataTypes.STRING,
+      slug: DataTypes.STRING,
       description: DataTypes.STRING,
       price: DataTypes.DECIMAL,
       published: DataTypes.BOOLEAN,
@@ -34,6 +37,14 @@ function model(sequelize, DataTypes) {
     {
       sequelize,
       modelName: "Product",
+      hooks: {
+        beforeCreate: (product) => {
+          product.slug = slugify(product.name, { lower: true });
+        },
+        beforeUpdate: (product) => {
+          product.slug = slugify(product.name, { lower: true });
+        },
+      },
     }
   );
   return Product;
