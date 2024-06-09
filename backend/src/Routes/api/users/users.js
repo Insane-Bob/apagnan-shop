@@ -17,9 +17,8 @@ export default function (router) {
             this.put('/:user_resource', UserController, 'update')
             this.delete('/:user_resource', UserController, 'delete')
 
-            basketRoute(this)
-
             this.group('/:user_resource', function () {
+                basketRoute(this)
                 billingAddressRoutes(this)
                 ordersRoutes(this)
             }).provide(CustomerProvider)
