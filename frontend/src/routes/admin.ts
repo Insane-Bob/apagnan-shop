@@ -1,4 +1,5 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
+import AdminDashboard from '@components/views/admin/AdminDashboard.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
 export const adminRoutes = [
@@ -9,7 +10,7 @@ export const adminRoutes = [
     children: [
       {
         path: 'dashboard',
-        component: WorkInProgress,
+        component: AdminDashboard,
         name: 'Dashboard',
         meta: { label: 'Dashboard', icon: 'home' }
       },
