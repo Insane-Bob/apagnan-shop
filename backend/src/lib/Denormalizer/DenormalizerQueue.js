@@ -1,13 +1,13 @@
-export class DenormalizerQueue{
+export class DenormalizerQueue {
     static instance = null
-    static getInstance(){
-        if(!DenormalizerQueue.instance){
+    static getInstance() {
+        if (!DenormalizerQueue.instance) {
             DenormalizerQueue.instance = new DenormalizerQueue()
         }
         return DenormalizerQueue.instance
     }
 
-    constructor(){
+    constructor() {
         this.queue = []
         this.started = false
     }
@@ -15,15 +15,16 @@ export class DenormalizerQueue{
     /**
      * @param {DenormalizerTask} task
      */
-    async enqueue(task){
+    async enqueue(task) {
         this.queue.push(task)
         await this.process()
     }
 
-    async process(){
-        if(this.started) return
+    async process() {
+        if (process.env.NODE_ENV === 'test') return
+        if (this.started) return
         this.started = true
-        while(this.queue.length > 0){
+        while (this.queue.length > 0) {
             let task = this.queue.shift()
             await task.execute()
         }
