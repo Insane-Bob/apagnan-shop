@@ -60,7 +60,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import axios from 'axios'
 import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormHeader from '@/components/Forms/FormHeader.vue'
 import Button from '@/components/ui/button/Button.vue'
@@ -96,25 +95,25 @@ const passwordManager = reactive({
 
 // Submit function
 // @TODO : Add custom validation with the Vadilator
-async function submit() {
-  try {
-    const data = {
-      email: email.value,
-      password: password.value
-    }
+// async function submit() {
+//   try {
+//     const data = {
+//       email: email.value,
+//       password: password.value
+//     }
 
-    const response = await axios.post('/api/auth/login', {
-      email: email.value,
-      password: password.value
-    })
-    console.log('Login successful', response.data)
+//     const response = await axios.post('/api/auth/login', {
+//       email: email.value,
+//       password: password.value
+//     })
+//     console.log('Login successful', response.data)
 
-    // Store tokens in local storage
-    localStorage.setItem('accessToken', response.data.accessToken)
-    localStorage.setItem('refreshToken', response.data.refreshToken)
-  } catch (error) {
-    console.error('Login failed', error)
-    errors.value = [{ path: ['api'], message: error.response.data.message }]
-  }
-}
+//     // Store tokens in local storage
+//     localStorage.setItem('accessToken', response.data.accessToken)
+//     localStorage.setItem('refreshToken', response.data.refreshToken)
+//   } catch (error) {
+//     console.error('Login failed', error)
+//     errors.value = [{ path: ['api'], message: error.response.data.message }]
+//   }
+// }
 </script>

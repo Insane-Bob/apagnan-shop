@@ -226,7 +226,7 @@ onUnmounted(() => {
 })
 </script>
 
-<template >
+<!-- <template >
   <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
   <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
     <div class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20 ">
@@ -268,7 +268,7 @@ onUnmounted(() => {
     </div>
   </div>
   <FooterComponent />
-</template>
+</template> -->
 
 <style scoped>
 .main-shop-page {

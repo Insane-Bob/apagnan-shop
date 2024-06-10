@@ -111,7 +111,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import axios from 'axios'
 import FormHeader from '@/components/Forms/FormHeader.vue'
 import FormGrid from '@/components/Forms/FormGrid.vue'
 import Button from '@/components/ui/button/Button.vue'
@@ -159,28 +158,28 @@ const passwordManager = reactive({
 
 // Submit function
 // @TODO : Add custom validation with the Validator
-async function submit() {
-  try {
-    const data = {
-      lastname: lastname.value,
-      firstname: firstname.value,
-      email: email.value,
-      password: password.value,
-      confirmPassword: confirmPassword.value
-    }
+// async function submit() {
+//   try {
+//     const data = {
+//       lastname: lastname.value,
+//       firstname: firstname.value,
+//       email: email.value,
+//       password: password.value,
+//       confirmPassword: confirmPassword.value
+//     }
 
-    const response = await axios.post('/api/auth/register', {
-      lastname: data.lastname,
-      firstname: data.firstname,
-      email: data.email,
-      password: data.password
-    })
-    console.log('Registration successful', response.data)
+//     const response = await axios.post('/api/auth/register', {
+//       lastname: data.lastname,
+//       firstname: data.firstname,
+//       email: data.email,
+//       password: data.password
+//     })
+//     console.log('Registration successful', response.data)
 
-    // Redirect or update application state
-  } catch (error) {
-    console.error('Registration failed', error)
-    errors.value = [{ path: ['api'], message: error.response.data.message }]
-  }
-}
+//     // Redirect or update application state
+//   } catch (error) {
+//     console.error('Registration failed', error)
+//     errors.value = [{ path: ['api'], message: error.response.data.message }]
+//   }
+// }
 </script>
