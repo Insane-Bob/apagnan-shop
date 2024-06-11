@@ -1,19 +1,17 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { Button } from '@components/ui/button';
-import ProductCardSkeleton from './ProductCardSkeleton.vue';
+import { Button } from '../ui/button';
 
 const props = defineProps({
   name: String,
   shortDescription: String,
   price: Number,
   image: String,
-  loading: Boolean,
 });
 </script>
 
 <template>
-  <article v-if="!loading" class="flex-col w-[366px]">
+  <article class="flex-col w-[366px]">
         <div class="w-[366px] h-[471px] bg-primary">
             <img :src="props.image" alt="product image" class="w-full h-full object-cover">
         </div>
@@ -29,5 +27,4 @@ const props = defineProps({
         </div>
         <Button class="w-full">Acheter</Button>
       </article>
-      <ProductCardSkeleton v-else />
 </template>
