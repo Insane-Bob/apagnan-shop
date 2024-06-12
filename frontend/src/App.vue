@@ -7,5 +7,4 @@ import Toaster from '@/components/ui/toast/Toaster.vue'
   <Toaster />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
