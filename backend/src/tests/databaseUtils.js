@@ -60,6 +60,11 @@ export function mockDatabase(databaseClass) {
         models: {
             User: getModelMock(),
             Token: getModelMock(),
+            Customer: getModelMock(),
+            Product: getModelMock(),
+            Order: getModelMock(),
+            OrderItem: getModelMock(),
+            UserBasket: getModelMock(),
         },
     }))
 }
