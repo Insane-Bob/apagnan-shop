@@ -12,8 +12,9 @@ export class AccessLinkServices {
         return date
     }
     static createAccessLink(userId, validAt, expireAt, maxUseCount) {
-        const hash = crypto.createHash('sha256')
-        hash.update(`${userId}-${validAt}-${expireAt}`)
+        const salt = crypto.randomBytes(16).toString('hex')
+        const hash = crypto.createHash('sha512')
+        hash.update(`${userId}-${validAt}-${expireAt}-${salt}`)
         const identifier = hash.digest('hex')
 
         return Database.getInstance().models.AccessLink.create({
