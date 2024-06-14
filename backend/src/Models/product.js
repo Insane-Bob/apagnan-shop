@@ -18,7 +18,7 @@ function model(sequelize, DataTypes) {
                 foreignKey: 'modelId',
                 constraints: false,
                 scope: {
-                    modelType: 'product',
+                    modelName: 'product',
                 },
                 as: 'images',
             })

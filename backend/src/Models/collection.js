@@ -9,9 +9,12 @@ function model(sequelize, DataTypes) {
                 foreignKey: 'modelId',
                 constraints: false,
                 scope: {
-                    modelType: 'collection',
+                    modelName: 'collection',
                 },
                 as: 'image',
+            })
+            Collection.hasMany(models.Product, {
+                foreignKey: 'collectionId',
             })
         }
     }

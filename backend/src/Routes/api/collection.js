@@ -1,7 +1,7 @@
 import { CollectionController } from '../../Http/Controllers/CollectionController.js'
 import { CollectionProvider } from '../../Http/Providers/CollectionProvider.js'
-import { productRoute } from './product.js'
-import upload from '../../Http/Middlewares/multer.js'
+import { ProductProvider } from '../../Http/Providers/ProductProvider.js'
+import { productRoutes } from './product.js'
 
 /**
  * Auth routes
@@ -13,24 +13,16 @@ export default function (router) {
         .group('/api/collections', function () {
             this.get('/', CollectionController, 'getCollections')
             this.get('/:collection', CollectionController, 'getCollection')
-            this.post(
-                '/',
-                upload.single('collectionImage'),
-                CollectionController,
-                'createCollection',
-            )
-            this.put(
-                '/:collection',
-                upload.single('collectionImage'),
-                CollectionController,
-                'updateCollection',
-            )
+            this.post('/', CollectionController, 'createCollection')
+            this.put('/:collection', CollectionController, 'updateCollection')
             this.delete(
                 '/:collection',
                 CollectionController,
                 'deleteCollection',
             )
-            productRoute(this)
+            this.group('/:collection', function () {
+                productRoutes(this)
+            }).provide(ProductProvider)
         })
         .provide(CollectionProvider)
 }
