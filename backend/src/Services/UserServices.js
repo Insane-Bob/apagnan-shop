@@ -40,4 +40,15 @@ export class UserServices {
             },
         })
     }
+
+    /**
+     * Notifications
+     */
+    static sendConnectionAttemptNotification(user, accessLinkIdentifier) {
+        console.log(`Sending connection attempt notification to ${user.email}`)
+    }
+
+    static sendResetPasswordNotification(user, accessLinkIdentifier) {
+        console.log(`Sending reset password notification to ${user.email}`)
+    }
 }
