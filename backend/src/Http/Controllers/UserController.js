@@ -3,6 +3,10 @@ import { Database } from '../../Models/index.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { UserServices } from '../../Services/UserServices.js'
+import { ResetPasswordValidator } from '../../Validator/ResetPasswordValidator.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
@@ -36,6 +40,61 @@ export class UserController extends Controller {
 
         this.res.json({
             message: 'User deleted',
+            success: true,
+        })
+    }
+
+    async resetPassword() {
+        const payload = this.validate(ResetPasswordValidator)
+        const user = this.user_resource
+        this.can(UserPolicy.update, user)
+
+        await user.update({
+            password: UserServices.hashPassword(payload.password),
+        })
+
+        await Database.getInstance().models.UserConnectionAttempt.update(
+            {
+                success: true,
+            },
+            {
+                where: {
+                    userId: user.id,
+                },
+            },
+        )
+
+        UserServices.sendResetPasswordNotification(user)
+
+        this.res.json({
+            message: 'Password reset',
+            success: true,
+        })
+    }
+
+    async askResetPassword() {
+        const { email } = this.validate(AskResetPasswordValidator)
+        const user = await UserServices.retrieveUserByEmail(email)
+
+        if (user) {
+            const accessLink = await AccessLinkServices.createAccessLink(
+                user.id,
+                AccessLinkServices.getDate(),
+                AccessLinkServices.getDate(20),
+                1,
+            )
+
+            await UserServices.sendResetPasswordNotification(
+                user,
+                accessLink.identifier,
+            )
+        } else {
+            await new Promise((resolve) => setTimeout(resolve, 10)) // simulate a slow response
+        }
+
+        this.res.json({
+            message:
+                'Reset password link sent if the email exists, check your inbox',
             success: true,
         })
     }

@@ -1,8 +1,7 @@
 import { z } from 'zod'
 import { Validator } from './Validator.js'
 
-const loginSchema = z.object({
-    username: z.string().min(1, { message: 'Username is required' }),
+const schema = z.object({
     password: z
         .string()
         .min(12, { message: 'Password must be at least 12 characters long' })
@@ -15,10 +14,11 @@ const loginSchema = z.object({
         .regex(/[0-9]/, {
             message: 'Password must contain at least one number',
         }),
+    passwordConfirmation: z.string(),
 })
 
-export class LoginValidator extends Validator {
+export class ResetPasswordValidator extends Validator {
     constructor() {
-        super(loginSchema)
+        super(schema)
     }
 }
