@@ -1,5 +1,4 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
-import AdminDashboard from '@components/views/admin/AdminDashboard.vue'
 import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
