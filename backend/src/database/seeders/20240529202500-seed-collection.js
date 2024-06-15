@@ -10,24 +10,18 @@ module.exports = {
                 name: 'Collection 1',
                 description: 'Notre première collection à découvrir',
                 published: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 2,
                 name: 'Collection 2',
                 description: 'En voilà une belle collection',
                 published: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 3,
                 name: 'Collection 3',
                 description: 'Ceci est une collection trop cool',
                 published: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
         ]
 

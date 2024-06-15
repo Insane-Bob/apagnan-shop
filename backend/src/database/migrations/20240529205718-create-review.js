@@ -14,8 +14,14 @@ module.exports = {
                 content: Sequelize.TEXT('tiny'),
                 productId: Sequelize.INTEGER,
                 userId: Sequelize.INTEGER,
-                updatedAt: Sequelize.DATE,
-                createdAt: Sequelize.DATE,
+                updatedAt: {
+                    type: Sequelize.DATE,
+                    defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+                },
+                createdAt: {
+                    type: Sequelize.DATE,
+                    defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+                },
             })
             .then(() => {
                 queryInterface.addConstraint('Reviews', {
