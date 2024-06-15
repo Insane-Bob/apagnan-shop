@@ -1,5 +1,6 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import AdminDashboard from '@components/views/admin/AdminDashboard.vue'
+import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
 export const adminRoutes = [
@@ -34,10 +35,18 @@ export const adminRoutes = [
       },
       {
         path: 'customers',
-        component: WorkInProgress,
+        component: AdminCustomers,
         name: 'Clients',
-        meta: { label: 'Clients', icon: 'people' }
-      },
+        meta: { label: 'Clients', icon: 'people' },
+        children: [
+            {
+                path: ':id',
+                component: WorkInProgress,
+                name: 'Client',
+                meta: { label: 'Client' },
+            },
+        ],
+    },
       {
         path: 'users',
         component: WorkInProgress,
@@ -46,4 +55,5 @@ export const adminRoutes = [
       }
     ]
   }
+
 ]
