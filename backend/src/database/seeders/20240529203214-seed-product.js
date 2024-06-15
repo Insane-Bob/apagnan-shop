@@ -13,8 +13,6 @@ module.exports = {
                 published: true,
                 stock: 10,
                 collectionId: 1,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 2,
@@ -24,8 +22,6 @@ module.exports = {
                 published: true,
                 stock: 20,
                 collectionId: 1,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 3,
@@ -35,8 +31,6 @@ module.exports = {
                 published: true,
                 stock: 30,
                 collectionId: 2,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 4,
@@ -46,8 +40,6 @@ module.exports = {
                 published: true,
                 stock: 40,
                 collectionId: 2,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 5,
@@ -57,8 +49,6 @@ module.exports = {
                 published: true,
                 stock: 50,
                 collectionId: 3,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
             {
                 id: 6,
@@ -68,8 +58,6 @@ module.exports = {
                 published: true,
                 stock: 60,
                 collectionId: 3,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             },
         ]
 
