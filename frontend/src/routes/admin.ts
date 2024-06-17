@@ -10,7 +10,7 @@ export const adminRoutes = [
         children: [
             {
                 path: 'dashboard',
-                component: AdminDashboard,
+                component: WorkInProgress,
                 name: 'Dashboard',
                 meta: { label: 'Dashboard', icon: 'home' },
             },
