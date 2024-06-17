@@ -9,6 +9,8 @@ export function ordersRoutes(customerRouterGroup) {
             this.post('/', OrderController, 'store')
             this.put('/:order', OrderController, 'update')
             this.delete('/:order', OrderController, 'delete')
+            this.post('/:order/pay', OrderController, 'pay')
+            this.post('/:order/ask-for-refund', OrderController, 'askForRefund')
         })
         .provide(OrderProvider)
 }

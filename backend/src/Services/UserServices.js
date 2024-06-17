@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { Database } from '../Models/index.js'
+import { PaymentServices } from './PaymentServices.js'
 export class UserServices {
     static hashPassword(plainPassword) {
         return bcrypt.hashSync(plainPassword, 8)
@@ -26,9 +27,7 @@ export class UserServices {
             password: hashedPassword,
         })
 
-        await Database.getInstance().models.Customer.create({
-            userId: user.id,
-        })
+        await PaymentServices.createCustomer(user)
 
         return user
     }
@@ -39,16 +38,5 @@ export class UserServices {
                 email,
             },
         })
-    }
-
-    /**
-     * Notifications
-     */
-    static sendConnectionAttemptNotification(user, accessLinkIdentifier) {
-        console.log(`Sending connection attempt notification to ${user.email}`)
-    }
-
-    static sendResetPasswordNotification(user, accessLinkIdentifier) {
-        console.log(`Sending reset password notification to ${user.email}`)
     }
 }

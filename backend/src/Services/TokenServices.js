@@ -4,11 +4,12 @@ import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
 export class TokenServices {
-    static retrieveUserFromToken(token) {
+    static retrieveUserFromToken(token, options) {
         return Database.getInstance().models.User.findOne({
             where: {
                 id: token.userId,
             },
+            ...options,
         })
     }
 
