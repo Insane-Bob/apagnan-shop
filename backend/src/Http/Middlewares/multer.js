@@ -1,5 +1,7 @@
-const multer = require('multer')
-const path = require('path')
+import { Middleware } from '../../Core/Middleware.js'
+import multer from 'multer'
+import path from 'path'
+import { BadRequestException } from '../../Exceptions/HTTPException.js'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -20,14 +22,32 @@ const fileFilter = (req, file, cb) => {
     if (mimetype && extname) {
         return cb(null, true)
     } else {
-        cb('Erreur: Seuls les images JPEG, JPG et PNG sont autorisées!')
+        cb(
+            new Error(
+                'Erreur: Seuls les images JPEG, JPG et PNG sont autorisées!',
+            ),
+        )
     }
 }
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1024 * 1024 * 5 }, // Limite de fichier à 5MB
+    limits: { fileSize: 1024 * 1024 * 5 },
     fileFilter: fileFilter,
-})
+}).any()
 
-module.exports = upload
+export class UploadMiddleware extends Middleware {
+    /**
+     * @param {Request} req
+     * @param res
+     * @param next
+     */
+    async handle(req, res, next) {
+        upload(req, res, (err) => {
+            if (err) {
+                return BadRequestException.abort(err.message)
+            }
+            next()
+        })
+    }
+}
