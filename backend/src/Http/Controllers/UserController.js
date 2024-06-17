@@ -6,6 +6,7 @@ import { UserServices } from '../../Services/UserServices.js'
 import { ResetPasswordValidator } from '../../Validator/ResetPasswordValidator.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -64,7 +65,7 @@ export class UserController extends Controller {
             },
         )
 
-        UserServices.sendResetPasswordNotification(user)
+        await NotificationsServices.notifyResetPassword(user)
 
         this.res.json({
             message: 'Password reset',
@@ -84,7 +85,7 @@ export class UserController extends Controller {
                 1,
             )
 
-            await UserServices.sendResetPasswordNotification(
+            await NotificationsServices.notifyResetPassword(
                 user,
                 accessLink.identifier,
             )

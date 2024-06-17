@@ -1,28 +1,35 @@
-'use strict';
-import {Model} from "sequelize";
+'use strict'
+import { Model } from 'sequelize'
 
-function model(sequelize, DataTypes) {
-    class Order extends Model {
-        static associate(models) {
-            models.Order.belongsTo(models.Customer, {foreignKey: 'customerId'})
-        }
+export class Order extends Model {
+    static associate(models) {
+        models.Order.belongsTo(models.Customer, { foreignKey: 'customerId' })
+        models.Order.hasMany(models.Payment, { foreignKey: 'orderId' })
+        models.Order.hasMany(models.RefundRequestOrder, {
+            foreignKey: 'orderId',
+        })
     }
-    Order.init({
-        customerId: DataTypes.INTEGER,
-        createdAt:{
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
+}
+function model(sequelize, DataTypes) {
+    Order.init(
+        {
+            customerId: DataTypes.INTEGER,
+            createdAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+            },
+            updatedAt: {
+                type: DataTypes.DATE,
+                defaultValue: DataTypes.NOW,
+            },
         },
-        updatedAt: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        }
-    }, {
-        sequelize,
-        modelName: 'Order',
-    });
+        {
+            sequelize,
+            modelName: 'Order',
+        },
+    )
 
-    return Order;
-};
+    return Order
+}
 
 export default model

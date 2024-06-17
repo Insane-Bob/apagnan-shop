@@ -29,7 +29,10 @@ export class AuthMiddleware extends Middleware {
         UnauthorizedException.abortIf(!token)
         req.setToken(token)
 
-        const user = await TokenServices.retrieveUserFromToken(token)
+        const user = await TokenServices.retrieveUserFromToken(token, {
+            include: 'Customer',
+        })
+        user.customer = user.Customer
         UnauthorizedException.abortIf(!user)
         req.setUser(user)
 
