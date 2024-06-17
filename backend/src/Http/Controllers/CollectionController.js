@@ -16,7 +16,7 @@ export class CollectionController extends Controller {
         const image = await Database.getInstance().models.Upload.findOne({
             where: {
                 modelId: collection.id,
-                modelType: 'collection',
+                modelName: 'collection',
             },
         })
         this.res.json({
@@ -28,13 +28,12 @@ export class CollectionController extends Controller {
     async createCollection() {
         const collection =
             await Database.getInstance().models.Collection.create(this.req.body)
-        if (this.req.files && this.req.files.length > 0) {
-            const imagePaths = this.req.files.map((file) => ({
+        if (this.req.file) {
+            await Database.getInstance().models.Upload.create({
                 modelId: collection.id,
-                modelType: 'collection',
-                imagePath: file.path,
-            }))
-            await Database.getInstance().models.Upload.bulkCreate(imagePaths)
+                modelName: 'collection',
+                imagePath: this.req.file.path,
+            })
         }
         this.res.json({
             collection: collection,
@@ -43,13 +42,20 @@ export class CollectionController extends Controller {
 
     async updateCollection() {
         const collection = this.collection
-        if (this.req.files && this.req.files.length > 0) {
-            const imagePaths = this.req.files.map((file) => ({
+        if (this.req.file) {
+            // Delete previous image if exists
+            await Database.getInstance().models.Upload.destroy({
+                where: {
+                    modelId: collection.id,
+                    modelName: 'collection',
+                },
+            })
+
+            await Database.getInstance().models.Upload.create({
                 modelId: collection.id,
-                modelType: 'collection',
-                imagePath: file.path,
-            }))
-            await Database.getInstance().models.Upload.bulkCreate(imagePaths)
+                modelName: 'collection',
+                imagePath: this.req.file.path,
+            })
         }
         await collection.update(this.req.body)
         this.res.json({
