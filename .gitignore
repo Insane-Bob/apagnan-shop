@@ -30,3 +30,5 @@ coverage
 *.tsbuildinfo
 *.key
 *.env
+
+frontend/.vite/deps/*
