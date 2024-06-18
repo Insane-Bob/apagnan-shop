@@ -1,59 +1,64 @@
-import brevo from "@getbrevo/brevo"
-const defaultClient = Brevo.ApiClient.instance
-const apiKey = defaultClient.authentications['api_key']
-apiKey.apiKey = import.meta.env.BREVO_API_KEY
+import axios from 'axios'
 
-export class Email{
+const url = 'https://api.brevo.com/v3/smtp/email'
+
+export class Email {
     subject = null
     to = []
     templateId = null
     params = {}
-  
-    constructor(){}
 
-    addTo(email, name){
-        this.to.push({email, name})
+    addTo(email, name) {
+        this.to.push({ email, name })
         return this
     }
-    setSubject(subject){
+    setSubject(subject) {
         this.subject = subject
         return this
     }
-    setTemplate(templateId){
+    setTemplate(templateId) {
         this.templateId = templateId
         return this
     }
-    setParams(params){
+    setParams(params) {
         this.params = params
         return this
     }
 
-    get json(){
+    get json() {
         return {
+            header: this.header,
             to: this.to,
             subject: this.subject,
             templateId: this.templateId,
-            params: this.params
+            params: this.params,
         }
-    
     }
 }
 
-export class EmailSender { 
-    static apiInstance = new brevo.TransactionalEmailsApi()
-    static sendSmtpEmail = new brevo.SendSmtpEmail()
+export class EmailSender {
+    static apiInstance = axios.create({
+        baseURL: url,
+        headers: {
+            'accept': 'application/json',
+            'content-type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY,
+        },
+    })
 
-    static async send(email){
-        if(!(email instanceof Email))
-            throw new Error("Email instance expected")
-        
+    static async send(email) {
+        if (!(email instanceof Email))
+            throw new Error('Email instance expected')
+
         try {
-            const data = await EmailSender.apiInstance.sendTransacEmail(email.json)
-            return data 
+            const data = await EmailSender.apiInstance.post(
+                url,    
+                email.json,
+            )
+            return data
         } catch (error) {
             console.error(error)
-            throw new Error("Failed to send email")
+            throw new Error('Failed to send email')
         }
-
     }
 }
