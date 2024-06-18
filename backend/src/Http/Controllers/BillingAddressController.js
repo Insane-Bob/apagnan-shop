@@ -2,6 +2,8 @@ import { Controller } from '../../Core/Controller.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
 import { BillingAddressValidator } from '../../Validator/BillingAddressValidator.js'
 import { Database } from '../../Models/index.js'
+import { BillingAddressPolicy } from '../Policies/BillingAddressPolicy.js'
+import { User } from '../../Models/user.js'
 
 export class BillingAddressController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -14,7 +16,7 @@ export class BillingAddressController extends Controller {
         })
     }
     show() {
-        this.can(UserPolicy.show, this.user_resource)
+        this.can(BillingAddressPolicy.show, this.billing_address)
         this.res.json(this.billing_address)
     }
     async store() {
@@ -22,12 +24,12 @@ export class BillingAddressController extends Controller {
         const payload = this.validate(BillingAddressValidator)
         await Database.getInstance().models.BillingAddress.create({
             ...payload,
-            customer_id: this.customer.id,
+            customerId: this.customer.id,
         })
         await this.index()
     }
     async update() {
-        this.can(UserPolicy.update, this.user_resource)
+        this.can(BillingAddressPolicy.show, this.billing_address)
         const payload = this.validate(BillingAddressValidator)
         await this.billing_address.update({
             ...payload,
@@ -36,7 +38,7 @@ export class BillingAddressController extends Controller {
     }
 
     async delete() {
-        this.can(UserPolicy.update, this.user_resource)
+        this.can(BillingAddressPolicy.show, this.billing_address)
         await this.billing_address.destroy()
         await this.index()
     }

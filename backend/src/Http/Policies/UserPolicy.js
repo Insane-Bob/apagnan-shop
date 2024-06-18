@@ -13,7 +13,8 @@ export class UserPolicy {
     static update(...args) {
         return UserPolicy.show(...args)
     }
-    static delete(...args) {
+    static delete(user, resource) {
+        if (user.id == resource.id) return false
         return UserPolicy.show(...args)
     }
 }

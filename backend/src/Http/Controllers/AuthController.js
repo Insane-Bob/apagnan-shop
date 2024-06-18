@@ -8,6 +8,7 @@ import { TokenServices } from '../../Services/TokenServices.js'
 import { z } from 'zod'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 // @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
@@ -62,7 +63,7 @@ export class AuthController extends Controller {
                     AccessLinkServices.getDate(20),
                     1,
                 )
-                await UserServices.sendConnectionAttemptNotification(
+                await NotificationsServices.notifyConnectionAttempt3Fail(
                     user,
                     accessLink.identifier,
                 )
