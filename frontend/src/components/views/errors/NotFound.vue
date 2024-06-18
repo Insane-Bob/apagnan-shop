@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HeaderComponent from '@components/header/HeaderComponent.vue';
+import HeaderComponent from '@components/Header/HeaderComponent.vue';
 import FooterComponent from '@components/footer/FooterComponent.vue';
 import Button from '@components/ui/button/Button.vue';
 import { useToast } from '@/components/ui/toast/use-toast'

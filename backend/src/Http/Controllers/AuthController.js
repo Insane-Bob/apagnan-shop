@@ -1,70 +1,190 @@
 import { Controller } from '../../Core/Controller.js'
-import {UnauthorizedException, UnprocessableEntity} from "../../Exceptions/HTTPException.js";
-import {UserServices} from "../../Services/UserServices.js";
-import {TokenServices} from "../../Services/TokenServices.js";
+import {
+    UnauthorizedException,
+    UnprocessableEntity,
+} from '../../Exceptions/HTTPException.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { TokenServices } from '../../Services/TokenServices.js'
+import { z } from 'zod'
+import { Database } from '../../Models/index.js'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
+// @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
+    static schema = z.object({
+        email: z.string().email(),
+        password: z
+            .string()
+            .min(8, { message: 'Password must be at least 8 characters long' })
+            .regex(/[a-z]/, {
+                message: 'Password must contain at least one lowercase letter',
+            })
+            .regex(/[A-Z]/, {
+                message: 'Password must contain at least one uppercase letter',
+            })
+            .regex(/[0-9]/, {
+                message: 'Password must contain at least one number',
+            }),
+        firstName: z.string().min(2),
+        lastName: z.string().min(2),
+    })
 
-  async login()
-  {
-    const {email, password} = this.req.body.all()
-    UnprocessableEntity.abortIf(!email || !password,'Email and password are required')    //@TODO: Add validation Request avec zod
+    async login() {
+        const { email, password } = this.req.body.all()
 
-    const user = await UserServices.retrieveUserByEmail(email)
-    UnprocessableEntity.abortIf(!user,'Invalid credentials')
-    UnprocessableEntity.abortIf(!UserServices.comparePassword(password, user.password))
+        const loginSchema = AuthController.schema.pick({
+            email: true,
+            password: true,
+        })
+        const result = loginSchema.safeParse({ email, password })
+        if (!result.success) {
+            const errors = result.error.errors.map((error) => error.message)
+            throw new UnprocessableEntity(errors.join(', '))
+        }
 
-    const token = await TokenServices.createToken(user.id)
-    const accessToken = TokenServices.generateAccessToken(token)
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnprocessableEntity.abortIf(!user, 'Invalid credentials')
+        UnprocessableEntity.abortIf(
+            !(await user.canConnect()),
+            'Too many attempts',
+        )
 
-    this.res.json({
-        accessToken,
-        refreshToken: token.refreshToken,
-        user
-     })
-  }
+        const database = Database.getInstance()
+        if (!UserServices.comparePassword(password, user.password)) {
+            await database.models.UserConnectionAttempt.create({
+                userId: user.id,
+                success: false,
+            })
+            if (!(await user.canConnect())) {
+                const accessLink = await AccessLinkServices.createAccessLink(
+                    user.id,
+                    AccessLinkServices.getDate(),
+                    AccessLinkServices.getDate(20),
+                    1,
+                )
+                await NotificationsServices.notifyConnectionAttempt3Fail(
+                    user,
+                    accessLink.identifier,
+                )
+            }
+            UnauthorizedException.abort()
+        } else {
+            await database.models.UserConnectionAttempt.create({
+                userId: user.id,
+                success: true,
+            })
+        }
 
-  async register(){
-    const {firstName,lastName, email, password} = this.req.body.all()
-    if(!firstName || !lastName || !email || !password){ // @TODO: Add validation Request avec zod
-      throw new UnprocessableEntity('Name, email and password are required')
+        const token = await TokenServices.createToken(user.id)
+        const accessToken = TokenServices.generateAccessToken(token)
+
+        this.res.json({
+            accessToken,
+            refreshToken: token.refreshToken,
+            user,
+        })
     }
-    const user = await UserServices.registerUser(firstName,lastName, email, password)
-    this.res.json(user)
-  }
 
-  async logout() {
-    UnauthorizedException.abortIf(!this.req.user || !this.req.token,'User is not authenticated')
-    await TokenServices.revokeToken(this.req.token)
-    this.res.json({message: 'User logged out',success:true})
-  }
+    async loginWithAccessLink() {
+        const identifier = this.req.params.get('identifier', null)
+        const accessLink =
+            await AccessLinkServices.retrieveAccessLinkByIdentifier(identifier)
 
-  async refreshToken(){
-    const {refreshToken} = this.req.body.all()
+        UnauthorizedException.abortIf(!accessLink, 'Access link is invalid')
+        UnauthorizedException.abortIf(
+            !accessLink.isValid,
+            'Access link is invalid',
+        )
 
-    const token = await TokenServices.retrieveTokenFromRefreshToken(refreshToken)
-    UnauthorizedException.abortIf(!token,'Refresh token is invalid')
+        const user = await Database.getInstance().models.User.findByPk(
+            accessLink.userId,
+        )
+        UnauthorizedException.abortIf(!user, 'User not found')
+        UnauthorizedException.abortIf(
+            !(await user.canConnect()),
+            'Too many attempts',
+        )
 
-    const user = await TokenServices.retrieveUserFromToken(token)
-    UnprocessableEntity.abortIf(!user,'Refresh token is invalid')
+        await accessLink.update({
+            useCount: accessLink.useCount + 1,
+        })
 
-    const expireAt = new Date(token.expireAt)
-    expireAt.setDate(expireAt.getDate() + Number(process.env.REFRESH_TOKEN_EXPIRATION || 30)) //eslint-disable-line no-undef
-    UnauthorizedException.abortIf(expireAt < new Date(),'Refresh token has expired')
+        const token = await TokenServices.createToken(accessLink.userId)
+        const accessToken = TokenServices.generateAccessToken(token)
 
-    const newToken = await TokenServices.createToken(user.id)
-    await TokenServices.revokeToken(token)
+        this.res.json({
+            accessToken,
+            refreshToken: token.refreshToken,
+        })
+    }
+    async register() {
+        const { firstName, lastName, email, password } = this.req.body.all()
 
-    this.res.json({
-        accessToken: TokenServices.generateAccessToken(newToken),
-        refreshToken: newToken.refreshToken
-    })
-  }
+        const result = AuthController.schema.safeParse({
+            firstName,
+            lastName,
+            email,
+            password,
+        })
+        if (!result.success) {
+            const errors = result.error.errors.map((error) => error.message)
+            throw new UnprocessableEntity(errors.join(', '))
+        }
 
-  me() {
-    UnauthorizedException.abortIf(!this.req.user,'User is not authenticated')
-    this.res.json({
-      user: this.req.user
-    })
-  }
+        const user = await UserServices.registerUser(
+            firstName,
+            lastName,
+            email,
+            password,
+        )
+        this.res.json(user)
+    }
+
+    async logout() {
+        UnauthorizedException.abortIf(
+            !this.req.user || !this.req.token,
+            'User is not authenticated',
+        )
+        await TokenServices.revokeToken(this.req.token)
+        this.res.json({ message: 'User logged out', success: true })
+    }
+
+    async refreshToken() {
+        const { refreshToken } = this.req.body.all()
+
+        const token =
+            await TokenServices.retrieveTokenFromRefreshToken(refreshToken)
+        UnauthorizedException.abortIf(!token, 'Refresh token is invalid')
+
+        const user = await TokenServices.retrieveUserFromToken(token)
+        UnprocessableEntity.abortIf(!user, 'Refresh token is invalid')
+
+        const expireAt = new Date(token.expireAt)
+        expireAt.setDate(
+            expireAt.getDate() +
+                Number(process.env.REFRESH_TOKEN_EXPIRATION || 30),
+        ) //eslint-disable-line no-undef
+        UnauthorizedException.abortIf(
+            expireAt < new Date(),
+            'Refresh token has expired',
+        )
+
+        const newToken = await TokenServices.createToken(user.id)
+        await TokenServices.revokeToken(token)
+
+        this.res.json({
+            accessToken: TokenServices.generateAccessToken(newToken),
+            refreshToken: newToken.refreshToken,
+        })
+    }
+    me() {
+        UnauthorizedException.abortIf(
+            !this.req.user,
+            'User is not authenticated',
+        )
+        this.res.json({
+            user: this.req.user,
+        })
+    }
 }

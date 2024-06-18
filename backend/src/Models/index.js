@@ -39,6 +39,7 @@ async function initDatabase() {
             )
         })
         .map(async (file) => {
+            console.log('Loading model: ' + file)
             const script = await import('./' + file)
             const model = script.default(sequelize, Sequelize)
             db[model.name] = model
@@ -61,8 +62,13 @@ export class Database {
     static initialized = false
     constructor(sequelize) {
         this.sequelize = sequelize
-        this.mongoClient = new MongoClient(process.env.MONGO_URI)
-        this.mongoDB = this.mongoClient.db(process.env.MONGO_DB)
+        this.mongoClient = process.env.MONGO_URI
+            ? new MongoClient(process.env.MONGO_URI)
+            : null
+        this.mongoDB =
+            this.mongoClient && process.env.MONGO_DB
+                ? this.mongoClient.db(process.env.MONGO_DB)
+                : null
         this.initializeDenormalizerListeners()
     }
 

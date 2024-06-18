@@ -1,51 +1,51 @@
-'use strict';
+'use strict'
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('BillingAddresses', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      customerId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Customers',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      steet: {
-        type: Sequelize.STRING
-      },
-      country:{
-        type: Sequelize.STRING
-      },
-      city: {
-        type: Sequelize.STRING
-      },
-      region: {
-        type: Sequelize.STRING
-      },
-      postalCode: {
-        type: Sequelize.STRING
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      }
-    });
-  },
+    async up(queryInterface, Sequelize) {
+        await queryInterface.createTable('BillingAddresses', {
+            id: {
+                allowNull: false,
+                autoIncrement: true,
+                primaryKey: true,
+                type: Sequelize.INTEGER,
+            },
+            customerId: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'Customers',
+                    key: 'id',
+                },
+                onUpdate: 'CASCADE',
+                onDelete: 'CASCADE',
+            },
+            street: {
+                type: Sequelize.STRING,
+            },
+            country: {
+                type: Sequelize.STRING,
+            },
+            city: {
+                type: Sequelize.STRING,
+            },
+            region: {
+                type: Sequelize.STRING,
+            },
+            postalCode: {
+                type: Sequelize.STRING,
+            },
+            createdAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+            },
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+            },
+        })
+    },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('BillingAddresses');
-  }
-};
+    async down(queryInterface, Sequelize) {
+        await queryInterface.dropTable('BillingAddresses')
+    },
+}

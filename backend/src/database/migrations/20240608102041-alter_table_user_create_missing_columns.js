@@ -4,7 +4,7 @@
 module.exports = {
     async up(queryInterface, Sequelize) {
         //add column email_verified_at to Users table
-        await queryInterface.addColumn('Users', 'email_verified_at', {
+        await queryInterface.addColumn('Users', 'emailVerifiedAt', {
             type: Sequelize.DATE,
         })
 
@@ -20,7 +20,7 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.removeColumn('Users', 'email_verified_at')
+        await queryInterface.removeColumn('Users', 'emailVerifiedAt')
         await queryInterface.removeColumn('Users', 'phone')
         await queryInterface.removeColumn('Users', 'role')
     },

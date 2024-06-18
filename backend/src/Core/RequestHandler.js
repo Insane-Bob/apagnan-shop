@@ -19,9 +19,13 @@ export class RequestHandler {
     provideDependencies() {
         return
     }
+    beforeEach() {
+        return
+    }
 
-    can(action, ...args) {
+    can(action = null, ...args) {
         UnauthorizedException.abortIf(!this.req.getUser())
+        if (!action) return
         let res = action(this.req.getUser(), ...args)
         ForbiddenException.abortIf(!res)
     }
@@ -30,6 +34,7 @@ export class RequestHandler {
         try {
             this.req.loadParams()
             await this.provideDependencies()
+            await this.beforeEach()
             await this[action](...args)
         } catch (e) {
             console.error(e)

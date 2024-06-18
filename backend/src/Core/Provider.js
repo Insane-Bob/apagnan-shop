@@ -1,34 +1,36 @@
-import { NotFoundException } from "../Exceptions/HTTPException.js";
-import { Database } from "../Models/index.js";
+import { NotFoundException } from '../Exceptions/HTTPException.js'
+import { Database } from '../Models/index.js'
 
 export class Provider {
-  static param = null;
-  static model = null;
-  static findByPk = true;
-  static findOne = true;
+    static param = null
+    static model = null
 
-  async fetch(model, paramValue) {
-    return model.findByPk(paramValue);
-  }
+    getParamValue(request) {
+        return request.params.get(this.constructor.param, null)
+    }
 
-  async provide(request) {
-    if (!this.constructor.model) throw new Error("Model not defined");
-    if (!this.constructor.param) throw new Error("Param not defined");
+    fetch(model, paramValue) {
+        return model.findByPk(paramValue)
+    }
 
-    const paramValue = request.params.get(this.constructor.param, null);
-    if (!paramValue) return null;
+    async provide(request) {
+        if (!this.constructor.model) throw new Error('Model not defined')
+        if (!this.constructor.param) throw new Error('Param not defined')
 
-    const database = Database.getInstance();
-    const resource = await this.fetch(
-      database.models[this.constructor.model],
-      paramValue
-    );
+        const paramValue = this.getParamValue(request) || null
+        if (!paramValue) return null
 
-    NotFoundException.abortIf(
-      !resource,
-      `Resource [${this.constructor.param} : ${paramValue}] not found`
-    );
+        const database = Database.getInstance()
+        const resource = await this.fetch(
+            database.models[this.constructor.model],
+            paramValue,
+        )
 
-    return resource;
-  }
+        NotFoundException.abortIf(
+            !resource,
+            `Resource [${this.constructor.param} : ${paramValue}] not found`,
+        )
+
+        return resource
+    }
 }

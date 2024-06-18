@@ -14,10 +14,25 @@ export class User extends DenormalizableModel {
     static associate(models) {
         models.User.hasOne(models.Customer, { foreignKey: 'userId' })
         models.User.hasMany(models.Token, { foreignKey: 'userId' })
+        models.User.hasMany(models.UserConnectionAttempt, {
+            foreignKey: 'userId',
+        })
     }
 
     hasRole(role) {
         return this.role === role
+    }
+
+    async canConnect() {
+        const lastConnectionAttempt = await this.getUserConnectionAttempts({
+            order: [['createdAt', 'DESC']],
+            limit: 3,
+        })
+        if (lastConnectionAttempt.length < 3) return true
+        let hasSuccessIn3LastAttempt = lastConnectionAttempt.some(
+            (connectionAttempt) => connectionAttempt.success,
+        )
+        return hasSuccessIn3LastAttempt
     }
 }
 

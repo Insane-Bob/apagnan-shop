@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { Database } from '../Models/index.js'
+import { PaymentServices } from './PaymentServices.js'
 export class UserServices {
     static hashPassword(plainPassword) {
         return bcrypt.hashSync(plainPassword, 8)
@@ -26,9 +27,7 @@ export class UserServices {
             password: hashedPassword,
         })
 
-        await Database.getInstance().models.Customer.create({
-            userId: user.id,
-        })
+        await PaymentServices.createCustomer(user)
 
         return user
     }
