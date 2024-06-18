@@ -73,8 +73,6 @@ onMounted(() => {
     fetchCollection()
     fetchProductReviews()
     fetchProductSpecifics()
-
-    console.log(carouselImages)
 })
 </script>
 
