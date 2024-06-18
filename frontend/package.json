@@ -13,7 +13,6 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-
     "@unovis/ts": "^1.4.1",
     "@unovis/vue": "^1.4.1",
     "@vueuse/core": "^10.10.0",

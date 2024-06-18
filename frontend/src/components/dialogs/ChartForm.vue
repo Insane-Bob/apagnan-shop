@@ -24,7 +24,6 @@ const indexInput= ref('')
 const emit =defineEmits(['submit'])
 
 const submit =() => {
-
     if(graphInput.value === '' || dataInput.value === '' || indexInput.value === '') {
         console.error('empty field')
         return;
