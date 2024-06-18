@@ -50,9 +50,14 @@ return adminRoutes[0].children.map((route) => {
                 </RouterLink>
             </div>
         </aside>
+        <div class="grow h-screen overflow-y-scroll flex flex-col w-full">
+            <div class="h-1/5 w-full flex items-center pl-12">
+                <h1 class="text-4xl tracking-widest">{{ routes.find((route) => route.path === $route.path)?.label }}</h1>
+            </div>
+            <div class="grow">
+                <RouterView />
+            </div>
 
-        <div class="grow h-screen overflow-y-scroll">
-            <RouterView />
         </div>
     </div>
 </template>
