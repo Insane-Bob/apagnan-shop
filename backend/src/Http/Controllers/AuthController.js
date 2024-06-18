@@ -1,13 +1,14 @@
+import { z } from 'zod'
 import { Controller } from '../../Core/Controller.js'
 import {
     UnauthorizedException,
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
-import { UserServices } from '../../Services/UserServices.js'
-import { TokenServices } from '../../Services/TokenServices.js'
-import { z } from 'zod'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { TokenServices } from '../../Services/TokenServices.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { RegisterEmail } from '../../Emails/RegisterEmail.js'
 import { EmailSender } from '../../lib/EmailSender.js'
@@ -120,29 +121,10 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
+
     async register() {
-        const { firstName, lastName, email, password } = this.req.body.all()
-
-        const result = AuthController.schema.safeParse({
-            firstName,
-            lastName,
-            email,
-            password,
-        })
-
-        // if (!result.success) {
-        //     const errors = result.error.errors.map((error) => error.message)
-        //     throw new UnprocessableEntity(errors.join(', '))
-        // }
-
-        const emailInstance = new RegisterEmail()
-            .setParams({
-                name: 'Ilyam Dupuis',
-            })
-            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
-
-        await EmailSender.send(emailInstance)
-
+        const { firstName, lastName, email, password } = this.validate(RegisterValidator);
+        
         const user = await UserServices.registerUser(
             firstName,
             lastName,

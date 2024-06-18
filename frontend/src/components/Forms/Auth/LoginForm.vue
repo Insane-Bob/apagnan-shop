@@ -7,7 +7,7 @@
       >
     </FormHeader>
     <FormGrid>
-      <div class="flex flex-col col-span-full gap-4">
+      <div class="flex flex-col col-span-full gap-3">
         <!-- EMAIL -->
         <FormInput class="row-span-1 col-start-1 col-span-full" required>
           <template #label>Adresse e-mail</template>
