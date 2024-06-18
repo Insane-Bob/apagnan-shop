@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
@@ -8,7 +8,9 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div :class="cn('rounded-lg border bg-card text-card-foreground shadow-sm', props.class)">
+  <li
+    :class="cn('inline-flex items-center gap-1.5', props.class)"
+  >
     <slot />
-  </div>
+  </li>
 </template>
