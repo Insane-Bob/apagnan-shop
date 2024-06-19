@@ -1,5 +1,5 @@
 <template>
-    <form @click.prevent="submit">
+    <form @submit.prevent="submit">
         <FormHeader>
             <h1 class="text-md text-primary-accent font-medium">
                 Oh non ! Tu as égaré ton mot de passe ?
@@ -58,27 +58,52 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormHeader from '@/components/Forms/FormHeader.vue'
+import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
-import FormInput from '@/components/Inputs/FormInput.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
+import { apiClient } from '@/lib/apiClient'
+import { ref } from 'vue'
+import { useToast } from '@/components/ui/toast/use-toast'
 
 const email = ref('')
+const { toast } = useToast()
 
 async function submit() {
     try {
         const data = {
             email: email.value,
         }
-        const response = await axios.post('/api/reset-password', {
-            email: data.email,
-        })
-        console.log('Reset Password Successfull', response.data)
+        const response = await apiClient.post(
+            '/reset-password',
+            {
+                email: data.email,
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            },
+        )
+
+        if (response) {
+            toast({
+                title: 'Succès',
+                description:
+                    'Si votre adresse e-mail est valide, vous recevrez un e-mail de réinitialisation de mot de passe',
+                status: 'success',
+            })
+        }
     } catch (error) {
-        console.error('Reset Password failed', error)
+        toast({
+            title: 'Erreur',
+            description:
+                'Une erreur est survenue lors de la réinitialisation de votre mot de passe',
+            status: 'error',
+            variant: 'destructive'
+        })
     }
 }
 </script>

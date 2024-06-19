@@ -11,6 +11,7 @@
         </FormHeader>
         <FormGrid>
             <div class="flex flex-col col-span-full gap-3">
+                <!-- LASTNAME & FIRSTNAME -->
                 <div class="grid grid-cols-2 gap-4">
                     <!-- LASTNAME -->
                     <FormInput class="col-span-1" required>
@@ -18,7 +19,7 @@
                         <template #input="inputProps">
                             <Input
                                 type="text"
-                                v-model="lastname"
+                                v-model="lastName"
                                 v-bind="inputProps"
                             />
                         </template>
@@ -30,7 +31,7 @@
                         <template #input="inputProps">
                             <Input
                                 type="text"
-                                v-model="firstname"
+                                v-model="firstName"
                                 v-bind="inputProps"
                                 :id="inputProps.id"
                             />
@@ -128,20 +129,32 @@
                         ></ion-icon>
                     </template>
                 </FormInput>
+                <Button type="submit">S'inscrire</Button>
+            </div>
+        </FormGrid>
 
-  <Separator class="mt-4 mb-4" />
+        <Separator class="mt-4 mb-4" />
 
-  <!-- Login -->
-  <div class="flex flex-col gap-4">
-    <h2 class="text-sm text-primary-accent font-medium">Déjà membre de la communauté ?</h2>
-    <small class="text-sm text-gray-500">
-      Connectez-vous pour retrouver tous vos amis nains et leurs aventures passionnantes.
-    </small>
-    <div class="flex justify-center w-full">
-      <Button @click="$emit('switch-to-login')" variant="outline" class="w-full">
-        Se connecter
-      </Button>
-    </div>
+        <!-- Login -->
+        <div class="flex flex-col gap-4">
+            <h2 class="text-sm text-primary-accent font-medium">
+                Déjà membre de la communauté ?
+            </h2>
+            <small class="text-sm text-gray-500">
+                Connectez-vous pour retrouver tous vos amis nains et leurs
+                aventures passionnantes.
+            </small>
+            <div class="flex justify-center w-full">
+                <Button
+                    @click="$emit('switch-to-login')"
+                    variant="outline"
+                    class="w-full"
+                >
+                    Se connecter
+                </Button>
+            </div>
+        </div>
+    </form>
 </template>
 
 <script setup lang="ts">
@@ -155,8 +168,8 @@ import { apiClient } from '@/lib/apiClient.js'
 import { computed, reactive, ref } from 'vue'
 
 // Reactive variables
-const lastname = ref('')
-const firstname = ref('')
+const lastName = ref('')
+const firstName = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -164,8 +177,8 @@ const confirmPassword = ref('')
 // Password validation logic
 const passwordRules = computed(() => [
     {
-        message: 'Minimum 8 caractères',
-        isValid: password.value.length >= 8,
+        message: 'Minimum 12 caractères',
+        isValid: password.value.length >= 12,
     },
     {
         message: 'Une lettre majuscule',
@@ -192,20 +205,19 @@ const passwordManager = reactive({
 })
 
 // Submit function
-
 async function submit() {
     try {
         const data = {
-            lastname: lastname.value,
-            firstname: firstname.value,
+            lastName: lastName.value,
+            firstName: firstName.value,
             email: email.value,
             password: password.value,
             confirmPassword: confirmPassword.value,
         }
 
         const response = await apiClient.post('/register', {
-            lastname: data.lastname,
-            firstname: data.firstname,
+            lastName: data.lastName,
+            firstName: data.firstName,
             email: data.email,
             password: data.password,
         })

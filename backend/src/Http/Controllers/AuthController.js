@@ -12,6 +12,7 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 import { EmailSender } from '../../lib/EmailSender.js'
 
 // @TODO : Use our custom Validator when it'll be merged
@@ -132,9 +133,9 @@ export class AuthController extends Controller {
 
         const emailInstance = new RegisterEmail()
             .setParams({
-                name: 'Ilyam Dupuis',
+                name: user.firstName + ' ' + user.lastName,
             })
-            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(emailInstance)
 

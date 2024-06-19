@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { Validator } from './Validator.js';
 
-    
 const registerSchema = z.object({
-    firstname: z.string().min(1, { message: 'First name is required' }),
-    lastname: z.string().min(1, { message: 'Last name is required' }),
+    firstName: z.string().min(1, { message: 'First name is required' }),
+    lastName: z.string().min(1, { message: 'Last name is required' }),
     email: z.string().email({ message: 'Invalid email address' }),
     password: z
         .string()
@@ -22,11 +21,11 @@ const registerSchema = z.object({
 
 export class RegisterValidator extends Validator{
     constructor() {
-        console.log('Register Validator');
         super(registerSchema)
     }
 
     validate(registerSchema) {
+        console.log(registerSchema);
         return super.validate(registerSchema);
     }
 }
