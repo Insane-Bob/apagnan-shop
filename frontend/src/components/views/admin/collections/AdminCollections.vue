@@ -15,10 +15,10 @@ const CollectionUrl = API_BASE_URL + '/collections/'
 const collections = reactive<Collection[]>([])
 
 const form = reactive<{collection: Collection | null}>({
-    collection: null
+    collection: null,
+    
 })
 
-const open = ref(false)
 
 const page = reactive<Page>({    
         current: 1,
@@ -108,6 +108,7 @@ const fetchCollections = async () => {
     data.collections.forEach((c: any) => {
         collections.push(c)
     })
+    page.total = collections.length
 }
 
 const updateCollection = async (row: any) => {
@@ -120,6 +121,17 @@ const updateCollection = async (row: any) => {
     })
     const data = await response.json()
     collections.splice(collections.findIndex((c: any) => c.slug === row.slug), 1, data.collection)
+}
+
+const reloadCollection = (collection: Collection) => {
+    if (form.collection) {
+        collections.splice(collections.findIndex((c: any) => c.slug === form.collection.slug), 1, collection)
+    } else {
+        collections.push(collection)
+    }
+    form.collection = null
+
+    page.total = collections.length
 }
 
 </script>
@@ -144,7 +156,7 @@ const updateCollection = async (row: any) => {
         </div>
 
         <DialogContent>
-            <CollectionForm :collection="form.collection"></CollectionForm>
+            <CollectionForm :collection="form.collection" @reload-collection="reloadCollection"></CollectionForm>
         </DialogContent>
     </Dialog>
 </template>
