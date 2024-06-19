@@ -139,7 +139,7 @@ function onExecMultiAction(callBack: (item: any) => void){
                         <ion-icon v-if="column.sorting" @click="onSort(column.key)" class=" cursor-pointer" name="chevron-expand-outline"></ion-icon>
                     </HeaderTable>
 
-                    <HeaderTable v-if="props.actions?.length > 0" class="text-right">Actions</HeaderTable>
+                    <HeaderTable v-if="props.actions && props.actions.length > 0" class="text-right">Actions</HeaderTable>
                 </tr>
                 <tr v-if="search && search.length > 0" class="bg-gray-100">
                     <CellTable v-if="props.multiActions && props.multiActions?.length > 0" class="pl-4 py-2"></CellTable>
@@ -147,7 +147,7 @@ function onExecMultiAction(callBack: (item: any) => void){
                         <input @keyup="onSearchIn($event, column.key)" v-if="search?.some(s => s.key === column.key)"  type="text" class="w-full p-1 border border-gray-300 rounded-md pr-0 md:pr-8" :placeholder="'Recherche dans '+ column.label ">
                         <ion-icon v-if="search?.some(s => s.key === column.key)" class="absolute top-1/2 right-4 -translate-y-1/2 -translate-x-full z-20 hidden md:block" name="search-outline"></ion-icon>
                     </td>
-                    <CellTable v-if="props.actions?.length > 0" class=" py-2"></CellTable>
+                    <CellTable v-if="props.actions && props.actions.length > 0" class=" py-2"></CellTable>
                 </tr>
             </thead>
             <tbody>
