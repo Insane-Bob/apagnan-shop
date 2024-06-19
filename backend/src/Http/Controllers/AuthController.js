@@ -9,6 +9,8 @@ import { z } from 'zod'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { RegisterEmail } from '../../Emails/RegisterEmail.js'
+import { EmailSender } from '../../lib/EmailSender.js'
 
 // @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
@@ -127,10 +129,19 @@ export class AuthController extends Controller {
             email,
             password,
         })
-        if (!result.success) {
-            const errors = result.error.errors.map((error) => error.message)
-            throw new UnprocessableEntity(errors.join(', '))
-        }
+
+        // if (!result.success) {
+        //     const errors = result.error.errors.map((error) => error.message)
+        //     throw new UnprocessableEntity(errors.join(', '))
+        // }
+
+        const emailInstance = new RegisterEmail()
+            .setParams({
+                name: 'Ilyam Dupuis',
+            })
+            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
+
+        await EmailSender.send(emailInstance)
 
         const user = await UserServices.registerUser(
             firstName,
