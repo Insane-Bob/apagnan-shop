@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import DataTable from '@/components/tables/DataTable.vue';
-import { Collection, TableColumns, Page, TableActions } from '@types';
-import { onMounted, reactive } from 'vue';
+import Button from '@/components/ui/button/Button.vue';
+import  CollectionForm  from '@/components/views/admin/collections/CollectionForm.vue';
+import {
+Dialog,
+DialogContent,
+DialogTrigger
+} from '@/components/ui/dialog';
+import { Collection, Page, TableActions, TableColumns } from '@types';
+import { onMounted, reactive, ref } from 'vue';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const CollectionUrl = API_BASE_URL + '/collections/'
 
 const collections = reactive<Collection[]>([])
 
+const form = reactive<{collection: Collection | null}>({
+    collection: null
+})
 
+const open = ref(false)
 
 const page = reactive<Page>({    
         current: 1,
@@ -61,10 +72,11 @@ const actions: TableActions[] = [
         },
         {
             label: 'Modifier',
-            icon: 'document-text-outline',
+            icon: 'pencil-outline',
             class: 'text-blue-500',
-            action: (row: any) => {
-            console.log('Modifier', row)
+            trigger: true,
+            action: (row: Collection) => {
+            form.collection = row
             },
         },
 
@@ -112,14 +124,27 @@ const updateCollection = async (row: any) => {
 
 </script>
 <template>
-    
-        <DataTable 
-            v-if="collections.length > 0"
-            :columns="columns"
-            :rows="collections"
-            :page="page"
-            :actions="actions"
-            @emit-next-page="onNextPage"
-            @emit-previous-page="onPreviousPage"
-        ></DataTable>
+    <Dialog>
+        <div class="flex flex-col mx-6">
+            <DialogTrigger>
+                <Button @click="form.collection = null"  class="w-min whitespace-nowrap flex justify-center items-center gap-x-2">
+                    <span>Créer une nouvelle collection</span>
+                    <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
+                </Button>
+            </DialogTrigger>
+            <DataTable 
+                v-if="collections.length > 0"
+                :columns="columns"
+                :rows="collections"
+                :page="page"
+                :actions="actions"
+                @emit-next-page="onNextPage"
+                @emit-previous-page="onPreviousPage"
+            ></DataTable>
+        </div>
+
+        <DialogContent>
+            <CollectionForm :collection="form.collection"></CollectionForm>
+        </DialogContent>
+    </Dialog>
 </template>

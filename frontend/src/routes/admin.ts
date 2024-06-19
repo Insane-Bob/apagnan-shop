@@ -1,6 +1,6 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
-import AdminCollections from '@/components/views/admin/AdminCollections.vue'
+import AdminCollections from '@/components/views/admin/collections/AdminCollections.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
 export const adminRoutes = [

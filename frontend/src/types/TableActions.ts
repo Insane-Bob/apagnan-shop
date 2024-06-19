@@ -4,4 +4,5 @@ export interface TableActions {
     class: string
     condition: (row: any) => boolean
     action: (row: any) => void
+    trigger?: boolean
 }
