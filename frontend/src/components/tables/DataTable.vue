@@ -4,44 +4,23 @@ import HeaderTable from '@components/tables/utils/HeaderTable.vue';
 import CellTable from '@components/tables/utils/CellTable.vue';
 import Button from '@components/ui/button/Button.vue';
 import { computed, reactive, ref } from 'vue';
-
+import { TableColumns, TableActions, Page } from '@types';
 const isAllSelected = ref(false);
 
-const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch', 'multiAction', 'simpleAction']);
+const emit = defineEmits(['emitNextPage', 'emitPreviousPage', 'updateRows', 'updateSearch', 'multiAction',]);
 
 const props = defineProps<{
-    columns: 
-    {
-        label: string;
-        key: string;
-        sorting?: boolean;
-        position?: "left" | "center" | "right" ;
-        toDisplay?: (value: any) => string;
-        sortingType?:  'string' | 'number' | 'date' | 'boolean' | 'custom' | 'none';
-    }[];
+    columns: TableColumns[];
     rows: any[]
-    actions: 
-    {
-        label: string;
-        icon: string;
-        class?: string;
-        action: (row: any) => void;
-    }[]
-
-    multiActions : 
+    actions?: TableActions[]
+    multiActions? : 
     {
         label: string;
         icon?: string;
         class?: string;
         action: (rows: any[]) => void;
     }[]
-    page?: 
-    {
-        current: number;
-        total: number;
-        perPage: number;
-    
-    }
+    page?: Page
     search?: 
     {
         key: string;
@@ -136,10 +115,6 @@ function onExecMultiAction(callBack: (item: any) => void){
     emit('multiAction', callBack)
 }
 
-function onExecSimpleAction(callback: (item: any) => void, row: any){
-    emit('simpleAction', {callback, row})
-}
-
 
 </script>
 
@@ -155,7 +130,7 @@ function onExecSimpleAction(callback: (item: any) => void, row: any){
         <table class="w-full text-sm text-left text-gray-500 rounded-md">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                 <tr>
-                    <HeaderTable class="pl-4" v-if="props.multiActions?.length > 0">
+                    <HeaderTable class="pl-4" v-if="props.multiActions && props.multiActions.length > 0">
                         <ion-icon @click="onSelectAll()" :name="isAllSelected?'checkbox':'square-outline'" class="text-lg cursor-pointer"></ion-icon>
                     </HeaderTable>
 
@@ -167,7 +142,7 @@ function onExecSimpleAction(callback: (item: any) => void, row: any){
                     <HeaderTable v-if="props.actions?.length > 0" class="text-right">Actions</HeaderTable>
                 </tr>
                 <tr v-if="search && search.length > 0" class="bg-gray-100">
-                    <CellTable v-if="props.multiActions?.length > 0" class="pl-4 py-2"></CellTable>
+                    <CellTable v-if="props.multiActions && props.multiActions?.length > 0" class="pl-4 py-2"></CellTable>
                     <td  v-for="column in props.columns" :key="'search-'+column.key" class="px-5 relative  py-2">
                         <input @keyup="onSearchIn($event, column.key)" v-if="search?.some(s => s.key === column.key)"  type="text" class="w-full p-1 border border-gray-300 rounded-md pr-0 md:pr-8" :placeholder="'Recherche dans '+ column.label ">
                         <ion-icon v-if="search?.some(s => s.key === column.key)" class="absolute top-1/2 right-4 -translate-y-1/2 -translate-x-full z-20 hidden md:block" name="search-outline"></ion-icon>
@@ -185,7 +160,7 @@ function onExecSimpleAction(callback: (item: any) => void, row: any){
 
                     <CellTable v-if="props.actions">
                         <div class="flex justify-end space-x-2 ">
-                            <div v-for="action in props.actions" :key="action.label" class="relative group transition delay-1000" @click="onExecSimpleAction(action.action, row)">
+                            <div v-for="action in props.actions" :key="action.label" class="relative group transition delay-1000" :class="{'hidden': action.condition? !action.condition(row): false}" @click="action.action(row)">
                                 <ion-icon  @click="action.action(row)" class="cursor-pointer hover:scale-105 duration-200 text-xl"  :class="action.class"  :name="action.icon"></ion-icon>
                                 <span class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none">{{ action.label }}</span>
                             </div>

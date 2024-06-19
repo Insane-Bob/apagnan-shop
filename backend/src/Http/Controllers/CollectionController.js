@@ -27,7 +27,9 @@ export class CollectionController extends Controller {
 
     async createCollection() {
         const collection =
-            await Database.getInstance().models.Collection.create(this.req.body)
+            await Database.getInstance().models.Collection.create(
+                this.req.body.all(),
+            )
         if (this.req.file) {
             await Database.getInstance().models.Upload.create({
                 modelId: collection.id,
@@ -57,7 +59,9 @@ export class CollectionController extends Controller {
                 imagePath: this.req.file.path,
             })
         }
-        await collection.update(this.req.body)
+        await collection.update(this.req.body.all())
+
+        await collection.save()
         this.res.json({
             collection: collection,
         })

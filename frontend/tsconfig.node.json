@@ -13,8 +13,9 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["src/components/*"]
+        "@/*": ["./src/*"],
+        "@components/*": ["src/components/*"],
+        "@types/*": ["src/types/*"]
     },
     "module": "ESNext",
     "moduleResolution": "Bundler",

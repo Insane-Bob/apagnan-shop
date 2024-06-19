@@ -1,5 +1,6 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
+import AdminCollections from '@/components/views/admin/AdminCollections.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
 export const adminRoutes = [
@@ -22,7 +23,7 @@ export const adminRoutes = [
             },
             {
                 path: 'collections',
-                component: WorkInProgress,
+                component: AdminCollections,
                 name: 'Collections',
                 meta: { label: 'Collections', icon: 'albums' },
             },
