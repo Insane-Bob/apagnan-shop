@@ -14,6 +14,7 @@ function model(sequelize, DataTypes) {
     Order.init(
         {
             customerId: DataTypes.INTEGER,
+            // @TODO : Add an order_number field and use it in the email template SuccessPaymentEmail   
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
@@ -31,5 +32,4 @@ function model(sequelize, DataTypes) {
 
     return Order
 }
-
 export default model
