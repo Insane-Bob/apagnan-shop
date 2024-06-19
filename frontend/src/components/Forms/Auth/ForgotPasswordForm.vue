@@ -97,6 +97,7 @@ async function submit() {
             })
         }
     } catch (error) {
+        email.value = ''
         toast({
             title: 'Erreur',
             description:

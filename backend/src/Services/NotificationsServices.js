@@ -20,8 +20,13 @@ export class NotificationsServices {
         )
     }
 
-    static async notifyResetPassword(user, accessLinkIdentifier) {
-        console.log(`Sending reset password notification to ${user.email}`)
+    static async notifyRegisterUser(user) {
+        const registerEmail = new RegisterEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+        await EmailSender.send(registerEmail)
     }
 
     static async notifyResetPassword(user) {

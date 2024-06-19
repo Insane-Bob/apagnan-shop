@@ -93,22 +93,29 @@ export class AuthController extends Controller {
 
     async loginWithAccessLink() {
         const identifier = this.req.params.get('identifier', null)
-        const accessLink =
+        const accessLinkIdentifier =
             await AccessLinkServices.retrieveAccessLinkByIdentifier(identifier)
 
-        UnauthorizedException.abortIf(!accessLink, 'Access link is invalid')
         UnauthorizedException.abortIf(
-            !accessLink.isValid,
+            !accessLinkIdentifier,
+            'Access link is invalid',
+        )
+        UnauthorizedException.abortIf(
+            !accessLinkIdentifier.isValid,
             'Access link is invalid',
         )
 
         const user = await Database.getInstance().models.User.findByPk(
-            accessLink.userId,
+            accessLinkIdentifier.userId,
         )
         UnauthorizedException.abortIf(!user, 'User not found')
         UnauthorizedException.abortIf(
             !(await user.canConnect()),
             'Too many attempts',
+            await NotificationsServices.notifyConnectionAttempt3Failed(
+                user,
+                accessLinkIdentifier,
+            ),
         )
 
         await accessLink.update({
@@ -131,20 +138,15 @@ export class AuthController extends Controller {
             throw new UnprocessableEntity('Email already used')
         }
 
-        const emailInstance = new RegisterEmail()
-            .setParams({
-                name: user.firstName + ' ' + user.lastName,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(emailInstance)
-
         const user = await UserServices.registerUser(
             firstName,
             lastName,
             email,
             password,
         )
+
+        await NotificationsServices.notifyRegisterUser(user)
+
         this.res.json(user)
     }
 
@@ -192,13 +194,7 @@ export class AuthController extends Controller {
         const user = await UserServices.retrieveUserByEmail(email)
         UnauthorizedException.abortIf(!user, 'User not found')
 
-        const emailInstance = new ResetPasswordEmail()
-            .setParams({
-                name: user.firstName + ' ' + user.lastName,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(emailInstance)
+        await NotificationsServices.notifyResetPassword(user)
 
         this.res.json({
             message: 'An email has been sent to reset your password',

@@ -45,7 +45,7 @@ import {
     SheetDescription,
     SheetTitle,
 } from '@/components/ui/sheet'
-const isLoginForm = ref(false)
+const isLoginForm = ref(true)
 const isForgotPasswordForm = ref(false)
 
 const switchToLogin = () => {
