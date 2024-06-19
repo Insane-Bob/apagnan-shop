@@ -11,5 +11,6 @@ export default function (router) {
         this.post('/logout', AuthController, 'logout')
         this.post('/refresh-token', AuthController, 'refreshToken')
         this.get('/me', AuthController, 'me')
+        this.post('/reset-password', AuthController, 'resetPassword')
     })
 }

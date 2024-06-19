@@ -42,7 +42,7 @@
     </FormGrid>
   </form>
 
-  <Separator class="mt-6 mb-6" />
+  <Separator class="mt-4 mb-4" />
 
   <!-- Register -->
   <div class="flex flex-col gap-4 mt-4">
@@ -52,7 +52,7 @@
     >
     <div class="flex justify-center w-full">
       <Button @click="$emit('switch-to-register')" variant="outline" class="w-full"
-        >Rejoins-nous !</Button
+        >S'inscrire</Button
       >
     </div>
   </div>

@@ -1,16 +1,16 @@
-import { z } from 'zod'
+    import { z } from 'zod'
 import { Controller } from '../../Core/Controller.js'
+import { RegisterEmail } from '../../Emails/RegisterEmail.js'
 import {
     UnauthorizedException,
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
-import { RegisterValidator } from '../../Validator/RegisterValidator.js'
-import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { RegisterEmail } from '../../Emails/RegisterEmail.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { EmailSender } from '../../lib/EmailSender.js'
 
 // @TODO : Use our custom Validator when it'll be merged
@@ -121,10 +121,21 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
-
     async register() {
-        const { firstName, lastName, email, password } = this.validate(RegisterValidator);
-        
+        const { firstName, lastName, email, password } = this.validate(RegisterValidator)
+
+        if (await UserServices.retrieveUserByEmail(email)) {
+            throw new UnprocessableEntity('Email already used')
+        }
+
+        const emailInstance = new RegisterEmail()
+            .setParams({
+                name: 'Ilyam Dupuis',
+            })
+            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
+
+        await EmailSender.send(emailInstance)
+
         const user = await UserServices.registerUser(
             firstName,
             lastName,
@@ -171,6 +182,26 @@ export class AuthController extends Controller {
             refreshToken: newToken.refreshToken,
         })
     }
+
+    async resetPassword() {
+        const { email } = this.validate(AskResetPasswordValidator)
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        const emailInstance = new RegisterEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo('nolifedu27@gmail.com', `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(emailInstance)
+
+        this.res.json({
+            message: 'An email has been sent to reset your password',
+        })
+    }
+
     me() {
         UnauthorizedException.abortIf(
             !this.req.user,

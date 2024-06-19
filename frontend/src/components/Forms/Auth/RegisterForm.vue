@@ -129,32 +129,18 @@
                     </template>
                 </FormInput>
 
-                <!-- SUBMIT -->
-                <Button type="submit">Rejoindre la communauté</Button>
-            </div>
-        </FormGrid>
-    </form>
+  <Separator class="mt-4 mb-4" />
 
-    <Separator class="mt-6 mb-6" />
-
-    <!-- Login -->
-    <div class="flex flex-col gap-4">
-        <h2 class="text-sm text-primary-accent font-medium">
-            Déjà membre de la communauté ?
-        </h2>
-        <small class="text-sm text-gray-500">
-            Connectez-vous pour retrouver tous vos amis nains et leurs aventures
-            passionnantes.
-        </small>
-        <div class="flex justify-center w-full">
-            <Button
-                @click="$emit('switch-to-login')"
-                variant="outline"
-                class="w-full"
-            >
-                Se connecter
-            </Button>
-        </div>
+  <!-- Login -->
+  <div class="flex flex-col gap-4">
+    <h2 class="text-sm text-primary-accent font-medium">Déjà membre de la communauté ?</h2>
+    <small class="text-sm text-gray-500">
+      Connectez-vous pour retrouver tous vos amis nains et leurs aventures passionnantes.
+    </small>
+    <div class="flex justify-center w-full">
+      <Button @click="$emit('switch-to-login')" variant="outline" class="w-full">
+        Se connecter
+      </Button>
     </div>
 </template>
 
