@@ -1,6 +1,7 @@
-    import { z } from 'zod'
+import { z } from 'zod'
 import { Controller } from '../../Core/Controller.js'
 import { RegisterEmail } from '../../Emails/RegisterEmail.js'
+import { ResetPasswordEmail } from '../../Emails/ResetPasswordEmail.js'
 import {
     UnauthorizedException,
     UnprocessableEntity,
@@ -122,7 +123,8 @@ export class AuthController extends Controller {
         })
     }
     async register() {
-        const { firstName, lastName, email, password } = this.validate(RegisterValidator)
+        const { firstName, lastName, email, password } =
+            this.validate(RegisterValidator)
 
         if (await UserServices.retrieveUserByEmail(email)) {
             throw new UnprocessableEntity('Email already used')
@@ -189,11 +191,11 @@ export class AuthController extends Controller {
         const user = await UserServices.retrieveUserByEmail(email)
         UnauthorizedException.abortIf(!user, 'User not found')
 
-        const emailInstance = new RegisterEmail()
+        const emailInstance = new ResetPasswordEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
             })
-            .addTo('nolifedu27@gmail.com', `${user.firstName} ${user.lastName}`)
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(emailInstance)
 
