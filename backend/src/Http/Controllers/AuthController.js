@@ -14,39 +14,12 @@ import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 import { EmailSender } from '../../lib/EmailSender.js'
+import { LoginValidator } from '../../Validator/LoginValidator.js'
 
 // @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
-    static schema = z.object({
-        email: z.string().email(),
-        password: z
-            .string()
-            .min(8, { message: 'Password must be at least 8 characters long' })
-            .regex(/[a-z]/, {
-                message: 'Password must contain at least one lowercase letter',
-            })
-            .regex(/[A-Z]/, {
-                message: 'Password must contain at least one uppercase letter',
-            })
-            .regex(/[0-9]/, {
-                message: 'Password must contain at least one number',
-            }),
-        firstName: z.string().min(2),
-        lastName: z.string().min(2),
-    })
-
     async login() {
-        const { email, password } = this.req.body.all()
-
-        const loginSchema = AuthController.schema.pick({
-            email: true,
-            password: true,
-        })
-        const result = loginSchema.safeParse({ email, password })
-        if (!result.success) {
-            const errors = result.error.errors.map((error) => error.message)
-            throw new UnprocessableEntity(errors.join(', '))
-        }
+        const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
         UnprocessableEntity.abortIf(!user, 'Invalid credentials')
@@ -68,7 +41,7 @@ export class AuthController extends Controller {
                     AccessLinkServices.getDate(20),
                     1,
                 )
-                await NotificationsServices.notifyConnectionAttempt3Fail(
+                await NotificationsServices.notifyConnectionAttempt3Failed(
                     user,
                     accessLink.identifier,
                 )
@@ -130,6 +103,7 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
+
     async register() {
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)

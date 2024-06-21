@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { Validator } from './Validator.js'
 
 const loginSchema = z.object({
-    username: z.string().min(1, { message: 'Username is required' }),
+    email: z.string().email(),
     password: z
         .string()
         .min(12, { message: 'Password must be at least 12 characters long' })

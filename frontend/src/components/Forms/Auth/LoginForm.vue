@@ -58,7 +58,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, computed } from 'vue'
 import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormHeader from '@/components/Forms/FormHeader.vue'
@@ -66,11 +66,11 @@ import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
+import { apiClient } from '@/lib/apiClient'
 
 // Reactive variables
 const email = ref('')
 const password = ref('')
-const errors = ref([])
 
 // Password Input Behavior
 const passwordManager = reactive({
@@ -95,25 +95,24 @@ const passwordManager = reactive({
 
 // Submit function
 // @TODO : Add custom validation with the Vadilator
-// async function submit() {
-//   try {
-//     const data = {
-//       email: email.value,
-//       password: password.value
-//     }
+async function submit() {
+  try {
+    const data = {
+      email: email.value,
+      password: password.value
+    }
 
-//     const response = await axios.post('/api/auth/login', {
-//       email: email.value,
-//       password: password.value
-//     })
-//     console.log('Login successful', response.data)
+    const response = await apiClient.post('/login', {
+      email: data.email,
+      password: data.password
+    })
+    console.log('Login successful', response.data)
 
-//     // Store tokens in local storage
-//     localStorage.setItem('accessToken', response.data.accessToken)
-//     localStorage.setItem('refreshToken', response.data.refreshToken)
-//   } catch (error) {
-//     console.error('Login failed', error)
-//     errors.value = [{ path: ['api'], message: error.response.data.message }]
-//   }
-// }
+    // Store tokens in local storage
+    localStorage.setItem('accessToken', response.data.accessToken)
+    localStorage.setItem('refreshToken', response.data.refreshToken)    
+  } catch (error) {
+    console.error('Login failed', error)
+  }
+}
 </script>
