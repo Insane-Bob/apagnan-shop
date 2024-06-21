@@ -1,10 +1,10 @@
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
 import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
-import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
+// import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { EmailSender } from '../lib/EmailSender.js'
-import { ConnectionAttemp3FailedEmail } from '../Emails/ConnectionAttemp3FailedEmail.js'
+// import { ConnectionAttemp3FailedEmail } from '../Emails/ConnectionAttemp3FailedEmail.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -31,7 +31,7 @@ export class NotificationsServices {
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
-        await EmailSender.send(resetPasswordEmail)  
+        await EmailSender.send(resetPasswordEmail)
     }
 
     static async notifySuccessPaymentCustomer(user, order) {
