@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="submit">
+    <form v-if="!isSubmitted" @submit.prevent="submit">
         <FormHeader>
             <h1 class="text-md text-primary-accent font-medium">
                 Rejoignez notre communauté !
@@ -143,10 +143,19 @@
                         ></ion-icon>
                     </template>
                 </FormInput>
-                <Button type="submit">S'inscrire</Button>
+                <Button :disabled="!isFormValid || isSubmitting">
+                    <ion-spinner
+                        v-if="isSubmitting"
+                        class="w-4 h-4"
+                        color="light"
+                    ></ion-spinner>
+                    <span v-if="isSubmitting" class="ml-2">Inscription en cours</span>
+                    <span v-else>S'inscrire</span>
+                </Button>
             </div>
         </FormGrid>
 
+        <!-- Separator -->
         <Separator class="mt-4 mb-4" />
 
         <!-- Login -->
@@ -169,6 +178,35 @@
             </div>
         </div>
     </form>
+
+    <div v-else>
+        <div class="flex flex-col gap-4">
+            <h1 class="text-md text-primary-accent font-medium">
+                Inscription réussie !
+            </h1>
+            <small class="text-sm text-gray-500">
+                Un mail afin d'activer votre compte vous a été envoyé.
+            </small>
+            <form @submit.prevent="resendEmail" class="flex flex-col gap-3">
+                <FormInput
+                    name="email"
+                    :errors="errors"
+                    class="row-span-1 col-start-1 col-span-full"
+                    required
+                >
+                    <template #label>Adresse mail</template>
+                    <template #input="inputProps">
+                        <Input
+                            type="email"
+                            v-model="email"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
+                <Button type="submit">Renvoyer le mail</Button>
+            </form>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -188,6 +226,8 @@ const email = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const errors = ref(null)
+const isSubmitted = ref(false)
+const isSubmitting = ref(false) // Added state for submission
 
 // Password validation logic
 const passwordRules = computed(() => [
@@ -219,9 +259,23 @@ const passwordManager = reactive({
     },
 })
 
+// Computed property to check if the form is valid
+const isFormValid = computed(() => {
+    return (
+        lastName.value &&
+        firstName.value &&
+        email.value &&
+        password.value &&
+        passwordConfirmation.value &&
+        password.value === passwordConfirmation.value &&
+        passwordRules.value.every((rule) => rule.isValid)
+    )
+})
+
 // Submit function
 async function submit() {
     try {
+        isSubmitting.value = true
         const data = {
             lastName: lastName.value,
             firstName: firstName.value,
@@ -231,9 +285,30 @@ async function submit() {
         }
 
         const response = await apiClient.post('/register', data)
-        console.log('Registration successful', response.data)
+        console.log('Registration successful', response)
+
+        setTimeout(() => {
+            isSubmitted.value = true
+            isSubmitting.value = false
+        }, 2000)
     } catch (error) {
         console.error('Registration failed', error)
+        errors.value = error.response.data.errors
+        isSubmitting.value = false
+    }
+}
+
+// Resend email function
+async function resendEmail() {
+    try {
+        const data = {
+            email: email.value,
+        }
+
+        const response = await apiClient.post('/activation-email', data)
+        console.log('Email resent', response)
+    } catch (error) {
+        console.error('Email resend failed', error)
         errors.value = error.response.data.errors
     }
 }

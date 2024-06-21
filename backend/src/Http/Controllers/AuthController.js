@@ -114,7 +114,7 @@ export class AuthController extends Controller {
             password,
         )
 
-        await NotificationsServices.notifyRegisterUser(user)
+        NotificationsServices.notifyRegisterUser(user)
 
         this.res.json(user)
     }
@@ -167,6 +167,32 @@ export class AuthController extends Controller {
 
         this.res.json({
             message: 'An email has been sent to reset your password',
+        })
+    }
+
+    async activationEmail() {
+        const { email } = this.req.body.all()
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        await NotificationsServices.notifyActivationEmail(user)
+
+        this.res.json({
+            message: 'An email has been sent to activate your account',
+        })
+    }
+
+    async activateAccount() {
+        const user = await UserServices.retrieveUserByToken(token)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        // Activate user account and send notification
+        UserServices.activateUserAccount(user)
+        NotificationsServices.notifyAccountActivated(user)
+
+        this.res.json({
+            message: 'Account activated',
         })
     }
 

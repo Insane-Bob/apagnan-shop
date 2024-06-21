@@ -1,3 +1,4 @@
+import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
 import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
@@ -91,5 +92,15 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(notifyEmail)
+    }
+
+    static async notifyAccountActivated(user) {
+        const activatedAccountEmail = new AccountActivatedEmail()
+            .setParams({
+                user: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(activatedAccountEmail)
     }
 }

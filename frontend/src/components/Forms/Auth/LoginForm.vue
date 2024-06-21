@@ -98,6 +98,8 @@ import Input from '@/components/ui/input/Input.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { apiClient } from '@/lib/apiClient'
+import { useRouter } from 'vue-router'
+import { useToast } from '@/components/ui/toast/use-toast'
 
 // Reactive variables
 const email = ref('')
@@ -124,6 +126,8 @@ const passwordManager = reactive({
         }
     },
 })
+const router = useRouter()
+const {toast} = useToast() 
 
 // Submit function
 async function submit() {
@@ -139,6 +143,14 @@ async function submit() {
         // Store tokens in local storage
         localStorage.setItem('accessToken', response.data.accessToken)
         localStorage.setItem('refreshToken', response.data.refreshToken)
+
+        router.push('/profile')
+        toast({
+                title: 'Succès',
+                description:
+                    'Connexion réussie, bienvenue dans votre espace personnel !',
+                status: 'success',
+            })
     } catch (error) {
         console.error('Login failed', error)
         errors.value = error.response.data.errors
