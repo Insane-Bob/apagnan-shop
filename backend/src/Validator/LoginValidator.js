@@ -2,18 +2,20 @@ import { z } from 'zod'
 import { Validator } from './Validator.js'
 
 const loginSchema = z.object({
-    email: z.string().email(),
+    email: z.string().email({ message: "Votre email n'est pas au bon format" }),
     password: z
         .string()
-        .min(12, { message: 'Password must be at least 12 characters long' })
+        .min(12, {
+            message: 'Votre mot de passe doit faire au moins 12 caractères',
+        })
         .regex(/[a-z]/, {
-            message: 'Password must contain at least one lowercase letter',
+            message: 'Votre mot de passe doit contenir au moins une minuscule',
         })
         .regex(/[A-Z]/, {
-            message: 'Password must contain at least one uppercase letter',
+            message: 'Votre mot de passe doit contenir au moins une majuscule',
         })
         .regex(/[0-9]/, {
-            message: 'Password must contain at least one number',
+            message: 'Votre mot de passe doit contenir au moins un chiffre',
         }),
 })
 

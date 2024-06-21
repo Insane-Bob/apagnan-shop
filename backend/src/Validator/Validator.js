@@ -12,9 +12,14 @@ export class Validator {
             return this.schema.parse(data)
         } catch (e) {
             if (e instanceof z.ZodError) {
-                const errors = e.errors.map((err) => ({
-                    path: err.path,
-                    message: err.message,
+                const pathsWithErrors = e.errors.map((error) =>
+                    error.path.join('.'),
+                )
+                const errors = pathsWithErrors.map((path) => ({
+                    path,
+                    message: e.errors.find(
+                        (error) => error.path.join('.') === path,
+                    ).message,
                 }))
                 throw new ValidationException(errors)
             } else {

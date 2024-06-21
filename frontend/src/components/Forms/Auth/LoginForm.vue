@@ -1,61 +1,92 @@
 <template>
-  <form @submit.prevent="submit">
-    <FormHeader>
-      <h1 class="text-md text-primary-accent font-medium">Déjà l'un de nous ?</h1>
-      <small class="text-sm text-gray-500"
-        >Connecte-toi pour retrouver ta tribu de nains de jardin !</small
-      >
-    </FormHeader>
-    <FormGrid>
-      <div class="flex flex-col col-span-full gap-3">
-        <!-- EMAIL -->
-        <FormInput class="row-span-1 col-start-1 col-span-full" required>
-          <template #label>Adresse e-mail</template>
-          <template #input="inputProps">
-            <Input type="email" v-model="email" v-bind="inputProps" />
-          </template>
-        </FormInput>
+    <form @submit.prevent="submit">
+        <FormHeader>
+            <h1 class="text-md text-primary-accent font-medium">
+                Déjà l'un de nous ?
+            </h1>
+            <small class="text-sm text-gray-500"
+                >Connecte-toi pour retrouver ta tribu de nains de jardin
+                !</small
+            >
+        </FormHeader>
+        <FormGrid>
+            <div class="flex flex-col col-span-full gap-3">
+                <!-- EMAIL -->
+                <FormInput
+                    name="email"
+                    :errors="errors"
+                    class="row-span-1 col-start-1 col-span-full"
+                    required
+                >
+                    <template #label>Adresse e-mail</template>
+                    <template #input="inputProps">
+                        <Input
+                            type="email"
+                            v-model="email"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
 
-        <!-- PASSWORD -->
-        <FormInput class="row-span-1 col-start-1 col-span-full" required>
-          <template #label>Mot de passe</template>
-          <template #input="inputProps">
-            <input :type="passwordManager.inputType" v-model="password" v-bind="inputProps" />
-          </template>
-          <template #after-input>
-            <ion-icon
-              :name="passwordManager.isShown ? 'eye-outline' : 'eye-off-outline'"
-              class="mr-2 h-4 w-4 cursor-pointer"
-              @click="passwordManager.toggle()"
-            ></ion-icon>
-          </template>
-        </FormInput>
-        
-        <small
-          @click="$emit('switch-to-forgot-password')"
-          class="text-xs text-primary-accent/60 hover:underline hover:cursor-pointer"
-          >Mot de passe oublié ?</small
+                <!-- PASSWORD -->
+                <FormInput
+                    name="password"
+                    :errors="errors"
+                    class="row-span-1 col-start-1 col-span-full"
+                    required
+                >
+                    <template #label>Mot de passe</template>
+                    <template #input="inputProps">
+                        <input
+                            :type="passwordManager.inputType"
+                            v-model="password"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                    <template #after-input>
+                        <ion-icon
+                            :name="
+                                passwordManager.isShown
+                                    ? 'eye-outline'
+                                    : 'eye-off-outline'
+                            "
+                            class="mr-2 h-4 w-4 cursor-pointer"
+                            @click="passwordManager.toggle()"
+                        ></ion-icon>
+                    </template>
+                </FormInput>
+
+                <small
+                    @click="$emit('switch-to-forgot-password')"
+                    class="text-xs text-primary-accent/60 hover:underline hover:cursor-pointer"
+                    >Mot de passe oublié ?</small
+                >
+                <!-- SUBMIT -->
+                <Button type="submit">Se connecter</Button>
+            </div>
+        </FormGrid>
+    </form>
+
+    <Separator class="mt-4 mb-4" />
+
+    <!-- Register -->
+    <div class="flex flex-col gap-4 mt-4">
+        <h2 class="text-sm text-primary-accent font-medium">
+            Nouveau chez nous ?
+        </h2>
+        <small class="text-sm text-gray-500"
+            >Rejoins notre joyeuse bande de nains de jardin et découvre un monde
+            magiquee !</small
         >
-        <!-- SUBMIT -->
-        <Button type="submit">Se connecter</Button>
-      </div>
-    </FormGrid>
-  </form>
-
-  <Separator class="mt-4 mb-4" />
-
-  <!-- Register -->
-  <div class="flex flex-col gap-4 mt-4">
-    <h2 class="text-sm text-primary-accent font-medium">Nouveau chez nous ?</h2>
-    <small class="text-sm text-gray-500"
-      >Rejoins notre joyeuse bande de nains de jardin et découvre un monde magiquee !</small
-    >
-    <div class="flex justify-center w-full">
-      <Button @click="$emit('switch-to-register')" variant="outline" class="w-full"
-        >S'inscrire</Button
-      >
+        <div class="flex justify-center w-full">
+            <Button
+                @click="$emit('switch-to-register')"
+                variant="outline"
+                class="w-full"
+                >S'inscrire</Button
+            >
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -71,48 +102,46 @@ import { apiClient } from '@/lib/apiClient'
 // Reactive variables
 const email = ref('')
 const password = ref('')
+const errors = ref(null)
 
 // Password Input Behavior
 const passwordManager = reactive({
-  isShown: ref(false),
-  inputType: computed(() => {
-    return passwordManager.isShown ? 'text' : 'password'
-  }),
-  show: () => {
-    passwordManager.isShown = true
-  },
-  hide: () => {
-    passwordManager.isShown = false
-  },
-  toggle: (value = passwordManager.isShown) => {
-    if (value) {
-      passwordManager.hide()
-    } else {
-      passwordManager.show()
-    }
-  }
+    isShown: ref(false),
+    inputType: computed(() => {
+        return passwordManager.isShown ? 'text' : 'password'
+    }),
+    show: () => {
+        passwordManager.isShown = true
+    },
+    hide: () => {
+        passwordManager.isShown = false
+    },
+    toggle: (value = passwordManager.isShown) => {
+        if (value) {
+            passwordManager.hide()
+        } else {
+            passwordManager.show()
+        }
+    },
 })
 
 // Submit function
-// @TODO : Add custom validation with the Vadilator
 async function submit() {
-  try {
-    const data = {
-      email: email.value,
-      password: password.value
+    try {
+        const data = {
+            email: email.value,
+            password: password.value,
+        }
+
+        const response = await apiClient.post('/login', data)
+        console.log('Login successful', response.data)
+
+        // Store tokens in local storage
+        localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('refreshToken', response.data.refreshToken)
+    } catch (error) {
+        console.error('Login failed', error)
+        errors.value = error.response.data.errors
     }
-
-    const response = await apiClient.post('/login', {
-      email: data.email,
-      password: data.password
-    })
-    console.log('Login successful', response.data)
-
-    // Store tokens in local storage
-    localStorage.setItem('accessToken', response.data.accessToken)
-    localStorage.setItem('refreshToken', response.data.refreshToken)    
-  } catch (error) {
-    console.error('Login failed', error)
-  }
 }
 </script>

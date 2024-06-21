@@ -1,7 +1,4 @@
-import { z } from 'zod'
 import { Controller } from '../../Core/Controller.js'
-import { RegisterEmail } from '../../Emails/RegisterEmail.js'
-import { ResetPasswordEmail } from '../../Emails/ResetPasswordEmail.js'
 import {
     UnauthorizedException,
     UnprocessableEntity,
@@ -12,11 +9,9 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
-import { RegisterValidator } from '../../Validator/RegisterValidator.js'
-import { EmailSender } from '../../lib/EmailSender.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
+import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 
-// @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
     async login() {
         const { email, password } = this.validate(LoginValidator)

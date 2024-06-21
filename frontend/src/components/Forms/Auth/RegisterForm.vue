@@ -14,7 +14,12 @@
                 <!-- LASTNAME & FIRSTNAME -->
                 <div class="grid grid-cols-2 gap-4">
                     <!-- LASTNAME -->
-                    <FormInput class="col-span-1" required>
+                    <FormInput
+                        name="lastName"
+                        :errors="errors"
+                        class="col-span-1"
+                        required
+                    >
                         <template #label>Nom</template>
                         <template #input="inputProps">
                             <Input
@@ -26,7 +31,12 @@
                     </FormInput>
 
                     <!-- FIRSTNAME -->
-                    <FormInput class="col-span-1" required>
+                    <FormInput
+                        name="firstName"
+                        :errors="errors"
+                        class="col-span-1"
+                        required
+                    >
                         <template #label>Prénom</template>
                         <template #input="inputProps">
                             <Input
@@ -41,6 +51,8 @@
 
                 <!-- EMAIL -->
                 <FormInput
+                    name="email"
+                    :errors="errors"
                     class="row-span-1 col-start-1 col-span-full"
                     required
                 >
@@ -106,6 +118,8 @@
 
                 <!-- CONFIRM PASSWORD -->
                 <FormInput
+                    name="passwordConfirmation"
+                    :errors="errors"
                     class="row-span-1 col-start-1 col-span-full"
                     required
                 >
@@ -113,7 +127,7 @@
                     <template #input="inputProps">
                         <input
                             :type="passwordManager.inputType"
-                            v-model="confirmPassword"
+                            v-model="passwordConfirmation"
                             v-bind="inputProps"
                         />
                     </template>
@@ -172,7 +186,8 @@ const lastName = ref('')
 const firstName = ref('')
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('')
+const passwordConfirmation = ref('')
+const errors = ref(null)
 
 // Password validation logic
 const passwordRules = computed(() => [
@@ -212,18 +227,14 @@ async function submit() {
             firstName: firstName.value,
             email: email.value,
             password: password.value,
-            confirmPassword: confirmPassword.value,
+            passwordConfirmation: passwordConfirmation.value,
         }
 
-        const response = await apiClient.post('/register', {
-            lastName: data.lastName,
-            firstName: data.firstName,
-            email: data.email,
-            password: data.password,
-        })
+        const response = await apiClient.post('/register', data)
         console.log('Registration successful', response.data)
     } catch (error) {
         console.error('Registration failed', error)
+        errors.value = error.response.data.errors
     }
 }
 </script>
