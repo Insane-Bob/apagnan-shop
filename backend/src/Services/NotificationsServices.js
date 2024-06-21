@@ -6,6 +6,10 @@ import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { Email, EmailSender } from '../lib/EmailSender.js'
+// import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
+import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
+import { EmailSender } from '../lib/EmailSender.js'
+// import { ConnectionAttemp3FailedEmail } from '../Emails/ConnectionAttemp3FailedEmail.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -38,16 +42,6 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(resetPasswordEmail)
-    }
-
-    static async notifyRenewedPassword(user) {
-        const renewedPasswordEmail = new ResetPasswordEmail()
-            .setParams({
-                name: user.firstName + ' ' + user.lastName,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(renewedPasswordEmail)
     }
 
     static async notifySuccessPaymentCustomer(user, order) {

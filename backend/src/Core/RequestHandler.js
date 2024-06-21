@@ -48,8 +48,8 @@ export class RequestHandler {
         }
     }
 
-    validate(validatorClass) {
-        const validatorInstance = new validatorClass()
+    validate(validatorClass, schema = null) {
+        const validatorInstance = new validatorClass(schema)
         return validatorInstance.validate(this.req.body.all())
     }
 }

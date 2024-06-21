@@ -1,10 +1,17 @@
 import { z } from 'zod'
 import { Validator } from './Validator.js'
 
-const schema = z.object({})
-
 export class OrderValidator extends Validator {
-    constructor() {
+    constructor(schema = OrderValidator.create()) {
         super(schema)
+    }
+
+    static create() {
+        return z.object({
+            customerId: z.number().int().positive(),
+        })
+    }
+    static update() {
+        return z.object({})
     }
 }
