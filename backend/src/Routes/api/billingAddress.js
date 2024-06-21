@@ -7,7 +7,7 @@ export default function (router) {
             this.get('/', BillingAddressController, 'index')
             this.get('/:billing_address', BillingAddressController, 'show')
             this.post('/', BillingAddressController, 'store')
-            this.put('/:billing_address', BillingAddressController, 'update')
+            this.patch('/:billing_address', BillingAddressController, 'update')
             this.delete('/:billing_address', BillingAddressController, 'delete')
         })
         .provide(BillingAddressProvider)
