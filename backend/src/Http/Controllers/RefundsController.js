@@ -35,7 +35,7 @@ export class RefundsController extends Controller {
 
         await NotificationsServices.notifyRefundApproved(customer, refund)
 
-        this.res.json({
+        this.res.status(201).json({
             message: 'Refund approved',
             refund: {
                 id: refund.id,

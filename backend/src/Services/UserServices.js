@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { Database } from '../Models/index.js'
 import { PaymentServices } from './PaymentServices.js'
+import { USER_ROLES } from '../Models/user.js'
 export class UserServices {
     static hashPassword(plainPassword) {
         return bcrypt.hashSync(plainPassword, 8)
@@ -18,16 +19,25 @@ export class UserServices {
      * @param {string} password plain text password
      * @returns {Promise<User>}
      */
-    static async registerUser(firstName, lastName, email, password) {
-        const hashedPassword = this.hashPassword(password)
-        const user = await Database.getInstance().models.User.create({
-            firstName,
-            lastName,
-            email,
-            password: hashedPassword,
-        })
+    static async registerUser(
+        firstName,
+        lastName,
+        email,
+        password,
+        options = {},
+    ) {
+        const user = await Database.getInstance().models.User.create(
+            {
+                firstName,
+                lastName,
+                email,
+                password,
+                role: USER_ROLES.USER,
+            },
+            options,
+        )
 
-        await PaymentServices.createCustomer(user)
+        await PaymentServices.createCustomer(user, options)
 
         return user
     }

@@ -7,6 +7,8 @@ import { ResetPasswordValidator } from '../../Validator/ResetPasswordValidator.j
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { USER_ROLES } from '../../Models/user.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -23,52 +25,40 @@ export class UserController extends Controller {
     }
     async update() {
         this.can(UserPolicy.update, this.user_resource)
-        const payload = this.validate(UserUpdateValidator)
 
-        if (payload.password)
-            payload.password = UserServices.hashPassword(payload.password)
+        const payload = this.validate(
+            UserUpdateValidator,
+            this.req.user.hasRole(USER_ROLES.ADMIN)
+                ? UserUpdateValidator.updateAdmin()
+                : UserUpdateValidator.update(),
+        )
 
-        await this.user_resource.update({
-            ...payload,
-        })
+        const rowsEdited = await this.user_resource.update(payload)
+        NotFoundException.abortIf(rowsEdited === 0)
+
+        if (payload.password) {
+            await Database.getInstance().models.UserConnectionAttempt.update(
+                {
+                    success: true,
+                },
+                {
+                    where: {
+                        userId: this.user_resource.id,
+                    },
+                },
+            )
+            await NotificationsServices.notifyResetPassword(this.user_resource)
+        }
 
         this.res.json(this.user_resource)
     }
 
     async delete() {
         this.can(UserPolicy.delete, this.user_resource)
-        await this.user_resource.destroy()
-
+        const rowsDeleted = await this.user_resource.destroy()
+        NotFoundException.abortIf(rowsDeleted === 0)
         this.res.json({
             message: 'User deleted',
-            success: true,
-        })
-    }
-
-    async resetPassword() {
-        const payload = this.validate(ResetPasswordValidator)
-        const user = this.user_resource
-        this.can(UserPolicy.update, user)
-
-        await user.update({
-            password: UserServices.hashPassword(payload.password),
-        })
-
-        await Database.getInstance().models.UserConnectionAttempt.update(
-            {
-                success: true,
-            },
-            {
-                where: {
-                    userId: user.id,
-                },
-            },
-        )
-
-        await NotificationsServices.notifyResetPassword(user)
-
-        this.res.json({
-            message: 'Password reset',
             success: true,
         })
     }
@@ -93,7 +83,7 @@ export class UserController extends Controller {
             await new Promise((resolve) => setTimeout(resolve, 10)) // simulate a slow response
         }
 
-        this.res.json({
+        this.res.status(202).json({
             message:
                 'Reset password link sent if the email exists, check your inbox',
             success: true,

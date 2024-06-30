@@ -65,7 +65,7 @@ export class AuthController extends Controller {
                     AccessLinkServices.getDate(20),
                     1,
                 )
-                await NotificationsServices.notifyConnectionAttempt3Fail(
+                await NotificationsServices.notifyConnectionAttempt3Failed(
                     user,
                     accessLink.identifier,
                 )
@@ -130,26 +130,23 @@ export class AuthController extends Controller {
             password,
         })
 
-        // if (!result.success) {
-        //     const errors = result.error.errors.map((error) => error.message)
-        //     throw new UnprocessableEntity(errors.join(', '))
-        // }
-
-        const emailInstance = new RegisterEmail()
-            .setParams({
-                name: 'Ilyam Dupuis',
-            })
-            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
-
-        await EmailSender.send(emailInstance)
-
-        const user = await UserServices.registerUser(
-            firstName,
-            lastName,
-            email,
-            password,
-        )
-        this.res.json(user)
+        try {
+            const user = await UserServices.registerUser(
+                firstName,
+                lastName,
+                email,
+                password,
+            )
+            // const emailInstance = new RegisterEmail()
+            //     .setParams({
+            //         name: 'Ilyam Dupuis',
+            //     })
+            //     .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
+            // await EmailSender.send(emailInstance)
+            this.res.status(202).json(user)
+        } catch (e) {
+            throw e
+        }
     }
 
     async logout() {

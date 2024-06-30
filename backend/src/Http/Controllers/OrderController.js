@@ -3,7 +3,7 @@ import { UserPolicy } from '../Policies/UserPolicy.js'
 import { OrderValidator } from '../../Validator/OrderValidator.js'
 import { Database } from '../../Models/index.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
-import { AskResetPasswordValidator } from '../../Validator/AskForRefundValidator.js'
+import { AskForRefundValidator } from '../../Validator/AskForRefundValidator.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { OrderPolicy } from '../Policies/OrderPolicy.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
@@ -59,20 +59,15 @@ export class OrderController extends Controller {
 
     async askForRefund() {
         this.can(OrderPolicy.show, this.order)
-        const payload = this.validate(AskResetPasswordValidator)
-
+        const payload = this.validate(AskForRefundValidator)
         //@TODO : handle the choice of the items and the quantity to refund
-
         const refundRequest = await PaymentServices.askForRefund(
             this.order,
             payload.reason,
         )
-
         const customer = await this.order.getCustomer()
-
         await NotificationsServices.notifyNewRefundRequest(refundRequest)
         await NotificationsServices.notifyACKRefund(customer, refundRequest)
-
         this.res.sendStatus(201)
     }
 }
