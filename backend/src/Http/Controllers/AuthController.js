@@ -103,20 +103,30 @@ export class AuthController extends Controller {
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
 
-        if (await UserServices.retrieveUserByEmail(email)) {
-            throw new UnprocessableEntity('Email already used')
-        }
-
-        const user = await UserServices.registerUser(
+        const result = AuthController.schema.safeParse({
             firstName,
             lastName,
             email,
             password,
-        )
+        })
 
-        NotificationsServices.notifyRegisterUser(user)
-
-        this.res.json(user)
+        try {
+            const user = await UserServices.registerUser(
+                firstName,
+                lastName,
+                email,
+                password,
+            )
+            // const emailInstance = new RegisterEmail()
+            //     .setParams({
+            //         name: 'Ilyam Dupuis',
+            //     })
+            //     .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
+            // await EmailSender.send(emailInstance)
+            this.res.status(202).json(user)
+        } catch (e) {
+            throw e
+        }
     }
 
     async logout() {

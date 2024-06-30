@@ -100,14 +100,17 @@ export class PaymentServices {
      * @param user
      * @returns {Promise<Customer>}
      */
-    static async createCustomer(user) {
+    static async createCustomer(user, options) {
         const customerStripe = await stripe.customers.create({
             email: user.email,
         })
-        return await Database.getInstance().models.Customer.create({
-            userId: user.id,
-            stripeId: customerStripe.id,
-        })
+        return await Database.getInstance().models.Customer.create(
+            {
+                userId: user.id,
+                stripeId: customerStripe.id,
+            },
+            options,
+        )
     }
 
     /**
