@@ -25,17 +25,33 @@
                     </div>
                 </RouterLink>
                 <nav class="flex justy-center items-center gap-x-6">
-                    <ion-icon
-                        name="cart-outline"
-                        class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                    ></ion-icon>
+                    
                     <!-- <RouterLink to="/profile" class="flex items-center">
             <ion-icon
               name="person-outline"
               class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
             ></ion-icon>
           </RouterLink> -->
-                    <AuthDrawer />
+                    <Sheet>
+                        <SheetTrigger as-child>
+                            <ion-icon
+                                name="person-outline"
+                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                            ></ion-icon>
+                        </SheetTrigger>
+                        <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                        <SheetTrigger>
+                        <ion-icon
+                            name="cart-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                        </SheetTrigger>
+                        <SheetContent><CartDrawer></CartDrawer></SheetContent>
+                    </Sheet>
+
                     <form
                         @submit.prevent="onSearch()"
                         class="flex justify-center items-center -ml-6 gap-x-2"
@@ -152,15 +168,18 @@
 </template>
 
 <script setup lang="ts">
-import Button from '@components/ui/button/Button.vue'
+import {
+Sheet,
+SheetContent,
+SheetTrigger
+} from '@/components/ui/sheet'
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
 import ProductCard from '@components/cards/ProductCard.vue'
 import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
-import FooterComponent from '@components/footer/FooterComponent.vue'
+import Button from '@components/ui/button/Button.vue'
 import { onBeforeMount, onMounted, onUnmounted, reactive, ref } from 'vue'
-import Navbar from '../ui/navigation/Navbar.vue'
-import LoginDrawer from '../Drawers/LoginDrawer.vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 
 const loading = ref(true)
