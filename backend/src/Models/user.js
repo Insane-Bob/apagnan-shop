@@ -23,11 +23,17 @@ export class User extends DenormalizableModel {
     static hooks(models) {
         models.User.beforeCreate(User.handlePasswordChanged)
         models.User.beforeUpdate((user) => User.handlePasswordChanged(user))
+        models.User.beforeUpdate((user) => User.handleEmailChanged(user))
     }
 
     static handlePasswordChanged(user) {
         if (user.changed('password')) {
             user.password = UserServices.hashPassword(user.password)
+        }
+    }
+    static handleEmailChanged(user) {
+        if (user.changed('email')) {
+            user.emailVerifiedAt = null
         }
     }
 

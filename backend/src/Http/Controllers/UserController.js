@@ -3,7 +3,6 @@ import { Database } from '../../Models/index.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { UserServices } from '../../Services/UserServices.js'
-import { ResetPasswordValidator } from '../../Validator/ResetPasswordValidator.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
@@ -50,6 +49,9 @@ export class UserController extends Controller {
             await NotificationsServices.notifyResetPassword(this.user_resource)
         }
 
+        if (payload.email != this.user_resource.email)
+            await NotificationsServices.notifyValidateEmail(this.user_resource)
+
         this.res.json(this.user_resource)
     }
 
@@ -87,6 +89,17 @@ export class UserController extends Controller {
             message:
                 'Reset password link sent if the email exists, check your inbox',
             success: true,
+        })
+    }
+
+    async activateAccount() {
+        const user = this.req.getUser()
+        NotFoundException.abortIf(user.isActive, 'Account already activated')
+        UserServices.activateUserAccount(user)
+        await NotificationsServices.notifyAccountActivated(user)
+
+        this.res.json({
+            message: 'Account activated',
         })
     }
 }

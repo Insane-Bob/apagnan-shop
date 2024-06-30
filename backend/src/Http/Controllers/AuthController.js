@@ -3,47 +3,19 @@ import {
     UnauthorizedException,
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
-import { UserServices } from '../../Services/UserServices.js'
-import { TokenServices } from '../../Services/TokenServices.js'
-import { z } from 'zod'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+
+import { TokenServices } from '../../Services/TokenServices.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { LoginValidator } from '../../Validator/LoginValidator.js'
+import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { RegisterEmail } from '../../Emails/RegisterEmail.js'
-import { EmailSender } from '../../lib/EmailSender.js'
 
-// @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
-    static schema = z.object({
-        email: z.string().email(),
-        password: z
-            .string()
-            .min(8, { message: 'Password must be at least 8 characters long' })
-            .regex(/[a-z]/, {
-                message: 'Password must contain at least one lowercase letter',
-            })
-            .regex(/[A-Z]/, {
-                message: 'Password must contain at least one uppercase letter',
-            })
-            .regex(/[0-9]/, {
-                message: 'Password must contain at least one number',
-            }),
-        firstName: z.string().min(2),
-        lastName: z.string().min(2),
-    })
-
     async login() {
-        const { email, password } = this.req.body.all()
-
-        const loginSchema = AuthController.schema.pick({
-            email: true,
-            password: true,
-        })
-        const result = loginSchema.safeParse({ email, password })
-        if (!result.success) {
-            const errors = result.error.errors.map((error) => error.message)
-            throw new UnprocessableEntity(errors.join(', '))
-        }
+        const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
         UnprocessableEntity.abortIf(!user, 'Invalid credentials')
@@ -121,14 +93,11 @@ export class AuthController extends Controller {
         })
     }
     async register() {
-        const { firstName, lastName, email, password } = this.req.body.all()
+        const { firstName, lastName, email, password } =
+            this.validate(RegisterValidator)
 
-        const result = AuthController.schema.safeParse({
-            firstName,
-            lastName,
-            email,
-            password,
-        })
+        const userExist = await UserServices.retrieveUserByEmail(email)
+        UnprocessableEntity.abortIf(userExist, 'Email already used')
 
         try {
             const user = await UserServices.registerUser(
@@ -137,12 +106,7 @@ export class AuthController extends Controller {
                 email,
                 password,
             )
-            // const emailInstance = new RegisterEmail()
-            //     .setParams({
-            //         name: 'Ilyam Dupuis',
-            //     })
-            //     .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
-            // await EmailSender.send(emailInstance)
+            await NotificationsServices.notifyRegisterUser(user)
             this.res.status(202).json(user)
         } catch (e) {
             throw e
@@ -186,6 +150,20 @@ export class AuthController extends Controller {
             refreshToken: newToken.refreshToken,
         })
     }
+
+    async resetPassword() {
+        const { email } = this.validate(AskResetPasswordValidator)
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        await NotificationsServices.notifyResetPassword(user)
+
+        this.res.json({
+            message: 'An email has been sent to reset your password',
+        })
+    }
+
     me() {
         UnauthorizedException.abortIf(
             !this.req.user,

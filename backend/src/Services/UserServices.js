@@ -49,4 +49,10 @@ export class UserServices {
             },
         })
     }
+
+    static activateUserAccount(user) {
+        return user.update({
+            emailVerifiedAt: new Date(),
+        })
+    }
 }

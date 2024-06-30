@@ -1,10 +1,11 @@
+import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
 import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
-// import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
+import { RegisterEmail } from '../Emails/RegisterEmail.js'
+import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { EmailSender } from '../lib/EmailSender.js'
-// import { ConnectionAttemp3FailedEmail } from '../Emails/ConnectionAttemp3FailedEmail.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -20,8 +21,17 @@ export class NotificationsServices {
         )
     }
 
-    static async notifyResetPassword(user, accessLinkIdentifier) {
-        console.log(`Sending reset password notification to ${user.email}`)
+    static async notifyValidateEmail(user) {
+        console.log(`Sending validate email to ${user.email}`)
+    }
+
+    static async notifyRegisterUser(user) {
+        const registerEmail = new RegisterEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+        await EmailSender.send(registerEmail)
     }
 
     static async notifyResetPassword(user) {
@@ -32,6 +42,16 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(resetPasswordEmail)
+    }
+
+    static async notifyRenewedPassword(user) {
+        const renewedPasswordEmail = new ResetPasswordEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(renewedPasswordEmail)
     }
 
     static async notifySuccessPaymentCustomer(user, order) {
@@ -76,5 +96,15 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(notifyEmail)
+    }
+
+    static async notifyAccountActivated(user) {
+        const activatedAccountEmail = new AccountActivatedEmail()
+            .setParams({
+                user: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(activatedAccountEmail)
     }
 }
