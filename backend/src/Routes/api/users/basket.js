@@ -2,7 +2,8 @@ import { UserBasketController } from '../../../Http/Controllers/UserBasketContro
 
 export function basketRoute(userRouteGroup) {
     userRouteGroup.group('/basket', function () {
-        this.post('/add/:productId', UserBasketController, 'add')
-        this.post('/remove/:productId', UserBasketController, 'remove')
+        this.get('/', UserBasketController, 'show')
+        this.put('/:productId', UserBasketController, 'put')
+        this.delete('/:productId', UserBasketController, 'delete')
     })
 }

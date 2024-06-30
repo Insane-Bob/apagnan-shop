@@ -9,12 +9,7 @@ export class OrderServices {
     }
 
     get total() {
-        return 2000
         return this.order.total
-    }
-
-    getItems() {
-        return this.order.getOrderDetails()
     }
 
     getCustomer() {
@@ -41,19 +36,33 @@ export class OrderServices {
     }
 
     async getStripeLineItems() {
-        // @TODO : Implement this method
-        return [
-            {
-                price_data: {
-                    currency: 'usd',
-                    product_data: {
-                        name: 'T-shirt',
+        let orderDetails = this.order.OrderDetails
+        if (!orderDetails) {
+            orderDetails = await this.order.getOrderDetails()
+        }
+
+        return await Promise.all(
+            orderDetails.map(async (orderDetail) => {
+                const productName =
+                    await Database.getInstance().models.Product.findByPk(
+                        orderDetail.productId,
+                        {
+                            attributes: ['name'],
+                        },
+                    )
+                console.log(productName)
+                return {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: productName.name,
+                        },
+                        unit_amount: Number(orderDetail.unitPrice) * 100,
                     },
-                    unit_amount: 2000,
-                },
-                quantity: 1,
-            },
-        ]
+                    quantity: orderDetail.quantity,
+                }
+            }),
+        )
     }
 
     static retrieveOrderById(orderId) {
