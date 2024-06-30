@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Validator } from './Validator.js'
+import { OrderStatus } from '../Enums/OrderStatus.js'
 
 export class OrderValidator extends Validator {
     constructor(schema = OrderValidator.create()) {
@@ -9,9 +10,24 @@ export class OrderValidator extends Validator {
     static create() {
         return z.object({
             customerId: z.number().int().positive(),
+            addressId: z.number().int().positive(),
+            products: z.array(
+                z.object({
+                    productId: z.number().int().positive(),
+                    quantity: z.number().int().positive(),
+                }),
+            ),
         })
     }
     static update() {
-        return z.object({})
+        return z.object({
+            status: z.enum([
+                OrderStatus.PENDING,
+                OrderStatus.DELIVERED,
+                OrderStatus.REFUNDED,
+                OrderStatus.SHIPPED,
+                OrderStatus.CANCELLED,
+            ]),
+        })
     }
 }

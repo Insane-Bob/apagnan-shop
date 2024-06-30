@@ -7,8 +7,13 @@ import { AskForRefundValidator } from '../../Validator/AskForRefundValidator.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { OrderPolicy } from '../Policies/OrderPolicy.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
-import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import {
+    ForbiddenException,
+    NotFoundException,
+} from '../../Exceptions/HTTPException.js'
 import { USER_ROLES } from '../../Models/user.js'
+import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
+import { OrderStatus } from '../../Enums/OrderStatus.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -40,14 +45,82 @@ export class OrderController extends Controller {
     async store() {
         const payload = this.validate(OrderValidator, OrderValidator.create())
         this.can(OrderPolicy.store, payload.customerId)
-        await Database.getInstance().models.Order.create(payload)
-        this.res.sendStatus(201)
+
+        const billingAddress =
+            await Database.getInstance().models.BillingAddress.findOne({
+                where: {
+                    id: payload.addressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(!billingAddress, 'Billing address not found')
+
+        const orderPayload = {
+            customerId: payload.customerId,
+            addressId: payload.addressId,
+        }
+
+        const transaction = await Database.transaction()
+        try {
+            let order = await Database.getInstance().models.Order.create(
+                orderPayload,
+                {
+                    transaction,
+                },
+            )
+
+            const orderDetailsPayload = []
+            for (const productPayload of payload.products) {
+                orderDetailsPayload.push(
+                    await OrderDetailsServices.parseOrderLine(
+                        order.id,
+                        productPayload.productId,
+                        productPayload.quantity,
+                        transaction,
+                    ),
+                )
+            }
+
+            await Database.getInstance().models.OrderDetail.bulkCreate(
+                orderDetailsPayload.filter(Boolean),
+                { transaction },
+            )
+            await transaction.commit()
+            order.OrderDetails = await order.getOrderDetails()
+
+            this.res.status(201).json(order)
+        } catch (e) {
+            console.log(e)
+            await transaction.rollback()
+            throw e
+        }
     }
     async update() {
-        this.can(OrderPolicy.show, this.order)
+        this.can(OrderPolicy.update)
         const payload = this.validate(OrderValidator, OrderValidator.update())
+
+        ForbiddenException.abortIf(
+            this.order.status == OrderStatus.DELIVERED,
+            'Cannot update a delivered order',
+        )
+        ForbiddenException.abortIf(
+            this.order.status == OrderStatus.REFUNDED,
+            'Cannot update a refunded order',
+        )
+        ForbiddenException.abortIf(
+            this.order.status == OrderStatus.CANCELLED,
+            'Cannot update a cancelled order',
+        )
+
         const rowsEdited = await this.order.update(payload)
         NotFoundException.abortIf(!rowsEdited)
+
+        if (payload.status)
+            await NotificationsServices.notifyOrderStatusUpdate(
+                this.order,
+                payload.status,
+            )
+
         await this.res.sendStatus(200)
     }
 

@@ -50,6 +50,9 @@ async function initDatabase() {
         if (db[modelName].associate) {
             db[modelName].associate(db)
         }
+        if (db[modelName].hooks) {
+            db[modelName].hooks(db)
+        }
     })
 
     db.sequelize = sequelize
@@ -108,6 +111,10 @@ export class Database {
 
     static getInstance() {
         return Database._getInstance()
+    }
+
+    static transaction() {
+        return Database.getInstance().sequelize.transaction()
     }
 
     static _getInstance() {

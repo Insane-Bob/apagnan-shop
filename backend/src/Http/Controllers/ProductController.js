@@ -1,17 +1,21 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
+import { ProductServices } from '../../Services/ProductServices.js'
 
 export class ProductController extends Controller {
     product /** @provide by ProductProvider */
     collection /** @provide by CollectionProvider */
     async getProducts() {
+        const products = await this.collection.getProducts()
+        await ProductServices.loadRemainingStock(products)
         this.res.json({
-            products: await this.collection.getProducts(),
+            products,
         })
     }
 
     async getProduct() {
         const product = this.product
+        await ProductServices.loadRemainingStock(product)
         const images = await Database.getInstance().models.Upload.findAll({
             where: {
                 modelId: product.id,

@@ -4,6 +4,7 @@ import { OrderServices } from './OrderServices.js'
 import { URLUtils } from '../utils/url.js'
 import { PaymentStatus } from '../Models/payment.js'
 import { BadRequestException } from '../Exceptions/HTTPException.js'
+import { OrderStatus } from '../Enums/OrderStatus.js'
 const stripe = new Stripe(process.env.STRIPE_KEY)
 
 /**
@@ -70,29 +71,60 @@ export class PaymentServices {
      */
     static async createRefund(refundRequest) {
         BadRequestException.abortIf(refundRequest.approved, 'Already approved')
-        await refundRequest.update({
-            approved: true,
-        })
 
-        const session = await PaymentServices.retrieveSession(
-            refundRequest.sessionId,
-        )
-        BadRequestException.abortIf(
-            !session.payment_intent,
-            'No payment intent',
-        )
+        const transaction = await Database.getInstance().transaction()
+        try {
+            await transaction.commit()
+            await refundRequest.update(
+                {
+                    approved: true,
+                },
+                { transaction },
+            )
 
-        const refund = await stripe.refunds.create({
-            payment_intent: session.payment_intent,
-            amount: parseInt(refundRequest.amount),
-        })
+            const session = await PaymentServices.retrieveSession(
+                refundRequest.sessionId,
+            )
+            BadRequestException.abortIf(
+                !session.payment_intent,
+                'No payment intent',
+            )
 
-        await Database.getInstance().models.OrderRefund.create({
-            refundId: refund.id,
-            requestRefundId: refundRequest.id,
-        })
+            const refund = await stripe.refunds.create({
+                payment_intent: session.payment_intent,
+                amount: parseInt(refundRequest.amount),
+            })
 
-        return refund
+            await Database.getInstance().models.OrderRefund.create(
+                {
+                    refundId: refund.id,
+                    requestRefundId: refundRequest.id,
+                },
+                {
+                    transaction,
+                },
+            )
+
+            await Database.getInstance().models.Order.update(
+                {
+                    status: OrderStatus.REFUNDED,
+                },
+                {
+                    where: {
+                        id: refundRequest.orderId,
+                    },
+                },
+                {
+                    transaction,
+                },
+            )
+
+            return refund
+        } catch (e) {
+            console.log(e)
+            await transaction.rollback()
+            throw e
+        }
     }
 
     /**

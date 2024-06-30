@@ -5,7 +5,7 @@ import { Model } from 'sequelize'
 export class UserBasket extends Model {
     static associate(models) {
         models.UserBasket.belongsTo(models.User, { foreignKey: 'userId' })
-        //models.UserBasket.hasOne(models.Product, { foreignKey: 'productId' })
+        models.UserBasket.belongsTo(models.Product, { foreignKey: 'productId' })
     }
 
     hasRole(role) {

@@ -1,5 +1,6 @@
 'use strict'
 import { Model } from 'sequelize'
+import { OrderStatus } from '../Enums/OrderStatus.js'
 
 export class Order extends Model {
     static associate(models) {
@@ -8,7 +9,20 @@ export class Order extends Model {
         models.Order.hasMany(models.RefundRequestOrder, {
             foreignKey: 'orderId',
         })
-        models.Order.hasMany(models.OrderDetails, { foreignKey: 'orderId' })
+        models.Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' })
+        models.Order.belongsTo(models.BillingAddress, {
+            foreignKey: 'addressId',
+        })
+    }
+
+    getTotal() {
+        if (this.OrderDetails) {
+            return this.OrderDetails.reduce((acc, orderDetail) => {
+                return acc + orderDetail.total
+            }, 0)
+        } else {
+            return 0
+        }
     }
 }
 function model(sequelize, DataTypes) {
@@ -20,14 +34,48 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
             },
+            addressId: DataTypes.INTEGER,
+            status: {
+                type: DataTypes.STRING(50),
+                allowNull: false,
+                defaultValue: OrderStatus.PENDING,
+            },
             updatedAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
+            },
+            total: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return this.getTotal()
+                },
             },
         },
         {
             sequelize,
             modelName: 'Order',
+            defaultScope: {
+                include: [
+                    {
+                        association: 'OrderDetails',
+                        as: 'orderDetails',
+                    },
+                    {
+                        association: 'BillingAddress',
+                        as: 'billingAddress',
+                    },
+                    {
+                        association: 'Customer',
+                        as: 'customer',
+                        include: [
+                            {
+                                association: 'User',
+                                as: 'user',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     )
 
