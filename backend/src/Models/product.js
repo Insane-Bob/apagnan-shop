@@ -22,6 +22,9 @@ function model(sequelize, DataTypes) {
                 },
                 as: 'images',
             })
+            Product.hasMany(models.OrderDetails, {
+                foreignKey: 'productId',
+            })
         }
     }
     Product.init(

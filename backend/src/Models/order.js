@@ -8,13 +8,14 @@ export class Order extends Model {
         models.Order.hasMany(models.RefundRequestOrder, {
             foreignKey: 'orderId',
         })
+        models.Order.hasMany(models.OrderDetails, { foreignKey: 'orderId' })
     }
 }
 function model(sequelize, DataTypes) {
     Order.init(
         {
             customerId: DataTypes.INTEGER,
-            // @TODO : Add an order_number field and use it in the email template SuccessPaymentEmail   
+            // @TODO : Add an order_number field and use it in the email template SuccessPaymentEmail
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
