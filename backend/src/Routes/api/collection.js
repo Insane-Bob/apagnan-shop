@@ -1,7 +1,6 @@
 import { CollectionController } from '../../Http/Controllers/CollectionController.js'
+import { ProductController } from '../../Http/Controllers/ProductController.js'
 import { CollectionProvider } from '../../Http/Providers/CollectionProvider.js'
-import { ProductProvider } from '../../Http/Providers/ProductProvider.js'
-import { productRoutes } from './product.js'
 
 /**
  * Auth routes
@@ -20,9 +19,10 @@ export default function (router) {
                 CollectionController,
                 'deleteCollection',
             )
+
             this.group('/:collection', function () {
-                productRoutes(this)
-            }).provide(ProductProvider)
+                this.get('/products', ProductController, 'getProducts')
+            })
         })
         .provide(CollectionProvider)
 }
