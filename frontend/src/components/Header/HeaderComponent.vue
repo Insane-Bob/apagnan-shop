@@ -6,7 +6,6 @@ SheetTrigger
 } from '@/components/ui/sheet'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
-import Button from '@components/ui/button/Button.vue'
 import { reactive, ref } from 'vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 
