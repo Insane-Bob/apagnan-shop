@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { onUnmounted, reactive, ref } from 'vue'
+import {
+Sheet,
+SheetContent,
+SheetTrigger
+} from '@/components/ui/sheet'
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
+import Button from '@components/ui/button/Button.vue'
+import { reactive, ref } from 'vue'
+import AuthDrawer from '../Drawers/AuthDrawer.vue'
 
 const search = reactive({
     query: '',
@@ -35,16 +43,25 @@ const onSearch = () => {
             />
         </RouterLink>
         <nav class="flex justy-center gap-x-6 items-center">
-            <ion-icon
-                name="cart-outline"
-                class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-            ></ion-icon>
-            <RouterLink to="/profile">
+            <Sheet>
+                <SheetTrigger as-child>
+                    <ion-icon
+                        name="person-outline"
+                        class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
+                    ></ion-icon>
+                </SheetTrigger>
+                <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
+            </Sheet>
+
+            <Sheet>
+                <SheetTrigger>
                 <ion-icon
-                    name="person-outline"
-                    class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                    name="cart-outline"
+                    class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
                 ></ion-icon>
-            </RouterLink>
+                </SheetTrigger>
+                <SheetContent><CartDrawer></CartDrawer></SheetContent>
+            </Sheet>
             <form
                 @submit.prevent="onSearch()"
                 class="flex justify-center items-center -ml-6 gap-2"
