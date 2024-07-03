@@ -53,7 +53,7 @@ const onSearch = () => {
             </Sheet>
 
             <Sheet>
-                <SheetTrigger>
+                <SheetTrigger as-child>
                 <ion-icon
                     name="cart-outline"
                     class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
