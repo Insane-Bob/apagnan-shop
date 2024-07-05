@@ -4,6 +4,7 @@ export interface Collection {
     name: string
     description: string
     published: boolean
+    promoted: boolean
     createdAt: string
     updatedAt: string
 }
