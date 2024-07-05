@@ -74,6 +74,7 @@ const actions: TableActions[] = [
             class: 'text-yellow-500',
             condition: (row: any) => !row.promoted,
             action: (row: any) => {
+            removeOldPromoted()
             updateCollection({...row, promoted: true})
             },
         },
@@ -157,6 +158,13 @@ const reloadCollection = (collection: Collection) => {
     form.collection = null
 
     page.total = collections.length
+}
+
+const removeOldPromoted = () => {
+    const oldPromoted = collections.find((c: any) => c.promoted)
+    if (oldPromoted) {
+        updateCollection({...oldPromoted, promoted: false})
+    }
 }
 
 </script>
