@@ -32,6 +32,13 @@ const columns: TableColumns[] = [
             key: 'name',
             sorting: true,
         },
+            
+        {
+            label: 'Mise en Avant',
+            key: 'promoted',
+            sorting: true,
+            toDisplay: (value: boolean) => value ? 'Oui' : 'Non',
+        },
 
         {
             label: 'Publié',
@@ -52,6 +59,24 @@ const columns: TableColumns[] = [
 
 
 const actions: TableActions[] = [
+        {
+            label: 'Ne plus mettre en avant',
+            icon: 'star',
+            class: 'text-yellow-500',
+            condition: (row: any) => row.promoted,
+            action: (row: any) => {
+            updateCollection({...row, promoted: false})
+            },
+        },
+        {
+            label: 'Mettre en avant',
+            icon: 'star-outline',
+            class: 'text-yellow-500',
+            condition: (row: any) => !row.promoted,
+            action: (row: any) => {
+            updateCollection({...row, promoted: true})
+            },
+        },
         {
             label: 'Retirer la publication',
             icon: 'eye-off-outline',

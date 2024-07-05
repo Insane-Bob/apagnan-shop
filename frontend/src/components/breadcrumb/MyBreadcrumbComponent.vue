@@ -12,6 +12,10 @@ const props = defineProps({
   links: {
     type: Array,
     required: true
+  },
+  class: {
+    type: String,
+    required: false
   }
 })
 
@@ -27,12 +31,12 @@ const breadcrumbLinks = [
 </script>
 
 <template>
-  <Breadcrumb class="flex justify-center h-full bg-[#F0F0F0]">
+  <Breadcrumb class="flex justify-center h-full bg-[#F0F0F0]" :class="props.class">
     <BreadcrumbList>
-      <template v-for="(link, index) in $props.links" :key="index">
+      <template v-for="(link, index) in props.links" :key="index">
         <BreadcrumbItem
           :class="{
-            'text-slate-400': index === links.length - 1,
+            'text-primary': index === links.length - 1,
             'text-green-900': index !== links.length - 1
           }"
         >
