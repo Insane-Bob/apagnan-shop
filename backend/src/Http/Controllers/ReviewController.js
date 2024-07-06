@@ -2,13 +2,18 @@ import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 
 export class ReviewController extends Controller {
-    review /** @provide by ReviewProvider */
     product /** @provide by ProductProvider */
     async getReviews() {
-        const reviews = await this.product.getReviews()
-        this.res.json({
-            reviews: reviews,
-        })
+        if (this.product) {
+            this.res.json({
+                reviews: await this.product.getReviews(),
+            })
+        } else {
+            const reviews = await Database.getInstance().models.Review.findAll()
+            this.res.json({
+                reviews: reviews,
+            })
+        }
     }
 
     async getReview() {

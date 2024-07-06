@@ -1,8 +1,10 @@
-import { Collection } from './Collection'
+// DATA TYPES
+import type { Collection } from './Collection'
+import type { User } from './User'
 
-// DATA TABLE TYPE
-import { Page } from './Page'
-import { TableColumns } from './TableColumns'
-import { TableActions } from './TableActions'
+// DATA TABLE TYPES
+import type { Page } from './Page'
+import type { TableColumns } from './TableColumns'
+import type { TableActions } from './TableActions'
 
-export type { Collection, Page, TableColumns, TableActions }
+export type { Collection, Page, TableColumns, TableActions, User }

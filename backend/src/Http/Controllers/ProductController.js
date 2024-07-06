@@ -3,10 +3,9 @@ import { Database } from '../../Models/index.js'
 import { ProductServices } from '../../Services/ProductServices.js'
 
 export class ProductController extends Controller {
-    product /** @provide by ProductProvider */
     collection /** @provide by CollectionProvider */
     async getProducts() {
-        const products = await this.collection.getProducts()
+        const products = this.collection ? await this.collection.getProducts() : await Database.getInstance().models.Product.findAll()
         await ProductServices.loadRemainingStock(products)
         this.res.json({
             products,

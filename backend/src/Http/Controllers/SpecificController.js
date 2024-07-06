@@ -3,11 +3,17 @@ import { Database } from '../../Models/index.js'
 
 export class SpecificController extends Controller {
     product /** @provide by ProductProvider */
-    specific /** @provide by SpecificProvider */
     async getSpecifics() {
-        this.res.json({
-            specifics: await this.product.getSpecifics(),
-        })
+        if (this.product) {
+            this.res.json({
+                specifics: await this.product.getSpecifics(),
+            })
+        } else {
+            this.res.json({
+                specifics:
+                    await Database.getInstance().models.Specific.findAll(),
+            })
+        }
     }
 
     async getSpecific() {
