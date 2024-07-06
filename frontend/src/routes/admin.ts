@@ -11,7 +11,7 @@ export const adminRoutes = [
         path: '/admin',
         component: AdminLayout,
         redirect: '/admin/dashboard',
-        beforeEnter: (to: any, from: any) => {
+        beforeEnter: async (to: any, from: any) => {
             // Check if user is authenticated && is admin
             // If not, redirect to login page
             if (localStorage.getItem('accessToken')) {
@@ -19,7 +19,6 @@ export const adminRoutes = [
                 const result = apiClient
                     .get('me')
                     .then((response) => {
-                        console.log(response.data)
                         if (response.data.user.role === 'admin') {
                             return true
                         } else {
@@ -42,9 +41,12 @@ export const adminRoutes = [
                         })
                         return false
                     })
-                return result
+                if (await result) {
+                    return true
+                }
+                return { name: 'NotFound' }
             }
-            return false
+            return { name: 'NotFound' }
         },
         children: [
             {
