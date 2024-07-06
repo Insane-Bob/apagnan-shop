@@ -11,7 +11,7 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
-        this.can(UserPolicy.index)
+        // this.can(UserPolicy.index)
         const users = await Database.getInstance().models.User.findAll()
         this.res.json({
             users,

@@ -3,47 +3,18 @@ import {
     UnauthorizedException,
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
-import { UserServices } from '../../Services/UserServices.js'
-import { TokenServices } from '../../Services/TokenServices.js'
-import { z } from 'zod'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { RegisterEmail } from '../../Emails/RegisterEmail.js'
-import { EmailSender } from '../../lib/EmailSender.js'
+import { TokenServices } from '../../Services/TokenServices.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { LoginValidator } from '../../Validator/LoginValidator.js'
+import { RegisterValidator } from '../../Validator/RegisterValidator.js'
 
-// @TODO : Use our custom Validator when it'll be merged
 export class AuthController extends Controller {
-    static schema = z.object({
-        email: z.string().email(),
-        password: z
-            .string()
-            .min(8, { message: 'Password must be at least 8 characters long' })
-            .regex(/[a-z]/, {
-                message: 'Password must contain at least one lowercase letter',
-            })
-            .regex(/[A-Z]/, {
-                message: 'Password must contain at least one uppercase letter',
-            })
-            .regex(/[0-9]/, {
-                message: 'Password must contain at least one number',
-            }),
-        firstName: z.string().min(2),
-        lastName: z.string().min(2),
-    })
-
     async login() {
-        const { email, password } = this.req.body.all()
-
-        const loginSchema = AuthController.schema.pick({
-            email: true,
-            password: true,
-        })
-        const result = loginSchema.safeParse({ email, password })
-        if (!result.success) {
-            const errors = result.error.errors.map((error) => error.message)
-            throw new UnprocessableEntity(errors.join(', '))
-        }
+        const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
         UnprocessableEntity.abortIf(!user, 'Invalid credentials')
@@ -65,7 +36,7 @@ export class AuthController extends Controller {
                     AccessLinkServices.getDate(20),
                     1,
                 )
-                await NotificationsServices.notifyConnectionAttempt3Fail(
+                await NotificationsServices.notifyConnectionAttempt3Failed(
                     user,
                     accessLink.identifier,
                 )
@@ -90,22 +61,29 @@ export class AuthController extends Controller {
 
     async loginWithAccessLink() {
         const identifier = this.req.params.get('identifier', null)
-        const accessLink =
+        const accessLinkIdentifier =
             await AccessLinkServices.retrieveAccessLinkByIdentifier(identifier)
 
-        UnauthorizedException.abortIf(!accessLink, 'Access link is invalid')
         UnauthorizedException.abortIf(
-            !accessLink.isValid,
+            !accessLinkIdentifier,
+            'Access link is invalid',
+        )
+        UnauthorizedException.abortIf(
+            !accessLinkIdentifier.isValid,
             'Access link is invalid',
         )
 
         const user = await Database.getInstance().models.User.findByPk(
-            accessLink.userId,
+            accessLinkIdentifier.userId,
         )
         UnauthorizedException.abortIf(!user, 'User not found')
         UnauthorizedException.abortIf(
             !(await user.canConnect()),
             'Too many attempts',
+            await NotificationsServices.notifyConnectionAttempt3Failed(
+                user,
+                accessLinkIdentifier,
+            ),
         )
 
         await accessLink.update({
@@ -120,28 +98,14 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
+
     async register() {
-        const { firstName, lastName, email, password } = this.req.body.all()
+        const { firstName, lastName, email, password } =
+            this.validate(RegisterValidator)
 
-        const result = AuthController.schema.safeParse({
-            firstName,
-            lastName,
-            email,
-            password,
-        })
-
-        // if (!result.success) {
-        //     const errors = result.error.errors.map((error) => error.message)
-        //     throw new UnprocessableEntity(errors.join(', '))
-        // }
-
-        const emailInstance = new RegisterEmail()
-            .setParams({
-                name: 'Ilyam Dupuis',
-            })
-            .addTo('ilyamdupuis0903@gmail.com', `${firstName} ${lastName}`)
-
-        await EmailSender.send(emailInstance)
+        if (await UserServices.retrieveUserByEmail(email)) {
+            throw new UnprocessableEntity('Email already used')
+        }
 
         const user = await UserServices.registerUser(
             firstName,
@@ -149,6 +113,9 @@ export class AuthController extends Controller {
             email,
             password,
         )
+
+        NotificationsServices.notifyRegisterUser(user)
+
         this.res.json(user)
     }
 
@@ -189,6 +156,46 @@ export class AuthController extends Controller {
             refreshToken: newToken.refreshToken,
         })
     }
+
+    async resetPassword() {
+        const { email } = this.validate(AskResetPasswordValidator)
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        await NotificationsServices.notifyResetPassword(user)
+
+        this.res.json({
+            message: 'An email has been sent to reset your password',
+        })
+    }
+
+    async activationEmail() {
+        const { email } = this.req.body.all()
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        await NotificationsServices.notifyActivationEmail(user)
+
+        this.res.json({
+            message: 'An email has been sent to activate your account',
+        })
+    }
+
+    async activateAccount() {
+        const user = await UserServices.retrieveUserByToken(token)
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        // Activate user account and send notification
+        UserServices.activateUserAccount(user)
+        NotificationsServices.notifyAccountActivated(user)
+
+        this.res.json({
+            message: 'Account activated',
+        })
+    }
+
     me() {
         UnauthorizedException.abortIf(
             !this.req.user,

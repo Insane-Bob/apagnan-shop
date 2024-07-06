@@ -1,9 +1,9 @@
 import { Email } from '../lib/EmailSender.js'
 import { EmailTemplate } from '../Enums/EmailTemplate.js'
 
-export class ConnectionAttempt3FailedEmail extends Email {
+export class PasswordRenewedEmail extends Email {
     constructor() {
         super()
-        this.setTemplate(EmailTemplate.BLOCKED_ACCOUNT)        
+        this.setTemplate(EmailTemplate.PASSWORD_RENEWED)
     }
 }

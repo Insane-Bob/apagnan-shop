@@ -14,11 +14,15 @@
                 class="main-header fixed top-0 h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
             >
                 <RouterLink to="/">
-                    <p
+                    <div
                         class="header-title tracking-widest uppercase text-black font-bold text-xl md:text-4xl absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 opacity-0"
                     >
-                        Apagnain
-                    </p>
+                        <img
+                            class="flex items-center relative right-1/2 translate-x-40 h-full pt-4"
+                            src="/src/assets/logo_black.svg"
+                            alt="Apagnain Logo"
+                        />
+                    </div>
                 </RouterLink>
                 <nav class="flex justy-center items-center gap-x-6">
                     <ion-icon
@@ -56,7 +60,7 @@
                     </form>
                     <div
                         @click="onOpenBurgerMenu()"
-                        class="header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white"
+                        class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white"
                     >
                         <ion-icon
                             name="menu-outline"
@@ -77,7 +81,7 @@
             </h1>
 
             <!-- @TODO: Find a way to close the modal -->
-            <CookiesModal :open="showCookiesModal"/>
+            <CookiesModal :open="showCookiesModal" />
 
             <div class="flex flex-col justify-center items-center gap-y-3">
                 <p class="text-white text-lg md:text-[20px] uppercase">
@@ -245,7 +249,7 @@ onUnmounted(() => {
 
 onMounted(() => {
     setTimeout(() => {
-        showCookiesModal.value = true
+        showCookiesModal.value = false
     }, 500)
 })
 </script>
