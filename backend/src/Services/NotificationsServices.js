@@ -2,10 +2,12 @@ import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
 import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
+import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
+import { EmailSender } from '../lib/EmailSender.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
-import { EmailSender } from '../lib/EmailSender.js'
+import {  EmailSender } from '../lib/EmailSender.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {

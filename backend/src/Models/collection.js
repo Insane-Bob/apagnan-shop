@@ -29,6 +29,7 @@ function model(sequelize, DataTypes) {
             slug: DataTypes.STRING,
             description: DataTypes.STRING,
             published: DataTypes.BOOLEAN,
+            promoted: DataTypes.BOOLEAN,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
         },

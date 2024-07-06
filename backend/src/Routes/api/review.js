@@ -6,13 +6,13 @@ import { ReviewProvider } from '../../Http/Providers/ReviewProvider.js'
  * @param {Router} router
  */
 
-export function reviewRoutes(router) {
+export default function (router) {
     router
-        .group('/reviews', function () {
+        .group('/api/reviews', function () {
             this.get('/', ReviewController, 'getReviews')
             this.get('/:review', ReviewController, 'getReview')
             this.post('/', ReviewController, 'createReview')
-            this.put('/:review', ReviewController, 'updateReview')
+            this.patch('/:review', ReviewController, 'updateReview')
             this.delete('/:review', ReviewController, 'deleteReview')
         })
         .provide(ReviewProvider)
