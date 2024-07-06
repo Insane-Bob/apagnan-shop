@@ -11,7 +11,7 @@ export const adminRoutes = [
         path: '/admin',
         component: AdminLayout,
         redirect: '/admin/dashboard',
-        beforeEnter: async (to: any, from: any) => {
+        beforeEnter: async () => {
             // Check if user is authenticated && is admin
             // If not, redirect to login page
             if (localStorage.getItem('accessToken')) {
