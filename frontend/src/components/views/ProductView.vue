@@ -12,8 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const route = useRoute()
 const collectionSlug = route.params.cslug
 const productSlug = route.params.pslug
-const ProductUrl =
-    API_BASE_URL + '/collections/' + collectionSlug + '/products/' + productSlug
+const ProductUrl = API_BASE_URL + '/products/' + productSlug
 const CollectionUrl = API_BASE_URL + '/collections/' + collectionSlug
 
 const product = ref({})
