@@ -14,7 +14,7 @@ export default function (router) {
             this.get('/', ProductController, 'getProducts')
             this.get('/:product', ProductController, 'getProduct')
             this.post('/', ProductController, 'createProduct')
-            this.put('/:product', ProductController, 'updateProduct')
+            this.patch('/:product', ProductController, 'updateProduct')
             this.delete('/:product', ProductController, 'deleteProduct')
 
             this.group('/:product', function () {

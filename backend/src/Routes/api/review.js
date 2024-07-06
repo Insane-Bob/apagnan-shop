@@ -12,7 +12,7 @@ export default function (router) {
             this.get('/', ReviewController, 'getReviews')
             this.get('/:review', ReviewController, 'getReview')
             this.post('/', ReviewController, 'createReview')
-            this.put('/:review', ReviewController, 'updateReview')
+            this.patch('/:review', ReviewController, 'updateReview')
             this.delete('/:review', ReviewController, 'deleteReview')
         })
         .provide(ReviewProvider)

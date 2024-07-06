@@ -43,6 +43,9 @@ export class RouteGroup {
     put(...args) {
         return this.createRoute('put', ...args)
     }
+    patch(...args) {
+        return this.createRoute('patch', ...args)
+    }
     delete(...args) {
         return this.createRoute('delete', ...args)
     }

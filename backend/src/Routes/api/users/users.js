@@ -15,7 +15,7 @@ export default function (router) {
         .group('/api/users', function () {
             this.get('/', UserController, 'index')
             this.get('/:user_resource', UserController, 'show')
-            this.put('/:user_resource', UserController, 'update')
+            this.patch('/:user_resource', UserController, 'update')
             this.delete('/:user_resource', UserController, 'delete')
 
             this.post(

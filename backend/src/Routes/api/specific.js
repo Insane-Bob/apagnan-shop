@@ -12,7 +12,7 @@ export default function (router) {
             this.get('/', SpecificController, 'getSpecifics')
             this.get('/:specific', SpecificController, 'getSpecific')
             this.post('/', SpecificController, 'createSpecific')
-            this.put('/:specific', SpecificController, 'updateSpecific')
+            this.patch('/:specific', SpecificController, 'updateSpecific')
             this.delete('/:specific', SpecificController, 'deleteSpecific')
         })
         .provide(SpecificProvider)
