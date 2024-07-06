@@ -14,7 +14,7 @@ export default function (router) {
             this.get('/', CollectionController, 'getCollections')
             this.get('/:collection', CollectionController, 'getCollection')
             this.post('/', CollectionController, 'createCollection')
-            this.put('/:collection', CollectionController, 'updateCollection')
+            this.patch('/:collection', CollectionController, 'updateCollection')
             this.delete(
                 '/:collection',
                 CollectionController,
