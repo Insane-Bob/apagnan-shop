@@ -14,6 +14,7 @@ import {
 import { USER_ROLES } from '../../Models/user.js'
 import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
+import { UserBasketServices } from '../../Services/UserBasketServices.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -69,14 +70,26 @@ export class OrderController extends Controller {
                 },
             )
 
+            const customer = await order.getCustomer()
+            const basketItems =
+                await UserBasketServices.getUserBasketSelfQuantity(
+                    customer.userId,
+                )
+
+            // create the order details payload,
+            // check if a user's basket exists and remove basket's quantity from the product stock
             const orderDetailsPayload = []
             for (const productPayload of payload.products) {
+                const selfQuantity = basketItems.find(
+                    (b) => b.productId == productPayload.productId,
+                )?.quantity
+
                 orderDetailsPayload.push(
                     await OrderDetailsServices.parseOrderLine(
                         order.id,
                         productPayload.productId,
                         productPayload.quantity,
-                        transaction,
+                        selfQuantity || 0,
                     ),
                 )
             }

@@ -1,5 +1,5 @@
 'use strict'
-import { Model } from 'sequelize'
+import { Model, QueryTypes } from 'sequelize'
 import slugify from 'slugify'
 
 function model(sequelize, DataTypes) {
@@ -25,19 +25,19 @@ function model(sequelize, DataTypes) {
             Product.hasMany(models.OrderDetail, {
                 foreignKey: 'productId',
             })
-            Product.hasMany(models.UserBasket, {
+            Product.hasMany(models.StockTransaction, {
                 foreignKey: 'productId',
             })
         }
 
-        async getRemainingStock() {
-            const baskets = await this.getUserBaskets()
-            const basketQuantity = baskets.reduce(
-                (acc, item) => acc + item.quantity,
-                0,
-            )
-            this.remainingStock = this.stock - basketQuantity
-            return this.remainingStock
+        async getStock() {
+            const sql = `SELECT SUM(quantity) as stock FROM "StockTransactions" WHERE "productId" = :productId`
+            const [result] = await sequelize.query(sql, {
+                replacements: { productId: this.id },
+                type: QueryTypes.SELECT,
+            })
+            this.stock = Number(result.stock)
+            return Number(result.stock)
         }
     }
     Product.init(
@@ -52,12 +52,11 @@ function model(sequelize, DataTypes) {
             description: DataTypes.STRING,
             price: DataTypes.DECIMAL,
             published: DataTypes.BOOLEAN,
-            stock: DataTypes.INTEGER,
             collectionId: DataTypes.INTEGER,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
-            remainingStock: {
+            stock: {
                 type: DataTypes.VIRTUAL,
             },
         },

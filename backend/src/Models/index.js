@@ -117,6 +117,10 @@ export class Database {
         return Database.getInstance().sequelize.transaction()
     }
 
+    query(...args) {
+        return this.sequelize.query(...args)
+    }
+
     static _getInstance() {
         if (!Database.instance) {
             Database.instance = new Database(globalThis?.db?.sequelize)
