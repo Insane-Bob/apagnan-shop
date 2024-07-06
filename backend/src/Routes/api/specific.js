@@ -6,9 +6,9 @@ import { SpecificProvider } from '../../Http/Providers/SpecificProvider.js'
  * @param {Router} router
  */
 
-export function specificRoutes(router) {
+export default function (router) {
     router
-        .group('/specifics', function () {
+        .group('/api/specifics', function () {
             this.get('/', SpecificController, 'getSpecifics')
             this.get('/:specific', SpecificController, 'getSpecific')
             this.post('/', SpecificController, 'createSpecific')

@@ -1,6 +1,7 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
 import AdminCollections from '@/components/views/admin/collections/AdminCollections.vue'
+import AdminUsers from '@/components/views/admin/users/AdminUsers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 
 export const adminRoutes = [
@@ -49,7 +50,7 @@ export const adminRoutes = [
             },
             {
                 path: 'users',
-                component: WorkInProgress,
+                component: AdminUsers,
                 name: 'Utilisateurs',
                 meta: { label: 'Utilisateurs', icon: 'people-circle' },
             },

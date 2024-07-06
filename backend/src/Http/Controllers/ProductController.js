@@ -2,12 +2,17 @@ import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 
 export class ProductController extends Controller {
-    product /** @provide by ProductProvider */
     collection /** @provide by CollectionProvider */
     async getProducts() {
-        this.res.json({
-            products: await this.collection.getProducts(),
-        })
+        if (this.collection) {
+            this.res.json({
+                products: await this.collection.getProducts(),
+            })
+        } else {
+            this.res.json({
+                products: await Database.getInstance().models.Product.findAll(),
+            })
+        }
     }
 
     async getProduct() {

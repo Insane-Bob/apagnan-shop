@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent.vue';
 import Button from '@/components/ui/button/Button.vue';
 import { adminRoutes } from '@/routes/admin';
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 const routes = computed(() => {
 return adminRoutes[0].children.map((route) => {
@@ -11,6 +13,14 @@ return adminRoutes[0].children.map((route) => {
         icon: route.meta.icon,
         label: route.meta.label,
     };
+});
+});
+
+const $route = useRoute();
+
+const links = computed(() => {
+return $route.path.split('/').slice(1).map((path, index) => {
+    return [path, $route.path.split('/').slice(0, index + 2).join('/')];
 });
 });
 </script>
@@ -51,9 +61,13 @@ return adminRoutes[0].children.map((route) => {
             </div>
         </aside>
         <div class="grow h-screen overflow-y-scroll flex flex-col w-full">
-            <div class="h-1/5 w-full flex items-center pl-12">
+            <div class="h-1/5 w-full flex flex-col justify-center pl-12">
                 <h1 class="text-4xl tracking-widest">{{ routes.find((route) => route.path === $route.path)?.label }}</h1>
+                <div class="h-14 flex w-full">
+                    <MyBreadcrumbComponent :links="links" class="bg-white" />
+                </div>
             </div>
+            
             <div class="grow">
                 <RouterView />
             </div>
