@@ -1,9 +1,9 @@
-import { BillingAddressController } from '../../../Http/Controllers/BillingAddressController.js'
-import { BillingAddressProvider } from '../../../Http/Providers/BillingAddressProvider.js'
+import { BillingAddressController } from '../../Http/Controllers/BillingAddressController.js'
+import { BillingAddressProvider } from '../../Http/Providers/BillingAddressProvider.js'
 
-export function billingAddressRoutes(customerRouterGroup) {
-    customerRouterGroup
-        .group('/addresses', function () {
+export default function (router) {
+    router
+        .group('/api/addresses', function () {
             this.get('/', BillingAddressController, 'index')
             this.get('/:billing_address', BillingAddressController, 'show')
             this.post('/', BillingAddressController, 'store')

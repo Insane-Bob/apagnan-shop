@@ -6,46 +6,49 @@ import { PaymentServices } from '../../Services/PaymentServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskForRefundValidator.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { OrderPolicy } from '../Policies/OrderPolicy.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { USER_ROLES } from '../../Models/user.js'
 
 export class OrderController extends Controller {
-    user_resource /** @provide by UserProvider */
-    customer /** @provide by CustomerProvider */
+    user_resource /** @provide by UserProvider if set */
+    customer /** @provide by CustomerProvider if set */
     order /** @provide by OrderProvider */
+    userContext
+
+    beforeEach() {
+        this.userContext = this.user_resource || this.req.getUser()
+    }
 
     async index() {
-        this.can(UserPolicy.show, this.user_resource)
-        this.res.json({
-            orders: await this.customer.getOrders(),
-        })
+        this.can(UserPolicy.show, this.userContext)
+
+        if (this.customer) this.req.query.set('customerId', this.customer.id)
+        if (!this.req.getUser().hasRole(USER_ROLES.ADMIN))
+            this.req.query.set('customerId', this.req.getUser().customer.id)
+
+        const search = new SearchRequest(this.req, ['customerId'])
+        const orders = await Database.getInstance().models.Order.findAll(
+            search.query,
+        )
+        this.res.json(orders)
     }
     show() {
         this.can(OrderPolicy.show, this.order)
         this.res.json(this.order)
     }
     async store() {
-        this.can(UserPolicy.update, this.user_resource)
-        const payload = this.validate(OrderValidator)
-
-        await Database.getInstance().models.Order.create({
-            ...payload,
-            customerId: this.customer.id,
-        })
-
-        await this.index()
+        const payload = this.validate(OrderValidator, OrderValidator.create())
+        this.can(OrderPolicy.store, payload.customerId)
+        await Database.getInstance().models.Order.create(payload)
+        this.res.sendStatus(201)
     }
     async update() {
         this.can(OrderPolicy.show, this.order)
-        const payload = this.validate(OrderValidator)
-
-        await this.order.update(payload)
-
-        await this.index()
-    }
-
-    async delete() {
-        this.can(OrderPolicy.show, this.order)
-        await this.order.destroy()
-        await this.index()
+        const payload = this.validate(OrderValidator, OrderValidator.update())
+        const rowsEdited = await this.order.update(payload)
+        NotFoundException.abortIf(!rowsEdited)
+        await this.res.sendStatus(200)
     }
 
     async pay() {
@@ -65,14 +68,11 @@ export class OrderController extends Controller {
             payload.reason,
         )
 
-        await NotificationsServices.notifyNewRefundRequest(refundRequest)
-        await NotificationsServices.notifyACKRefund(
-            this.customer,
-            refundRequest,
-        )
+        const customer = await this.order.getCustomer()
 
-        this.res.json({
-            message: 'Refund requested',
-        })
+        await NotificationsServices.notifyNewRefundRequest(refundRequest)
+        await NotificationsServices.notifyACKRefund(customer, refundRequest)
+
+        this.res.sendStatus(201)
     }
 }

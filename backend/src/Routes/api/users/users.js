@@ -1,10 +1,10 @@
 import { UserProvider } from '../../../Http/Providers/UserProvider.js'
 import { UserController } from '../../../Http/Controllers/UserController.js'
 import { CustomerProvider } from '../../../Http/Providers/CustomerProvider.js'
-import { ordersRoutes } from './orders.js'
-import { billingAddressRoutes } from './billingAddress.js'
 import { basketRoute } from './basket.js'
 import { AccessLinkMiddleware } from '../../../Http/Middlewares/AccessLinkMiddleware.js'
+import { OrderController } from '../../../Http/Controllers/OrderController.js'
+import { BillingAddressController } from '../../../Http/Controllers/BillingAddressController.js'
 
 /**
  * Auth routes
@@ -23,12 +23,13 @@ export default function (router) {
                 UserController,
                 'resetPassword',
             ).middleware(AccessLinkMiddleware, 100)
+
             this.post('/ask-reset-password', UserController, 'askResetPassword')
 
             this.group('/:user_resource', function () {
                 basketRoute(this)
-                billingAddressRoutes(this)
-                ordersRoutes(this)
+                this.get('/addresses', BillingAddressController, 'index')
+                this.get('/orders', OrderController, 'index')
             }).provide(CustomerProvider)
         })
         .provide(UserProvider)
