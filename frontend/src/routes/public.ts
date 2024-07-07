@@ -9,6 +9,7 @@ export const publicRoutes = [
         path: '/',
         redirect: '/home',
         component: HeaderLayout,
+        name: 'Home',
 
         children: [
             { path: 'products', component: ProductsPage },
