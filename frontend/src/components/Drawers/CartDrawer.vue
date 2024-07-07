@@ -17,7 +17,7 @@ onMounted(() => {
 })
 
 const fetchCart = async () => {
-    const response = await apiClient.get('/users/' + userId + '/basket')
+    const response = await apiClient.get('users/' + userId + '/basket')
     const data = response.data
     data.product.forEach((c: any) => {
         console.log(c)

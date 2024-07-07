@@ -16,35 +16,28 @@ export const adminRoutes = [
             // If not, redirect to login page
             if (localStorage.getItem('accessToken')) {
                 const { toast } = useToast()
-                const result = apiClient
-                    .get('me')
-                    .then((response) => {
-                        if (response.data.user.role === 'admin') {
-                            return true
-                        } else {
-                            toast({
-                                title: 'Erreur',
-                                description:
-                                    "Vous n'êtes pas autorisé à accéder à cette page.",
-                                variant: 'destructive',
-                            })
-                            return false
-                        }
-                    })
-                    .catch((error) => {
+                try {
+                    const result = await apiClient.get('me')
+                    if (result.data.user.role === 'admin') {
+                        return true
+                    } else {
                         toast({
                             title: 'Erreur',
                             description:
-                                error.response.data.message ||
                                 "Vous n'êtes pas autorisé à accéder à cette page.",
                             variant: 'destructive',
                         })
-                        return false
+                        return { name: 'NotFound' }
+                    }
+                } catch (error) {
+                    toast({
+                        title: 'Erreur',
+                        description:
+                            "Vous n'êtes pas autorisé à accéder à cette page.",
+                        variant: 'destructive',
                     })
-                if (await result) {
-                    return true
+                    return { name: 'NotFound' }
                 }
-                return { name: 'NotFound' }
             }
             return { name: 'NotFound' }
         },
