@@ -3,6 +3,7 @@
 import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
 import { DenormalizerTaskBuilder } from '../lib/Denormalizer/DenormalizerTaskBuilder.js'
 import { SearchUserDocument } from '../lib/Denormalizer/Documents/search/SearchUserDocument.js'
+import { UserServices } from '../Services/UserServices.js'
 
 export const USER_ROLES = {
     USER: 'user',
@@ -17,6 +18,23 @@ export class User extends DenormalizableModel {
         models.User.hasMany(models.UserConnectionAttempt, {
             foreignKey: 'userId',
         })
+    }
+
+    static hooks(models) {
+        models.User.beforeCreate(User.handlePasswordChanged)
+        models.User.beforeUpdate((user) => User.handlePasswordChanged(user))
+        models.User.beforeUpdate((user) => User.handleEmailChanged(user))
+    }
+
+    static handlePasswordChanged(user) {
+        if (user.changed('password')) {
+            user.password = UserServices.hashPassword(user.password)
+        }
+    }
+    static handleEmailChanged(user) {
+        if (user.changed('email')) {
+            user.emailVerifiedAt = null
+        }
     }
 
     hasRole(role) {

@@ -21,6 +21,10 @@ export class NotificationsServices {
         )
     }
 
+    static async notifyValidateEmail(user) {
+        console.log(`Sending validate email to ${user.email}`)
+    }
+
     static async notifyRegisterUser(user) {
         const registerEmail = new RegisterEmail()
             .setParams({

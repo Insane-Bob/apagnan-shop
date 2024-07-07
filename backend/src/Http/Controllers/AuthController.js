@@ -5,12 +5,13 @@ import {
 } from '../../Exceptions/HTTPException.js'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
-import { NotificationsServices } from '../../Services/NotificationsServices.js'
+
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 export class AuthController extends Controller {
     async login() {
@@ -61,29 +62,22 @@ export class AuthController extends Controller {
 
     async loginWithAccessLink() {
         const identifier = this.req.params.get('identifier', null)
-        const accessLinkIdentifier =
+        const accessLink =
             await AccessLinkServices.retrieveAccessLinkByIdentifier(identifier)
 
+        UnauthorizedException.abortIf(!accessLink, 'Access link is invalid')
         UnauthorizedException.abortIf(
-            !accessLinkIdentifier,
-            'Access link is invalid',
-        )
-        UnauthorizedException.abortIf(
-            !accessLinkIdentifier.isValid,
+            !accessLink.isValid,
             'Access link is invalid',
         )
 
         const user = await Database.getInstance().models.User.findByPk(
-            accessLinkIdentifier.userId,
+            accessLink.userId,
         )
         UnauthorizedException.abortIf(!user, 'User not found')
         UnauthorizedException.abortIf(
             !(await user.canConnect()),
             'Too many attempts',
-            await NotificationsServices.notifyConnectionAttempt3Failed(
-                user,
-                accessLinkIdentifier,
-            ),
         )
 
         await accessLink.update({
@@ -98,25 +92,25 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
-
     async register() {
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
 
-        if (await UserServices.retrieveUserByEmail(email)) {
-            throw new UnprocessableEntity('Email already used')
+        const userExist = await UserServices.retrieveUserByEmail(email)
+        UnprocessableEntity.abortIf(userExist, 'Email already used')
+
+        try {
+            const user = await UserServices.registerUser(
+                firstName,
+                lastName,
+                email,
+                password,
+            )
+            await NotificationsServices.notifyRegisterUser(user)
+            this.res.status(202).json(user)
+        } catch (e) {
+            throw e
         }
-
-        const user = await UserServices.registerUser(
-            firstName,
-            lastName,
-            email,
-            password,
-        )
-
-        NotificationsServices.notifyRegisterUser(user)
-
-        this.res.json(user)
     }
 
     async logout() {
@@ -167,32 +161,6 @@ export class AuthController extends Controller {
 
         this.res.json({
             message: 'An email has been sent to reset your password',
-        })
-    }
-
-    async activationEmail() {
-        const { email } = this.req.body.all()
-
-        const user = await UserServices.retrieveUserByEmail(email)
-        UnauthorizedException.abortIf(!user, 'User not found')
-
-        await NotificationsServices.notifyActivationEmail(user)
-
-        this.res.json({
-            message: 'An email has been sent to activate your account',
-        })
-    }
-
-    async activateAccount() {
-        const user = await UserServices.retrieveUserByToken(token)
-        UnauthorizedException.abortIf(!user, 'User not found')
-
-        // Activate user account and send notification
-        UserServices.activateUserAccount(user)
-        NotificationsServices.notifyAccountActivated(user)
-
-        this.res.json({
-            message: 'Account activated',
         })
     }
 

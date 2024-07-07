@@ -24,6 +24,12 @@ export default function (router) {
                 'resetPassword',
             ).middleware(AccessLinkMiddleware, 100)
 
+            this.post(
+                '/:user_resource/activate',
+                UserController,
+                'activateAccount',
+            ).middleware(AccessLinkMiddleware, 100)
+
             this.post('/ask-reset-password', UserController, 'askResetPassword')
 
             this.group('/:user_resource', function () {
