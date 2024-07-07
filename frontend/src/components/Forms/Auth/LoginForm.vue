@@ -138,19 +138,25 @@ async function submit() {
         }
 
         const response = await apiClient.post('/login', data)
-        console.log('Login successful', response.data)
 
         // Store tokens in local storage
         localStorage.setItem('accessToken', response.data.accessToken)
         localStorage.setItem('refreshToken', response.data.refreshToken)
 
-        router.push('/profile')
+
         toast({
                 title: 'Succès',
                 description:
                     'Connexion réussie, bienvenue dans votre espace personnel !',
                 status: 'success',
             })
+
+            // Set user datas in local storage
+            const userdata = await apiClient.get('/me')
+            if(userdata.data){
+                localStorage.setItem('user', JSON.stringify(userdata.data))
+            }
+
     } catch (error) {
         console.error('Login failed', error)
         errors.value = error.response.data.errors
