@@ -8,10 +8,8 @@ SheetTitle
 import CartCard from '@components/cards/CartCard.vue';
 import Button from '@components/ui/button/Button.vue';
 import { onMounted } from 'vue';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-console.log(localStorage)
+import { apiClient } from '@/lib/apiClient'
 const userId = JSON.parse(localStorage.getItem('user') as string).user.id
-const cartUrl = API_BASE_URL + '/users/' + userId + '/basket'
 
 
 onMounted(() => {
@@ -19,9 +17,8 @@ onMounted(() => {
 })
 
 const fetchCart = async () => {
-    const response = await fetch(cartUrl)
-    const data = await response.json()
-    console.log(data)
+    const response = await apiClient.get('/users/' + userId + '/basket')
+    const data = response.data
     data.product.forEach((c: any) => {
         console.log(c)
     })
