@@ -50,7 +50,6 @@ export class OrderServices {
                             attributes: ['name'],
                         },
                     )
-                console.log(productName)
                 return {
                     price_data: {
                         currency: 'usd',
