@@ -69,6 +69,7 @@ export class UserController extends Controller {
 
     async askResetPassword() {
         const { email } = this.validate(AskResetPasswordValidator)
+        console.log(email);
         const user = await UserServices.retrieveUserByEmail(email)
 
         if (user) {

@@ -162,9 +162,9 @@ async function submit() {
             localStorage.setItem('user', JSON.stringify(userdata.data))
         }
 
+        router.push('/')
     } catch (error) {
-        console.error('Login failed', error)
-        errors.value = error.response.data.errors
+        errors.value = error.response.data.message
     }
 }
 </script>

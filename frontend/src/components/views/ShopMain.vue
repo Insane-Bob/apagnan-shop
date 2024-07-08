@@ -32,24 +32,33 @@
                                 class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                             ></ion-icon>
                         </SheetTrigger>
-                        <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
+                        <SheetContent>
+                            <AuthDrawer />
+                        </SheetContent>
                     </Sheet>
 
                     <Sheet v-if="isLogged">
                         <SheetTrigger>
-                        <ion-icon
-                            name="cart-outline"
-                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
+                            <ion-icon
+                                name="cart-outline"
+                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                            ></ion-icon>
                         </SheetTrigger>
-                        <SheetContent><CartDrawer></CartDrawer></SheetContent>
+                        <SheetContent><CartDrawer /></SheetContent>
                     </Sheet>
 
                     <RouterLink to="/profile" v-if="isLogged">
                         <ion-icon
-                                name="person-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
+                            name="person-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                    </RouterLink>
+
+                    <RouterLink to="/logout" v-if="isLogged">
+                        <ion-icon
+                            name="log-out-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
                     </RouterLink>
 
                     <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
@@ -176,13 +185,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-Sheet,
-SheetContent,
-SheetTrigger
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
-import CartDrawer from '@components/Drawers/CartDrawer.vue';
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
 import ProductCard from '@components/cards/ProductCard.vue'
 import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'

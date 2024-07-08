@@ -181,19 +181,6 @@ export class AuthController extends Controller {
         })
     }
 
-    async resetPassword() {
-        const { email } = this.validate(AskResetPasswordValidator)
-
-        const user = await UserServices.retrieveUserByEmail(email)
-        UnauthorizedException.abortIf(!user, 'User not found')
-
-        await NotificationsServices.notifyResetPassword(user)
-
-        this.res.json({
-            message: 'An email has been sent to reset your password',
-        })
-    }
-
     me() {
         UnauthorizedException.abortIf(
             !this.req.user,

@@ -4,6 +4,7 @@ import CommandResume from '@components/views/CommandResume.vue'
 import { apiClient } from '@/lib/apiClient'
 import { useToast } from '@/components/ui/toast/use-toast'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
+import { useUserStore } from '@store/user'
 
 export const backofficeRoutes = [
     {
@@ -34,12 +35,14 @@ export const backofficeRoutes = [
         path: '/logout',
         component: WorkInProgress,
         beforeEnter: async () => {
-            console.log('logout');
+            // Auth user
+            const user = useUserStore()
             if (localStorage.getItem('accessToken')) {
                 const { toast } = useToast()
                 await apiClient.post('logout')
                 localStorage.removeItem('accessToken')
                 localStorage.removeItem('refreshToken')
+                user.clearUser()
                 toast({
                     title: 'Déconnexion',
                     description: 'Vous avez été déconnecté.',
