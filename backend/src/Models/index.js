@@ -39,7 +39,6 @@ async function initDatabase() {
             )
         })
         .map(async (file) => {
-            console.log('Loading model: ' + file)
             const script = await import('./' + file)
             const model = script.default(sequelize, Sequelize)
             db[model.name] = model
