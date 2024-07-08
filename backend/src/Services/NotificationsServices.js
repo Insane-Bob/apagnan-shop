@@ -25,12 +25,12 @@ export class NotificationsServices {
     }
 
     static async notifyRegisterUser(user, accessLink) {
-        const activation_link = `http://localhost:5173/activate`
+        const activation_link = `${process.env.APP_URL}/api/users/${user.id}/activate?a=${accessLink.identifier}`
         const registerEmail = new RegisterEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
                 activation_link,
-            })
+            })  
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
         await EmailSender.send(registerEmail)
     }

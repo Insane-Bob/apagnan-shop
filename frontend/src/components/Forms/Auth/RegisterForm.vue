@@ -300,7 +300,6 @@ async function submit() {
     }
 }
 
-// Resend email function
 async function resendEmail() {
     try {
         const data = {

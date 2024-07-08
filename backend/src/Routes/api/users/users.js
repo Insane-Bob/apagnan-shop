@@ -24,7 +24,7 @@ export default function (router) {
                 'resetPassword',
             ).middleware(AccessLinkMiddleware, 100)
 
-            this.post(
+            this.get(
                 '/:user_resource/activate',
                 UserController,
                 'activateAccount',
