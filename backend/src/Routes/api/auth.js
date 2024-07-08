@@ -7,7 +7,6 @@ export default function (router) {
     router.group('/api', function () {
         this.post('/register', AuthController, 'register')
         this.post('/resend-activation-email', AuthController, 'resendActivationEmail')
-        this.get('/activate/:identifier', AuthController, 'activate')
         this.get('/login/:identifier', AuthController, 'loginWithAccessLink')
         this.post('/login', AuthController, 'login')
         this.post('/logout', AuthController, 'logout')

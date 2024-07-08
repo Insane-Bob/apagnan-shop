@@ -18,10 +18,12 @@ export class UserController extends Controller {
             users,
         })
     }
+    
     async show() {
         this.can(UserPolicy.show, this.user_resource)
         this.res.json(this.user_resource)
     }
+
     async update() {
         this.can(UserPolicy.update, this.user_resource)
 
@@ -100,6 +102,7 @@ export class UserController extends Controller {
 
         this.res.json({
             message: 'Account activated',
+            success: true,
         })
     }
 }
