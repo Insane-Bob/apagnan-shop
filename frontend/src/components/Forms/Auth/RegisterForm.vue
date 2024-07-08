@@ -149,7 +149,9 @@
                         class="w-4 h-4"
                         color="light"
                     ></ion-spinner>
-                    <span v-if="isSubmitting" class="ml-2">Inscription en cours</span>
+                    <span v-if="isSubmitting" class="ml-2"
+                        >Inscription en cours</span
+                    >
                     <span v-else>S'inscrire</span>
                 </Button>
             </div>
@@ -304,8 +306,7 @@ async function resendEmail() {
         const data = {
             email: email.value,
         }
-
-        const response = await apiClient.post('/activation-email', data)
+        const response = await apiClient.post('/resend-activation-email', data)
         console.log('Email resent', response)
     } catch (error) {
         console.error('Email resend failed', error)

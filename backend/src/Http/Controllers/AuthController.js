@@ -92,6 +92,28 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
+
+
+    async resendActivationEmail() {
+        const { email } = this.validate(AskResetPasswordValidator)
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+        UnauthorizedException.abortIf(user.isActive, 'User is already activated')
+
+        const accessLink = await AccessLinkServices.createAccessLink(
+            user.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(20),
+            1,
+        )
+        await NotificationsServices.notifyRegisterUser(user, accessLink)
+
+        this.res.json({
+            message: 'Activation email sent',
+        })
+    }
+
     async register() {
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
@@ -106,11 +128,44 @@ export class AuthController extends Controller {
                 email,
                 password,
             )
-            await NotificationsServices.notifyRegisterUser(user)
+            const accessLink = await AccessLinkServices.createAccessLink(
+                user.id,
+                AccessLinkServices.getDate(),
+                AccessLinkServices.getDate(20),
+                1,
+            )
+            await NotificationsServices.notifyRegisterUser(user, accessLink)
             this.res.status(202).json(user)
         } catch (e) {
             throw e
         }
+    }
+
+    async activate() {
+        const identifier = this.req.params.get('identifier', null)
+        const accessLink =
+            await AccessLinkServices.retrieveAccessLinkByIdentifier(identifier)
+
+        UnauthorizedException.abortIf(!accessLink, 'Access link is invalid')
+        UnauthorizedException.abortIf(
+            !accessLink.isValid,
+            'Access link is invalid',
+        )
+
+        const user = await Database.getInstance().models.User.findByPk(
+            accessLink.userId,
+        )
+        UnauthorizedException.abortIf(!user, 'User not found')
+
+        await user.update({
+            isActive: true,
+        })
+
+        await accessLink.update({
+            useCount: accessLink.useCount + 1,
+        })
+
+        this.res.json({ message: 'User activated', success: true })
     }
 
     async logout() {
@@ -121,6 +176,7 @@ export class AuthController extends Controller {
         await TokenServices.revokeToken(this.req.token)
         this.res.json({ message: 'User logged out', success: true })
     }
+
 
     async refreshToken() {
         const { refreshToken } = this.req.body.all()
