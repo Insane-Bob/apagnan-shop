@@ -17,8 +17,14 @@ jobs:
       - name: Set up Docker Compose
         run: sudo apt-get install docker-compose -y
 
+      - name: Create .env from .env.testing
+        run: cp backend/.env.testing backend/.env
+
       - name: Build and start containers
         run: docker-compose up -d --build
+
+      - name : Create keys for JWT
+        run: docker-compose exec -T backend npm run key:generate
 
       - name: Run tests in backend container
         run: docker-compose exec -T backend npm run test:server
