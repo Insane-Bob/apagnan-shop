@@ -94,8 +94,8 @@ export class UserController extends Controller {
         })
     }
 
-    async activateAccount() {
-        const user = this.req.getUser()
+    async activateAccount() {        
+        const user = this.user_resource
         NotFoundException.abortIf(user.isActive, 'Account already activated')
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)

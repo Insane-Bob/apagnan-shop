@@ -129,8 +129,9 @@ const passwordManager = reactive({
         }
     },
 })
+
 const router = useRouter()
-const {toast} = useToast() 
+const { toast } = useToast()
 
 // Submit function
 async function submit() {
@@ -149,13 +150,17 @@ async function submit() {
         user.setUser(response.data.user)
 
         toast({
-                title: 'Succès',
-                description:
-                    'Connexion réussie, bienvenue dans votre espace personnel !',
-                status: 'success',
-            })
+            title: 'Succès',
+            description:
+                'Connexion réussie, bienvenue dans votre espace personnel !',
+            status: 'success',
+        })
 
-
+        // Set user datas in local storage
+        const userdata = await apiClient.get('/me')
+        if (userdata.data) {
+            localStorage.setItem('user', JSON.stringify(userdata.data))
+        }
 
     } catch (error) {
         console.error('Login failed', error)

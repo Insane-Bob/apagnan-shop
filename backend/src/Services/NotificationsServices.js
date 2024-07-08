@@ -102,7 +102,7 @@ export class NotificationsServices {
     static async notifyAccountActivated(user) {
         const activatedAccountEmail = new AccountActivatedEmail()
             .setParams({
-                user: user.firstName + ' ' + user.lastName,
+                name: user.firstName + ' ' + user.lastName,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
