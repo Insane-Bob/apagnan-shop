@@ -3,7 +3,6 @@ import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { USER_ROLES } from '../../Models/user.js'
-import { useFreshDatabase } from '../../tests/databaseUtils.js'
 
 let app = null
 describe('UserController test routes', () => {
