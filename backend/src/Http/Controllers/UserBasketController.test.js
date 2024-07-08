@@ -57,6 +57,16 @@ describe('UserBasketController test routes', () => {
         )
     })
 
+    test('PUT /api/users/:userId/basket/:productId - add product 1 in the user basket but no stock', async () => {
+        actingAs(user1)
+        await testRequest(
+          `/api/users/${user1.id}/basket/${product.id}`,
+          'put',
+          403,
+          (request) => request.send({ quantity: 200 }),
+        )
+    })
+
     test('DELETE /api/users/:userId/basket/:productId - remove basket 1 in the user basket', async () => {
         actingAs(user1)
         await testRequest(`/api/users/${user1.id}/basket/${product.id}`, 'delete', 200)
