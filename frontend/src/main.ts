@@ -13,23 +13,24 @@ import { errorsRoutes } from './routes/errors'
 
 import ShopMain from '@components/views/ShopMain.vue'
 
+const pinia = createPinia()
 const app = createApp(App)
 
 const routes = [{ path: '/home', component: ShopMain }]
-  .concat(backofficeRoutes)
-  .concat(publicRoutes)
-  .concat(adminRoutes)
-  .concat(errorsRoutes) // HAVE TO BE IN THE END
+    .concat(backofficeRoutes)
+    .concat(publicRoutes)
+    .concat(adminRoutes)
+    .concat(errorsRoutes) // HAVE TO BE IN THE END
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes,
-  scrollBehavior(to, from, savedPosition) {
-    // always scroll to top
-    return { top: 0 }
-  }
+    history: createWebHistory(),
+    routes,
+    scrollBehavior(to, from, savedPosition) {
+        // always scroll to top
+        return { top: 0 }
+    },
 })
 
-app.use(createPinia())
+app.use(pinia)
 
 app.use(router).mount('#app')

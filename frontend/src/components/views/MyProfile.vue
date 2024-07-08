@@ -1,6 +1,11 @@
 <script lang="ts" setup>
-import LinkCard from '@components/cards/LinkCard.vue'
-import { reactive, computed } from 'vue'
+import LinkCard from '@components/cards/LinkCard.vue';
+
+import { useUserStore } from '@store/user';
+
+
+const user = useUserStore()
+
 </script>
 
 <template>
@@ -13,7 +18,7 @@ import { reactive, computed } from 'vue'
             <h1
                 class="text-center text-xl sm:text-xl md:text-5xl w-full tracking-widest text-white uppercase absolute z-10 bottom-1/4 -y-translate-1/2 block"
             >
-                Bienvenue, NOM PRENOM
+                Bienvenue, {{ user.get.firstName + ' ' + user.get.lastName }}
             </h1>
         </div>
         <main class="bg-white w-screen relative mb-10 z-20">
