@@ -24,10 +24,12 @@ export class NotificationsServices {
         console.log(`Sending validate email to ${user.email}`)
     }
 
-    static async notifyRegisterUser(user) {
+    static async notifyRegisterUser(user, accessLink) {
+        const activation_link = `http://localhost:5173/activate`
         const registerEmail = new RegisterEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
+                activation_link,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
         await EmailSender.send(registerEmail)
