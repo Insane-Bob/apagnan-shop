@@ -37,7 +37,6 @@ export class RegisterValidator extends Validator {
     }
 
     validate(registerSchema) {
-        console.log(registerSchema)
         return super.validate(registerSchema)
     }
 }

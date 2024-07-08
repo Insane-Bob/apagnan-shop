@@ -107,7 +107,7 @@ export class AuthController extends Controller {
                 password,
             )
             await NotificationsServices.notifyRegisterUser(user)
-            this.res.status(202).json(user)
+            this.res.status(201).json(user)
         } catch (e) {
             throw e
         }

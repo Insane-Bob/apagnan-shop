@@ -12,7 +12,7 @@ import { NotFoundException } from '../../Exceptions/HTTPException.js'
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
-        // this.can(UserPolicy.index)
+        this.can(UserPolicy.index)
         const users = await Database.getInstance().models.User.findAll()
         this.res.json({
             users,
@@ -27,7 +27,7 @@ export class UserController extends Controller {
 
         const payload = this.validate(
             UserUpdateValidator,
-            this.req.user.hasRole(USER_ROLES.ADMIN)
+            this.req.getUser().hasRole(USER_ROLES.ADMIN)
                 ? UserUpdateValidator.updateAdmin()
                 : UserUpdateValidator.update(),
         )

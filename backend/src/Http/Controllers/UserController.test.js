@@ -3,6 +3,7 @@ import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { USER_ROLES } from '../../Models/user.js'
+import { useFreshDatabase } from '../../tests/databaseUtils.js'
 
 let app = null
 describe('UserController test routes', () => {
@@ -64,12 +65,12 @@ describe('UserController test routes', () => {
         await testRequest('/api/users/1', 'get', 200)
     })
 
-    test('PUT /api/users/:id - no update user', async () => {
+    test('PATCH /api/users/:id - no update user', async () => {
         loginAsUser()
-        await testRequest('/api/users/2', 'put', 403)
+        await testRequest('/api/users/2', 'patch', 403)
         await testRequest(
             '/api/users/1',
-            'put',
+            'patch',
             200,
             (req) => {
                 return req.send({
@@ -95,11 +96,11 @@ describe('UserController test routes', () => {
         await testRequest('/api/users/2', 'get', 200)
     })
 
-    test('PUT /api/users/:id - admin update user', async () => {
+    test('PATCH /api/users/:id - admin update user', async () => {
         loginAsAdmin()
         await testRequest(
             '/api/users/2',
-            'put',
+            'patch',
             200,
             (req) => {
                 return req.send({
