@@ -58,7 +58,7 @@ export class NotificationsServices {
         const successPaymentEmail = new SuccessPaymentEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
-                order: order.number,
+                order: order.id,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
@@ -106,5 +106,9 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(activatedAccountEmail)
+    }
+
+    static async notifyOrderStatusUpdate(order, status) {
+        //@TODO : send email to the customer to notify him that his order status has changed
     }
 }

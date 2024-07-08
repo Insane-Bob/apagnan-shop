@@ -40,21 +40,19 @@ export class EmailSender {
     static apiInstance = axios.create({
         baseURL: url,
         headers: {
-            'accept': 'application/json',
+            accept: 'application/json',
             'content-type': 'application/json',
             'api-key': process.env.BREVO_API_KEY,
         },
     })
 
     static async send(email) {
+        if (!process.env.BREVO_API_KEY) return
         if (!(email instanceof Email))
             throw new Error('Email instance expected')
 
         try {
-            const data = await EmailSender.apiInstance.post(
-                url,    
-                email.json,
-            )
+            const data = await EmailSender.apiInstance.post(url, email.json)
             return data
         } catch (error) {
             console.error(error)

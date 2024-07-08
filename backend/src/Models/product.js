@@ -22,6 +22,22 @@ function model(sequelize, DataTypes) {
                 },
                 as: 'images',
             })
+            Product.hasMany(models.OrderDetail, {
+                foreignKey: 'productId',
+            })
+            Product.hasMany(models.UserBasket, {
+                foreignKey: 'productId',
+            })
+        }
+
+        async getRemainingStock() {
+            const baskets = await this.getUserBaskets()
+            const basketQuantity = baskets.reduce(
+                (acc, item) => acc + item.quantity,
+                0,
+            )
+            this.remainingStock = this.stock - basketQuantity
+            return this.remainingStock
         }
     }
     Product.init(
@@ -41,6 +57,9 @@ function model(sequelize, DataTypes) {
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
+            remainingStock: {
+                type: DataTypes.VIRTUAL,
+            },
         },
         {
             sequelize,
