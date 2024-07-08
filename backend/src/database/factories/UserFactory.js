@@ -19,7 +19,10 @@ export class UserFactory extends Factory{
     return this
   }
   static async afterCreate(user){
-    if(this._withCustomer)
+    if(this._withCustomer){
       await CustomerFactory.count(1).create({userId: user.id})
+      user.customer = await user.getCustomer()
+      user.Customer = user.customer
+    }
   }
 }
