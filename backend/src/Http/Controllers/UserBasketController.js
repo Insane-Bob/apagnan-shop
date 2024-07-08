@@ -43,7 +43,7 @@ export class UserBasketController extends Controller {
             )
             await ProductServices.loadRemainingStock(product)
             ForbiddenException.abortIf(
-                product.remainingStock < quantity,
+                product.stock < quantity,
                 'Not enough stock',
             )
 

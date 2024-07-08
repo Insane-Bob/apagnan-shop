@@ -5,20 +5,24 @@ import { Model } from 'sequelize'
 export class UserBasket extends Model {
     static associate(models) {
         models.UserBasket.belongsTo(models.User, { foreignKey: 'userId' })
-        models.UserBasket.belongsTo(models.Product, { foreignKey: 'productId' })
+        models.UserBasket.belongsTo(models.StockTransaction, {
+            foreignKey: 'stockTransactionId',
+            as: 'stockTransaction',
+        })
     }
 
-    hasRole(role) {
-        return this.role === role
+    async getProduct() {
+        this.product =
+            this.product || (await this.stockTransaction.getProduct())
+        return this.product
     }
 }
 
 function model(sequelize, DataTypes) {
     UserBasket.init(
         {
-            productId: DataTypes.INTEGER,
+            stockTransactionId: DataTypes.INTEGER,
             userId: DataTypes.INTEGER,
-            quantity: DataTypes.INTEGER,
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
@@ -27,10 +31,35 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
             },
+            quantity: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return (
+                        -this?.stockTransaction?.quantity ||
+                        -this?.StockTransaction?.quantity
+                    )
+                },
+            },
+            product: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return (
+                        this?.stockTransaction?.Product ||
+                        this?.StockTransaction?.Product ||
+                        null
+                    )
+                },
+            },
         },
         {
             sequelize,
             modelName: 'UserBasket',
+            include: [
+                {
+                    model: sequelize.models.StockTransaction,
+                    as: 'stockTransaction',
+                },
+            ],
         },
     )
 

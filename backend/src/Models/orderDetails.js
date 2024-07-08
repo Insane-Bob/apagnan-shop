@@ -14,7 +14,6 @@ function model(sequelize, DataTypes) {
         {
             orderId: DataTypes.INTEGER,
             productId: DataTypes.INTEGER,
-            quantity: DataTypes.INTEGER,
             unitPrice: DataTypes.FLOAT,
             createdAt: {
                 type: DataTypes.DATE,
@@ -23,6 +22,9 @@ function model(sequelize, DataTypes) {
             updatedAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
+            },
+            quantity: {
+                type: DataTypes.INTEGER,
             },
             total: {
                 type: DataTypes.VIRTUAL,

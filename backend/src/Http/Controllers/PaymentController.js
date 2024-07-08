@@ -6,6 +6,7 @@ import { PaymentServices } from '../../Services/PaymentServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { Database } from '../../Models/index.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
+import { StockService } from '../../Services/StockService.js'
 
 export class PaymentController extends Controller {
     /** @type {Order} */
@@ -66,16 +67,16 @@ export class PaymentController extends Controller {
                 await UserBasketServices.removeProductFromBasket(
                     this.order.Customer.userId,
                     orderDetail.productId,
-                    { transaction },
+                    {
+                        transaction,
+                    },
                 )
 
-                const product =
-                    await Database.getInstance().models.Product.findByPk(
-                        orderDetail.productId,
-                    )
-
-                product.stock -= orderDetail.quantity
-                await product.save({ transaction })
+                await StockService.removeStock(
+                    orderDetail.productId,
+                    orderDetail.quantity,
+                    transaction,
+                )
 
                 await NotificationsServices.notifySuccessPaymentCustomer(
                     this.order.Customer.User,
