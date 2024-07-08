@@ -7,17 +7,23 @@ SheetTitle
 
 import CartCard from '@components/cards/CartCard.vue';
 import Button from '@components/ui/button/Button.vue';
-import { onMounted } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { apiClient } from '@/lib/apiClient'
-const userId = JSON.parse(localStorage.getItem('user') as string).user.id
+import type { User } from '@/types/User';
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
 
 
 onMounted(() => {
     fetchCart()
 })
 
+
+
+
 const fetchCart = async () => {
-    const response = await apiClient.get('users/' + userId + '/basket')
+    const response = await apiClient.get('users/' + user.getId + '/basket')
     const data = response.data
     data.product.forEach((c: any) => {
         console.log(c)
