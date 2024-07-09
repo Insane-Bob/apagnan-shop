@@ -55,6 +55,9 @@ export function getModelMock() {
             Object.assign(this, obj)
             return this
         }
+        save() {
+            return this
+        }
     }
     return MockedModel
 }
@@ -71,6 +74,8 @@ export function mockDatabase(databaseClass) {
             Order: getModelMock(),
             OrderItem: getModelMock(),
             UserBasket: getModelMock(),
+            Collection: getModelMock(),
+            Upload: getModelMock(),
         },
     }))
 }

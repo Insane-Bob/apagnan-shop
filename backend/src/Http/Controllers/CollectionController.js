@@ -1,5 +1,6 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
+import { CollectionPolicy } from '../Policies/CollectionPolicy.js'
 
 export class CollectionController extends Controller {
     async getCollections() {
@@ -26,6 +27,7 @@ export class CollectionController extends Controller {
     }
 
     async createCollection() {
+        this.can(CollectionPolicy.update)
         const collection =
             await Database.getInstance().models.Collection.create(
                 this.req.body.all(),
@@ -43,6 +45,7 @@ export class CollectionController extends Controller {
     }
 
     async updateCollection() {
+        this.can(CollectionPolicy.update)
         const collection = this.collection
         if (this.req.file) {
             // Delete previous image if exists
@@ -68,6 +71,7 @@ export class CollectionController extends Controller {
     }
 
     async deleteCollection() {
+        this.can(CollectionPolicy.delete)
         const collection = this.collection
         await collection.destroy()
         this.res.json({
