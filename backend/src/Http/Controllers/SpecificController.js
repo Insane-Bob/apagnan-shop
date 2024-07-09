@@ -1,6 +1,7 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { SpecificPolicy } from '../Policies/SpecificPolicy.js'
 
 export class SpecificController extends Controller {
     product /** @provide by ProductProvider */
@@ -26,6 +27,7 @@ export class SpecificController extends Controller {
     }
 
     async createSpecific() {
+        this.can(SpecificPolicy.update)
         const specific = await Database.getInstance().models.Specific.create(
             this.req.body.all(),
         )
@@ -37,6 +39,7 @@ export class SpecificController extends Controller {
     }
 
     async updateSpecific() {
+        this.can(SpecificPolicy.update)
         const rowsEdited = await this.specific.update(this.req.body.all())
         NotFoundException.abortIf(!rowsEdited)
         this.res.status(200).json({
@@ -45,6 +48,7 @@ export class SpecificController extends Controller {
     }
 
     async deleteSpecific() {
+        this.can(SpecificPolicy.delete)
         const deleted = await this.specific.destroy()
         NotFoundException.abortIf(!deleted)
         this.res.sendStatus(204)

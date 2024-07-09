@@ -2,6 +2,7 @@ import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 import { ProductServices } from '../../Services/ProductServices.js'
+import { ProductPolicy } from '../Policies/ProductPolicy.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
@@ -33,7 +34,7 @@ export class ProductController extends Controller {
     }
 
     async createProduct() {
-        // add validator --> if not validate return 422
+        this.can(ProductPolicy.update)
         const product = await Database.getInstance().models.Product.create(
             this.req.body.all(),
         )
@@ -53,6 +54,7 @@ export class ProductController extends Controller {
     }
 
     async updateProduct() {
+        this.can(ProductPolicy.update)
         const rowsEdited = await this.product.update(this.req.body.all())
         if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
@@ -70,10 +72,9 @@ export class ProductController extends Controller {
     }
 
     async deleteProduct() {
+        this.can(ProductPolicy.delete)
         const deleted = await this.product.destroy()
-
         NotFoundException.abortIf(!deleted)
-
         this.res.sendStatus(204)
     }
 }
