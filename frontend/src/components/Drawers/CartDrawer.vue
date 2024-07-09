@@ -14,8 +14,10 @@ import { useUserStore } from '@store/user'
 
 const user = useUserStore()
 
+user.cartViewed()
 
 onMounted(() => {
+    
     fetchCart()
 })
 

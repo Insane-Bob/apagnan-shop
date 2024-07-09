@@ -6,7 +6,14 @@ import Button from '@/components/ui/button/Button.vue'
 import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
 import FeaturedProductsCarousel from '@/components/product/FeaturedProductsCarousel.vue'
 import { ref, onMounted } from 'vue'
+import { apiClient } from '@/lib/apiClient'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@store/user'
+import { useToast } from '@/components/ui/toast/use-toast'
+import type { Product } from '@/types'
+
+const user = useUserStore()
+const { toast } = useToast()
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 const route = useRoute()
@@ -15,7 +22,7 @@ const productSlug = route.params.pslug
 const ProductUrl = API_BASE_URL + '/products/' + productSlug
 const CollectionUrl = API_BASE_URL + '/collections/' + collectionSlug
 
-const product = ref({})
+const product = ref<Product | null>(null)
 const specifics = ref([])
 const reviews = ref({ note: 0, nbReviews: 0 })
 const collection = ref({})
@@ -36,7 +43,7 @@ const fetchProduct = async () => {
         data.product.name,
         '/collections/' + collectionSlug + '/products/' + productSlug,
     ]
-    carouselImages.value = data.images.map((image) => '/src/' + image.path)
+    carouselImages.value = data.images.map((image: {path: string}) => '/src/' + image.path)
 }
 
 const fetchCollection = async () => {
@@ -67,6 +74,16 @@ const fetchProductSpecifics = async () => {
     specifics.value = data.specifics
 }
 
+const addToCart = async () => {
+    if (user.isAuthenticated && product.value) {
+        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + product.value.id, {quantity: 1} )
+        user.setCart(reponse.data.items)
+        toast({
+            title: 'Le produit a été ajouté à votre panier',
+        })
+    }
+}
+
 onMounted(() => {
     fetchProduct()
     fetchCollection()
@@ -91,23 +108,23 @@ onMounted(() => {
                 <ProductPictureCarousel :imageUrls="carouselImages" />
                 <div class="w-1/2 flex flex-col gap-10">
                     <h1 class="text-3xl font-bold font-title">
-                        {{ product.name }}
+                        {{ product?.name }}
                     </h1>
                     <ReviewNoteComponent
                         :note="reviews.note"
                         :NbReviews="reviews.nbReviews"
                     />
-                    <p class="text-2xl font-semibold">€ {{ product.price }}</p>
+                    <p class="text-2xl font-semibold">€ {{ product?.price }}</p>
                     <div class="flex flex-col gap-3">
                         <h2 class="font-semibold text-xl">Détail du produit</h2>
                         <p class="text-slate-400">
-                            Modèle {{ product.modele }}
+                            Modèle {{ product?.modele }}
                         </p>
-                        <p>{{ product.description }}</p>
+                        <p>{{ product?.description }}</p>
                     </div>
                     <div class="flex gap-4">
                         <Button>Acheter maintenant</Button>
-                        <Button variant="outline">Ajouter au panier</Button>
+                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()">Ajouter au panier</Button>
                     </div>
                     <div class="text-slate-400 flex items-center gap-2">
                         En savoir plus
