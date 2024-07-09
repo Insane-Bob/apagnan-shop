@@ -52,6 +52,14 @@
                             ></ion-icon>
                     </RouterLink>
 
+                    <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
+                        <ion-icon
+                                name="laptop-outline"
+                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                            ></ion-icon>
+                    </RouterLink>
+
+
                     <form
                         @submit.prevent="onSearch()"
                         class="flex justify-center items-center -ml-6 gap-x-2"
