@@ -4,6 +4,9 @@ import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/payment.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { Database } from '../../Models/index.js'
+import { UserBasketServices } from '../../Services/UserBasketServices.js'
+import { StockService } from '../../Services/StockService.js'
 
 export class PaymentController extends Controller {
     /** @type {Order} */
@@ -41,6 +44,11 @@ export class PaymentController extends Controller {
         )
             return this.cancel()
 
+        if (payment.status === PaymentStatus.SUCCEEDED)
+            return this.res.json({
+                message: 'Payment already succeeded',
+            })
+
         await PaymentServices.updatePayment(session.id, {
             status: PaymentStatus.SUCCEEDED,
             paymentIntentId: session.payment_intent.id,
@@ -48,11 +56,44 @@ export class PaymentController extends Controller {
 
         //@TODO : send to the transport supplier
 
-        //@TODO : remove products from stock
+        let orderDetails = this.order.OrderDetails.map((orderDetail) => ({
+            productId: orderDetail.productId,
+            quantity: orderDetail.quantity,
+        }))
 
-        await NotificationsServices.notifySuccessPaymentCustomer(this.order)
+        const transaction = await Database.transaction()
+        try {
+            for (let orderDetail of orderDetails) {
+                await UserBasketServices.removeProductFromBasket(
+                    this.order.Customer.userId,
+                    orderDetail.productId,
+                    {
+                        transaction,
+                    },
+                )
 
-        this.res.json(session) //@TODO : Return a redirect to the success page
+                await StockService.removeStock(
+                    orderDetail.productId,
+                    orderDetail.quantity,
+                    transaction,
+                )
+
+                await NotificationsServices.notifySuccessPaymentCustomer(
+                    this.order.Customer.User,
+                    this.order,
+                )
+
+                await transaction.commit()
+
+                this.res.json({
+                    message: 'Payment succeeded',
+                }) //@TODO : Return a redirect to the success page
+            }
+        } catch (e) {
+            console.error(e)
+            await transaction.rollback()
+            throw e
+        }
     }
 
     async cancel() {
@@ -66,8 +107,12 @@ export class PaymentController extends Controller {
             paymentIntentId: session.payment_intent,
         })
 
-        await NotificationsServices.notifyFailedPaymentCustomer(this.order)
+        await NotificationsServices.notifyFailedPaymentCustomer(
+            this.order.Customer.User,
+        )
 
-        this.res.json(session) //@TODO : Return a redirect to the cancel page
+        this.res.json({
+            message: 'Payment failed',
+        }) //@TODO : Return a redirect to the cancel page
     }
 }

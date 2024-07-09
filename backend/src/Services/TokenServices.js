@@ -59,7 +59,6 @@ export class TokenServices {
         do {
             const identifier = crypto.randomBytes(32).toString('hex')
             const token = await this.retrieveTokenFromIdentifier(identifier)
-            console.log(token)
             if (!token) {
                 return identifier
             }

@@ -16,7 +16,9 @@ describe("AuthMiddleware", () => {
         send: jest.fn()
     }
 
-    TokenServices.retrieveUserFromToken = jest.fn(()=>true)
+    TokenServices.retrieveUserFromToken = jest.fn(()=> ({
+        Customer:{}
+    }))
 
     test("No authenticate request",async ()=>{
         const req = new Request({
@@ -50,7 +52,7 @@ describe("AuthMiddleware", () => {
         await middleware.handle(request,res,next)
         expect(next).toHaveBeenCalled()
         expect(request.token).toBe(true)
-        expect(request.user).toBe(true)
+        expect(request.user).toBeDefined()
     })
 
     test("No existing token",async ()=>{

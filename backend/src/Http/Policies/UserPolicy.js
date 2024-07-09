@@ -14,7 +14,7 @@ export class UserPolicy {
         return UserPolicy.show(...args)
     }
     static delete(user, resource) {
-        if (user.id == resource.id) return false
-        return UserPolicy.show(...args)
+        if (user.id == resource.id && user.hasRole(USER_ROLES.ADMIN)) return false
+        return UserPolicy.show(user, resource)
     }
 }

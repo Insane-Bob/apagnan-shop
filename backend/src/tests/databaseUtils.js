@@ -1,11 +1,13 @@
 import { Database } from '../Models/index.js'
 import { spawnSync } from 'child_process'
+import Sequelize from 'sequelize'
 
 export function useFreshDatabase(
     beforeAllCallback = async () => null,
     afterAllCallback = async () => null,
 ) {
     beforeAll(async () => {
+        await undoAllMigration()
         await runMigration()
         await Database.initialize()
         await beforeAllCallback()
@@ -14,7 +16,7 @@ export function useFreshDatabase(
     afterAll(async () => {
         await afterAllCallback()
         await Database.close()
-        await undoAllMigration()
+        //await undoAllMigration()
     }, 30000)
 }
 export function runMigration() {
@@ -23,7 +25,11 @@ export function runMigration() {
 }
 export function undoAllMigration() {
     console.log('Undoing all database migration')
-    spawnSync('npx', ['sequelize-cli', 'db:migrate:undo:all'])
+    let response= null
+    response = spawnSync('npx', ['sequelize-cli', 'db:drop'])
+    if(response.status !== 0) throw  new Error('Failed to drop database')
+    response = spawnSync('npx', ['sequelize-cli', 'db:create'])
+    if(response.status !== 0) throw  new Error('Failed to create database')
 }
 
 export function getModelMock() {
@@ -49,6 +55,9 @@ export function getModelMock() {
             Object.assign(this, obj)
             return this
         }
+        save() {
+            return this
+        }
     }
     return MockedModel
 }
@@ -65,6 +74,8 @@ export function mockDatabase(databaseClass) {
             Order: getModelMock(),
             OrderItem: getModelMock(),
             UserBasket: getModelMock(),
+            Collection: getModelMock(),
+            Upload: getModelMock(),
         },
     }))
 }

@@ -9,4 +9,11 @@ export class OrderPolicy {
     static store(user, customerId) {
         return user.hasRole(USER_ROLES.ADMIN) || user.customer.id === customerId
     }
+
+    static update(user) {
+        return (
+            user.hasRole(USER_ROLES.ADMIN) ||
+            user.hasRole(USER_ROLES.STORE_KEEPER)
+        )
+    }
 }

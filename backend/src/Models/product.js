@@ -1,5 +1,5 @@
 'use strict'
-import { Model } from 'sequelize'
+import { Model, QueryTypes } from 'sequelize'
 import slugify from 'slugify'
 
 function model(sequelize, DataTypes) {
@@ -22,6 +22,22 @@ function model(sequelize, DataTypes) {
                 },
                 as: 'images',
             })
+            Product.hasMany(models.OrderDetail, {
+                foreignKey: 'productId',
+            })
+            Product.hasMany(models.StockTransaction, {
+                foreignKey: 'productId',
+            })
+        }
+
+        async getStock() {
+            const sql = `SELECT SUM(quantity) as stock FROM "StockTransactions" WHERE "productId" = :productId`
+            const [result] = await sequelize.query(sql, {
+                replacements: { productId: this.id },
+                type: QueryTypes.SELECT,
+            })
+            this.stock = Number(result.stock)
+            return Number(result.stock)
         }
     }
     Product.init(
@@ -36,11 +52,13 @@ function model(sequelize, DataTypes) {
             description: DataTypes.STRING,
             price: DataTypes.DECIMAL,
             published: DataTypes.BOOLEAN,
-            stock: DataTypes.INTEGER,
             collectionId: DataTypes.INTEGER,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
+            stock: {
+                type: DataTypes.VIRTUAL,
+            },
         },
         {
             sequelize,

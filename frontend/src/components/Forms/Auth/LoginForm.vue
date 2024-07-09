@@ -100,6 +100,9 @@ import Separator from '@/components/ui/separator/Separator.vue'
 import { apiClient } from '@/lib/apiClient'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
 
 // Reactive variables
 const email = ref('')
@@ -143,6 +146,7 @@ async function submit() {
         localStorage.setItem('accessToken', response.data.accessToken)
         localStorage.setItem('refreshToken', response.data.refreshToken)
 
+        user.setUser(response.data.user)
 
         toast({
                 title: 'Succès',
@@ -151,11 +155,7 @@ async function submit() {
                 status: 'success',
             })
 
-            // Set user datas in local storage
-            const userdata = await apiClient.get('/me')
-            if(userdata.data){
-                localStorage.setItem('user', JSON.stringify(userdata.data))
-            }
+
 
     } catch (error) {
         console.error('Login failed', error)

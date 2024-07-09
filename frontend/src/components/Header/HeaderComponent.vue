@@ -1,6 +1,21 @@
 <script setup lang="ts">
-import { onUnmounted, reactive, ref } from 'vue'
+import {
+Sheet,
+SheetContent,
+SheetTrigger
+} from '@/components/ui/sheet';
+
+import AuthDrawer from '../Drawers/AuthDrawer.vue'
+import CartDrawer from '@components/Drawers/CartDrawer.vue';
+import { computed, reactive, ref } from 'vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
+
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
+
+const isLogged = computed(() => user.isAuthenticated)
+
 
 const search = reactive({
     query: '',
@@ -21,6 +36,8 @@ const onSearch = () => {
 
     alert(`searching for ${search.query}`)
 }
+
+
 </script>
 
 <template>
@@ -35,16 +52,35 @@ const onSearch = () => {
             />
         </RouterLink>
         <nav class="flex justy-center gap-x-6 items-center">
-            <ion-icon
-                name="cart-outline"
-                class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-            ></ion-icon>
-            <RouterLink to="/profile">
-                <ion-icon
-                    name="person-outline"
+            <Sheet v-if="!isLogged">
+                <SheetTrigger as-child >
+                    <ion-icon 
+                        name="log-in-outline"
+                        class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                    ></ion-icon>
+                </SheetTrigger>
+                <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
+            </Sheet>
+
+            <Sheet v-if="isLogged">
+                <SheetTrigger>
+                <ion-icon 
+                    name="cart-outline"
                     class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                 ></ion-icon>
+                </SheetTrigger>
+                <SheetContent><CartDrawer></CartDrawer></SheetContent>
+            </Sheet>
+
+            <RouterLink to="/profile" v-if="isLogged">
+                <button class="flex items-center">
+                <ion-icon
+                        name="person-outline"
+                        class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
+                    ></ion-icon>
+                </button>
             </RouterLink>
+
             <form
                 @submit.prevent="onSearch()"
                 class="flex justify-center items-center -ml-6 gap-2"

@@ -39,7 +39,6 @@ async function initDatabase() {
             )
         })
         .map(async (file) => {
-            console.log('Loading model: ' + file)
             const script = await import('./' + file)
             const model = script.default(sequelize, Sequelize)
             db[model.name] = model
@@ -49,6 +48,9 @@ async function initDatabase() {
     Object.keys(db).forEach((modelName) => {
         if (db[modelName].associate) {
             db[modelName].associate(db)
+        }
+        if (db[modelName].hooks) {
+            db[modelName].hooks(db)
         }
     })
 
@@ -108,6 +110,14 @@ export class Database {
 
     static getInstance() {
         return Database._getInstance()
+    }
+
+    static transaction() {
+        return Database.getInstance().sequelize.transaction()
+    }
+
+    query(...args) {
+        return this.sequelize.query(...args)
     }
 
     static _getInstance() {

@@ -40,7 +40,7 @@ const onSubmit = () => {
 
 const updateCollection = async () => {
     const response = await fetch(CollectionUrl + props.collection.slug, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },

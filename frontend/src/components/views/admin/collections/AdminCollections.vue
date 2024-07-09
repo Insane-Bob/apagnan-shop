@@ -139,7 +139,7 @@ const fetchCollections = async () => {
 
 const updateCollection = async (row: any) => {
     const response = await fetch(CollectionUrl + row.slug, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
