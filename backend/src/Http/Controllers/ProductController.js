@@ -1,15 +1,16 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
     async getProducts() {
         if (this.collection) {
-            this.res.json({
+            this.res.status(200).json({
                 products: await this.collection.getProducts(),
             })
         } else {
-            this.res.json({
+            this.res.status(200).json({
                 products: await Database.getInstance().models.Product.findAll(),
             })
         }
@@ -23,15 +24,18 @@ export class ProductController extends Controller {
                 modelName: 'product',
             },
         })
-        this.res.json({
+        NotFoundException.abortIf(!product)
+
+        this.res.status(200).json({
             product: product,
             images: images,
         })
     }
 
     async createProduct() {
+        // add validator --> if not validate return 422
         const product = await Database.getInstance().models.Product.create(
-            this.req.body,
+            this.req.body.all(),
         )
         if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
@@ -41,14 +45,15 @@ export class ProductController extends Controller {
             }))
             await Database.getInstance().models.Upload.bulkCreate(imagePaths)
         }
-        this.res.json({
-            product: product,
-        })
+        if (product) {
+            this.res.status(201).json({
+                product: product,
+            })
+        }
     }
 
     async updateProduct() {
-        const product = this.product
-        await product.update(this.req.body)
+        const rowsEdited = await this.product.update(this.req.body.all())
         if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
                 modelId: product.id,
@@ -57,16 +62,18 @@ export class ProductController extends Controller {
             }))
             await Database.getInstance().models.Upload.bulkCreate(imagePaths)
         }
-        this.res.json({
+        NotFoundException.abortIf(!rowsEdited)
+
+        this.res.status(200).json({
             product: product,
         })
     }
 
     async deleteProduct() {
-        const product = this.product
-        await product.destroy()
-        this.res.json({
-            product: product,
-        })
+        const deleted = await this.product.destroy()
+
+        NotFoundException.abortIf(!deleted)
+
+        this.res.sendStatus(204)
     }
 }
