@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import type { BasketItem, User, } from '../types'
 
+
+let timeoutHandle: any
+
 export const useUserStore = defineStore('user', {
     state: () => {
         return {
@@ -22,15 +25,20 @@ export const useUserStore = defineStore('user', {
         clearCart() {
             this.cart = []
         },
-        addItemToCart(item: BasketItem) {
-            const existingItem = this.cart.find(
-                (i) => i.product.id === item.product.id,
-            )
-            if (existingItem) {
-                existingItem.quantity += item.quantity
-            } else {
-                this.cart.push(item)
+        addItem(cart: BasketItem[]) {
+            this.cart = cart
+
+            if (timeoutHandle) {
+                window.clearTimeout(timeoutHandle)
             }
+
+            timeoutHandle = window.setTimeout(
+                () => {
+                    this.clearCart()
+                    this.newItem = false
+                },
+                1000 * 60 * 15,
+            )
 
             this.newItem = true
         },

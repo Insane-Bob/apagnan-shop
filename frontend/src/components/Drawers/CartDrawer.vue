@@ -1,61 +1,22 @@
 <script setup lang="ts">
 import {
+SheetClose,
 SheetContent,
 SheetHeader,
 SheetTitle
 } from '@/components/ui/sheet';
 
+import type { BasketItem } from '@/types';
 import CartCard from '@components/cards/CartCard.vue';
 import Button from '@components/ui/button/Button.vue';
-import { onMounted, reactive } from 'vue';
-import { apiClient } from '@/lib/apiClient'
-import type { User } from '@/types/User';
-import { useUserStore } from '@store/user'
+import { useUserStore } from '@store/user';
+import { RouterLink } from 'vue-router';
 
 const user = useUserStore()
 
 user.cartViewed()
 
-onMounted(() => {
-    
-    fetchCart()
-})
 
-
-
-
-const fetchCart = async () => {
-    const response = await apiClient.get('users/' + user.getId + '/basket')
-    const data = response.data
-    data.product.forEach((c: any) => {
-        console.log(c)
-    })
-}
-
-
-const products = [
-    {
-        id: 1,
-        name: 'product-1',
-        price: 10,
-        quantity: 1,
-        imgPath: 'https://via.placeholder.com/150'
-    },
-    {
-        id: 2,
-        name: 'product-2',
-        price: 20,
-        quantity: 2,
-        imgPath: 'https://via.placeholder.com/150'
-    },
-    {
-        id: 3,
-        name: 'product-3',
-        price: 30,
-        quantity: 3,
-        imgPath: 'https://via.placeholder.com/150'
-    }
-]
 </script>
 
 <template>
@@ -64,10 +25,26 @@ const products = [
         <SheetTitle class="uppercase tracking-wider">Ajouté au panier</SheetTitle>
     </SheetHeader>
     <div  class="w-full max-h-[80vh] overflow-y-scroll grow flex flex-col justify-start divide-y divide-primary">
-        <div v-for="product in products" :key="product.id" class="flex flex-col justify-start">
-            <CartCard :product="product" />
+        <div v-if="user.countCartItem > 0" class="flex flex-col justify-start">
+            <CartCard v-for="(item, index) in user.getCart" :key="index"  :product="item.product" :quantity="item.quantity" />
+        </div>
+        <div v-else class="flex flex-col items-center">
+            <p class="text-lg font-semibold text-center my-5">Votre panier est vide</p>
+            <RouterLink to="/products">
+                <SheetClose>
+                    <Button>Voir la boutique</Button>
+                </SheetClose>
+            </RouterLink>
         </div>
     </div>
-    <Button class="w-full uppercase tracking-wider font-light">Règlement</Button>
+    <div class="flex flex-col">
+        <h2 class="text-xl font-bold">Récapitulatif</h2>
+        <div class="flex justify-between items-center">
+            <p class="text-lg font-semibold">Total:</p>
+            <p class="text-lg font-semibold">{{ user.getCart.reduce((acc: number, item:BasketItem) => acc + item.product.price * item.quantity, 0) }} €</p>
+        </div>
+        <hr class="border-b-2 border-primary my-3"/>
+        <Button class="w-full uppercase tracking-wider font-light">Règlement</Button>
+    </div>
     </SheetContent>
 </template>

@@ -69,7 +69,7 @@ const onSearch = () => {
                             name="cart-outline"
                             class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
                         ></ion-icon>
-                        <div class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
+                        <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
                             <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
                             <span class="text-white">{{ user.countCartItem }}</span>
                         </div>
