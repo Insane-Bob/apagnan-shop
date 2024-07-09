@@ -1,6 +1,7 @@
 import { Factory } from './Factory.js'
 import { faker } from '@faker-js/faker'
 import { CustomerFactory } from './CustomerFactory.js'
+import { UserWidgetFactory } from './UserWidgetFactory.js'
 
 export class UserFactory extends Factory{
   static model = 'User'
@@ -18,11 +19,19 @@ export class UserFactory extends Factory{
     this._withCustomer = true
     return this
   }
+
+  static _withWidget = false
+  static withWidget(){
+    this._withWidget = true
+    return this
+  }
   static async afterCreate(user){
     if(this._withCustomer){
       await CustomerFactory.count(1).create({userId: user.id})
       user.customer = await user.getCustomer()
       user.Customer = user.customer
     }
+
+    if(this._withWidget) await UserWidgetFactory.create({userId: user.id})
   }
 }

@@ -5,6 +5,7 @@ import { basketRoute } from './basket.js'
 import { AccessLinkMiddleware } from '../../../Http/Middlewares/AccessLinkMiddleware.js'
 import { OrderController } from '../../../Http/Controllers/OrderController.js'
 import { BillingAddressController } from '../../../Http/Controllers/BillingAddressController.js'
+import { widgetRoute } from './widget.js'
 
 /**
  * Auth routes
@@ -32,8 +33,12 @@ export default function (router) {
 
             this.post('/ask-reset-password', UserController, 'askResetPassword')
 
+            this.group('/:user_resource', function(){
+              widgetRoute(this)
+              basketRoute(this)
+            })
+
             this.group('/:user_resource', function () {
-                basketRoute(this)
                 this.get('/addresses', BillingAddressController, 'index')
                 this.get('/orders', OrderController, 'index')
             }).provide(CustomerProvider)
