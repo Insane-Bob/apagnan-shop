@@ -27,6 +27,7 @@ export class CollectionController extends Controller {
     }
 
     async createCollection() {
+        this.can(CollectionPolicy.update)
         const collection =
             await Database.getInstance().models.Collection.create(
                 this.req.body.all(),
@@ -70,6 +71,7 @@ export class CollectionController extends Controller {
     }
 
     async deleteCollection() {
+        this.can(CollectionPolicy.delete)
         const collection = this.collection
         await collection.destroy()
         this.res.json({

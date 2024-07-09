@@ -11,6 +11,6 @@ export class CollectionPolicy {
         return user.hasRole(USER_ROLES.ADMIN)
     }
     static delete(user) {
-        return this.update(user)
+        return CollectionPolicy.update(user)
     }
 }

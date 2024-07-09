@@ -68,12 +68,35 @@ describe('UserController test routes', () => {
         await testRequest('/api/collections/1', 'get', 200)
     })
 
-    test('PUT /api/collections/:id - no update user', async () => {
+    test('POST /api/collections/:id - no creation from user', async () => {
+        loginAsUser()
+        await testRequest('/api/collections', 'post', 403)
+    })
+
+    test('POST /api/collections - creation from admin', async () => {
+        loginAsAdmin()
+        await testRequest(
+            '/api/collections',
+            'post',
+            200,
+            (req) => {
+                return req.send({
+                    name: 'Test',
+                    description: 'Test description',
+                })
+            },
+            (response) => {
+                expect(response.body.collection.name).toBe('Test')
+            },
+        )
+    })
+
+    test('PATCH /api/collections/:id - no update user', async () => {
         loginAsUser()
         await testRequest('/api/collections/1', 'patch', 403)
     })
 
-    test('PUT /api/collections/:id - admin can update', async () => {
+    test('PATCH /api/collections/:id - admin can update', async () => {
         loginAsAdmin()
         await testRequest(
             '/api/collections/1',
@@ -85,17 +108,20 @@ describe('UserController test routes', () => {
                 })
             },
             (response) => {
-                console.log(response.body)
                 expect(response.body.collection.name).toBe('Test')
             },
         )
     })
 
-    // test('DELETE /api/users/:id - no delete user', async () => {
-    //     loginAsUser()
-    //     await testRequest('/api/users/2', 'delete', 403)
-    //     await testRequest('/api/users/1', 'delete', 200)
-    // })
+    test('DELETE /api/collections/:id - no delete user', async () => {
+        loginAsUser()
+        await testRequest('/api/collections/1', 'delete', 403)
+    })
+
+    test('DELETE /api/collections/:id - no delete user', async () => {
+        loginAsAdmin()
+        await testRequest('/api/collections/1', 'delete', 200)
+    })
 
     // test('GET /api/users/:id - admin access user', async () => {
     //     loginAsAdmin()
