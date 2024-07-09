@@ -3,7 +3,7 @@ import { UserPolicy } from '../Policies/UserPolicy.js'
 import { BillingAddressValidator } from '../../Validator/BillingAddressValidator.js'
 import { Database } from '../../Models/index.js'
 import { BillingAddressPolicy } from '../Policies/BillingAddressPolicy.js'
-import { User, USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/user.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
@@ -36,11 +36,12 @@ export class BillingAddressController extends Controller {
         this.res.json(this.billing_address)
     }
     async store() {
-        this.can(BillingAddressPolicy.create, this.userContext)
         const payload = this.validate(
             BillingAddressValidator,
             BillingAddressValidator.create(),
         )
+        this.can(BillingAddressPolicy.create, payload.customerId)
+
         await Database.getInstance().models.BillingAddress.create(payload)
         this.res.sendStatus(201)
     }

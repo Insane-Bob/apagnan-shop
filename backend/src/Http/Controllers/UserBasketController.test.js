@@ -4,11 +4,14 @@ import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { useFreshDatabase } from '../../tests/databaseUtils.js'
+import { UserFactory } from '../../database/factories/UserFactory.js'
+import { ProductFactory } from '../../database/factories/ProductFactory.js'
 
 let app = null
 describe('UserBasketController test routes', () => {
     let user1 = null
     let user2 = null
+    let product = null
 
     async function testRequest(
         route,
@@ -21,67 +24,66 @@ describe('UserBasketController test routes', () => {
             [method](route)
             .set('Accept', 'application/json')
         const response = await customRequest(req)
-        console.log(response.body)
         expect(response.statusCode).toBe(expectCode)
         customExpect(response)
         return
     }
 
     useFreshDatabase(async () => {
-        user1 = await Database.getInstance().models.User.create({
-            firstName: 'Test',
-            lastName: 'User',
-            email: crypto.randomBytes(20).toString('hex') + '@test.com',
-            password: 'password',
-        })
-        await Database.getInstance().models.Customer.create({
-            userId: user1.id,
-            stripeId: 'cus_' + crypto.randomBytes(15).toString('hex'),
-        })
-
-        user2 = await Database.getInstance().models.User.create({
-            firstName: 'Test',
-            lastName: 'User',
-            email: crypto.randomBytes(20).toString('hex') + '@test.com',
+        user1 = await UserFactory.withCustomer().create({
             password: 'password',
         })
 
-        await Database.getInstance().models.Customer.create({
-            userId: user2.id,
-            stripeId: 'cus_' + crypto.randomBytes(15).toString('hex'),
+        user2 = await UserFactory.withCustomer().create({
+            password: 'password',
         })
+
+        product = await ProductFactory.withStock(100).create({
+            published: true,
+        })
+
     })
     beforeEach(async () => {
         app = await setUpApp()
     })
 
-    test('POST /api/users/:userId/basket/add/:productId - add product 1 in the user basket', async () => {
+    test('PUT /api/users/:userId/basket/:productId - add product 1 in the user basket', async () => {
         actingAs(user1)
         await testRequest(
-            `/api/users/${user1.id}/basket/add/1`,
-            'post',
+            `/api/users/${user1.id}/basket/${product.id}`,
+            'put',
             200,
             (request) => request.send({ quantity: 2 }),
         )
     })
 
-    test('POST /api/users/:userId/basket/remove/:productId - remove basket 1 in the user basket', async () => {
+    test('PUT /api/users/:userId/basket/:productId - add product 1 in the user basket but no stock', async () => {
         actingAs(user1)
-        await testRequest(`/api/users/${user1.id}/basket/remove/1`, 'post', 200)
+        await testRequest(
+          `/api/users/${user1.id}/basket/${product.id}`,
+          'put',
+          403,
+          (request) => request.send({ quantity: 200 }),
+        )
     })
 
-    test('POST /api/users/:userId/basket/add/:productId - add product 1 in the user basket - not Authorized', async () => {
+    test('DELETE /api/users/:userId/basket/:productId - remove basket 1 in the user basket', async () => {
+        actingAs(user1)
+        await testRequest(`/api/users/${user1.id}/basket/${product.id}`, 'delete', 200)
+    })
+
+    test('PUT /api/users/:userId/basket/:productId - add product 1 in the user basket - not Authorized', async () => {
         actingAs(user2)
         await testRequest(
-            `/api/users/${user1.id}/basket/add/1`,
-            'post',
+            `/api/users/${user1.id}/basket/${product.id}`,
+            'put',
             403,
             (request) => request.send({ quantity: 2 }),
         )
     })
 
-    test('POST /api/users/:userId/basket/remove/:productId - remove basket 1 in the user basket - not Authorized', async () => {
+    test('DELETE /api/users/:userId/basket/:productId - remove basket 1 in the user basket - not Authorized', async () => {
         actingAs(user2)
-        await testRequest(`/api/users/${user1.id}/basket/remove/1`, 'post', 403)
+        await testRequest(`/api/users/${user1.id}/basket/${product.id}`, 'put', 403)
     })
 })

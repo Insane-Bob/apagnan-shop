@@ -1,11 +1,19 @@
 import { useFreshDatabase } from '../tests/databaseUtils.js'
 import { UserServices } from './UserServices.js'
 import { TokenServices } from './TokenServices.js'
-import { Database } from '../Models/index.js'
+import { PaymentServices } from './PaymentServices.js'
 
 describe('TokenServices', () => {
     let user = null
     let token = null
+
+    beforeAll(() => {
+        PaymentServices.createCustomer = jest.fn()
+    })
+    afterAll(()=>{
+        PaymentServices.createCustomer.mockRestore()
+    })
+
     useFreshDatabase(async () => {
         user = await UserServices.registerUser(
             'Test',

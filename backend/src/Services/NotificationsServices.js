@@ -4,6 +4,7 @@ import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
+import { EmailSender } from '../lib/EmailSender.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
