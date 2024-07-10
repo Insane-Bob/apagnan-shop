@@ -125,7 +125,7 @@ onMounted(() => {
                         </p>
                         <p>{{ product?.description }}</p>
                     </div>
-                    <div class="flex gap-4">
+                    <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex items-center gap-x-2 max-w-72">
                             <p>Quantité</p>
                             <Input type="number" class="border-2 border-black rounded-sm max-w-24" placeholder="Quantité" v-model="quantitySelected" />
