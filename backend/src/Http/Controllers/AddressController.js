@@ -41,8 +41,10 @@ export class AddressController extends Controller {
         )
         this.can(AddressPolicy.create, payload.customerId)
 
-        await Database.getInstance().models.Address.create(payload)
-        this.res.sendStatus(201)
+        const address =
+            await Database.getInstance().models.Address.create(payload)
+        console.log('hehehe', address)
+        this.res.json(address)
     }
     async update() {
         this.can(AddressPolicy.show, this.address)

@@ -17,6 +17,7 @@ import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import AddressForm from '@/components/views/order/AddressForm.vue';
+import type { BasketItem } from '@/types';
 
 
 const user = useUserStore()
@@ -74,15 +75,30 @@ const goToPayment = async () => {
         let billingAdresseId
     if(addressOption.value === 'custom'){
         shippingAdresseId = await createShippingAddress()
-
+        if(shippingAdresseId === 0){
+            toast({
+                title: 'Veuillez remplir tous les champs de l\'adresse de livraison',
+                variant: 'destructive'
+            })
+            return
+        }
+    }else{
+        shippingAdresseId = parseInt(addressOption.value)
     }
     if(!sameAddress.value){
         billingAdresseId = await createBillingAddress()
+        if(billingAdresseId === 0){
+            toast({
+                title: 'Veuillez remplir tous les champs de l\'adresse de facturation',
+                variant: 'destructive'
+            })
+            return
+        }
     }else{
         billingAdresseId = shippingAdresseId
     }  
-    
-        
+
+    createOrder(shippingAdresseId, billingAdresseId)
 }
 
 const createShippingAddress = async ():Promise<number> => {
@@ -97,9 +113,7 @@ const createShippingAddress = async ():Promise<number> => {
                 customerId: user.getCustomerId
             }
         )
-
-        console.log(response.data)
-        return 1;
+        return response.data.id
     }
     return 0
 }
@@ -117,10 +131,35 @@ const createBillingAddress = async ():Promise<number> => {
             }
         )
 
-        console.log(response.data)
-        return 1;
+        return response.data.id
     }
     return 0
+}
+
+const createOrder = async (shippingAddressId: number, billingAddressId: number) => {
+    const response = await apiClient.post('orders', {
+        customerId: user.getCustomerId,
+        shippingAddressId: shippingAddressId,
+        billingAddressId: billingAddressId,
+        products: user.getCart.map((item: BasketItem) => {
+            return {
+                productId: item.product.id,
+                quantity: item.quantity
+            }
+        })
+    })
+    if (response.status === 201) {
+        toast({
+            title: 'Votre commande a été enregistrée',
+        })
+        user.clearCart()
+        router.push(response.data.id +'/payment')
+    }else {
+        toast({
+            title: 'Une erreur est survenue lors de la création de votre commande',
+            variant: 'destructive'
+        })
+    }
 }
 
 </script>
@@ -172,7 +211,7 @@ const createBillingAddress = async ():Promise<number> => {
                 <Switch v-model:checked="sameAddress" />
 
             </div>
-            <form v-if="!sameAddress" @submit.prevent="submit">
+            <form v-if="!sameAddress">
                 <AddressForm v-model:city="billingCity" v-model:region="billingRegion" v-model:country="billingCountry" v-model:postal-code="billingPostalCode" v-model:street="billingStreet"  />
             </form>
 
