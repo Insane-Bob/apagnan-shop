@@ -47,17 +47,31 @@ export class OrderController extends Controller {
         const payload = this.validate(OrderValidator, OrderValidator.create())
         this.can(OrderPolicy.store, payload.customerId)
 
-        const address = await Database.getInstance().models.Address.findOne({
-            where: {
-                id: payload.addressId,
-                customerId: payload.customerId,
-            },
-        })
-        NotFoundException.abortIf(!address, 'Billing address not found')
+        const billingAddress =
+            await Database.getInstance().models.Address.findOne({
+                where: {
+                    id: payload.billingAddressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(!billingAddress, 'Billing address not found')
+
+        const shippingAddress =
+            await Database.getInstance().models.Address.findOne({
+                where: {
+                    id: payload.shippingAddressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(
+            !shippingAddress,
+            'Shipping address not found',
+        )
 
         const orderPayload = {
             customerId: payload.customerId,
-            addressId: payload.addressId,
+            shippingAddressId: payload.shippingAddressId,
+            billingAddressId: payload.billingAddressId,
         }
 
         const transaction = await Database.transaction()

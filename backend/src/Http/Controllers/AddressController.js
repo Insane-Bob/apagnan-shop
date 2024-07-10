@@ -10,7 +10,7 @@ import { NotFoundException } from '../../Exceptions/HTTPException.js'
 export class AddressController extends Controller {
     user_resource /** @provide by UserProvider */
     customer /** @provide by CustomerProvider */
-    billing_address /** @provide by AddressProvider */
+    address /** @provide by AddressProvider */
     userContext
 
     beforeEach() {
@@ -25,15 +25,14 @@ export class AddressController extends Controller {
             this.req.query.set('customerId', this.req.getUser().customer.id)
 
         const search = new SearchRequest(this.req, ['customerId'])
-        const Addresses =
-            await Database.getInstance().models.Address.findAll(
-                search.query,
-            )
+        const Addresses = await Database.getInstance().models.Address.findAll(
+            search.query,
+        )
         this.res.json(Addresses)
     }
     show() {
-        this.can(AddressPolicy.show, this.billing_address)
-        this.res.json(this.billing_address)
+        this.can(AddressPolicy.show, this.address)
+        this.res.json(this.address)
     }
     async store() {
         const payload = this.validate(
@@ -46,19 +45,19 @@ export class AddressController extends Controller {
         this.res.sendStatus(201)
     }
     async update() {
-        this.can(AddressPolicy.show, this.billing_address)
+        this.can(AddressPolicy.show, this.address)
         const payload = this.validate(
             AddressValidator,
             AddressValidator.update(),
         )
-        const rowsEdited = await this.billing_address.update(payload)
+        const rowsEdited = await this.address.update(payload)
         NotFoundException.abortIf(!rowsEdited)
         this.res.sendStatus(200)
     }
 
     async delete() {
-        this.can(AddressPolicy.show, this.billing_address)
-        const success = await this.billing_address.destroy()
+        this.can(AddressPolicy.show, this.address)
+        const success = await this.address.destroy()
         NotFoundException.abortIf(!success)
         this.res.sendStatus(200)
     }

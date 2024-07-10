@@ -11,7 +11,12 @@ export class Order extends Model {
         })
         models.Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' })
         models.Order.belongsTo(models.Address, {
-            foreignKey: 'addressId',
+            foreignKey: 'shippingAddressId',
+            as: 'shipping_address',
+        })
+        models.Order.belongsTo(models.Address, {
+            foreignKey: 'billingAddressId',
+            as: 'billing_address',
         })
     }
 
@@ -34,7 +39,8 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
             },
-            addressId: DataTypes.INTEGER,
+            shippingAddressId: DataTypes.INTEGER,
+            billingAddressId: DataTypes.INTEGER,
             status: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
@@ -60,14 +66,14 @@ function model(sequelize, DataTypes) {
                         association: 'OrderDetails',
                         as: 'orderDetails',
                     },
-                    {
-                        association: 'Address',
-                        as: 'billing_address',
-                    },
-                    {
-                        association: 'Address',
-                        as: 'shipping_address',
-                    },
+                    // {
+                    //     association: 'Address',
+                    //     as: 'billing_address',
+                    // },
+                    // {
+                    //     association: 'Address',
+                    //     as: 'shipping_address',
+                    // },
                     {
                         association: 'Customer',
                         as: 'customer',

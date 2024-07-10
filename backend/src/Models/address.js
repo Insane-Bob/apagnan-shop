@@ -10,7 +10,12 @@ function model(sequelize, DataTypes) {
                 foreignKey: 'customerId',
             })
             models.Address.hasMany(models.Order, {
-                foreignKey: 'addressId',
+                foreignKey: 'shippingAddressId',
+                as: 'shipping_address',
+            })
+            models.Address.hasMany(models.Order, {
+                foreignKey: 'billingAddressId',
+                as: 'billing_address',
             })
         }
 

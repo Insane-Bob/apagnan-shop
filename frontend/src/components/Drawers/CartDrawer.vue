@@ -5,7 +5,6 @@ SheetContent,
 SheetHeader,
 SheetTitle
 } from '@/components/ui/sheet';
-
 import type { BasketItem } from '@/types';
 import CartCard from '@components/cards/CartCard.vue';
 import Button from '@components/ui/button/Button.vue';
@@ -13,9 +12,7 @@ import { useUserStore } from '@store/user';
 import { RouterLink } from 'vue-router';
 
 const user = useUserStore()
-
 user.cartViewed()
-
 
 </script>
 
@@ -44,7 +41,9 @@ user.cartViewed()
             <p class="text-lg font-semibold">{{ user.getCart.reduce((acc: number, item:BasketItem) => acc + item.product.price * item.quantity, 0) }} €</p>
         </div>
         <hr class="border-b-2 border-primary my-3"/>
-        <Button class="w-full uppercase tracking-wider font-light">Règlement</Button>
+        <RouterLink to="/order/summary">
+            <Button class="w-full uppercase tracking-wider font-light">Règlement</Button>
+        </RouterLink>
     </div>
     </SheetContent>
 </template>

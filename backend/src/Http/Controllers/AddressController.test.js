@@ -46,21 +46,29 @@ describe('BillingAddressController test routes', () => {
         expect(response.body).toHaveLength(ADDRESSES_USER_COUNT)
     })
 
-    test('GET /api/addresses/:billing_address - show billing address', async () => {
+    test('GET /api/addresses/:address - show billing address', async () => {
         await emptyTables()
 
         const user1 = await UserFactory.withCustomer().create()
-        const billingAddressUser1 = await BillingAddressFactory.count(1).create({ customerId: user1.customer.id })
+        const billingAddressUser1 = await BillingAddressFactory.count(1).create(
+            { customerId: user1.customer.id },
+        )
 
         const user2 = await UserFactory.withCustomer().create()
-        const billingAddressUser2 = await BillingAddressFactory.count(1).create({ customerId: user2.customer.id })
+        const billingAddressUser2 = await BillingAddressFactory.count(1).create(
+            { customerId: user2.customer.id },
+        )
 
         actingAs(user1)
-        let response = await request(app).get(`/api/addresses/${billingAddressUser1.id}`)
+        let response = await request(app).get(
+            `/api/addresses/${billingAddressUser1.id}`,
+        )
         expect(response.statusCode).toBe(200)
         expect(response.body.id).toBe(billingAddressUser1.id)
 
-        response = await request(app).get(`/api/addresses/${billingAddressUser2.id}`)
+        response = await request(app).get(
+            `/api/addresses/${billingAddressUser2.id}`,
+        )
         expect(response.statusCode).toBe(403)
 
         response = await request(app).get(`/api/addresses/13`)
@@ -95,56 +103,65 @@ describe('BillingAddressController test routes', () => {
 
     })
 
-    test('PUT /api/addresses/:billing_address - update billing address', async () => {
+    test('PUT /api/addresses/:address - update billing address', async () => {
         await emptyTables()
 
         const user1 = await UserFactory.withCustomer().create()
-        const billingAddressUser1 = await BillingAddressFactory.count(1).create({ customerId: user1.customer.id })
+        const billingAddressUser1 = await BillingAddressFactory.count(1).create(
+            { customerId: user1.customer.id },
+        )
 
         const user2 = await UserFactory.withCustomer().create()
-        const billingAddressUser2 = await BillingAddressFactory.count(1).create({ customerId: user2.customer.id })
+        const billingAddressUser2 = await BillingAddressFactory.count(1).create(
+            { customerId: user2.customer.id },
+        )
 
         actingAs(user1)
 
         let response = await request(app)
-          .patch(`/api/addresses/${billingAddressUser1.id}`)
-          .send({
-              street: faker.location.street()
-          })
+            .patch(`/api/addresses/${billingAddressUser1.id}`)
+            .send({
+                street: faker.location.street(),
+            })
         expect(response.statusCode).toBe(200)
 
         response = await request(app)
-          .patch(`/api/addresses/${billingAddressUser2.id}`)
-          .send({
-              street: faker.location.street()
-          })
+            .patch(`/api/addresses/${billingAddressUser2.id}`)
+            .send({
+                street: faker.location.street(),
+            })
 
         expect(response.statusCode).toBe(403)
 
-        response = await request(app)
-          .patch(`/api/addresses/10`)
-          .send({
-              street: faker.location.street()
-          })
+        response = await request(app).patch(`/api/addresses/10`).send({
+            street: faker.location.street(),
+        })
         expect(response.statusCode).toBe(404)
-
     })
 
-    test('DELETE /api/addresses/:billing_address - delete billing address', async () => {
+    test('DELETE /api/addresses/:address - delete billing address', async () => {
         await emptyTables()
 
         const user1 = await UserFactory.withCustomer().create()
-        const billingAddressUser1 = await BillingAddressFactory.count(1).create({ customerId: user1.customer.id })
+        const billingAddressUser1 = await BillingAddressFactory.count(1).create(
+            { customerId: user1.customer.id },
+        )
 
         const user2 = await UserFactory.withCustomer().create()
-        const billingAddressUser2 = await BillingAddressFactory.count(1).create({ customerId: user2.customer.id })
+        const billingAddressUser2 = await BillingAddressFactory.count(1).create(
+            { customerId: user2.customer.id },
+        )
 
         actingAs(user1)
 
-        let response = await request(app).delete(`/api/addresses/${billingAddressUser1.id}`)
+        let response = await request(app).delete(
+            `/api/addresses/${billingAddressUser1.id}`,
+        )
         expect(response.statusCode).toBe(200)
 
-        response = await request(app).delete(`/api/addresses/${billingAddressUser2.id}`)
+        response = await request(app).delete(
+            `/api/addresses/${billingAddressUser2.id}`,
+        )
         expect(response.statusCode).toBe(403)
 
         response = await request(app).delete(`/api/addresses/10`)

@@ -14,8 +14,11 @@ onMounted( async () => {
     const response = await apiClient.get('/me')
     user.setUser(response.data.user)
 
-    const response2 = await apiClient.get('/users/' + user.getId + '/basket')
-    user.setCart(response2.data)
+    const cartResponse = await apiClient.get('/users/' + user.getId + '/basket')
+    user.setCart(cartResponse.data)
+
+    const addressesResponses = await apiClient.get('/users/' + user.getId + '/addresses')
+    user.setAddresses(addressesResponses.data)
     loading.value = true
   }else{
     loading.value = true

@@ -1,32 +1,31 @@
-import HeaderLayout from '@/layout/HeaderLayout.vue'
+import OrderLayout from '@/layout/OrderLayout.vue'
 
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { useUserStore } from '@store/user'
+import OrderSummary from '@/components/views/order/OrderSummary.vue'
 
-const user = useUserStore()
-
-export const backofficeRoutes = [
+export const orderRoutes = [
     {
         path: '/order',
-        component: HeaderLayout,
+        component: OrderLayout,
         beforeEnter: () => {
             // Check if user is authenticated
             // If not, redirect to login page
-            if (user.isAuthenticated) {
-                const { toast } = useToast()
-                toast({
-                    title: 'Vous devez être connecté',
-                    description:
-                        'Pour accéder à cette page, vous devez être connecté.',
-                    variant: 'destructive',
-                })
+            if (localStorage.getItem('accessToken')) {
+                return true
             }
+            const { toast } = useToast()
+            toast({
+                title: 'Vous devez être connecté',
+                description:
+                    'Pour accéder à cette page, vous devez être connecté.',
+                variant: 'destructive',
+            })
             return { name: 'Home' }
         },
 
         children: [
-            { path: 'summary', component: WorkInProgress },
+            { path: 'summary', component: OrderSummary },
             { path: ':id/payment', component: WorkInProgress },
             { path: ':id/report', component: WorkInProgress },
         ],
