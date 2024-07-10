@@ -10,7 +10,7 @@ export class Order extends Model {
             foreignKey: 'orderId',
         })
         models.Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' })
-        models.Order.belongsTo(models.BillingAddress, {
+        models.Order.belongsTo(models.Address, {
             foreignKey: 'addressId',
         })
     }
@@ -61,8 +61,12 @@ function model(sequelize, DataTypes) {
                         as: 'orderDetails',
                     },
                     {
-                        association: 'BillingAddress',
-                        as: 'billingAddress',
+                        association: 'Address',
+                        as: 'billing_address',
+                    },
+                    {
+                        association: 'Address',
+                        as: 'shipping_address',
                     },
                     {
                         association: 'Customer',

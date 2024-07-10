@@ -130,7 +130,10 @@ onMounted(() => {
                             <p>Quantité</p>
                             <Input type="number" class="border-2 border-black rounded-sm max-w-24" placeholder="Quantité" v-model="quantitySelected" />
                         </div>
-                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()">Ajouter au panier</Button>
+                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()" class="flex items-center gap-x-2">
+                            Ajouter au panier
+                            <ion-icon name="cart-outline" class="text-lg font-semibold"></ion-icon>
+                        </Button>
                     </div>
                     <div class="text-slate-400 flex items-center gap-2">
                         En savoir plus

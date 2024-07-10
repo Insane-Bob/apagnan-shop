@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { Validator } from './Validator.js'
-import { BillingAddressPolicy } from '../Http/Policies/BillingAddressPolicy.js'
+import { AddressPolicy } from '../Http/Policies/AddressPolicy.js'
 
-export class BillingAddressValidator extends Validator {
-    constructor(schema = BillingAddressPolicy.create()) {
+export class AddressValidator extends Validator {
+    constructor(schema = AddressPolicy.create()) {
         super(schema)
     }
 

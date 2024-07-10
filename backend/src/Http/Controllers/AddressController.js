@@ -1,16 +1,16 @@
 import { Controller } from '../../Core/Controller.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
-import { BillingAddressValidator } from '../../Validator/BillingAddressValidator.js'
+import { AddressValidator } from '../../Validator/AddressValidator.js'
 import { Database } from '../../Models/index.js'
-import { BillingAddressPolicy } from '../Policies/BillingAddressPolicy.js'
+import { AddressPolicy } from '../Policies/AddressPolicy.js'
 import { USER_ROLES } from '../../Models/user.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
-export class BillingAddressController extends Controller {
+export class AddressController extends Controller {
     user_resource /** @provide by UserProvider */
     customer /** @provide by CustomerProvider */
-    billing_address /** @provide by BillingAddressProvider */
+    billing_address /** @provide by AddressProvider */
     userContext
 
     beforeEach() {
@@ -25,31 +25,31 @@ export class BillingAddressController extends Controller {
             this.req.query.set('customerId', this.req.getUser().customer.id)
 
         const search = new SearchRequest(this.req, ['customerId'])
-        const billingAddresses =
-            await Database.getInstance().models.BillingAddress.findAll(
+        const Addresses =
+            await Database.getInstance().models.Address.findAll(
                 search.query,
             )
-        this.res.json(billingAddresses)
+        this.res.json(Addresses)
     }
     show() {
-        this.can(BillingAddressPolicy.show, this.billing_address)
+        this.can(AddressPolicy.show, this.billing_address)
         this.res.json(this.billing_address)
     }
     async store() {
         const payload = this.validate(
-            BillingAddressValidator,
-            BillingAddressValidator.create(),
+            AddressValidator,
+            AddressValidator.create(),
         )
-        this.can(BillingAddressPolicy.create, payload.customerId)
+        this.can(AddressPolicy.create, payload.customerId)
 
-        await Database.getInstance().models.BillingAddress.create(payload)
+        await Database.getInstance().models.Address.create(payload)
         this.res.sendStatus(201)
     }
     async update() {
-        this.can(BillingAddressPolicy.show, this.billing_address)
+        this.can(AddressPolicy.show, this.billing_address)
         const payload = this.validate(
-            BillingAddressValidator,
-            BillingAddressValidator.update(),
+            AddressValidator,
+            AddressValidator.update(),
         )
         const rowsEdited = await this.billing_address.update(payload)
         NotFoundException.abortIf(!rowsEdited)
@@ -57,7 +57,7 @@ export class BillingAddressController extends Controller {
     }
 
     async delete() {
-        this.can(BillingAddressPolicy.show, this.billing_address)
+        this.can(AddressPolicy.show, this.billing_address)
         const success = await this.billing_address.destroy()
         NotFoundException.abortIf(!success)
         this.res.sendStatus(200)
