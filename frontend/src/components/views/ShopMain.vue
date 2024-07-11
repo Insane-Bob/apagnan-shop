@@ -193,7 +193,14 @@ import ProductCard from '@components/cards/ProductCard.vue'
 import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
-import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref } from 'vue'
+import {
+    computed,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    reactive,
+    ref,
+} from 'vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useUserStore } from '@store/user'
 
@@ -224,7 +231,7 @@ const onSearch = () => {
 }
 
 const isOnTop = ref(true)
-const showCookiesModal = ref(false)
+const showCookiesModal = ref(true)
 
 function changeBrightness() {
     const mainShopPage = document.querySelector('.main-shop-page')
@@ -283,12 +290,6 @@ onBeforeMount(() => {
 
 onUnmounted(() => {
     window.removeEventListener('scroll', scrollFunction)
-})
-
-onMounted(() => {
-    setTimeout(() => {
-        showCookiesModal.value = false
-    }, 500)
 })
 </script>
 

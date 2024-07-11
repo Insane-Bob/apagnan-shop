@@ -6,12 +6,12 @@ import {
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
-import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 export class AuthController extends Controller {
     async login() {
@@ -25,6 +25,11 @@ export class AuthController extends Controller {
         )
 
         const database = Database.getInstance()
+        console.log(
+            password,
+            user.password,
+            UserServices.comparePassword(password, user.password),
+        )
         if (!UserServices.comparePassword(password, user.password)) {
             await database.models.UserConnectionAttempt.create({
                 userId: user.id,

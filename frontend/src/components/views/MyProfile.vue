@@ -1,13 +1,3 @@
-<script lang="ts" setup>
-import LinkCard from '@components/cards/LinkCard.vue';
-
-import { useUserStore } from '@store/user';
-
-
-const user = useUserStore()
-
-</script>
-
 <template>
     <div class="relative">
         <div class="sticky top-0 z-10">
@@ -44,3 +34,11 @@ const user = useUserStore()
         </main>
     </div>
 </template>
+
+<script lang="ts" setup>
+import LinkCard from '@components/cards/LinkCard.vue'
+
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
+</script>

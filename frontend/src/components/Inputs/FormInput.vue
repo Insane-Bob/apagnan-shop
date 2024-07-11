@@ -55,27 +55,27 @@ import FormError from '@/components/Forms/FormError.vue'
 const props = defineProps({
     modelValue: {
         type: [Number, String],
-        default: () => '',
+        default: '',
     },
     disabled: {
         type: Boolean,
-        default: () => false,
+        default: false,
     },
     required: {
         type: [Boolean, Number],
-        default: () => false,
+        default: false,
     },
     errors: {
-        type: String,
-        default: () => null,
+        type: [Array, String],
+        default: () => [],
     },
     name: {
         type: String,
-        default: () => '',
+        default: '',
     },
     noBorder: {
         type: Boolean,
-        default: () => false,
+        default: false,
     },
 })
 
@@ -83,7 +83,10 @@ const id = (Math.random() + 1).toString(36).substring(2)
 const inputRef = ref()
 
 const inputError = computed(() => {
-    return props.errors?.find((error) => error.path === props.name)
+    if (Array.isArray(props.errors)) {
+        return props.errors.find((error) => error.path === props.name)
+    }
+    return null
 })
 
 defineExpose({

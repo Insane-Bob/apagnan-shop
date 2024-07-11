@@ -76,15 +76,16 @@ async function submit() {
         const data = {
             email: email.value,
         }
-        const response = await apiClient.post('/ask-reset-password', data)
+        const response = await apiClient.post('/users/ask-reset-password', data)
 
-        if (response && response.status === 200) {
+        if (response) {
             toast({
                 title: 'Succès',
                 description:
                     'Si votre adresse e-mail est valide, vous recevrez un e-mail de réinitialisation de mot de passe',
                 status: 'success',
             })
+            email.value = ''
         }
     } catch (error) {
         email.value = ''

@@ -1,6 +1,7 @@
 import ProductsPage from '@components/views/ProductsPage.vue'
 import HeaderLayout from '@/layout/HeaderLayout.vue'
 import ProductView from '@/components/views/ProductView.vue'
+import ResetPasswordView from '@/components/views/auth/ResetPasswordView.vue'
 //import CollectionsIndex from '@/components/views/CollectionsIndex.vue'
 //import CollectionProductsPage from '@/components/views/CollectionProductsPage.vue'
 
@@ -18,6 +19,10 @@ export const publicRoutes = [
             {
                 path: 'collections/:cslug/products/:pslug',
                 component: ProductView,
+            },
+            {
+                path: 'reset-password',
+                component: ResetPasswordView,
             },
         ],
     },

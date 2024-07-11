@@ -58,7 +58,7 @@
                 >
                     <template #label>Adresse mail</template>
                     <template #input="inputProps">
-                        <Input
+                        <input
                             type="email"
                             v-model="email"
                             v-bind="inputProps"
@@ -67,32 +67,14 @@
                 </FormInput>
 
                 <!-- PASSWORD -->
-                <FormInput
-                    class="row-span-1 col-start-1 col-span-full"
+                <PasswordInput
+                    name="password"
+                    v-model="password"
+                    :errors="errors"
                     required
                 >
                     <template #label>Mot de passe</template>
-                    <template #input="inputProps">
-                        <input
-                            :type="passwordManager.inputType"
-                            v-model="password"
-                            v-bind="inputProps"
-                        />
-                    </template>
-                    <template #after-input>
-                        <div class="flex items-center">
-                            <ion-icon
-                                :name="
-                                    passwordManager.isShown
-                                        ? 'eye-outline'
-                                        : 'eye-off-outline'
-                                "
-                                class="mr-2 h-4 w-4 cursor-pointer"
-                                @click="passwordManager.toggle()"
-                            ></ion-icon>
-                        </div>
-                    </template>
-                </FormInput>
+                </PasswordInput>
 
                 <!-- PASSWORD VALIDATION -->
                 <div class="flex flex-wrap">
@@ -117,32 +99,14 @@
                 </div>
 
                 <!-- CONFIRM PASSWORD -->
-                <FormInput
+                <PasswordInput
                     name="passwordConfirmation"
+                    v-model="passwordConfirmation"
                     :errors="errors"
-                    class="row-span-1 col-start-1 col-span-full"
                     required
                 >
-                    <template #label>Confirmation du mot de passe</template>
-                    <template #input="inputProps">
-                        <input
-                            :type="passwordManager.inputType"
-                            v-model="passwordConfirmation"
-                            v-bind="inputProps"
-                        />
-                    </template>
-                    <template #after-input>
-                        <ion-icon
-                            :name="
-                                passwordManager.isShown
-                                    ? 'eye-outline'
-                                    : 'eye-off-outline'
-                            "
-                            class="mr-2 h-4 w-4 cursor-pointer"
-                            @click="passwordManager.toggle()"
-                        ></ion-icon>
-                    </template>
-                </FormInput>
+                    <template #label>Confirmer le mot de passe</template>
+                </PasswordInput>
                 <Button :disabled="!isFormValid || isSubmitting">
                     <ion-spinner
                         v-if="isSubmitting"
@@ -198,7 +162,7 @@
                 >
                     <template #label>Adresse mail</template>
                     <template #input="inputProps">
-                        <Input
+                        <input
                             type="email"
                             v-model="email"
                             v-bind="inputProps"
@@ -213,6 +177,7 @@
 
 <script setup lang="ts">
 import FormGrid from '@/components/Forms/FormGrid.vue'
+import PasswordInput from '@/components/Inputs/PasswordInput.vue'
 import FormHeader from '@/components/Forms/FormHeader.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
@@ -250,16 +215,6 @@ const passwordRules = computed(() => [
         isValid: /[!@#$%^&*(),.?":{}|<>]/.test(password.value),
     },
 ])
-
-// Password manager for showing/hiding password
-const passwordManager = reactive({
-    inputType: 'password',
-    isShown: false,
-    toggle() {
-        this.isShown = !this.isShown
-        this.inputType = this.isShown ? 'text' : 'password'
-    },
-})
 
 // Computed property to check if the form is valid
 const isFormValid = computed(() => {
