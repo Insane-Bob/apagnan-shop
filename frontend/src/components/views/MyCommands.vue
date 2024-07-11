@@ -6,7 +6,10 @@ import type { OrderStatus } from '@/types/OrderStatus';
 import { useUserStore } from '@store/user';
 import { onMounted, reactive, ref } from 'vue';
 import Button from '../ui/button/Button.vue';
+import type { TableActions } from '@/types';
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const user = useUserStore()
 const loading = ref(true)
 
@@ -57,7 +60,17 @@ const columns: TableColumns[] = [
             }
         },
     ]
-
+    
+const actions: TableActions[] = [
+        {
+            label: 'Voir le détail',
+            icon: 'eye-outline',
+            class: 'text-blue-500',
+            action: (row: any) => {
+                router.push('/profile/command/' + row.id)
+            },
+        },
+]
 
 onMounted(async () => {
     await fetchOrders()
@@ -83,6 +96,7 @@ const fetchOrders = async () => {
             v-if="orders.length > 0"
             :columns="columns"
             :rows="orders"
+            :actions="actions"
         ></DataTable>
         <div v-else class="h-[80vh]">
             <h2>
