@@ -7,11 +7,11 @@ export interface Order {
     total: number
     id: number
     customerId: number
-    createdAt: Date
+    createdAt: string
     shippingAddressId: number
     billingAddressId: number
     status: OrderStatus
-    updatedAt: Date
+    updatedAt: string
     orderDetails: OrderDetails[]
     billing_address: Address
     shipping_address: Address
