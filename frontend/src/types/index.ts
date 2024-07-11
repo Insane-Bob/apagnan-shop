@@ -4,6 +4,8 @@ import type { User } from './User'
 import type { Product } from './Product'
 import type { Review } from './Review'
 import type { Address } from './Address'
+import type { Order } from './Order'
+import type { OrderDetails } from './OrderDetails'
 
 // DATA TABLE TYPES
 import type { Page } from './Page'
@@ -23,4 +25,6 @@ export type {
     Review,
     BasketItem,
     Address,
+    Order,
+    OrderDetails,
 }
