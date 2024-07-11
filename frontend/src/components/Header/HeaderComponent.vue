@@ -46,7 +46,7 @@ const onSearch = () => {
     >
         <RouterLink to="/">
             <img
-                class="flex items-center relative right-1/2 -translate-x-40 h-full pt-4"
+                class="absolute right-1/2 translate-x-1/2 top-1/2 -translate-y-1/2 h-full pt-4"
                 src="/src/assets/logo_black.svg"
                 alt="Apagnain Logo"
             />
