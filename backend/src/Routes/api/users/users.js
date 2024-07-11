@@ -19,6 +19,12 @@ export default function (router) {
             this.patch('/:user_resource', UserController, 'update')
                 .middleware(AccessLinkMiddleware, 100)
 
+            this.post(
+                '/:user_resource/reset-password',
+                UserController,
+                'resetPassword',
+            ).middleware(AccessLinkMiddleware, 100)
+
             this.get(
                 '/:user_resource/activate',
                 UserController,

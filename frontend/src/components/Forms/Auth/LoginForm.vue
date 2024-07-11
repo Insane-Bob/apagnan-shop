@@ -141,7 +141,7 @@ async function submit() {
                     'Connexion réussie, bienvenue dans votre espace personnel !',
                 status: 'success',
             })
-            
+
             // Redirect to profile page
             router.push('/profile')
         } else {

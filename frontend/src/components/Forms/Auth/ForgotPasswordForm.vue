@@ -78,7 +78,7 @@ async function submit() {
         }
         const response = await apiClient.post('/users/ask-reset-password', data)
 
-        if (response) {
+        if (response && response.status === 200) {
             toast({
                 title: 'Succès',
                 description:
