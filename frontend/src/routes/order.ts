@@ -3,6 +3,7 @@ import OrderLayout from '@/layout/OrderLayout.vue'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import OrderSummary from '@/components/views/order/OrderSummary.vue'
+import OrderPayment from '@/components/views/order/OrderPayment.vue'
 
 export const orderRoutes = [
     {
@@ -26,7 +27,7 @@ export const orderRoutes = [
 
         children: [
             { path: 'summary', component: OrderSummary },
-            { path: ':id/payment', component: WorkInProgress },
+            { path: ':id/payment', component: OrderPayment },
             { path: ':id/report', component: WorkInProgress },
         ],
     },
