@@ -1,16 +1,17 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
 export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
     async getReviews() {
         if (this.product) {
-            this.res.json({
+            this.res.status(200).json({
                 reviews: await this.product.getReviews(),
             })
         } else {
             const reviews = await Database.getInstance().models.Review.findAll()
-            this.res.json({
+            this.res.status(200).json({
                 reviews: reviews,
             })
         }
@@ -18,33 +19,40 @@ export class ReviewController extends Controller {
 
     async getReview() {
         const review = this.review
-        this.res.json({
+
+        NotFoundException.abortIf(!review)
+
+        this.res.status(200).json({
             review: review,
         })
     }
 
     async createReview() {
         const review = await Database.getInstance().models.Review.create(
-            this.req.body,
+            this.req.body.all(),
         )
-        this.res.json({
-            review: review,
-        })
+        if (review) {
+            this.res.status(201).json({
+                review: review,
+            })
+        }
     }
 
     async updateReview() {
-        const review = this.review
-        await review.update(this.req.body)
-        this.res.json({
+        const rowsEdited = await this.review.update(this.req.body.all())
+
+        NotFoundException.abortIf(!rowsEdited)
+
+        this.res.status(200).json({
             review: review,
         })
     }
 
     async deleteReview() {
-        const review = this.review
-        await review.destroy()
-        this.res.json({
-            review: review,
-        })
+        const deleted = await this.review.destroy()
+
+        NotFoundException.abortIf(!deleted)
+
+        this.res.sendStatus(204)
     }
 }
