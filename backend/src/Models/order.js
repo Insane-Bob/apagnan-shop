@@ -4,12 +4,18 @@ import { OrderStatus } from '../Enums/OrderStatus.js'
 
 export class Order extends Model {
     static associate(models) {
-        models.Order.belongsTo(models.Customer, { foreignKey: 'customerId' })
+        models.Order.belongsTo(models.Customer, {
+            foreignKey: 'customerId',
+            as: 'customer',
+        })
         models.Order.hasMany(models.Payment, { foreignKey: 'orderId' })
         models.Order.hasMany(models.RefundRequestOrder, {
             foreignKey: 'orderId',
         })
-        models.Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' })
+        models.Order.hasMany(models.OrderDetail, {
+            foreignKey: 'orderId',
+            as: 'orderDetails',
+        })
         models.Order.belongsTo(models.Address, {
             foreignKey: 'shippingAddressId',
             as: 'shipping_address',
@@ -18,6 +24,38 @@ export class Order extends Model {
             foreignKey: 'billingAddressId',
             as: 'billing_address',
         })
+    }
+
+    static addScopes(models) {
+        models.Order.addScope(
+            'defaultScope',
+            {
+                include: [
+                    {
+                        model: models.OrderDetail,
+                        as: 'orderDetails',
+                    },
+                    {
+                        model: models.Address,
+                        as: 'billing_address',
+                    },
+                    {
+                        model: models.Address,
+                        as: 'shipping_address',
+                    },
+                    {
+                        model: models.Customer,
+                        as: 'customer',
+                        include: [
+                            {
+                                model: models.User,
+                            },
+                        ],
+                    },
+                ],
+            },
+            { override: true },
+        )
     }
 
     getTotal() {
@@ -60,32 +98,6 @@ function model(sequelize, DataTypes) {
         {
             sequelize,
             modelName: 'Order',
-            defaultScope: {
-                include: [
-                    {
-                        association: 'OrderDetails',
-                        as: 'orderDetails',
-                    },
-                    // {
-                    //     association: 'Address',
-                    //     as: 'billing_address',
-                    // },
-                    // {
-                    //     association: 'Address',
-                    //     as: 'shipping_address',
-                    // },
-                    {
-                        association: 'Customer',
-                        as: 'customer',
-                        include: [
-                            {
-                                association: 'User',
-                                as: 'user',
-                            },
-                        ],
-                    },
-                ],
-            },
         },
     )
 

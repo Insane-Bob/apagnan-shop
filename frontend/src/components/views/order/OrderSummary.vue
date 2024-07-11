@@ -15,6 +15,7 @@ import { apiClient } from "@/lib/apiClient";
 import { useUserStore } from '@/stores/user';
 import { onBeforeMount, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import SummaryCard from '@components/cards/SummaryCard.vue';
 
 import AddressForm from '@/components/views/order/AddressForm.vue';
 import type { BasketItem } from '@/types';
@@ -70,9 +71,19 @@ const onSelectAddressOption = () => {
 }
 
 const goToPayment = async () => {
-    // router.push('/order/summary')
-        let shippingAdresseId 
-        let billingAdresseId
+
+
+    let shippingAdresseId 
+    let billingAdresseId
+
+    if(addressOption.value === ''){
+        toast({
+            title: 'Veuillez choisir une adresse de livraison',
+            variant: 'destructive'
+        })
+        return
+    }
+
     if(addressOption.value === 'custom'){
         shippingAdresseId = await createShippingAddress()
         if(shippingAdresseId === 0){
@@ -228,22 +239,8 @@ const createOrder = async (shippingAddressId: number, billingAddressId: number) 
             </h2>
             <hr class="border-b-[0.5px] border-primary/40 my-4 w-full">
             
-            <div class="flex w-full justify-between ">
-                <img 
-                    class="w-14 h-14 relative mr-8"
-                    src="/src/assets/images/noPhotoAvailable.webp"
-                    alt="placeholder"
-                />
-                <div class="flex flex-col grow">
-                    <div class="flex justify-between items-start grow gap-x-1 text-xs">
-                        <p class="uppercase font-medium">Nom du produit un peu long</p>
-                        <p class="uppercase font-light whitespace-nowrap ">Qté:  1</p>
-                    </div>
-                    <p class="w-full text-right text-xs">€ 400,00</p>
-                </div>
-            </div>
+            <SummaryCard v-for="(item, index) in user.getCart" :key="index" :item="item" />
 
-            <hr class="border-b-[0.5px] border-primary/40 my-4 w-full">
             <div class="flex flex-col w-full text-sm gap-y-4">
                 <div class="flex justify-between items-center w-full font-light">
                     <p>Sous-total</p>
