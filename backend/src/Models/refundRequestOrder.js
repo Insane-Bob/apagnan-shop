@@ -1,8 +1,10 @@
 'use strict'
 import { Model } from 'sequelize'
+import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
+import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
-    class RefundRequestOrder extends Model {
+    class RefundRequestOrder extends DenormalizableModel {
         static associate(models) {
             models.RefundRequestOrder.belongsTo(models.Order, {
                 foreignKey: 'orderId',
@@ -20,6 +22,10 @@ function model(sequelize, DataTypes) {
             return order.getCustomer()
         }
     }
+
+    RefundRequestOrder.registerDenormalizerTask(
+        new OrderRefundRequestDenormalizationTask().on(['reason', 'approved']),
+    )
 
     RefundRequestOrder.init(
         {

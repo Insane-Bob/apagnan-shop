@@ -15,6 +15,7 @@ import { USER_ROLES } from '../../Models/user.js'
 import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
+import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -100,6 +101,8 @@ export class OrderController extends Controller {
             )
             await transaction.commit()
             order.OrderDetails = await order.getOrderDetails()
+
+            await new OrderDenormalizationTask().execute(order)
 
             this.res.status(201).json(order)
         } catch (e) {

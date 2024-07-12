@@ -2,6 +2,7 @@ import setUpApp from './app.js'
 import { Database } from './Models/index.js'
 import { Scheduler } from './lib/Scheduler.js'
 import { ProductBasketCleanerJob } from './Jobs/ProductBasketCleanerJob.js'
+import { CalculateStockByDate } from './Jobs/CalculateStockByDate.js'
 ;(async () => {
     console.log('Database is initializing...')
     await Database.initialize()
@@ -11,9 +12,7 @@ import { ProductBasketCleanerJob } from './Jobs/ProductBasketCleanerJob.js'
         })
     })
 
-    const productBasketCleaner = new Scheduler(
-        new ProductBasketCleanerJob(),
-        1000 * 30,
-    )
-    productBasketCleaner.start()
+    const scheduler = Scheduler.getInstance()
+    scheduler.everyMinute(1, new ProductBasketCleanerJob()).now()
+    scheduler.daily(new CalculateStockByDate()).now()
 })()

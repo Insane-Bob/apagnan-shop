@@ -4,6 +4,9 @@ import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
 import { UserServices } from '../Services/UserServices.js'
 import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
 import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { OrderDenormalizationTask } from '../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { DenormalizerTask } from '../lib/Denormalizer/DenormalizerTask.js'
 
 export const USER_ROLES = {
     USER: 'user',
@@ -18,7 +21,7 @@ export class User extends DenormalizableModel {
         models.User.hasMany(models.UserConnectionAttempt, {
             foreignKey: 'userId',
         })
-        models.User.hasMany(models.Review,{foreignKey:'userId'})
+        models.User.hasMany(models.Review, { foreignKey: 'userId' })
     }
 
     static hooks(models) {
@@ -56,21 +59,50 @@ export class User extends DenormalizableModel {
 }
 
 function model(sequelize, DataTypes) {
-
     User.registerDenormalizerTask(
         new UserSearchDenormalizationTask().on([
-            "firstName","lastName","email","phone"
-        ])
+            'firstName',
+            'lastName',
+            'email',
+            'phone',
+        ]),
     )
 
+    User.registerDenormalizerTask(
+        new ProductDenormalizationTask()
+            .when([DenormalizerTask.EVENT.UPDATED])
+            .on(['firstName', 'lastName'])
+            .from(async (user) => {
+                let reviews = await user.getReviews()
+                return await Promise.all(
+                    reviews.map((review) => review.getProduct()),
+                )
+            }),
+    )
 
     User.registerDenormalizerTask(
-      new ProductDenormalizationTask().on([
-        "firstName","lastName"
-      ]).from(async (user)=>{
-          let reviews = await user.getReviews()
-          return await Promise.all(reviews.map(review => review.getProduct()))
-      })
+        new OrderRefundRequestDenormalizationTask()
+            .when([DenormalizerTask.EVENT.UPDATED])
+            .on(['firstName', 'lastName', 'email', 'phone'])
+            .from(async (user) => {
+                let customer = await user.getCustomer()
+                let orders = await customer.getOrders()
+                return Promise.all(
+                    orders.map((order) => {
+                        return order.getRefundRequestOrders()
+                    }),
+                ).flat()
+            }),
+    )
+
+    User.registerDenormalizerTask(
+        new OrderDenormalizationTask()
+            .when([DenormalizerTask.EVENT.UPDATED])
+            .on(['firstName', 'lastName', 'email', 'phone'])
+            .from(async (user) => {
+                let customer = await user.getCustomer()
+                return await customer.getOrders()
+            }),
     )
 
     User.init(

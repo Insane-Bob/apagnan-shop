@@ -1,8 +1,12 @@
 'use strict'
-import { Model } from 'sequelize'
-import { OrderStatus } from '../Enums/OrderStatus.js'
 
-export class Order extends Model {
+import { OrderStatus } from '../Enums/OrderStatus.js'
+import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
+import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { OrderDenormalizationTask } from '../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { DenormalizerTask } from '../lib/Denormalizer/DenormalizerTask.js'
+
+export class Order extends DenormalizableModel {
     static associate(models) {
         models.Order.belongsTo(models.Customer, { foreignKey: 'customerId' })
         models.Order.hasMany(models.Payment, { foreignKey: 'orderId' })
@@ -26,6 +30,21 @@ export class Order extends Model {
     }
 }
 function model(sequelize, DataTypes) {
+    Order.registerDenormalizerTask(
+        new OrderRefundRequestDenormalizationTask()
+            .on(['status'])
+            .when([DenormalizerTask.EVENT.UPDATED])
+            .from((order) => {
+                return order.getRefundRequestOrders()
+            }),
+    )
+
+    Order.registerDenormalizerTask(
+        new OrderDenormalizationTask()
+            .when([DenormalizerTask.EVENT.UPDATED])
+            .on(['status']),
+    )
+
     Order.init(
         {
             customerId: DataTypes.INTEGER,

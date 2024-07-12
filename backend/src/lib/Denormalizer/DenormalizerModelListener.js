@@ -1,4 +1,5 @@
 import { DenormalizerQueue } from './DenormalizerQueue.js'
+import { DenormalizerTask } from './DenormalizerTask.js'
 
 export class DenormalizerModelListener {
     constructor(model) {
@@ -15,10 +16,11 @@ export class DenormalizerModelListener {
             ? this.model.getSelfDenormalizerTask()
             : []
     }
-    runTasks(instance) {
+    runTasks(instance, event) {
         let queue = DenormalizerQueue.getInstance()
         let tasks = this.denormalizersTasks.map(async (t) => {
-            if (!t.checkChanges(instance)) return false
+            if (!t.checkChanges(instance, event)) return false
+            t.setEventType(event)
             return await queue.enqueue({
                 execute: () => t.execute.call(t, instance),
             })
@@ -27,20 +29,28 @@ export class DenormalizerModelListener {
     }
 
     async afterCreate(instance) {
-        return await this.runTasks(instance)
+        return await this.runTasks(instance, DenormalizerTask.EVENT.CREATED)
     }
 
     async afterBulkCreate(instances) {
-        return await Promise.all(instances.map((i) => this.runTasks(i)))
+        return await Promise.all(
+            instances.map((i) =>
+                this.runTasks(i, DenormalizerTask.EVENT.CREATED),
+            ),
+        )
     }
 
     async afterUpdate(instance) {
-        return await this.runTasks(instance)
+        return await this.runTasks(instance, DenormalizerTask.EVENT.UPDATED)
     }
 
     async afterBulkUpdate(query) {
         const instances = await this.model.findAll(query)
-        return await Promise.all(instances.map((i) => this.runTasks(i)))
+        return await Promise.all(
+            instances.map((i) =>
+                this.runTasks(i, DenormalizerTask.EVENT.UPDATED),
+            ),
+        )
     }
 
     // a deporter dans une autre classe ce n'est pas de la denormalisation
