@@ -15,13 +15,11 @@ function model(sequelize, DataTypes) {
     }
 
     Review.registerDenormalizerTask(
-      new ProductDenormalizationTask()
-        .on(['rate','content'])
-        .from((review)=>{
-          return {
-            id:review.getProduct()
-          }
-        })
+        new ProductDenormalizationTask()
+            .on(['rate', 'content'])
+            .from((review) => {
+                return review.getProduct()
+            }),
     )
 
     Review.init(

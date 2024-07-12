@@ -1,37 +1,72 @@
 import { Database } from '../Models/index.js'
 import { spawnSync } from 'child_process'
-import Sequelize from 'sequelize'
+import crypto from 'crypto'
+import mongoose from 'mongoose'
+
+export function useFreshMongoDatabase(deleteAfter = true) {
+    const uniqueId = crypto.randomBytes(4).toString('hex')
+    process.env.MONGO_URI = process.env.MONGO_URI.replace(
+        /\/mongo$/,
+        '/test_' + uniqueId,
+    )
+    console.log('Using mongo test database (' + process.env.MONGO_URI + ')')
+    afterAll(async () => {
+        if (!deleteAfter) return
+        console.log(
+            'Delete mongo test database (' + process.env.MONGO_URI + ')',
+        )
+        await mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
+        await mongoose.connection.dropDatabase()
+        await mongoose.connection.close()
+    })
+}
 
 export function useFreshDatabase(
     beforeAllCallback = async () => null,
     afterAllCallback = async () => null,
 ) {
+    const uniqueId = crypto.randomBytes(4).toString('hex')
+    const url = 'postgres://postgres:postgres@db:5432/test_postgres_' + uniqueId
     beforeAll(async () => {
-        await undoAllMigration()
-        await runMigration()
-        await Database.initialize()
+        await createTestDatabase(url)
+        await Database.initialize(url)
         await beforeAllCallback()
     }, 30000)
 
     afterAll(async () => {
         await afterAllCallback()
         await Database.close()
-        //await undoAllMigration()
+        await deleteTestDatabase(url)
     }, 30000)
 }
-export function runMigration() {
-    console.log('Running database migration')
-    spawnSync('npx', ['sequelize-cli', 'db:migrate'])
-}
-export function undoAllMigration() {
-    console.log('Undoing all database migration')
-    let response= null
-    response = spawnSync('npx', ['sequelize-cli', 'db:drop'])
-    if(response.status !== 0) throw  new Error('Failed to drop database')
-    response = spawnSync('npx', ['sequelize-cli', 'db:create'])
-    if(response.status !== 0) throw  new Error('Failed to create database')
-}
 
+export function createTestDatabase(url) {
+    console.log('Creating test database (' + url + ')')
+    let response
+
+    response = spawnSync('npx', ['sequelize-cli', 'db:create', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to create test database')
+    }
+
+    response = spawnSync('npx', ['sequelize-cli', 'db:migrate', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to migrate test database')
+    }
+}
+function deleteTestDatabase(url) {
+    console.log('delete test database (' + url + ')')
+    let response = spawnSync('npx', ['sequelize-cli', 'db:drop', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to drop test database')
+    }
+}
 export function getModelMock() {
     class MockedModel {
         constructor(obj) {

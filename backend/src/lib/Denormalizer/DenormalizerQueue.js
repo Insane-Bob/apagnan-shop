@@ -1,8 +1,4 @@
 export class DenormalizerQueue {
-
-    static onEnd = ()=>{}
-    static ignoreTest = true
-
     static instance = null
     static getInstance() {
         if (!DenormalizerQueue.instance) {
@@ -21,11 +17,12 @@ export class DenormalizerQueue {
      */
     async enqueue(task) {
         this.queue.push(task)
-        await this.process()
+        this.process().then()
+        return true
     }
 
     async process() {
-        if (this.constructor.ignoreTest && process.env.NODE_ENV === 'test') return
+        if (process.env.NODE_ENV === 'test') return
         if (this.started) return
         this.started = true
         while (this.queue.length > 0) {
@@ -33,8 +30,20 @@ export class DenormalizerQueue {
             await task.execute()
         }
         this.started = false
-        this.constructor.onEnd()
     }
 
-
+    waitForEmptyQueue() {
+        let emptyTry = 0
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.queue.length === 0) {
+                    emptyTry++
+                    if (emptyTry > 1) {
+                        clearInterval(interval)
+                        resolve()
+                    }
+                }
+            }, 100)
+        })
+    }
 }

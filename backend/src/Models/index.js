@@ -7,7 +7,7 @@ import { mockDatabase } from '../tests/databaseUtils.js'
 import mongoose from 'mongoose'
 import { DenormalizerModelListener } from '../lib/Denormalizer/DenormalizerModelListener.js'
 
-async function initDatabase() {
+async function initDatabase(url) {
     // eslint-disable-next-line no-undef
     const __MODEL_DIR__ = path.resolve('src/Models/')
     const basename = path.basename(__MODEL_DIR__ + '/index.js')
@@ -17,15 +17,24 @@ async function initDatabase() {
     )[env]
     const db = {}
     let sequelize
-    if (config?.use_env_variable) {
-        sequelize = new Sequelize(process.env[config.use_env_variable], config)
+
+    if (url) {
+        sequelize = new Sequelize(url)
+        sequelize.options.logging = false
     } else {
-        sequelize = new Sequelize(
-            config.database,
-            config.username,
-            config.password,
-            config,
-        )
+        if (config?.use_env_variable) {
+            sequelize = new Sequelize(
+                process.env[config.use_env_variable],
+                config,
+            )
+        } else {
+            sequelize = new Sequelize(
+                config.database,
+                config.username,
+                config.password,
+                config,
+            )
+        }
     }
 
     const tasks = fs
@@ -86,10 +95,10 @@ export class Database {
         Database.getInstance = () => Database._getInstance()
     }
 
-    static async initialize() {
+    static async initialize(url) {
         if (this.initialized) throw new Error('Database is already initialized')
         console.time('Database initialized')
-        await initDatabase()
+        await initDatabase(url)
         this.getInstance()
         console.timeEnd('Database initialized')
         this.initialized = true
@@ -100,6 +109,8 @@ export class Database {
         if (!this.initialized) throw new Error('Database is not initialized')
         if (Database.getInstance()?.sequelize)
             await Database.getInstance()?.sequelize?.close()
+        if (Database.getInstance()?.mongoDB)
+            await Database.getInstance()?.mongoDB.close()
         this.initialized = false
         return true
     }

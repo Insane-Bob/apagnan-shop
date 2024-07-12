@@ -1,44 +1,46 @@
-import {DenormalizerQueue} from "./DenormalizerQueue.js";
+import { DenormalizerQueue } from './DenormalizerQueue.js'
 
 export class DenormalizerModelListener {
     constructor(model) {
         this.model = model
-        if(this.denormalizersTasks.length > 0) this.listen()
+        if (this.denormalizersTasks.length > 0) this.listen()
     }
 
     /**
      *
      * @returns {DenormalizerTask}
      */
-    get denormalizersTasks(){
-        return this.model?.getSelfDenormalizerTask ? this.model.getSelfDenormalizerTask() : []
+    get denormalizersTasks() {
+        return this.model?.getSelfDenormalizerTask
+            ? this.model.getSelfDenormalizerTask()
+            : []
     }
-    runTasks(instance){
+    runTasks(instance) {
         let queue = DenormalizerQueue.getInstance()
-        this.denormalizersTasks.map(t => {
-            if(!t.checkChanges(instance)) return false
-            return queue.enqueue({
-                execute : () => t.execute.call(t,instance),
+        let tasks = this.denormalizersTasks.map(async (t) => {
+            if (!t.checkChanges(instance)) return false
+            return await queue.enqueue({
+                execute: () => t.execute.call(t, instance),
             })
         })
-        return true
+        return Promise.all(tasks)
     }
 
-    async afterCreate(instance){
-        return this.runTasks(instance)
+    async afterCreate(instance) {
+        return await this.runTasks(instance)
     }
 
-    async afterBulkCreate(instances){
-        return Promise.all(instances.map(i => this.runTasks(i)))
+    async afterBulkCreate(instances) {
+        return await Promise.all(instances.map((i) => this.runTasks(i)))
     }
 
-    async afterUpdate(instance){
-        return this.runTasks(instance)
+    async afterUpdate(instance) {
+        return await this.runTasks(instance)
     }
 
-    async afterBulkUpdate(query){
+    async afterBulkUpdate(query) {
         const instances = await this.model.findAll(query)
-        return Promise.all(instances.map(i => this.runTasks(i)))
+        return await Promise.all(instances.map((i) => this.runTasks(i)))
     }
 
     // a deporter dans une autre classe ce n'est pas de la denormalisation
@@ -51,8 +53,8 @@ export class DenormalizerModelListener {
     //     //return Promise.all(instances.map(i => this.denormalizersTasks.map(t => t.collection.deleteOne({ _id: i.id })))
     // }
 
-    listen(){
-        console.log("Listen model for denormalization :", this.model.name)
+    listen() {
+        console.log('Listen model for denormalization :', this.model.name)
         this.model.afterCreate(this.afterCreate.bind(this))
 
         this.model.afterBulkCreate(this.afterBulkCreate.bind(this))
@@ -66,7 +68,7 @@ export class DenormalizerModelListener {
         // this.model.beforeBulkDestroy(this.beforeBulkDestroy.bind(this))
     }
 
-    destroy(){
+    destroy() {
         this.model.removeHook('afterCreate')
         this.model.removeHook('afterBulkCreate')
         this.model.removeHook('afterUpdate')
