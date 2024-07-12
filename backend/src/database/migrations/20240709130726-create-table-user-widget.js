@@ -23,6 +23,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserWidget')
+    await queryInterface.dropTable('UserWidgets')
   }
 };

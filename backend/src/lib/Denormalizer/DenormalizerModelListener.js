@@ -13,13 +13,13 @@ export class DenormalizerModelListener {
     get denormalizersTasks(){
         return this.model?.getSelfDenormalizerTask ? this.model.getSelfDenormalizerTask() : []
     }
-
     runTasks(instance){
         let queue = DenormalizerQueue.getInstance()
         this.denormalizersTasks.map(t => {
-           return queue.enqueue({
+            if(!t.checkChanges(instance)) return false
+            return queue.enqueue({
                 execute : () => t.execute.call(t,instance),
-           })
+            })
         })
         return true
     }

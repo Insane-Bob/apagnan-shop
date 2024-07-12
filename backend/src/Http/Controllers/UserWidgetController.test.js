@@ -3,6 +3,7 @@ import setUpApp from '../../app.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { useFreshDatabase } from '../../tests/databaseUtils.js'
 import { UserFactory } from '../../database/factories/UserFactory.js'
+import { Database } from '../../Models/index.js'
 
 let app = null
 describe('UserWidgetController test routes', () => {
@@ -28,7 +29,7 @@ describe('UserWidgetController test routes', () => {
         const user2 = await UserFactory.withWidget().withCustomer().create()
 
         const payload = {
-            json:[{
+            data:[{
                 name: 'test',
                 styles: {
                     grid: 'test'
@@ -40,11 +41,15 @@ describe('UserWidgetController test routes', () => {
         let response = await request(app).put(`/api/users/${user1.id}/widget`).send(payload)
         expect(response.statusCode).toBe(200)
 
+        const widget = await Database.getInstance().models.UserWidget.findOne({where:{userId:user1.id}})
+        expect(widget).not.toBeNull()
+        expect(widget.data).toEqual(JSON.stringify(payload.data))
+
         response = await request(app).put(`/api/users/${user2.id}/widget`).send(payload)
         expect(response.statusCode).toBe(403)
 
         const invalidPayload = {
-            json:{
+            data:{
                 name: 'test',
                 styles: {
                     grid: 'test'

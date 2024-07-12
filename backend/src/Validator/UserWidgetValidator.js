@@ -15,7 +15,7 @@ export class UserWidgetValidator extends Validator{
     })
 
     return z.object({
-      json: z.array(jsonSchema)
+      data: z.array(jsonSchema)
     })
   }
 }

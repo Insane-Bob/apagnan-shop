@@ -9,8 +9,7 @@ DialogTrigger
 } from '@/components/ui/dialog';
 import { Collection, Page, TableActions, TableColumns } from '@types';
 import { onMounted, reactive, ref } from 'vue';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const CollectionUrl = API_BASE_URL + '/collections/'
+import { apiClient } from '@/lib/apiClient';
 
 const collections = reactive<Collection[]>([])
 
@@ -129,8 +128,8 @@ onMounted(() => {
 })
 
 const fetchCollections = async () => {
-    const response = await fetch(CollectionUrl)
-    const data = await response.json()
+    const response = await apiClient.get('collections')
+    const data = await response.data
     data.collections.forEach((c: any) => {
         collections.push(c)
     })
@@ -138,14 +137,10 @@ const fetchCollections = async () => {
 }
 
 const updateCollection = async (row: any) => {
-    const response = await fetch(CollectionUrl + row.slug, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(row)
-    })
-    const data = await response.json()
+    console.log(row)
+    const response = await apiClient.patch('collections/' + row.slug, row)
+    const data = response.data
+    console.log('result',data.collection)
     collections.splice(collections.findIndex((c: any) => c.slug === row.slug), 1, data.collection)
 }
 

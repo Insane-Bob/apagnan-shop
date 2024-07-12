@@ -3,44 +3,64 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.bulkInsert('Reviews', [
+        const Products = await queryInterface.sequelize.query(
+            `SELECT * FROM "Products";`,
+            { type: Sequelize.QueryTypes.SELECT },
+        )
+        const CountProducts = Products.length
+
+        const Users = await queryInterface.sequelize.query(
+            `SELECT * FROM "Users";`,
+            { type: Sequelize.QueryTypes.SELECT },
+        )
+        const CountUsers = Users.length
+
+        const Reviews = [
             {
                 rate: 3,
-                content: 'Review of product 1 - 1',
-                productId: 1,
-                userId: 1,
+                content: 'My first review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
             {
                 rate: 4,
-                content: 'Review of product 1 - 2',
-                productId: 1,
-                userId: 2,
+                content: 'My second review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
             {
                 rate: 5,
-                content: 'Review of product 2 - 1',
-                productId: 2,
-                userId: 1,
+                content: 'My third review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
             {
                 rate: 4,
-                content: 'Review of product 2 - 2',
-                productId: 2,
-                userId: 2,
+                content: 'My fourth review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
             {
                 rate: 5,
-                content: 'Review of product 3 - 1',
-                productId: 3,
-                userId: 1,
+                content: 'My fifth review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
             {
                 rate: 4,
-                content: 'Review of product 3 - 2',
-                productId: 3,
-                userId: 2,
+                content: 'My sixth review',
+                productId:
+                    Products[Math.floor(Math.random() * CountProducts)].id,
+                userId: Users[Math.floor(Math.random() * CountUsers)].id,
             },
-        ])
+        ]
+
+        await queryInterface.bulkInsert('Reviews', Reviews)
     },
 
     async down(queryInterface, Sequelize) {

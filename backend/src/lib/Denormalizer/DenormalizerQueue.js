@@ -1,4 +1,8 @@
 export class DenormalizerQueue {
+
+    static onEnd = ()=>{}
+    static ignoreTest = true
+
     static instance = null
     static getInstance() {
         if (!DenormalizerQueue.instance) {
@@ -21,7 +25,7 @@ export class DenormalizerQueue {
     }
 
     async process() {
-        if (process.env.NODE_ENV === 'test') return
+        if (this.constructor.ignoreTest && process.env.NODE_ENV === 'test') return
         if (this.started) return
         this.started = true
         while (this.queue.length > 0) {
@@ -29,5 +33,8 @@ export class DenormalizerQueue {
             await task.execute()
         }
         this.started = false
+        this.constructor.onEnd()
     }
+
+
 }

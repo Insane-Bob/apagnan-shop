@@ -1,9 +1,11 @@
 'use strict'
-import { Model, QueryTypes } from 'sequelize'
+import { QueryTypes } from 'sequelize'
 import slugify from 'slugify'
+import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
+import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
-    class Product extends Model {
+    class Product extends DenormalizableModel {
         static associate(models) {
             Product.belongsTo(models.Collection, {
                 foreignKey: 'collectionId',
@@ -40,6 +42,9 @@ function model(sequelize, DataTypes) {
             return Number(result.stock)
         }
     }
+
+    Product.registerDenormalizerTask(new ProductDenormalizationTask())
+
     Product.init(
         {
             id: {

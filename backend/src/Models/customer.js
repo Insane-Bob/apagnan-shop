@@ -1,8 +1,6 @@
 'use strict';
 import {DenormalizableModel} from "../lib/Denormalizer/DenormalizableModel.js";
-import {DenormalizerTaskBuilder} from "../lib/Denormalizer/DenormalizerTaskBuilder.js";
-import {SearchUserDocument} from "../lib/Denormalizer/Documents/search/SearchUserDocument.js";
-
+import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
 function model(sequelize, DataTypes) {
     class Customer extends DenormalizableModel {
         static associate(models) {
@@ -13,12 +11,10 @@ function model(sequelize, DataTypes) {
     }
 
     Customer.registerDenormalizerTask(
-        DenormalizerTaskBuilder.create()
-            .in('search_user')
-            .fetchFrom(async (customerInstance)=>{
-                return await customerInstance.getUser()
-            })
-            .to(SearchUserDocument)
+      new UserSearchDenormalizationTask()
+        .from(async (customer)=>{
+            return await customer.getUser()
+        })
     )
 
     Customer.init({

@@ -21,9 +21,17 @@ export class UserWidgetController extends Controller{
   async put(){
     this.can(UserWidgetPolicy.show,this.user_resource)
     const payload = this.validate(UserWidgetValidator)
-    await Database.getInstance().models.UserWidget.update(payload,{
+    await Database.getInstance().models.UserWidget.destroy({
       where:{
-        userId:this.user_resource.id
+        userId: this.user_resource.id
+      }
+    })
+    await Database.getInstance().models.UserWidget.create({
+      userId: this.user_resource.id,
+      data:JSON.stringify(payload.data)
+    },{
+      where:{
+        userId: this.user_resource.id
       }
     })
     this.res.sendStatus(200)

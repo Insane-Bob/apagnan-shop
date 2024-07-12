@@ -4,7 +4,7 @@ import path from 'path'
 import Sequelize from 'sequelize'
 import process from 'process'
 import { mockDatabase } from '../tests/databaseUtils.js'
-import { MongoClient } from 'mongodb'
+import mongoose from 'mongoose'
 import { DenormalizerModelListener } from '../lib/Denormalizer/DenormalizerModelListener.js'
 
 async function initDatabase() {
@@ -64,13 +64,9 @@ export class Database {
     static initialized = false
     constructor(sequelize) {
         this.sequelize = sequelize
-        this.mongoClient = process.env.MONGO_URI
-            ? new MongoClient(process.env.MONGO_URI)
+        this.mongoDB = process.env.MONGO_URI
+            ? mongoose.createConnection(process.env.MONGO_URI)
             : null
-        this.mongoDB =
-            this.mongoClient && process.env.MONGO_DB
-                ? this.mongoClient.db(process.env.MONGO_DB)
-                : null
         this.initializeDenormalizerListeners()
     }
 

@@ -1,8 +1,9 @@
 'use scrict'
-import { Model } from 'sequelize'
+import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
+import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
-    class Review extends Model {
+    class Review extends DenormalizableModel {
         static associate(models) {
             Review.belongsTo(models.Product, {
                 foreignKey: 'productId',
@@ -12,6 +13,17 @@ function model(sequelize, DataTypes) {
             })
         }
     }
+
+    Review.registerDenormalizerTask(
+      new ProductDenormalizationTask()
+        .on(['rate','content'])
+        .from((review)=>{
+          return {
+            id:review.getProduct()
+          }
+        })
+    )
+
     Review.init(
         {
             id: {
@@ -31,6 +43,7 @@ function model(sequelize, DataTypes) {
             modelName: 'Review',
         },
     )
+
     return Review
 }
 

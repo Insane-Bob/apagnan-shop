@@ -1,32 +1,74 @@
 import {Database} from "../../Models/index.js";
 
 export class DenormalizerTask{
-    constructor(collection, documentStructure, fetchingMethod = null)
+    constructor()
     {
-        this.collectionString = collection;
-        this.documentStructureClass = documentStructure;
-        this.fetchingMethod = fetchingMethod;
-        this.targetedInstance = null;
+        this.collectionString = null;
+        this.fethingFrom = null
+        this.onChanges = []
     }
 
-    async fetch(fromInstance){
-        this.targetedInstance = this.fetchingMethod ? await this.fetchingMethod(fromInstance) : fromInstance
+    on(changes){
+        this.onChanges = changes
+        return this
+    }
+
+    checkChanges(instance){
+        if(!this.onChanges.length) return true
+        const checks = this.onChanges.map(c => instance.changed(c))
+        return checks.some(c => c === true)
+    }
+
+    in(collection){
+        this.collectionString = collection
+        return this
+    }
+
+    from(callable){
+        this.fethingFrom = callable
+        return this
+    }
+
+    async fetch(ids){
+        throw new Error("Not implemented")
+    }
+    _instanceToIds(instance){
+        if(instance instanceof Array){
+            return instance.map(i => i.id)
+        }
+        return [instance.id]
     }
 
     async execute(instance){
-        console.time("DenormalizerTask executed in : ")
-        await this.fetch(instance)
+        try{
+            console.time("DenormalizerTask")
+            console.log("Denormalizing", this.collectionString)
+            if(this.fethingFrom) {
+                instance = await this.fethingFrom(instance)
+            }
+            const instances = await this.fetch(this._instanceToIds(instance))
 
-        if(!this.targetedInstance) throw new Error("Targeted instance is not defined")
-        if(!this.collectionString) throw new Error("Collection is not defined")
 
-        let mongoCollection = Database.getInstance().mongoDB.collection(this.collectionString)
-        const document = await this.documentStructureClass.loadFromInstance(this.targetedInstance)
+            if(!instances) throw new Error("Targeted instances are not found")
+            if(!this.collectionString) throw new Error("Collection is not defined")
 
-        const exist = await mongoCollection.findOne({id: document.id})
-        if(exist) await mongoCollection.replaceOne({id: document.id}, await document.format());
-        else await mongoCollection.insertOne(await document.format())
+            let model = Database.getInstance().mongoDB.model(this.collectionString, this.constructor.schema)
+            for(let instance of instances){
+                await model.findOneAndReplace(
+                  {
+                      id: instance.id
+                  },
+                  instance.toJSON(),
+                  {
+                      upsert: true,
+                  }
+                );
+            }
 
-        console.timeEnd("DenormalizerTask executed in : ")
+        }catch (e){
+            console.error("An error occured during denormalization", e)
+        }finally {
+            console.timeEnd("DenormalizerTask")
+        }
     }
 }

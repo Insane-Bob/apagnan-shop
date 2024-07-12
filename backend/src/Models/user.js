@@ -1,9 +1,9 @@
 'use strict'
 
 import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { DenormalizerTaskBuilder } from '../lib/Denormalizer/DenormalizerTaskBuilder.js'
-import { SearchUserDocument } from '../lib/Denormalizer/Documents/search/SearchUserDocument.js'
 import { UserServices } from '../Services/UserServices.js'
+import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
+import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 export const USER_ROLES = {
     USER: 'user',
@@ -18,6 +18,7 @@ export class User extends DenormalizableModel {
         models.User.hasMany(models.UserConnectionAttempt, {
             foreignKey: 'userId',
         })
+        models.User.hasMany(models.Review,{foreignKey:'userId'})
     }
 
     static hooks(models) {
@@ -55,10 +56,21 @@ export class User extends DenormalizableModel {
 }
 
 function model(sequelize, DataTypes) {
+
     User.registerDenormalizerTask(
-        DenormalizerTaskBuilder.create()
-            .in('search_user')
-            .to(SearchUserDocument),
+        new UserSearchDenormalizationTask().on([
+            "firstName","lastName","email","phone"
+        ])
+    )
+
+
+    User.registerDenormalizerTask(
+      new ProductDenormalizationTask().on([
+        "firstName","lastName"
+      ]).from(async (user)=>{
+          let reviews = await user.getReviews()
+          return await Promise.all(reviews.map(review => review.getProduct()))
+      })
     )
 
     User.init(
