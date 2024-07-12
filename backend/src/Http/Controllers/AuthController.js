@@ -25,11 +25,7 @@ export class AuthController extends Controller {
         )
 
         const database = Database.getInstance()
-        console.log(
-            password,
-            user.password,
-            UserServices.comparePassword(password, user.password),
-        )
+
         if (!UserServices.comparePassword(password, user.password)) {
             await database.models.UserConnectionAttempt.create({
                 userId: user.id,

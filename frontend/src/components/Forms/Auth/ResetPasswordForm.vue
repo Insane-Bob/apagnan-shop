@@ -64,7 +64,10 @@
                 <Button type="submit">Réinitialiser mon mot de passe</Button>
             </div>
         </form>
-        <div v-else class="flex flex-col items-center justify-center text-center gap-3 mt-20">
+        <div
+            v-else
+            class="flex flex-col items-center justify-center text-center gap-3 mt-20"
+        >
             <img
                 src="/src/assets/images/dwarfs/dwarf-happy.png"
                 class="h-32 w-32"
@@ -97,7 +100,7 @@ const route = useRoute()
 const password = ref('')
 const confirmPassword = ref('')
 const errors = ref(null)
-const isSubmitted = ref(true)
+const isSubmitted = ref(false)
 
 const userId = route.query.user_id
 const identifier = route.query.a

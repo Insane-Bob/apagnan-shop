@@ -5,5 +5,5 @@
 </template>
 
 <script setup>
-import ResetPasswordForm from '@components/Forms/Auth/ResetPasswordForm.vue'
+import ResetPasswordForm from '@/components/Forms/Auth/ResetPasswordForm.vue';
 </script>

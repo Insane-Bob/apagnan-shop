@@ -31,7 +31,7 @@ export class UserServices {
                 firstName,
                 lastName,
                 email,
-                password: UserServices.hashPassword(password),
+                password: password,
                 role: USER_ROLES.USER,
             },
             options,
