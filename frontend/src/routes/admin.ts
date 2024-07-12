@@ -5,6 +5,7 @@ import AdminUsers from '@/components/views/admin/users/AdminUsers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import { apiClient } from '@/lib/apiClient'
 import { useToast } from '@/components/ui/toast/use-toast'
+import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 
 export const adminRoutes = [
     {
@@ -50,9 +51,16 @@ export const adminRoutes = [
             },
             {
                 path: 'products',
-                component: WorkInProgress,
+                component: AdminProducts,
                 name: 'Produits',
                 meta: { label: 'Produits', icon: 'cube' },
+                children: [
+                    {
+                        path: ':slug',
+                        name: 'Produit',
+                        meta: { label: 'Produit' },
+                    },
+                ],
             },
             {
                 path: 'collections',
@@ -79,6 +87,12 @@ export const adminRoutes = [
                         meta: { label: 'Client' },
                     },
                 ],
+            },
+            {
+                path: 'reviews',
+                component: WorkInProgress,
+                name: 'Avis',
+                meta: { label: 'Avis', icon: 'star' },
             },
             {
                 path: 'users',
