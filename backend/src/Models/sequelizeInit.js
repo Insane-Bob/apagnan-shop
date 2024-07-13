@@ -22,6 +22,9 @@ export async function loadSQLModels(sequelize) {
         if (SQLModels[modelName].hooks) {
             SQLModels[modelName].hooks(SQLModels)
         }
+        if (SQLModels[modelName].addScopes) {
+            SQLModels[modelName].addScopes(SQLModels)
+        }
     })
 
     return SQLModels

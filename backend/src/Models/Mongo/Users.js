@@ -11,7 +11,7 @@ export const schema = new Schema({
     phone: String,
     Customer: {
         stripeId: String,
-        BillingAddresses: [
+        Addresses: [
             {
                 id: Number,
                 street: String,

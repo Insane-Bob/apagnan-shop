@@ -17,7 +17,8 @@ export class UserSearchDenormalizationTask extends DenormalizerTask {
                     model: Database.getInstance().models.Customer,
                     attributes: ['stripeId'],
                     include: {
-                        model: Database.getInstance().models.BillingAddress,
+                        model: Database.getInstance().models.Address,
+                        as: 'Addresses',
                         attributes: [
                             'id',
                             'street',

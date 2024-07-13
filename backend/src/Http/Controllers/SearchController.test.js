@@ -7,7 +7,6 @@ import { DenormalizerQueue } from '../../lib/Denormalizer/DenormalizerQueue.js'
 import { UserFactory } from '../../database/factories/UserFactory.js'
 import { ProductFactory } from '../../database/factories/ProductFactory.js'
 import { OrderFactory } from '../../database/factories/OrderFactory.js'
-import { BillingAddressFactory } from '../../database/factories/BillingAddressFactory.js'
 import { SearchController } from './SearchController.js'
 import { Database } from '../../Models/index.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
@@ -15,6 +14,7 @@ import setUpApp from '../../app.js'
 import request from 'supertest'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { USER_ROLES } from '../../Models/SQL/user.js'
+import { AddressFactory } from '../../database/factories/AddressFactory.js'
 
 let users
 let products
@@ -31,7 +31,7 @@ describe('SearchController test', () => {
         for (let user of users) {
             const hasOrder = Math.random() > 0.5
             if (!hasOrder) continue
-            user.address = await BillingAddressFactory.count(1).create({
+            user.address = await AddressFactory.count(1).create({
                 customerId: user.id,
             })
             const orderCount = Math.floor(Math.random() * 5)
@@ -60,7 +60,8 @@ describe('SearchController test', () => {
                     },
                 ]).create({
                     customerId: user.id,
-                    addressId: user.address.id,
+                    billingAddressId: user.address.id,
+                    shippingAddressId: user.address.id,
                 })
                 await new OrderDenormalizationTask().execute(user.order)
             }

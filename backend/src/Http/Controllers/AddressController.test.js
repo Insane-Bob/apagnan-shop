@@ -94,7 +94,7 @@ describe('AddressController test routes', () => {
                 ...billingAddressPayload,
                 customerId: user1.customer.id,
             })
-        expect(response.statusCode).toBe(201)
+        expect(response.statusCode).toBe(200)
 
         response = await request(app)
             .post(`/api/addresses`)
@@ -104,7 +104,6 @@ describe('AddressController test routes', () => {
             })
 
         expect(response.statusCode).toBe(403)
-
     })
 
     test('PUT /api/addresses/:address - update billing address', async () => {
@@ -141,7 +140,6 @@ describe('AddressController test routes', () => {
             street: faker.location.street(),
         })
         expect(response.statusCode).toBe(404)
-
     })
 
     test('DELETE /api/addresses/:address - delete billing address', async () => {

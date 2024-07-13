@@ -1,6 +1,5 @@
 import { DenormalizerTask } from '../DenormalizerTask.js'
 import { Database } from '../../../Models/index.js'
-import { Schema } from 'mongoose'
 export class ProductDenormalizationTask extends DenormalizerTask {
     static model = 'Products'
     constructor() {

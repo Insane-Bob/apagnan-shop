@@ -1,13 +1,11 @@
 'use strict'
 import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
 import { UserSearchDenormalizationTask } from '../../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
-import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
-import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
 function model(sequelize, DataTypes) {
     class Customer extends DenormalizableModel {
         static associate(models) {
             models.Customer.belongsTo(models.User, { foreignKey: 'userId' })
-            models.Customer.hasMany(models.BillingAddress, {
+            models.Customer.hasMany(models.Address, {
                 foreignKey: 'customerId',
             })
             models.Customer.hasMany(models.Order, { foreignKey: 'customerId' })

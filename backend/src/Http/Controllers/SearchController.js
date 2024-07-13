@@ -1,11 +1,6 @@
 import { Controller } from '../../Core/Controller.js'
 import { SearchValidator } from '../../Validator/SearchValidator.js'
-import { USER_ROLES } from '../../Models/SQL/user.js'
 import { Database } from '../../Models/index.js'
-import { UserSearchDenormalizationTask } from '../../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
-import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
-import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
-import { col } from 'sequelize'
 import { SearchPolicy } from '../Policies/SearchPolicy.js'
 
 export class SearchController extends Controller {
