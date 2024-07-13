@@ -47,9 +47,11 @@ export class DenormalizerModelListener {
     async afterBulkUpdate(query) {
         const instances = await this.model.findAll(query)
         return await Promise.all(
-            instances.map((i) =>
-                this.runTasks(i, DenormalizerTask.EVENT.UPDATED),
-            ),
+            instances.map((i) => {
+                i.changed = (attr) =>
+                    Object.keys(query.attributes).includes(attr)
+                return this.runTasks(i, DenormalizerTask.EVENT.UPDATED)
+            }),
         )
     }
 
