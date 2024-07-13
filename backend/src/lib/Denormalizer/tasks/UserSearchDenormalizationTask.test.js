@@ -16,7 +16,7 @@ describe('UserSearchDenormalizationTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
 
-    useFreshMongoDatabase(false)
+    useFreshMongoDatabase()
     useFreshDatabase(async () => {
         users = await UserFactory.withCustomer().count(3).create()
         for (let user of users) {

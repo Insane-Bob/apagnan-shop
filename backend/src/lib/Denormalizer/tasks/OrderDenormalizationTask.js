@@ -32,10 +32,11 @@ export class OrderDenormalizationTask extends DenormalizerTask {
 
     async persist(model, instance) {
         const exists = await model.findOne({ id: instance.id })
-        if (exists) delete instance.OrderDetails
+        let payload = instance.toJSON()
+        if (exists) payload.OrderDetails = exists.OrderDetails
         await model.findOneAndUpdate(
             { id: instance.id },
-            { $set: instance.toJSON() },
+            { $set: payload },
             { upsert: true },
         )
     }

@@ -45,7 +45,13 @@ export class OrderRefundRequestDenormalizationTask extends DenormalizerTask {
                         attributes: ['stripeId'],
                         include: {
                             model: Database.getInstance().models.User.unscoped(),
-                            attributes: ['id', 'firstName', 'lastName'],
+                            attributes: [
+                                'id',
+                                'firstName',
+                                'lastName',
+                                'email',
+                                'phone',
+                            ],
                         },
                     },
                 },
