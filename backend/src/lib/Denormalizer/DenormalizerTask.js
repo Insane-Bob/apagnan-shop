@@ -71,7 +71,7 @@ export class DenormalizerTask {
             if (!this.collectionString)
                 throw new Error('Collection is not defined')
 
-            let model = Database.getInstance().mongoDB.model(
+            let model = Database.getInstance().mongoModel(
                 this.collectionString,
                 this.constructor.schema,
             )

@@ -7,6 +7,12 @@ export class CalculateStockByDate {
         return this.constructor.name
     }
 
+    static schema = new mongoose.Schema({
+        productId: String,
+        date: Date,
+        quantityOfDay: Number,
+    })
+
     async execute() {
         let SQL = `
             with s as (
@@ -22,13 +28,10 @@ export class CalculateStockByDate {
             type: QueryTypes.SELECT,
         })
 
-        let StockEvolution = new mongoose.Schema({
-            productId: Number,
-            date: Date,
-            quantityOfDay: Number,
-        })
-
-        let collection = Database.getInstance().mongoDB.collection('stocks')
+        let collection = Database.getInstance().mongoModel(
+            'stocks',
+            CalculateStockByDate.schema,
+        )
 
         await collection.deleteMany({})
         await collection.insertMany(result)
