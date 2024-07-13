@@ -20,5 +20,7 @@ export const useUserStore = defineStore('user', {
         isAdmin: (state: any) => state.user?.role === 'admin',
         getId: (state: any) => state.user?.id,
         get: (state: any) => state.user,
+        identity: (state: any) =>
+            state.user?.firstName + ' ' + state.user?.lastName,
     },
 })
