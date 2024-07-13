@@ -1,5 +1,4 @@
 <template>
-  <Sheet>
     <SheetTrigger as-child>
       <ion-icon
         name="person-outline"
@@ -17,15 +16,12 @@
         <SheetClose as-child> </SheetClose>
       </SheetFooter>
     </SheetContent>
-  </Sheet>
 </template>
 
 <script setup>
-import Button from '@/components/ui/button/Button.vue';
+
 import LoginForm from '@/components/Forms/LoginForm.vue';
-import Label from '@/components/ui/label/Label.vue';
 import {
-  Sheet,
   SheetClose,
   SheetContent,
   SheetDescription,

@@ -2,13 +2,18 @@
 import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
 import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
 function model(sequelize, DataTypes) {
-    class BillingAddress extends DenormalizableModel {
+    class Address extends DenormalizableModel {
         static associate(models) {
-            models.BillingAddress.belongsTo(models.Customer, {
+            models.Address.belongsTo(models.Customer, {
                 foreignKey: 'customerId',
             })
-            models.BillingAddress.hasMany(models.Order, {
-                foreignKey: 'addressId',
+            models.Address.hasMany(models.Order, {
+                foreignKey: 'shippingAddressId',
+                as: 'shipping_address',
+            })
+            models.Address.hasMany(models.Order, {
+                foreignKey: 'billingAddressId',
+                as: 'billing_address',
             })
         }
 
@@ -18,7 +23,7 @@ function model(sequelize, DataTypes) {
         }
     }
 
-    BillingAddress.registerDenormalizerTask(
+        Address.registerDenormalizerTask(
       new UserSearchDenormalizationTask()
         .on([
           "street","city","country","region","postalCode"
@@ -28,7 +33,7 @@ function model(sequelize, DataTypes) {
         })
     )
 
-    BillingAddress.init(
+    Address.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -52,11 +57,11 @@ function model(sequelize, DataTypes) {
         },
         {
             sequelize,
-            modelName: 'BillingAddress',
+            modelName: 'Address',
         },
     )
 
-    return BillingAddress
+    return Address
 }
 
 export default model

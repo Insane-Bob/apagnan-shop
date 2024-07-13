@@ -46,7 +46,7 @@ const onSearch = () => {
     >
         <RouterLink to="/">
             <img
-                class="flex items-center relative right-1/2 -translate-x-40 h-full pt-4"
+                class="absolute right-1/2 translate-x-1/2 top-1/2 -translate-y-1/2 h-full pt-4"
                 src="/src/assets/logo_black.svg"
                 alt="Apagnain Logo"
             />
@@ -64,10 +64,16 @@ const onSearch = () => {
 
             <Sheet v-if="isLogged">
                 <SheetTrigger>
-                <ion-icon 
-                    name="cart-outline"
-                    class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                ></ion-icon>
+                    <div class="relative group">
+                        <ion-icon 
+                            name="cart-outline"
+                            class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                        <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
+                            <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
+                            <span class="text-white">{{ user.countCartItem }}</span>
+                        </div>
+                    </div>
                 </SheetTrigger>
                 <SheetContent><CartDrawer></CartDrawer></SheetContent>
             </Sheet>
