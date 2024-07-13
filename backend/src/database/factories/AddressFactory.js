@@ -1,7 +1,7 @@
 import { Factory } from './Factory.js'
 import {faker} from '@faker-js/faker'
 
-export class addressFactory extends Factory {
+export class AddressFactory extends Factory {
     static model = 'address'
     static instanciate() {
         return {
