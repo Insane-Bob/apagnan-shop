@@ -80,7 +80,6 @@ onMounted(async () => {
 const fetchOrders = async () => {
     const response = await apiClient.get('/users/'+ user.getId + '/orders')
     const data =  response.data
-    console.log(data)
     data.forEach((c: any) => {
         orders.push(c)
     })
