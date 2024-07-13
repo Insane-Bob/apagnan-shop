@@ -58,7 +58,7 @@ export class ProductController extends Controller {
         const rowsEdited = await this.product.update(this.req.body.all())
         if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
-                modelId: this.product.id,
+                modelId: product.id,
                 modelName: 'product',
                 imagePath: file.path,
             }))
@@ -67,7 +67,7 @@ export class ProductController extends Controller {
         NotFoundException.abortIf(!rowsEdited)
 
         this.res.status(200).json({
-            product: this.product,
+            product: product,
         })
     }
 
