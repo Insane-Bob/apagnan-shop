@@ -152,7 +152,10 @@ export class OrderController extends Controller {
 
     async pay() {
         this.can(OrderPolicy.show, this.order)
-        const session = await PaymentServices.createCheckoutSession(this.order)
+        const session = await PaymentServices.createCheckoutSession(
+            this.order,
+            this.req.getUser(),
+        )
         this.res.json(session)
     }
 

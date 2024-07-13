@@ -10,25 +10,36 @@ const loaded = ref(false)
 
 onMounted( async () => {
 
-  if(localStorage.getItem('accessToken')) {
-    const response = await apiClient.get('/me')
-    if(response.status === 401){
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      user.setUser(null)
-      loaded.value = true
-     
-    }else{
-      user.setUser(response.data.user)
+  try{
+    if(localStorage.getItem('accessToken')) {
+      const response = await apiClient.get('/me')
 
-      const cartResponse = await apiClient.get('/users/' + user.getId + '/basket')
-      user.setCart(cartResponse.data)
+    
+      console.log(response)
+      if(response.status === 401){
 
-      const addressesResponses = await apiClient.get('/users/' + user.getId + '/addresses')
-      user.setAddresses(addressesResponses.data)
-      loaded.value = true
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        user.setUser(null)
+        loaded.value = true
+      
+      }else{
+        user.setUser(response.data.user)
+
+        const cartResponse = await apiClient.get('/users/' + user.getId + '/basket')
+        user.setCart(cartResponse.data)
+
+        const addressesResponses = await apiClient.get('/users/' + user.getId + '/addresses')
+        user.setAddresses(addressesResponses.data)
+        loaded.value = true
+      }
     }
-  }else{
+  }catch(e){
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    user.setUser(null)
+    loaded.value = true
+  }finally{
     loaded.value = true
   }
 });

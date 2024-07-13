@@ -85,9 +85,7 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
-                this.res.json({
-                    message: 'Payment succeeded',
-                }) //@TODO : Return a redirect to the success page
+                this.res.redirect(process.env.FRONT_END_URL + '/order/success')
             }
         } catch (e) {
             console.error(e)

@@ -13,12 +13,13 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { apiClient } from "@/lib/apiClient";
 import { useUserStore } from '@/stores/user';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SummaryCard from '@components/cards/SummaryCard.vue';
 
 import AddressForm from '@/components/views/order/AddressForm.vue';
 import type { BasketItem } from '@/types';
+
 
 
 const user = useUserStore()
@@ -49,6 +50,9 @@ const billingCity = ref('')
 const billingPostalCode = ref('')
 const billingStreet = ref('')
 
+// VAR FOR STYLE
+
+const waitingPaymentModal = ref(false)
 
 onBeforeMount(() => {
     user.cartViewed()
@@ -61,6 +65,20 @@ onBeforeMount(() => {
     }
 })
 
+console.log(import.meta.env.VITE_FRONT_END_URL)
+window.addEventListener(
+    "message",
+    (event) => {
+        if(event.origin !== import.meta.env.VITE_FRONT_END_URL) return
+        event.data === "success" ? router.push('/order/success') : router.push('/order/fail')
+    },
+    false,
+    );
+
+onUnmounted(() => {
+    window.removeEventListener("message", () => {});
+})
+
 
 const onSelectAddressOption = () => {
     if(addressOption.value === 'custom'){
@@ -71,7 +89,7 @@ const onSelectAddressOption = () => {
 }
 
 const goToPayment = async () => {
-
+    waitingPaymentModal.value = true
 
     let shippingAdresseId 
     let billingAdresseId
@@ -109,7 +127,20 @@ const goToPayment = async () => {
         billingAdresseId = shippingAdresseId
     }  
 
-    createOrder(shippingAdresseId, billingAdresseId)
+    const orderId = await createOrder(shippingAdresseId, billingAdresseId)
+
+    const response = await apiClient.post(`/orders/${orderId}/pay`)
+
+    if(response.data.url && orderId !== 0){
+        window.open(response.data.url, '_blank')
+        waitingPaymentModal.value = false
+    }else{
+        toast({
+            title: 'Une erreur est survenue lors de la création de votre commande',
+            variant: 'destructive'
+        })
+    
+    }
 }
 
 const createShippingAddress = async ():Promise<number> => {
@@ -163,19 +194,28 @@ const createOrder = async (shippingAddressId: number, billingAddressId: number) 
         toast({
             title: 'Votre commande a été enregistrée',
         })
-        user.clearCart()
-        router.push(response.data.id +'/payment')
+        // user.clearCart()
+        return response.data.id
     }else {
         toast({
             title: 'Une erreur est survenue lors de la création de votre commande',
             variant: 'destructive'
         })
+        return 0
     }
+}
+
+const goBack = () => {
+    router.back()
 }
 
 </script>
 
 <template>
+    <div @click="goBack()" class="ml-8 flex items-center gap-x-2 mt-4 hover:text-primary duration-150">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Revenir en arrière</span>
+    </div>
     <div class="mx-24 my-8 flex gap-x-12">
         <div class="grow flex flex-col">
             <div class="border border-primary/50 w-full flex flex-col items-start justify-center h-min p-2 text-xs">
@@ -226,7 +266,7 @@ const createOrder = async (shippingAddressId: number, billingAddressId: number) 
                 <AddressForm v-model:city="billingCity" v-model:region="billingRegion" v-model:country="billingCountry" v-model:postal-code="billingPostalCode" v-model:street="billingStreet"  />
             </form>
 
-            <Button @click="goToPayment" class="mt-4 max-w-md min-w-fit uppercase tracking-wider">Passer au paiement</Button>
+            <Button @click="goToPayment" class="mt-4 max-w-md min-w-fit uppercase tracking-wider" :variant="waitingPaymentModal?'secondary':'default'">{{waitingPaymentModal?'Chargement...':'Passer au paiement'}}</Button>
         </div>
 
         

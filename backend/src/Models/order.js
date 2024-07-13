@@ -6,7 +6,6 @@ export class Order extends Model {
     static associate(models) {
         models.Order.belongsTo(models.Customer, {
             foreignKey: 'customerId',
-            as: 'customer',
         })
         models.Order.hasMany(models.Payment, { foreignKey: 'orderId' })
         models.Order.hasMany(models.RefundRequestOrder, {
@@ -14,7 +13,6 @@ export class Order extends Model {
         })
         models.Order.hasMany(models.OrderDetail, {
             foreignKey: 'orderId',
-            as: 'orderDetails',
         })
         models.Order.belongsTo(models.Address, {
             foreignKey: 'shippingAddressId',
@@ -33,7 +31,6 @@ export class Order extends Model {
                 include: [
                     {
                         model: models.OrderDetail,
-                        as: 'orderDetails',
                     },
                     {
                         model: models.Address,
@@ -45,7 +42,6 @@ export class Order extends Model {
                     },
                     {
                         model: models.Customer,
-                        as: 'customer',
                         include: [
                             {
                                 model: models.User,
