@@ -14,9 +14,8 @@ export class StatsController extends Controller {
     async orderStats() {
         this.can(StatsPolicies.view)
         const { start, end } = this.validate(PeriodValidator)
-        const result = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .aggregate([
+        const result =
+            await Database.getInstance().mongoModels.Orders.aggregate([
                 {
                     $match: {
                         createdAt: {
@@ -44,9 +43,8 @@ export class StatsController extends Controller {
         const { start, end } = this.validate(PeriodValidator)
         const { interval } = this.validate(IntervalValidator)
 
-        const result = await Database.getInstance()
-            .mongoModel('orders', CalculateStockByDate.schema)
-            .aggregate([
+        const result =
+            await Database.getInstance().mongoModels.Orders.aggregate([
                 GraphServices.filterDates(start, end),
                 {
                     $sort: { createdAt: 1 },
@@ -74,9 +72,8 @@ export class StatsController extends Controller {
         const { start, end } = this.validate(PeriodValidator)
         const { interval } = this.validate(IntervalValidator)
 
-        const result = await Database.getInstance()
-            .mongoModel('orders', CalculateStockByDate.schema)
-            .aggregate([
+        const result =
+            await Database.getInstance().mongoModels.Orders.aggregate([
                 {
                     $match: {
                         status: {
@@ -142,9 +139,10 @@ export class StatsController extends Controller {
             },
         ]
 
-        const result = await Database.getInstance()
-            .mongoModel('stocks', CalculateStockByDate.schema)
-            .aggregate(aggregationPipeline)
+        const result =
+            await Database.getInstance().mongoModels.Stocks.aggregate(
+                aggregationPipeline,
+            )
 
         const formattedResult = GraphServices.fillMissingDates(
             result,
@@ -159,9 +157,8 @@ export class StatsController extends Controller {
     async reviewsStats() {
         this.can(StatsPolicies.view)
 
-        const result = await Database.getInstance()
-            .mongoModel('products', ProductDenormalizationTask.schema)
-            .aggregate([
+        const result =
+            await Database.getInstance().mongoModels.Products.aggregate([
                 {
                     $unwind: '$Reviews',
                 },
@@ -186,9 +183,8 @@ export class StatsController extends Controller {
                 },
             ])
 
-        const counts = await Database.getInstance()
-            .mongoModel('products', ProductDenormalizationTask.schema)
-            .aggregate([
+        const counts =
+            await Database.getInstance().mongoModels.Products.aggregate([
                 {
                     $unwind: '$Reviews',
                 },
@@ -213,12 +209,8 @@ export class StatsController extends Controller {
     async lastsRefundRequest() {
         this.can(StatsPolicies.view)
 
-        const result = await Database.getInstance()
-            .mongoModel(
-                'refundRequests',
-                OrderRefundRequestDenormalizationTask.schema,
-            )
-            .aggregate([
+        const result =
+            await Database.getInstance().mongoModels.Refunds.aggregate([
                 {
                     $match: {
                         approved: false,

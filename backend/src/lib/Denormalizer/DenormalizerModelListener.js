@@ -79,11 +79,6 @@ export class DenormalizerModelListener {
         // this.model.beforeBulkDestroy(this.beforeBulkDestroy.bind(this))
 
         //Start denormalization for all instances of the model
-        this.model.findAll().then((instances) => {
-            instances.forEach((instance) => {
-                this.runTasks(instance, DenormalizerTask.EVENT.CREATED)
-            })
-        })
     }
 
     destroy() {
