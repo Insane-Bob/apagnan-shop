@@ -31,15 +31,6 @@ export class Order extends DenormalizableModel {
 }
 function model(sequelize, DataTypes) {
     Order.registerDenormalizerTask(
-        new OrderRefundRequestDenormalizationTask()
-            .on(['status'])
-            .when([DenormalizerTask.EVENT.UPDATED])
-            .from((order) => {
-                return order.getRefundRequestOrders()
-            }),
-    )
-
-    Order.registerDenormalizerTask(
         new OrderDenormalizationTask()
             .when([DenormalizerTask.EVENT.UPDATED])
             .on(['status']),
