@@ -3,30 +3,10 @@ import { Database } from '../../../Models/index.js'
 import { DenormalizerTask } from '../DenormalizerTask.js'
 
 export class OrderRefundRequestDenormalizationTask extends DenormalizerTask {
-    static schema = new Schema({
-        id: Number,
-        reason: String,
-        approved: Boolean,
-        createdAt: Date,
-        Order: {
-            id: Number,
-            createdAt: Date,
-            Customer: {
-                stripeId: String,
-                User: {
-                    id: Number,
-                    firstName: String,
-                    lastName: String,
-                    email: String,
-                    phone: String,
-                },
-            },
-        },
-    })
+    static model = 'Refunds'
 
     constructor() {
         super()
-        this.in('refundRequests')
     }
 
     fetch(refundRequestsIds) {

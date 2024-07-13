@@ -3,7 +3,7 @@ import { UserPolicy } from '../Policies/UserPolicy.js'
 import { BillingAddressValidator } from '../../Validator/BillingAddressValidator.js'
 import { Database } from '../../Models/index.js'
 import { BillingAddressPolicy } from '../Policies/BillingAddressPolicy.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 

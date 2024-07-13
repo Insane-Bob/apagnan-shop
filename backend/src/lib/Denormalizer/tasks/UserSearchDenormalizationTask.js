@@ -1,39 +1,32 @@
 import { DenormalizerTask } from '../DenormalizerTask.js'
 import { Database } from '../../../Models/index.js'
-import { Schema } from 'mongoose'
 export class UserSearchDenormalizationTask extends DenormalizerTask {
-    static schema = new Schema({
-        id: Number,
-        firstName: String,
-        lastName: String,
-        Customer: {
-            stripeId: String,
-            BillingAddresses: [
-                {
-                    street: String,
-                    city: String,
-                    state: String,
-                    postalCode: String,
-                    country: String,
-                },
-            ],
-        },
-    })
-
+    static model = 'Users'
     constructor() {
         super()
-        this.in('users')
     }
     fetch(usersIds) {
         return Database.getInstance()
             .models.User.unscoped()
             .findAll({
+                attributes: ['id', 'firstName', 'lastName', 'email', 'phone'],
                 where: {
                     id: usersIds,
                 },
                 include: {
                     model: Database.getInstance().models.Customer,
-                    include: [Database.getInstance().models.BillingAddress],
+                    attributes: ['stripeId'],
+                    include: {
+                        model: Database.getInstance().models.BillingAddress,
+                        attributes: [
+                            'id',
+                            'street',
+                            'city',
+                            'region',
+                            'postalCode',
+                            'country',
+                        ],
+                    },
                 },
             })
     }

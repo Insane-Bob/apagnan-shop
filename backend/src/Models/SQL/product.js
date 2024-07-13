@@ -1,8 +1,8 @@
 'use strict'
 import { QueryTypes } from 'sequelize'
 import slugify from 'slugify'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
     class Product extends DenormalizableModel {

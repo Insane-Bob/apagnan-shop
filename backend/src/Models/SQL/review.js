@@ -1,6 +1,6 @@
 'use scrict'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
     class Review extends DenormalizableModel {

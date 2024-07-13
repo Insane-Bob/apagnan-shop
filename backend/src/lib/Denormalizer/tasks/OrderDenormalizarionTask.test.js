@@ -21,12 +21,15 @@ import { DenormalizerTask } from '../DenormalizerTask.js'
 let order
 let user
 let products
+let Orders
 describe('OrderDenormalizationTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
 
     useFreshMongoDatabase()
     useFreshDatabase(async () => {
+        Orders = Database.getInstance().mongoModels.Orders
+
         user = await UserFactory.withCustomer().create()
         let address = await BillingAddressFactory.create({
             customerId: user.customer.id,
@@ -43,15 +46,11 @@ describe('OrderDenormalizationTask', () => {
     })
 
     test('Order create not start task automatically', async () => {
-        let mOrder = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .findOne({ id: order.id })
+        let mOrder = await Orders.findOne({ id: order.id })
         expect(mOrder).toBeFalsy()
 
         await new OrderDenormalizationTask().execute(order) // start task manually (like in the controller)
-        mOrder = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .findOne({ id: order.id })
+        mOrder = await Orders.findOne({ id: order.id })
 
         expect(mOrder).toBeTruthy()
     })
@@ -62,17 +61,16 @@ describe('OrderDenormalizationTask', () => {
         await order.save()
         expect(spy).toHaveBeenCalledWith(order)
 
-        let mOrder = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .findOne({ id: order.id, status: OrderStatus.DELIVERED })
+        let mOrder = await Orders.findOne({
+            id: order.id,
+            status: OrderStatus.DELIVERED,
+        })
 
         spy.mockRestore()
     })
 
     test('Order update #2 check that the OrderDetail never change', async () => {
-        let beforeMOrder = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .findOne({ id: order.id })
+        let beforeMOrder = await Orders.findOne({ id: order.id })
         expect(beforeMOrder.OrderDetails).toBeTruthy()
         expect(beforeMOrder.OrderDetails.length).toBe(2)
 
@@ -87,9 +85,10 @@ describe('OrderDenormalizationTask', () => {
         await order.save()
         expect(spy).toHaveBeenCalledWith(order)
 
-        let mOrder = await Database.getInstance()
-            .mongoModel('orders', OrderDenormalizationTask.schema)
-            .findOne({ id: order.id, status: OrderStatus.REFUNDED })
+        let mOrder = await Orders.findOne({
+            id: order.id,
+            status: OrderStatus.REFUNDED,
+        })
         expect(mOrder).toBeTruthy()
         expect(mOrder.OrderDetails.length).toBe(2)
         spy.mockRestore()

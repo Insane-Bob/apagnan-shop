@@ -2,29 +2,7 @@ import { DenormalizerTask } from '../DenormalizerTask.js'
 import { Database } from '../../../Models/index.js'
 import { Schema } from 'mongoose'
 export class OrderDenormalizationTask extends DenormalizerTask {
-    static schema = new Schema({
-        id: Number,
-        status: String,
-        total: Number,
-        createdAt: Date,
-        Customer: {
-            stripeId: String,
-            User: {
-                id: Number,
-                firstName: String,
-                lastName: String,
-            },
-        },
-        OrderDetails: [
-            {
-                product: String,
-                unitPrice: Number,
-                quantity: Number,
-                total: Number,
-            },
-        ],
-    })
-
+    static model = 'Orders'
     constructor() {
         super()
         this.in('orders')

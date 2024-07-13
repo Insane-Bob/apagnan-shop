@@ -1,12 +1,12 @@
 'use strict'
 
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { UserServices } from '../Services/UserServices.js'
-import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
-import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
-import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
-import { OrderDenormalizationTask } from '../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
-import { DenormalizerTask } from '../lib/Denormalizer/DenormalizerTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { UserSearchDenormalizationTask } from '../../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
+import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
 
 export const USER_ROLES = {
     USER: 'user',

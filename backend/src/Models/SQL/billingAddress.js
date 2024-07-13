@@ -1,6 +1,6 @@
 'use strict'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { UserSearchDenormalizationTask } from '../../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
 function model(sequelize, DataTypes) {
     class BillingAddress extends DenormalizableModel {
         static associate(models) {
@@ -19,13 +19,11 @@ function model(sequelize, DataTypes) {
     }
 
     BillingAddress.registerDenormalizerTask(
-      new UserSearchDenormalizationTask()
-        .on([
-          "street","city","country","region","postalCode"
-        ])
-        .from(async (address)=>{
-          return await address.getUser()
-        })
+        new UserSearchDenormalizationTask()
+            .on(['street', 'city', 'country', 'region', 'postalCode'])
+            .from(async (address) => {
+                return await address.getUser()
+            }),
     )
 
     BillingAddress.init(

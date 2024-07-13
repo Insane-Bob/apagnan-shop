@@ -1,7 +1,7 @@
 import { Controller } from '../../Core/Controller.js'
 import { BadRequestException } from '../../Exceptions/HTTPException.js'
 import { OrderServices } from '../../Services/OrderServices.js'
-import { PaymentStatus } from '../../Models/payment.js'
+import { PaymentStatus } from '../../Models/SQL/payment.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { Database } from '../../Models/index.js'

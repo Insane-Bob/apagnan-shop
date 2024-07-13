@@ -16,12 +16,15 @@ let users
 let reviews = []
 let product
 let product2
+
+let Products
 describe('ProductDenormalizationTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
 
     useFreshMongoDatabase()
     useFreshDatabase(async () => {
+        Products = Database.getInstance().mongoModels.Products
         users = await UserFactory.count(3).create()
         let products = await ProductFactory.count(2).create()
         product = products[0]
@@ -52,9 +55,7 @@ describe('ProductDenormalizationTask', () => {
     test('Product edition / creation', async () => {
         const pReviews = await product.getReviews()
         const pCollection = await product.getCollection()
-        let mProduct = await Database.getInstance()
-            .mongoDB.collection('products')
-            .findOne({ id: product.id })
+        let mProduct = await Products.findOne({ id: product.id })
 
         /**
          * CREATION (beforeAll sideEffect)
@@ -77,9 +78,7 @@ describe('ProductDenormalizationTask', () => {
 
         expect(denormalizerQueue.enqueue).toHaveBeenCalled()
 
-        mProduct = await Database.getInstance()
-            .mongoDB.collection('products')
-            .findOne({ id: product.id })
+        mProduct = await Products.findOne({ id: product.id })
 
         expect(mProduct.name).toBe('New name')
     })
@@ -88,23 +87,20 @@ describe('ProductDenormalizationTask', () => {
         let randomReviewIndex = Math.floor(Math.random() * reviews.length)
         let review = reviews[randomReviewIndex]
 
-        let mReview = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                { $unwind: '$Reviews' },
-                {
-                    $match: {
-                        'Reviews.content': review.content,
-                        'Reviews.rate': review.rate,
-                    },
+        let mReview = await Products.aggregate([
+            { $unwind: '$Reviews' },
+            {
+                $match: {
+                    'Reviews.content': review.content,
+                    'Reviews.rate': review.rate,
                 },
-                {
-                    $replaceRoot: {
-                        newRoot: '$Reviews',
-                    },
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$Reviews',
                 },
-            ])
-            .toArray()
+            },
+        ])
 
         /**
          * CREATION (beforeAll sideEffect)
@@ -123,49 +119,43 @@ describe('ProductDenormalizationTask', () => {
 
         expect(denormalizerQueue.enqueue).toHaveBeenCalled()
 
-        mReview = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                { $unwind: '$Reviews' },
-                {
-                    $replaceRoot: {
-                        newRoot: '$Reviews',
-                    },
+        mReview = await Products.aggregate([
+            { $unwind: '$Reviews' },
+            {
+                $replaceRoot: {
+                    newRoot: '$Reviews',
                 },
-                {
-                    $match: {
-                        content: 'New content',
-                        rate: review.rate,
-                    },
+            },
+            {
+                $match: {
+                    content: 'New content',
+                    rate: review.rate,
                 },
-            ])
-            .toArray()
+            },
+        ])
         expect(mReview.length).toBe(1)
     })
 
     test('User edition', async () => {
-        let users = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                { $unwind: '$Reviews' },
-                { $group: { _id: '$Reviews.User', count: { $sum: 1 } } },
-                {
-                    $project: {
-                        _id: 0,
-                        User: {
-                            firstName: '$_id.firstName',
-                            lastName: '$_id.lastName',
-                            reviewCount: '$count',
-                        },
+        let users = await Products.aggregate([
+            { $unwind: '$Reviews' },
+            { $group: { _id: '$Reviews.User', count: { $sum: 1 } } },
+            {
+                $project: {
+                    _id: 0,
+                    User: {
+                        firstName: '$_id.firstName',
+                        lastName: '$_id.lastName',
+                        reviewCount: '$count',
                     },
                 },
-                {
-                    $replaceRoot: {
-                        newRoot: '$User',
-                    },
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$User',
                 },
-            ])
-            .toArray()
+            },
+        ])
 
         let randomUserIndex = Math.floor(Math.random() * users.length)
         let user = users[randomUserIndex]
@@ -178,26 +168,17 @@ describe('ProductDenormalizationTask', () => {
         })
 
         dbUser.firstName = 'New name'
-        denormalizerQueue.enqueue = jest.fn(async (task) => {
-            await task.execute()
-        })
-
         await dbUser.save()
 
-        let mUserReviews = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                { $unwind: '$Reviews' },
-                {
-                    $match: {
-                        'Reviews.User': {
-                            firstName: dbUser.firstName,
-                            lastName: dbUser.lastName,
-                        },
-                    },
+        let mUserReviews = await Products.aggregate([
+            { $unwind: '$Reviews' },
+            {
+                $match: {
+                    'Reviews.User.firstName': dbUser.firstName,
+                    'Reviews.User.lastName': dbUser.lastName,
                 },
-            ])
-            .toArray()
+            },
+        ])
 
         expect(mUserReviews.length).toBe(user.reviewCount)
     })
@@ -214,22 +195,19 @@ describe('ProductDenormalizationTask', () => {
             collectionId: collection.id,
         })
 
-        let mCollection = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                {
-                    $match: {
-                        'Collection.slug': collection.slug,
-                    },
+        let mCollection = await Products.aggregate([
+            {
+                $match: {
+                    'Collection.slug': collection.slug,
                 },
-                {
-                    $group: {
-                        _id: '$Collection',
-                        productCount: { $sum: 1 },
-                    },
+            },
+            {
+                $group: {
+                    _id: '$Collection',
+                    productCount: { $sum: 1 },
                 },
-            ])
-            .toArray()
+            },
+        ])
 
         mCollection = mCollection[0]
 
@@ -238,22 +216,19 @@ describe('ProductDenormalizationTask', () => {
         collection.name = 'New name'
         await collection.save()
 
-        let mCollectionAfter = await Database.getInstance()
-            .mongoDB.collection('products')
-            .aggregate([
-                {
-                    $match: {
-                        'Collection.name': collection.name,
-                    },
+        let mCollectionAfter = await Products.aggregate([
+            {
+                $match: {
+                    'Collection.name': collection.name,
                 },
-                {
-                    $group: {
-                        _id: '$Collection',
-                        productCount: { $sum: 1 },
-                    },
+            },
+            {
+                $group: {
+                    _id: '$Collection',
+                    productCount: { $sum: 1 },
                 },
-            ])
-            .toArray()
+            },
+        ])
 
         mCollectionAfter = mCollectionAfter[0]
 

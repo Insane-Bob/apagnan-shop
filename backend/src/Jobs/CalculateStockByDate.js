@@ -1,17 +1,10 @@
 import { QueryTypes } from 'sequelize'
 import { Database } from '../Models/index.js'
-import mongoose from 'mongoose'
 
 export class CalculateStockByDate {
     get name() {
         return this.constructor.name
     }
-
-    static schema = new mongoose.Schema({
-        productId: String,
-        date: Date,
-        quantityOfDay: Number,
-    })
 
     async execute() {
         let SQL = `
@@ -28,12 +21,8 @@ export class CalculateStockByDate {
             type: QueryTypes.SELECT,
         })
 
-        let collection = Database.getInstance().mongoModel(
-            'stocks',
-            CalculateStockByDate.schema,
-        )
-
-        await collection.deleteMany({})
-        await collection.insertMany(result)
+        let model = Database.getInstance().mongoModels.Stocks
+        await model.deleteMany()
+        await model.insertMany(result)
     }
 }

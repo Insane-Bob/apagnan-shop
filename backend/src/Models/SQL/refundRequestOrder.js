@@ -1,7 +1,7 @@
 'use strict'
 import { Model } from 'sequelize'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
     class RefundRequestOrder extends DenormalizableModel {

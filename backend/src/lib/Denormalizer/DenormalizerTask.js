@@ -62,7 +62,7 @@ export class DenormalizerTask {
     async execute(instance) {
         const msg =
             'Denormalized ' +
-            this.collectionString +
+            this.constructor.model +
             ' from ' +
             instance.constructor.name +
             ', done in'
@@ -75,13 +75,11 @@ export class DenormalizerTask {
             const instances = await this.fetch(this._instanceToIds(instance))
 
             if (!instances) throw new Error('Targeted instances are not found')
-            if (!this.collectionString)
-                throw new Error('Collection is not defined')
+            if (!this.constructor.model)
+                throw new Error('Mongo Model is not defined')
 
-            let model = Database.getInstance().mongoModel(
-                this.collectionString,
-                this.constructor.schema,
-            )
+            let model =
+                Database.getInstance().mongoModels[this.constructor.model]
             for (let instance of instances) {
                 await this.persist(model, instance)
             }

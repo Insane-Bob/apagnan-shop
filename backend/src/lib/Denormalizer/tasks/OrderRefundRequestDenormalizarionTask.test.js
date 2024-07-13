@@ -19,12 +19,14 @@ let order
 let products
 let user
 let refund
+let Refunds
 describe('OrderRefundRequestDenormalizarionTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
 
     useFreshMongoDatabase()
     useFreshDatabase(async () => {
+        Refunds = Database.getInstance().mongoModels.Refunds
         user = await UserFactory.withCustomer().create()
         let address = await BillingAddressFactory.create({
             customerId: user.customer.id,
@@ -55,12 +57,7 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
     })
 
     test('Refund create', async () => {
-        let mRefund = await Database.getInstance()
-            .mongoModel(
-                'refundRequests',
-                OrderRefundRequestDenormalizationTask.schema,
-            )
-            .findOne({ id: refund.id })
+        let mRefund = await Refunds.findOne({ id: refund.id })
         expect(mRefund).toBeTruthy()
     })
 
@@ -77,12 +74,7 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
         expect(denormalizerQueue.enqueue).toHaveBeenCalled()
         expect(spy).toHaveBeenLastCalledWith(refund)
 
-        let mRefund = await Database.getInstance()
-            .mongoModel(
-                'refundRequests',
-                OrderRefundRequestDenormalizationTask.schema,
-            )
-            .findOne({ id: refund.id, approved: true })
+        let mRefund = await Refunds.findOne({ id: refund.id, approved: true })
         expect(mRefund).toBeTruthy()
 
         spy.mockRestore()
@@ -124,12 +116,7 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
 
         expect(spy).toHaveBeenCalledWith(user)
 
-        let mRefund = await Database.getInstance()
-            .mongoModel(
-                'refundRequests',
-                OrderRefundRequestDenormalizationTask.schema,
-            )
-            .findOne({ id: refund.id })
+        let mRefund = await Refunds.findOne({ id: refund.id })
         expect(mRefund.Order.Customer.User.email).toBe(user.email)
         spy.mockRestore()
     })

@@ -1,8 +1,8 @@
 'use strict'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { UserSearchDenormalizationTask } from '../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
-import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
-import { DenormalizerTask } from '../lib/Denormalizer/DenormalizerTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { UserSearchDenormalizationTask } from '../../lib/Denormalizer/tasks/UserSearchDenormalizationTask.js'
+import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
 function model(sequelize, DataTypes) {
     class Customer extends DenormalizableModel {
         static associate(models) {

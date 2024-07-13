@@ -1,10 +1,10 @@
 'use strict'
 
-import { OrderStatus } from '../Enums/OrderStatus.js'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { OrderRefundRequestDenormalizationTask } from '../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
-import { OrderDenormalizationTask } from '../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
-import { DenormalizerTask } from '../lib/Denormalizer/DenormalizerTask.js'
+import { OrderStatus } from '../../Enums/OrderStatus.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
+import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
 
 export class Order extends DenormalizableModel {
     static associate(models) {

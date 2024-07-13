@@ -2,7 +2,7 @@ import Stripe from 'stripe'
 import { Database } from '../Models/index.js'
 import { OrderServices } from './OrderServices.js'
 import { URLUtils } from '../utils/url.js'
-import { PaymentStatus } from '../Models/payment.js'
+import { PaymentStatus } from '../Models/SQL/payment.js'
 import { BadRequestException } from '../Exceptions/HTTPException.js'
 import { OrderStatus } from '../Enums/OrderStatus.js'
 const stripe = new Stripe(process.env.STRIPE_KEY)

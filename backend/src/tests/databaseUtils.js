@@ -39,11 +39,21 @@ export function useFreshDatabase(
     beforeAll(async () => {
         await createTestDatabase(url)
         await Database.initialize(url)
-        await beforeAllCallback()
+        try {
+            await beforeAllCallback()
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
     }, 30000)
 
     afterAll(async () => {
-        await afterAllCallback()
+        try {
+            await afterAllCallback()
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
         await Database.close()
         await deleteTestDatabase(url)
     }, 30000)

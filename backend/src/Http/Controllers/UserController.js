@@ -6,7 +6,7 @@ import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 
 export class UserController extends Controller {

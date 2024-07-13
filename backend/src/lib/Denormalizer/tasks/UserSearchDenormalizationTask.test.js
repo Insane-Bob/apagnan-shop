@@ -12,12 +12,14 @@ import { BillingAddressFactory } from '../../../database/factories/BillingAddres
 import { Database } from '../../../Models/index.js'
 
 let users
+let Users
 describe('UserSearchDenormalizationTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
 
     useFreshMongoDatabase()
     useFreshDatabase(async () => {
+        Users = Database.getInstance().mongoModels.Users
         users = await UserFactory.withCustomer().count(3).create()
         for (let user of users) {
             user.customer = await user.getCustomer()
@@ -33,11 +35,9 @@ describe('UserSearchDenormalizationTask', () => {
         let randomUserIndex = Math.floor(Math.random() * users.length)
         let user = users[randomUserIndex]
 
-        const mUser = await Database.getInstance()
-            .mongoDB.collection('users')
-            .findOne({
-                id: user.id,
-            })
+        const mUser = await Users.findOne({
+            id: user.id,
+        })
 
         expect(mUser).toBeTruthy()
         expect(mUser.Customer.stripeId).toBe(user.customer.stripeId)
@@ -52,12 +52,10 @@ describe('UserSearchDenormalizationTask', () => {
 
         expect(denormalizerQueue.enqueue).toHaveBeenCalled()
 
-        const updatedMUser = await Database.getInstance()
-            .mongoDB.collection('users')
-            .findOne({
-                id: user.id,
-                firstName: 'newFirstName',
-            })
+        const updatedMUser = await Users.findOne({
+            id: user.id,
+            firstName: 'newFirstName',
+        })
 
         expect(updatedMUser).toBeTruthy()
     })
@@ -66,22 +64,19 @@ describe('UserSearchDenormalizationTask', () => {
         let randomUserIndex = Math.floor(Math.random() * users.length)
         let user = users[randomUserIndex]
 
-        const mAddress = await Database.getInstance()
-            .mongoDB.collection('users')
-            .aggregate([
-                {
-                    $match: {
-                        id: user.id,
-                    },
+        const mAddress = await Users.aggregate([
+            {
+                $match: {
+                    id: user.id,
                 },
-                {
-                    $unwind: '$Customer.BillingAddresses',
-                },
-                {
-                    $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
-                },
-            ])
-            .toArray()
+            },
+            {
+                $unwind: '$Customer.BillingAddresses',
+            },
+            {
+                $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
+            },
+        ])
 
         expect(mAddress).toHaveLength(2)
 
@@ -98,28 +93,24 @@ describe('UserSearchDenormalizationTask', () => {
 
         expect(denormalizerQueue.enqueue).toHaveBeenCalled()
 
-        const updatedMAddress = await Database.getInstance()
-            .mongoDB.collection('users')
-            .aggregate([
-                {
-                    $match: {
-                        id: user.id,
-                    },
+        const updatedMAddress = await Users.aggregate([
+            {
+                $match: {
+                    id: user.id,
                 },
-                {
-                    $unwind: '$Customer.BillingAddresses',
+            },
+            {
+                $unwind: '$Customer.BillingAddresses',
+            },
+            {
+                $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
+            },
+            {
+                $match: {
+                    street: 'newStreet',
                 },
-                {
-                    $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
-                },
-                {
-                    $match: {
-                        street: 'newStreet',
-                    },
-                },
-            ])
-            .toArray()
-
+            },
+        ])
         expect(updatedMAddress).toHaveLength(1)
     })
 })

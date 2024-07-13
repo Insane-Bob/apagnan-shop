@@ -1,7 +1,7 @@
 'use strict'
 import slugify from 'slugify'
-import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
-import { ProductDenormalizationTask } from '../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
+import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 function model(sequelize, DataTypes) {
     class Collection extends DenormalizableModel {
@@ -21,11 +21,11 @@ function model(sequelize, DataTypes) {
     }
 
     Collection.registerDenormalizerTask(
-      new ProductDenormalizationTask()
-        .on(['name','slug','description','published','promoted'])
-        .from((collection) => {
-          return collection.getProducts()
-        })
+        new ProductDenormalizationTask()
+            .on(['name', 'slug', 'description', 'published', 'promoted'])
+            .from((collection) => {
+                return collection.getProducts()
+            }),
     )
 
     Collection.init(
