@@ -15,7 +15,6 @@ onMounted( async () => {
       const response = await apiClient.get('/me')
 
     
-      console.log(response)
       if(response.status === 401){
 
         localStorage.removeItem('accessToken')
