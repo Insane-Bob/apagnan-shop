@@ -2,8 +2,8 @@ import Stripe from 'stripe'
 import { Database } from '../Models/index.js'
 import { OrderServices } from './OrderServices.js'
 import { URLUtils } from '../utils/url.js'
-import { PaymentStatus } from '../Models/payment.js'
 import { AccessLinkServices } from './AccessLinkServices.js'
+import { PaymentStatus } from '../Models/SQL/payment.js'
 import { BadRequestException } from '../Exceptions/HTTPException.js'
 import { OrderStatus } from '../Enums/OrderStatus.js'
 const stripe = new Stripe(process.env.STRIPE_KEY)
@@ -80,9 +80,8 @@ export class PaymentServices {
     static async createRefund(refundRequest) {
         BadRequestException.abortIf(refundRequest.approved, 'Already approved')
 
-        const transaction = await Database.getInstance().transaction()
+        const transaction = await Database.transaction()
         try {
-            await transaction.commit()
             await refundRequest.update(
                 {
                     approved: true,
@@ -126,10 +125,10 @@ export class PaymentServices {
                     transaction,
                 },
             )
-
+            await transaction.commit()
             return refund
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }

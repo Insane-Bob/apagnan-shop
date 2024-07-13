@@ -55,14 +55,14 @@ export class NotificationsServices {
     }
 
     static async notifySuccessPaymentCustomer(user, order) {
-        const successPaymentEmail = new SuccessPaymentEmail()
-            .setParams({
-                name: user.firstName + ' ' + user.lastName,
-                order: order.id,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(successPaymentEmail)
+        // const successPaymentEmail = new SuccessPaymentEmail()
+        //     .setParams({
+        //         name: user.firstName + ' ' + user.lastName,
+        //         order: order.id,
+        //     })
+        //     .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+        //
+        // await EmailSender.send(successPaymentEmail)
     }
 
     static async notifyFailedPaymentCustomer(user) {

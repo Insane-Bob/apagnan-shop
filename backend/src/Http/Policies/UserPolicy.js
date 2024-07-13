@@ -1,4 +1,4 @@
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 
 export class UserPolicy {
     static index(user) {
@@ -14,7 +14,8 @@ export class UserPolicy {
         return UserPolicy.show(...args)
     }
     static delete(user, resource) {
-        if (user.id == resource.id && user.hasRole(USER_ROLES.ADMIN)) return false
+        if (user.id == resource.id && user.hasRole(USER_ROLES.ADMIN))
+            return false
         return UserPolicy.show(user, resource)
     }
 }

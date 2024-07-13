@@ -1,11 +1,8 @@
 import request from 'supertest'
 import setUpApp from '../../app.js'
-import {
-    emptyTables,
-    useFreshDatabase
-} from '../../tests/databaseUtils.js'
+import { emptyTables, useFreshDatabase } from '../../tests/databaseUtils.js'
 import { UserFactory } from '../../database/factories/UserFactory.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { AddressFactory } from '../../database/factories/AddressFactory.js'
 import { faker } from '@faker-js/faker'

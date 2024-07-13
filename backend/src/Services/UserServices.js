@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { Database } from '../Models/index.js'
 import { PaymentServices } from './PaymentServices.js'
-import { USER_ROLES } from '../Models/user.js'
+import { USER_ROLES } from '../Models/SQL/user.js'
 export class UserServices {
     static hashPassword(plainPassword) {
         return bcrypt.hashSync(plainPassword, 8)

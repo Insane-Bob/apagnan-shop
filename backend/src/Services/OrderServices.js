@@ -1,6 +1,6 @@
-import { Order } from '../Models/order.js'
+import { Order } from '../Models/SQL/order.js'
 import { Database } from '../Models/index.js'
-import { PaymentStatus } from '../Models/payment.js'
+import { PaymentStatus } from '../Models/SQL/payment.js'
 export class OrderServices {
     constructor(order) {
         if (!order || !(order instanceof Order))

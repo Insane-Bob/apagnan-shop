@@ -60,5 +60,7 @@ export const useUserStore = defineStore('user', {
         cartHasNewItems: (state: any): boolean => state.newItem,
         getAddresses: (state: any): Address[] => state.addresses,
         getCustomerId: (state: any): number => state.user?.Customer.id,
+        identity: (state: any) =>
+            state.user?.firstName + ' ' + state.user?.lastName,
     },
 })

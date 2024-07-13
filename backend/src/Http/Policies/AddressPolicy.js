@@ -1,4 +1,4 @@
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 
 export class AddressPolicy {
     static show(user, Address) {
