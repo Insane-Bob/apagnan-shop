@@ -4,13 +4,18 @@ import { DenormalizerTaskBuilder } from '../lib/Denormalizer/DenormalizerTaskBui
 import { SearchUserDocument } from '../lib/Denormalizer/Documents/search/SearchUserDocument.js'
 import { DenormalizableModel } from '../lib/Denormalizer/DenormalizableModel.js'
 function model(sequelize, DataTypes) {
-    class BillingAddress extends DenormalizableModel {
+    class Address extends DenormalizableModel {
         static associate(models) {
-            models.BillingAddress.belongsTo(models.Customer, {
+            models.Address.belongsTo(models.Customer, {
                 foreignKey: 'customerId',
             })
-            models.BillingAddress.hasMany(models.Order, {
-                foreignKey: 'addressId',
+            models.Address.hasMany(models.Order, {
+                foreignKey: 'shippingAddressId',
+                as: 'shipping_address',
+            })
+            models.Address.hasMany(models.Order, {
+                foreignKey: 'billingAddressId',
+                as: 'billing_address',
             })
         }
 
@@ -20,16 +25,16 @@ function model(sequelize, DataTypes) {
         }
     }
 
-    BillingAddress.registerDenormalizerTask(
+    Address.registerDenormalizerTask(
         DenormalizerTaskBuilder.create()
             .in('search_user')
-            .fetchFrom(async (billingAddressInstance) => {
-                return await billingAddressInstance.getUser()
+            .fetchFrom(async (addressInstance) => {
+                return await addressInstance.getUser()
             })
             .to(SearchUserDocument),
     )
 
-    BillingAddress.init(
+    Address.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -53,11 +58,11 @@ function model(sequelize, DataTypes) {
         },
         {
             sequelize,
-            modelName: 'BillingAddress',
+            modelName: 'Address',
         },
     )
 
-    return BillingAddress
+    return Address
 }
 
 export default model

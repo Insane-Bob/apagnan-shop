@@ -4,15 +4,54 @@ import { OrderStatus } from '../Enums/OrderStatus.js'
 
 export class Order extends Model {
     static associate(models) {
-        models.Order.belongsTo(models.Customer, { foreignKey: 'customerId' })
+        models.Order.belongsTo(models.Customer, {
+            foreignKey: 'customerId',
+        })
         models.Order.hasMany(models.Payment, { foreignKey: 'orderId' })
         models.Order.hasMany(models.RefundRequestOrder, {
             foreignKey: 'orderId',
         })
-        models.Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' })
-        models.Order.belongsTo(models.BillingAddress, {
-            foreignKey: 'addressId',
+        models.Order.hasMany(models.OrderDetail, {
+            foreignKey: 'orderId',
         })
+        models.Order.belongsTo(models.Address, {
+            foreignKey: 'shippingAddressId',
+            as: 'shipping_address',
+        })
+        models.Order.belongsTo(models.Address, {
+            foreignKey: 'billingAddressId',
+            as: 'billing_address',
+        })
+    }
+
+    static addScopes(models) {
+        models.Order.addScope(
+            'defaultScope',
+            {
+                include: [
+                    {
+                        model: models.OrderDetail,
+                    },
+                    {
+                        model: models.Address,
+                        as: 'billing_address',
+                    },
+                    {
+                        model: models.Address,
+                        as: 'shipping_address',
+                    },
+                    {
+                        model: models.Customer,
+                        include: [
+                            {
+                                model: models.User,
+                            },
+                        ],
+                    },
+                ],
+            },
+            { override: true },
+        )
     }
 
     getTotal() {
@@ -34,7 +73,8 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
             },
-            addressId: DataTypes.INTEGER,
+            shippingAddressId: DataTypes.INTEGER,
+            billingAddressId: DataTypes.INTEGER,
             status: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
@@ -54,28 +94,6 @@ function model(sequelize, DataTypes) {
         {
             sequelize,
             modelName: 'Order',
-            defaultScope: {
-                include: [
-                    {
-                        association: 'OrderDetails',
-                        as: 'orderDetails',
-                    },
-                    {
-                        association: 'BillingAddress',
-                        as: 'billingAddress',
-                    },
-                    {
-                        association: 'Customer',
-                        as: 'customer',
-                        include: [
-                            {
-                                association: 'User',
-                                as: 'user',
-                            },
-                        ],
-                    },
-                ],
-            },
         },
     )
 

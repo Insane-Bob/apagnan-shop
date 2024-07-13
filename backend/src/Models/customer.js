@@ -7,7 +7,9 @@ function model(sequelize, DataTypes) {
     class Customer extends DenormalizableModel {
         static associate(models) {
             models.Customer.belongsTo(models.User, {foreignKey: 'userId'})
-            models.Customer.hasMany(models.BillingAddress, {foreignKey: 'customerId'})
+            models.Customer.hasMany(models.Address, {
+                foreignKey: 'customerId',
+            })
             models.Customer.hasMany(models.Order, {foreignKey: 'customerId'})
         }
     }

@@ -34,6 +34,7 @@ const user = useUserStore()
                 ></LinkCard>
 
                 <LinkCard
+                    to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
                     image="/src/assets/images/commandesListe.webp"

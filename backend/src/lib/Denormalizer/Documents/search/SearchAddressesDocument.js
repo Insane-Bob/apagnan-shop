@@ -1,16 +1,16 @@
 import {Document} from "../Document.js";
 
-export class SearchBillingAddressesDocument extends Document {
+export class SearchAddressesDocument extends Document {
     static structure = {
-        id:null,
-        street:null,
-        city:null,
-        region:null,
-        country:null,
-        postalCode:null
+        id: null,
+        street: null,
+        city: null,
+        region: null,
+        country: null,
+        postalCode: null,
     }
 
-    async patch(){
+    async patch() {
         this.id = this.modelInstance.id
         this.street = this.modelInstance.street
         this.city = this.modelInstance.city

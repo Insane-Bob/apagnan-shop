@@ -55,6 +55,9 @@ export class UserBasketController extends Controller {
 
             this.res.json({
                 message: 'Product added to basket',
+                items: await UserBasketServices.getUserBasket(
+                    this.user_resource.id,
+                ),
             })
         } catch (e) {
             if (e instanceof HTTPException) throw e
@@ -76,6 +79,9 @@ export class UserBasketController extends Controller {
 
             this.res.json({
                 message: 'Product removed from basket',
+                items: await UserBasketServices.getUserBasket(
+                    this.user_resource.id,
+                ),
             })
         } catch (e) {
             console.error(e)

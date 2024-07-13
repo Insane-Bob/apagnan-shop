@@ -52,6 +52,9 @@ async function initDatabase() {
         if (db[modelName].hooks) {
             db[modelName].hooks(db)
         }
+        if (db[modelName].addScopes) {
+            db[modelName].addScopes(db)
+        }
     })
 
     db.sequelize = sequelize
