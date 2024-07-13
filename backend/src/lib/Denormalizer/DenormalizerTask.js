@@ -61,7 +61,12 @@ export class DenormalizerTask {
     async execute(instance) {
         try {
             console.time('DenormalizerTask')
-            console.log('Denormalizing', this.collectionString)
+            console.log(
+                'Denormalizing ' +
+                    this.collectionString +
+                    ' from ' +
+                    instance.constructor.name,
+            )
             if (this.fethingFrom) {
                 instance = await this.fethingFrom(instance)
             }

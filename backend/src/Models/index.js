@@ -115,6 +115,9 @@ export class Database {
         return true
     }
 
+    /**
+     * @returns {Database}
+     */
     static getInstance() {
         return Database._getInstance()
     }
@@ -127,6 +130,9 @@ export class Database {
         return this.sequelize.query(...args)
     }
 
+    /**
+     * @returns {Database}
+     */
     static _getInstance() {
         if (!Database.instance) {
             Database.instance = new Database(globalThis?.db?.sequelize)
