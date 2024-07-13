@@ -65,7 +65,6 @@ onBeforeMount(() => {
     }
 })
 
-console.log(import.meta.env.VITE_FRONT_END_URL)
 window.addEventListener(
     "message",
     (event) => {
