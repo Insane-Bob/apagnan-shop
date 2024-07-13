@@ -20,14 +20,11 @@ export class Scheduler {
         console.log('Scheduling', jobClass.name, 'with', cronExpression)
         function jobFunction() {
             console.time('Scheduler' + jobClass.name + ' started in')
-            jobClass
-                .execute(...args)
-                .then(() =>
-                    console.timeEnd(
-                        'Scheduler' + jobClass.name + ' started in',
-                    ),
-                )
+            jobClass.execute(...args).then(() => {
+                console.timeEnd('Scheduler' + jobClass.name + ' started in')
+            })
         }
+
         const job = cron.schedule(cronExpression, jobFunction, {
             scheduled: true,
             timezone: 'Europe/Paris',
