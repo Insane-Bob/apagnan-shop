@@ -1,15 +1,17 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { SpecificPolicy } from '../Policies/SpecificPolicy.js'
 
 export class SpecificController extends Controller {
     product /** @provide by ProductProvider */
     async getSpecifics() {
         if (this.product) {
-            this.res.json({
+            this.res.status(200).json({
                 specifics: await this.product.getSpecifics(),
             })
         } else {
-            this.res.json({
+            this.res.status(200).json({
                 specifics:
                     await Database.getInstance().models.Specific.findAll(),
             })
@@ -18,33 +20,37 @@ export class SpecificController extends Controller {
 
     async getSpecific() {
         const specific = this.specific
-        this.res.json({
+        NotFoundException.abortIf(!specific)
+        this.res.status(200).json({
             specific: specific,
         })
     }
 
     async createSpecific() {
+        this.can(SpecificPolicy.update)
         const specific = await Database.getInstance().models.Specific.create(
-            this.req.body,
+            this.req.body.all(),
         )
-        this.res.json({
-            specific: specific,
-        })
+        if (specific) {
+            this.res.status(201).json({
+                specific: specific,
+            })
+        }
     }
 
     async updateSpecific() {
-        const specific = this.specific
-        await specific.update(this.req.body)
-        this.res.json({
+        this.can(SpecificPolicy.update)
+        const rowsEdited = await this.specific.update(this.req.body.all())
+        NotFoundException.abortIf(!rowsEdited)
+        this.res.status(200).json({
             specific: specific,
         })
     }
 
     async deleteSpecific() {
-        const specific = this.specific
-        await specific.destroy()
-        this.res.json({
-            specific: specific,
-        })
+        this.can(SpecificPolicy.delete)
+        const deleted = await this.specific.destroy()
+        NotFoundException.abortIf(!deleted)
+        this.res.sendStatus(204)
     }
 }

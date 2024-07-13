@@ -53,9 +53,16 @@
 
                     <RouterLink to="/profile" v-if="isLogged">
                         <ion-icon
-                                name="person-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
+                            name="person-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                    </RouterLink>
+
+                    <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
+                        <ion-icon
+                            name="laptop-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
                     </RouterLink>
 
                     <form
@@ -174,19 +181,22 @@
 </template>
 
 <script setup lang="ts">
-import {
-Sheet,
-SheetContent,
-SheetTrigger
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
-import CartDrawer from '@components/Drawers/CartDrawer.vue';
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
-import ProductCard from '@components/cards/ProductCard.vue'
-import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
+import ProductCard from '@components/Cards/ProductCard.vue'
+import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
-import { computed, onBeforeMount, onMounted, onUnmounted, reactive, ref } from 'vue'
+import {
+    computed,
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    reactive,
+    ref,
+} from 'vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useUserStore } from '@store/user'
 
