@@ -50,6 +50,10 @@ export class RequestHandler {
 
     validate(validatorClass, schema = null) {
         const validatorInstance = new validatorClass(schema)
-        return validatorInstance.validate(this.req.body.all())
+        validatorInstance.beforeValidation(this.req)
+        return validatorInstance.validate({
+            ...this.req.query.all(),
+            ...this.req.body.all(),
+        })
     }
 }
