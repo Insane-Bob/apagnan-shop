@@ -137,4 +137,13 @@ export class Database {
     get models() {
         return this.sequelize.models
     }
+
+    mongoModel(collectionName, schema) {
+        //check if the model already exists
+        if (this.mongoDB.models[collectionName]) {
+            return this.mongoDB.models[collectionName]
+        }
+
+        return this.mongoDB.model(collectionName, schema)
+    }
 }
