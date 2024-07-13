@@ -86,6 +86,7 @@ function model(sequelize, DataTypes) {
             .on(['firstName', 'lastName', 'email', 'phone'])
             .from(async (user) => {
                 let customer = await user.getCustomer()
+                if (!customer) return []
                 let orders = await customer.getOrders()
                 return (
                     await Promise.all(
@@ -103,6 +104,7 @@ function model(sequelize, DataTypes) {
             .on(['firstName', 'lastName', 'email', 'phone'])
             .from(async (user) => {
                 let customer = await user.getCustomer()
+                if (!customer) return []
                 return await customer.getOrders()
             }),
     )

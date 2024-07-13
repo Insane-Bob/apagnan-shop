@@ -1,4 +1,5 @@
 import { Database } from '../../Models/index.js'
+import { DenormalizerExecption } from './DenormalizerExecption.js'
 
 export class DenormalizerTask {
     static EVENT = {
@@ -59,14 +60,15 @@ export class DenormalizerTask {
     }
 
     async execute(instance) {
+        const msg =
+            'Denormalized ' +
+            this.collectionString +
+            ' from ' +
+            instance.constructor.name +
+            ', done in'
+
         try {
-            console.time('DenormalizerTask')
-            console.log(
-                'Denormalizing ' +
-                    this.collectionString +
-                    ' from ' +
-                    instance.constructor.name,
-            )
+            console.time(msg)
             if (this.fethingFrom) {
                 instance = await this.fethingFrom(instance)
             }
@@ -84,10 +86,14 @@ export class DenormalizerTask {
                 await this.persist(model, instance)
             }
         } catch (e) {
-            console.error('An error occured during denormalization', e)
+            this.onError(new DenormalizerExecption(this, instance, e))
         } finally {
-            console.timeEnd('DenormalizerTask')
+            console.timeEnd(msg)
         }
+    }
+
+    onError(e) {
+        if (process.env.NODE_ENV === 'test') throw e
     }
 
     async persist(model, instance) {

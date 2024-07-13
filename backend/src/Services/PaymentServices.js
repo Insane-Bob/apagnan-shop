@@ -120,7 +120,7 @@ export class PaymentServices {
             await transaction.commit()
             return refund
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }

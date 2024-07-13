@@ -16,6 +16,7 @@ import { OrderRefundRequestDenormalizationTask } from './OrderRefundRequestDenor
 import { CustomerFactory } from '../../../database/factories/CustomerFactory.js'
 import { OrderDenormalizationTask } from './OrderDenormalizationTask.js'
 import { OrderStatus } from '../../../Enums/OrderStatus.js'
+import { DenormalizerTask } from '../DenormalizerTask.js'
 
 let order
 let user

@@ -3,18 +3,24 @@ import { spawnSync } from 'child_process'
 import crypto from 'crypto'
 import mongoose from 'mongoose'
 
+const isGithubAction = process.env.CI === 'true'
+
+function databseLog(...args) {
+    if (isGithubAction) return
+    console.log(...args)
+}
+
 export function useFreshMongoDatabase(deleteAfter = true) {
     const uniqueId = crypto.randomBytes(4).toString('hex')
     process.env.MONGO_URI = process.env.MONGO_URI.replace(
         /\/mongo$/,
         '/test_' + uniqueId,
     )
-    console.log('Using mongo test database (' + process.env.MONGO_URI + ')')
+
+    databseLog('Using mongo test database (' + process.env.MONGO_URI + ')')
     afterAll(async () => {
         if (!deleteAfter) return
-        console.log(
-            'Delete mongo test database (' + process.env.MONGO_URI + ')',
-        )
+        databseLog('Delete mongo test database (' + process.env.MONGO_URI + ')')
         await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
@@ -44,7 +50,7 @@ export function useFreshDatabase(
 }
 
 export function createTestDatabase(url) {
-    console.log('Creating test database (' + url + ')')
+    databseLog('Creating test database (' + url + ')')
     let response
 
     response = spawnSync('npx', ['sequelize-cli', 'db:create', '--url', url])
@@ -60,7 +66,7 @@ export function createTestDatabase(url) {
     }
 }
 function deleteTestDatabase(url) {
-    console.log('delete test database (' + url + ')')
+    databseLog('delete test database (' + url + ')')
     let response = spawnSync('npx', ['sequelize-cli', 'db:drop', '--url', url])
     if (response.status !== 0) {
         console.error(response.stderr.toString())

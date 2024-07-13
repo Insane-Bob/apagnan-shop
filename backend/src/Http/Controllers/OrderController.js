@@ -106,7 +106,7 @@ export class OrderController extends Controller {
 
             this.res.status(201).json(order)
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }

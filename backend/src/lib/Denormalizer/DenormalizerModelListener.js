@@ -66,7 +66,6 @@ export class DenormalizerModelListener {
     // }
 
     listen() {
-        console.log('Listen model for denormalization :', this.model.name)
         this.model.afterCreate(this.afterCreate.bind(this))
 
         this.model.afterBulkCreate(this.afterBulkCreate.bind(this))
