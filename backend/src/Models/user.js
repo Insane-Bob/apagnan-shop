@@ -87,10 +87,12 @@ function model(sequelize, DataTypes) {
             .from(async (user) => {
                 let customer = await user.getCustomer()
                 let orders = await customer.getOrders()
-                return Promise.all(
-                    orders.map((order) => {
-                        return order.getRefundRequestOrders()
-                    }),
+                return (
+                    await Promise.all(
+                        orders.map((order) => {
+                            return order.getRefundRequestOrders()
+                        }),
+                    )
                 ).flat()
             }),
     )
