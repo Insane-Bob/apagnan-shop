@@ -11,9 +11,9 @@ import { DenormalizerQueue } from '../DenormalizerQueue.js'
 import { OrderFactory } from '../../../database/factories/OrderFactory.js'
 import { Database } from '../../../Models/index.js'
 import { UserFactory } from '../../../database/factories/UserFactory.js'
-import { BillingAddressFactory } from '../../../database/factories/BillingAddressFactory.js'
 import { OrderRefundRequestDenormalizationTask } from './OrderRefundRequestDenormalizationTask.js'
 import { CustomerFactory } from '../../../database/factories/CustomerFactory.js'
+import { AddressFactory } from '../../../database/factories/AddressFactory.js'
 
 let order
 let products
@@ -26,7 +26,7 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
     useFreshMongoDatabase()
     useFreshDatabase(async () => {
         user = await UserFactory.withCustomer().create()
-        let address = await BillingAddressFactory.create({
+        let address = await AddressFactory.create({
             customerId: user.customer.id,
         })
         products = await ProductFactory.count(2).create()
@@ -36,7 +36,8 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
             { productId: products[1].id, quantity: 2 },
         ]).create({
             customerId: user.customer.id,
-            addressId: address.id,
+            billingAddressId: address.id,
+            shippingAddressId: address.id,
         })
 
         await Database.getInstance().models.Payment.create({

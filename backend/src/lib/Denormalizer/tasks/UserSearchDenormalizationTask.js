@@ -8,7 +8,7 @@ export class UserSearchDenormalizationTask extends DenormalizerTask {
         lastName: String,
         Customer: {
             stripeId: String,
-            BillingAddresses: [
+            Addresses: [
                 {
                     street: String,
                     city: String,
@@ -33,7 +33,7 @@ export class UserSearchDenormalizationTask extends DenormalizerTask {
                 },
                 include: {
                     model: Database.getInstance().models.Customer,
-                    include: [Database.getInstance().models.BillingAddress],
+                    include: [Database.getInstance().models.Address],
                 },
             })
     }

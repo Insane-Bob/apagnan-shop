@@ -8,8 +8,8 @@ import {
 } from '../../../tests/databaseUtils.js'
 import { UserFactory } from '../../../database/factories/UserFactory.js'
 import { DenormalizerQueue } from '../DenormalizerQueue.js'
-import { BillingAddressFactory } from '../../../database/factories/BillingAddressFactory.js'
 import { Database } from '../../../Models/index.js'
+import { AddressFactory } from '../../../database/factories/AddressFactory.js'
 
 let users
 describe('UserSearchDenormalizationTask', () => {
@@ -21,9 +21,7 @@ describe('UserSearchDenormalizationTask', () => {
         users = await UserFactory.withCustomer().count(3).create()
         for (let user of users) {
             user.customer = await user.getCustomer()
-            user.customer._addresses = await BillingAddressFactory.count(
-                2,
-            ).create({
+            user.customer._addresses = await AddressFactory.count(2).create({
                 customerId: user.customer.id,
             })
         }
@@ -75,10 +73,10 @@ describe('UserSearchDenormalizationTask', () => {
                     },
                 },
                 {
-                    $unwind: '$Customer.BillingAddresses',
+                    $unwind: '$Customer.Addresses',
                 },
                 {
-                    $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
+                    $replaceRoot: { newRoot: '$Customer.Addresses' },
                 },
             ])
             .toArray()
@@ -107,10 +105,10 @@ describe('UserSearchDenormalizationTask', () => {
                     },
                 },
                 {
-                    $unwind: '$Customer.BillingAddresses',
+                    $unwind: '$Customer.Addresses',
                 },
                 {
-                    $replaceRoot: { newRoot: '$Customer.BillingAddresses' },
+                    $replaceRoot: { newRoot: '$Customer.Addresses' },
                 },
                 {
                     $match: {
