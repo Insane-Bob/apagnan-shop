@@ -25,10 +25,10 @@ export class AddressController extends Controller {
             this.req.query.set('customerId', this.req.getUser().customer.id)
 
         const search = new SearchRequest(this.req, ['customerId'])
-        const Addresses = await Database.getInstance().models.Address.findAll(
+        const addresses = await Database.getInstance().models.Address.findAll(
             search.query,
         )
-        this.res.json(Addresses)
+        this.res.json(addresses)
     }
     show() {
         this.can(AddressPolicy.show, this.address)
