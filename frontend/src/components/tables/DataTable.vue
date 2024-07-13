@@ -152,7 +152,7 @@ function onExecMultiAction(callBack: (item: any) => void){
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in props.page?rows.slice((props.page.current-1)*props.page.perPage, props.page.current*props.page.perPage):rows" :key="row.id" class="bg-white border-b even:bg-gray-50 odd:bg-white">
+                <tr v-for="(row, index) in props.page?rows.slice((props.page.current-1)*props.page.perPage, props.page.current*props.page.perPage):rows" :key="index" class="bg-white border-b even:bg-gray-50 odd:bg-white">
                     <CellTable v-if="props.multiActions && props.multiActions.length > 0" class="pl-4"><ion-icon @click="onSelect(row.id)" :name="row.selected ? 'checkbox' : 'square-outline'" class="text-lg  cursor-pointer"></ion-icon></CellTable>
                     <CellTable v-for="column in props.columns" :key="column.key" :multiActionLength="props.multiActions?.length" :columns="column">
                         <slot :name="column.key" :row="row">{{ column.toDisplay? column.toDisplay(row[column.key]) : row[column.key] }}</slot>

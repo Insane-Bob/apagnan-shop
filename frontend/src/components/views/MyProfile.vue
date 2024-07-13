@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import LinkCard from '@components/cards/LinkCard.vue';
+import LinkCard from '@components/Cards/LinkCard.vue'
 
-import { useUserStore } from '@store/user';
-
+import { useUserStore } from '@store/user'
 
 const user = useUserStore()
-
 </script>
 
 <template>

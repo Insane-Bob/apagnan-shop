@@ -11,9 +11,9 @@ import Button from '@components/ui/button/Button.vue';
 import { useUserStore } from '@store/user';
 import { RouterLink } from 'vue-router';
 
+
 const user = useUserStore()
 user.cartViewed()
-
 </script>
 
 <template>
@@ -45,5 +45,6 @@ user.cartViewed()
             <Button class="w-full uppercase tracking-wider font-light">Règlement</Button>
         </RouterLink>
     </div>
+
     </SheetContent>
 </template>
