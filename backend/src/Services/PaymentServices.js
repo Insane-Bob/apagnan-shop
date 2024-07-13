@@ -72,9 +72,8 @@ export class PaymentServices {
     static async createRefund(refundRequest) {
         BadRequestException.abortIf(refundRequest.approved, 'Already approved')
 
-        const transaction = await Database.getInstance().transaction()
+        const transaction = await Database.transaction()
         try {
-            await transaction.commit()
             await refundRequest.update(
                 {
                     approved: true,
@@ -118,7 +117,7 @@ export class PaymentServices {
                     transaction,
                 },
             )
-
+            await transaction.commit()
             return refund
         } catch (e) {
             console.log(e)
