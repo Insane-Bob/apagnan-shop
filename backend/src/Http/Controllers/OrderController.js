@@ -49,17 +49,30 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.store, payload.customerId)
 
         const billingAddress =
-            await Database.getInstance().models.BillingAddress.findOne({
+            await Database.getInstance().models.Address.findOne({
                 where: {
-                    id: payload.addressId,
+                    id: payload.billingAddressId,
                     customerId: payload.customerId,
                 },
             })
         NotFoundException.abortIf(!billingAddress, 'Billing address not found')
 
+        const shippingAddress =
+            await Database.getInstance().models.Address.findOne({
+                where: {
+                    id: payload.shippingAddressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(
+            !shippingAddress,
+            'Shipping address not found',
+        )
+
         const orderPayload = {
             customerId: payload.customerId,
-            addressId: payload.addressId,
+            shippingAddressId: payload.shippingAddressId,
+            billingAddressId: payload.billingAddressId,
         }
 
         const transaction = await Database.transaction()
@@ -142,7 +155,10 @@ export class OrderController extends Controller {
 
     async pay() {
         this.can(OrderPolicy.show, this.order)
-        const session = await PaymentServices.createCheckoutSession(this.order)
+        const session = await PaymentServices.createCheckoutSession(
+            this.order,
+            this.req.getUser(),
+        )
         this.res.json(session)
     }
 

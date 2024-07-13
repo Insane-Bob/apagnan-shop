@@ -1,3 +1,4 @@
+import type { Customer } from './Customer'
 export interface User {
     id: number
     firstName: string
@@ -9,4 +10,5 @@ export interface User {
     emailVerifiedAt: string | null
     createdAt: string
     updatedAt: string
+    Customer: Customer
 }

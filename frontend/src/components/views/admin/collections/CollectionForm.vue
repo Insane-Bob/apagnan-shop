@@ -3,11 +3,11 @@ import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import {
-DialogClose,
-DialogContent,
-DialogFooter,
-DialogHeader,
-DialogTitle
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'

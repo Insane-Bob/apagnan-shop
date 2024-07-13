@@ -127,6 +127,7 @@ export function mockDatabase(databaseClass) {
             UserBasket: getModelMock(),
             Collection: getModelMock(),
             Upload: getModelMock(),
+            Address: getModelMock(),
         },
     }))
 }
