@@ -2,7 +2,7 @@ import { Factory } from './Factory.js'
 import {faker} from '@faker-js/faker'
 
 export class AddressFactory extends Factory {
-    static model = 'address'
+    static model = 'Address'
     static instanciate() {
         return {
             street: faker.location.street(),
