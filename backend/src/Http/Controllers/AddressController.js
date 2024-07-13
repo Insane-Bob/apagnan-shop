@@ -43,7 +43,6 @@ export class AddressController extends Controller {
 
         const address =
             await Database.getInstance().models.Address.create(payload)
-        console.log('hehehe', address)
         this.res.json(address)
     }
     async update() {

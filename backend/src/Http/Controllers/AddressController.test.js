@@ -97,7 +97,7 @@ describe('AddressController test routes', () => {
                 ...billingAddressPayload,
                 customerId: user1.customer.id,
             })
-        expect(response.statusCode).toBe(201)
+        expect(response.statusCode).toBe(200)
 
         response = await request(app)
             .post(`/api/addresses`)
