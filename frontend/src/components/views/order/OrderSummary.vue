@@ -284,7 +284,7 @@ const goBack = () => {
             <div class="flex flex-col w-full text-sm gap-y-4">
                 <div class="flex justify-between items-center w-full font-light">
                     <p>Sous-total</p>
-                    <p>€ 400,00</p>
+                    <p>€ {{  user.getCart.reduce((acc: number, item:BasketItem) => acc + item.product.price * item.quantity, 0) }}</p>
                 </div>
 
                 <div class="flex justify-between items-center w-full font-light">
@@ -294,12 +294,12 @@ const goBack = () => {
 
                 <div class="flex justify-between items-center w-full font-medium text-sm uppercase tracking-wide">
                     <p>Total</p>
-                    <p>€ 400 </p>
+                    <p>€ {{  user.getCart.reduce((acc: number, item:BasketItem) => acc + item.product.price * item.quantity, 0) }} </p>
                 </div>
 
                 <div class="flex justify-between items-center w-full font-light">
                     <p>TVA</p>
-                    <p>€ 100,00</p>
+                    <p>€ {{  user.getCart.reduce((acc: number, item:BasketItem) => acc + item.product.price * item.quantity, 0)  * 0.2 }}</p>
                 </div>
             </div>
         </aside>
