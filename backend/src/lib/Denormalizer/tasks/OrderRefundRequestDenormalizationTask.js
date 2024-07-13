@@ -10,9 +10,10 @@ export class OrderRefundRequestDenormalizationTask extends DenormalizerTask {
         createdAt: Date,
         Order: {
             id: Number,
+            createdAt: Date,
             Customer: {
                 stripeId: String,
-                OUser: {
+                User: {
                     id: Number,
                     firstName: String,
                     lastName: String,
@@ -23,24 +24,31 @@ export class OrderRefundRequestDenormalizationTask extends DenormalizerTask {
         },
     })
 
+    constructor() {
+        super()
+        this.in('refundRequests')
+    }
+
     fetch(refundRequestsIds) {
-        return Database.getInstance().models.RefundRequestOrder.findAll({
-            where: {
-                id: refundRequestsIds,
-            },
-            attributes: ['id', 'reason', 'approved', 'createdAt'],
-            include: {
-                model: Database.getInstance().models.Order,
-                attributes: ['id'],
+        return Database.getInstance()
+            .models.RefundRequestOrder.unscoped()
+            .findAll({
+                where: {
+                    id: refundRequestsIds,
+                },
+                attributes: ['id', 'reason', 'approved', 'createdAt'],
                 include: {
-                    model: Database.getInstance().models.Customer,
-                    attributes: ['stripeId'],
+                    model: Database.getInstance().models.Order.unscoped(),
+                    attributes: ['id', 'createdAt'],
                     include: {
-                        model: Database.getInstance().models.User,
-                        attributes: ['id', 'firstName', 'lastName'],
+                        model: Database.getInstance().models.Customer.unscoped(),
+                        attributes: ['stripeId'],
+                        include: {
+                            model: Database.getInstance().models.User.unscoped(),
+                            attributes: ['id', 'firstName', 'lastName'],
+                        },
                     },
                 },
-            },
-        })
+            })
     }
 }

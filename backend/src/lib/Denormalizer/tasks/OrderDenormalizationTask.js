@@ -6,6 +6,7 @@ export class OrderDenormalizationTask extends DenormalizerTask {
         id: Number,
         status: String,
         total: Number,
+        createdAt: Date,
         Customer: {
             stripeId: String,
             User: {
@@ -14,7 +15,7 @@ export class OrderDenormalizationTask extends DenormalizerTask {
                 lastName: String,
             },
         },
-        Details: [
+        OrderDetails: [
             {
                 product: String,
                 unitPrice: Number,
@@ -31,52 +32,57 @@ export class OrderDenormalizationTask extends DenormalizerTask {
 
     async persist(model, instance) {
         const exists = await model.findOne({ id: instance.id })
-        if (exists) delete instance.Details
+        if (exists) delete instance.OrderDetails
         await model.findOneAndUpdate(
             { id: instance.id },
-            { $set: instance },
+            { $set: instance.toJSON() },
             { upsert: true },
         )
     }
 
     async fetch(ordersIds) {
-        let orders = await Database.getInstance().models.Product.findAll({
-            where: {
-                id: productsIds,
-            },
-            attributes: ['id', 'status'],
-            include: [
-                {
-                    model: Database.getInstance().models.Customer,
-                    attributes: ['stripeId'],
-                    include: {
-                        model: Database.getInstance().models.User,
-                        attributes: ['id', 'firstName', 'lastName'],
-                    },
+        let orders = await Database.getInstance()
+            .models.Order.unscoped()
+            .findAll({
+                where: {
+                    id: ordersIds,
                 },
-                {
-                    model: Database.getInstance().models.OrderDetail,
-                    attributes: ['unitPrice', 'quantity'],
-                    include: {
-                        model: Database.getInstance().models.Product,
-                        attributes: ['name'],
+                attributes: ['id', 'status', 'createdAt'],
+                include: [
+                    {
+                        association: 'OrderDetails', // Utilisez l'association définie dans votre modèle Order
+                        attributes: ['unitPrice', 'quantity'],
+                        include: {
+                            model: Database.getInstance().models.Product,
+                            as: 'Product',
+                            attributes: ['name'],
+                        },
                     },
-                },
-            ],
-        })
+                    {
+                        association: 'Customer',
+                        include: [
+                            {
+                                association: 'User',
+                                attributes: ['firstName', 'lastName', 'email'],
+                            },
+                        ],
+                    },
+                ],
+            })
 
         return orders.map((order) => {
-            order.Details = order.OrderDetails.map((detail) => ({
+            order.OrderDetails = order.OrderDetails.map((detail) => ({
                 product: detail.Product.name,
                 unitPrice: detail.unitPrice,
                 quantity: detail.quantity,
                 total: detail.unitPrice * detail.quantity,
             }))
 
-            order.total = order.Details.reduce(
+            order.total = order.OrderDetails.reduce(
                 (acc, detail) => acc + detail.total,
                 0,
             )
+            return order
         })
     }
 }

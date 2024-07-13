@@ -34,38 +34,40 @@ export class ProductDenormalizationTask extends DenormalizerTask {
         this.in('products')
     }
     fetch(productsIds) {
-        return Database.getInstance().models.Product.findAll({
-            where: {
-                id: productsIds,
-            },
-            attributes: [
-                'id',
-                'name',
-                'slug',
-                'description',
-                'price',
-                'published',
-            ],
-            include: [
-                {
-                    model: Database.getInstance().models.Review,
-                    attributes: ['rate', 'content', 'createdAt'],
-                    include: {
-                        model: Database.getInstance().models.User,
-                        attributes: ['firstName', 'lastName'],
+        return Database.getInstance()
+            .models.Product.unscoped()
+            .findAll({
+                where: {
+                    id: productsIds,
+                },
+                attributes: [
+                    'id',
+                    'name',
+                    'slug',
+                    'description',
+                    'price',
+                    'published',
+                ],
+                include: [
+                    {
+                        model: Database.getInstance().models.Review,
+                        attributes: ['rate', 'content', 'createdAt'],
+                        include: {
+                            model: Database.getInstance().models.User,
+                            attributes: ['firstName', 'lastName'],
+                        },
                     },
-                },
-                {
-                    attributes: [
-                        'name',
-                        'slug',
-                        'description',
-                        'published',
-                        'promoted',
-                    ],
-                    model: Database.getInstance().models.Collection,
-                },
-            ],
-        })
+                    {
+                        attributes: [
+                            'name',
+                            'slug',
+                            'description',
+                            'published',
+                            'promoted',
+                        ],
+                        model: Database.getInstance().models.Collection,
+                    },
+                ],
+            })
     }
 }
