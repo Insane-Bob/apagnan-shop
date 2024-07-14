@@ -97,13 +97,18 @@ const fetchCollection = async () => {
     }
 
     collection.value = data.collection
+    if(data.image){
     collectionImage.value = data.image.path
+    }else{
+        collectionImage.value = '/src/assets/images/noPhotoAvailable.webp'
+    }
     breadcrumbLinks.value[2] = [
         data.collection.name,
         '/collections/' + route.params.collectionSlug,
     ]
 
     }catch(e){
+        console.log(e)
         toast({
             title: 'La collection n\'existe pas',
             variant: 'destructive',
@@ -146,6 +151,13 @@ const fetchProductSpecifics = async () => {
 
 const addToCart = async () => {
     if (user.isAuthenticated && product.value) {
+        if(quantitySelected.value > product.value.stock){
+            toast({
+                title: 'Il n\'y a pas assez de stock',
+                variant: 'destructive',
+            })
+            return
+        }
         const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + product.value.id, {quantity: quantitySelected.value} )
         user.addItem(reponse.data.items)
         toast({
@@ -217,7 +229,7 @@ const sendReview = async () => {
                             <p>Quantité</p>
                             <Input type="number" class="border-2 border-black rounded-sm max-w-24" placeholder="Quantité" v-model="quantitySelected" />
                         </div>
-                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()" class="flex items-center gap-x-2">
+                        <Button v-if="user.isAuthenticated" :disabled="product.stock<=0" variant="outline" @click="addToCart()" class="flex items-center gap-x-2">
                             Ajouter au panier
                             <ion-icon name="cart-outline" class="text-lg font-semibold"></ion-icon>
                         </Button>
