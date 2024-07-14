@@ -104,38 +104,44 @@ const fetchCollections = async () => {
 }
 
 const loginAs= async(id: number) => {
-    const response = await apiClient.post('users/ask-login-as/'+id)
-    console.log(response)
-    if(response.status !== 200){
+    try{
+        const response = await apiClient.post('users/ask-login-as/'+id)
+        console.log(response)
+        if(response.status !== 200){
+            toast({
+                title: 'Une erreur est arrivé',
+                variant: 'destructive'
+            })
+            return;
+        }
+        const accessLink = response.data.a
+
+        const loginResponse = await apiClient.get('login/' + accessLink)
+
+        if(loginResponse.data.accessToken && loginResponse.data.refreshToken){
+            const oldAccessToken = localStorage.getItem('accessToken') || ''
+            const oldRefreshToken = localStorage.getItem('refreshToken') || ''
+
+            localStorage.setItem('accessToken', loginResponse.data.accessToken)
+            localStorage.setItem('refreshToken', loginResponse.data.refreshToken)
+
+            localStorage.setItem('oldAccessToken', oldAccessToken)
+            localStorage.setItem('oldRefreshToken', oldRefreshToken)
+
+            const newMe = await apiClient.get('me');
+
+            user.setUser(newMe.data.user)
+            user.setLoggedAs(true)
+
+            window.location.href = '/home' 
+        }
+    }catch(e){
         toast({
             title: 'Une erreur est arrivé',
             variant: 'destructive'
         })
         return;
     }
-    const accessLink = response.data.a
-
-    const loginResponse = await apiClient.get('login/' + accessLink)
-
-    if(loginResponse.data.accessToken && loginResponse.data.refreshToken){
-        const oldAccessToken = localStorage.getItem('accessToken') || ''
-        const oldRefreshToken = localStorage.getItem('refreshToken') || ''
-
-        localStorage.setItem('accessToken', loginResponse.data.accessToken)
-        localStorage.setItem('refreshToken', loginResponse.data.refreshToken)
-
-        localStorage.setItem('oldAccessToken', oldAccessToken)
-        localStorage.setItem('oldRefreshToken', oldRefreshToken)
-
-        const newMe = await apiClient.get('me');
-
-        user.setUser(newMe.data.user)
-        user.setLoggedAs(true)
-
-        window.location.href = '/home' 
-
-    }
-
 }
 </script>
 <template>
