@@ -152,7 +152,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                     >
                         <slot :name="column.key">{{ column.label }}</slot>
                         <ion-icon
-                            v-if="column.sorting && sorting.key === column.key"
+                            v-if="column.sorting && sorting?.key === column.key"
                             class="cursor-pointer"
                             :name="
                                 sorting?.key == column.key &&

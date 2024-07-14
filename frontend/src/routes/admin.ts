@@ -1,6 +1,5 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import { apiClient } from '@/lib/apiClient'
-import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import AdminCustomers from '@components/views/admin/AdminCustomers.vue'
 import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
