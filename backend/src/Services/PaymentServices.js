@@ -112,19 +112,10 @@ export class PaymentServices {
                 },
             )
 
-            await Database.getInstance().models.Order.update(
-                {
-                    status: OrderStatus.REFUNDED,
-                },
-                {
-                    where: {
-                        id: refundRequest.orderId,
-                    },
-                },
-                {
-                    transaction,
-                },
-            )
+            let order = await refundRequest.getOrder()
+            let orderService = new OrderServices(order)
+            await orderService.setStatus(OrderStatus.REFUNDED, { transaction })
+
             await transaction.commit()
             return refund
         } catch (e) {

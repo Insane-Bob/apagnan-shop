@@ -15,6 +15,7 @@ import { CustomerFactory } from '../../../database/factories/CustomerFactory.js'
 import { OrderDenormalizationTask } from './OrderDenormalizationTask.js'
 import { OrderStatus } from '../../../Enums/OrderStatus.js'
 import { AddressFactory } from '../../../database/factories/AddressFactory.js'
+import { OrderServices } from '../../../Services/OrderServices.js'
 
 let order
 let user
@@ -50,14 +51,24 @@ describe('OrderDenormalizationTask', () => {
 
         await new OrderDenormalizationTask().execute(order) // start task manually (like in the controller)
         mOrder = await Orders.findOne({ id: order.id })
-
         expect(mOrder).toBeTruthy()
+
+        const details = await Database.getInstance().models.OrderDetail.findAll(
+            {
+                where: {
+                    orderId: order.id,
+                },
+            },
+        )
+
+        expect(mOrder.OrderDetails.length).toBe(details.length)
     })
 
-    test('Order update #1', async () => {
+    test('OrderStatus update #1', async () => {
         let spy = jest.spyOn(OrderDenormalizationTask.prototype, 'execute')
-        order.status = OrderStatus.DELIVERED
-        await order.save()
+
+        let orderService = new OrderServices(order)
+        await orderService.setStatus(OrderStatus.DELIVERED)
         expect(spy).toHaveBeenCalledWith(order)
 
         let mOrder = await Orders.findOne({
@@ -65,6 +76,7 @@ describe('OrderDenormalizationTask', () => {
             status: OrderStatus.DELIVERED,
         })
 
+        expect(mOrder).toBeTruthy()
         spy.mockRestore()
     })
 
@@ -80,8 +92,8 @@ describe('OrderDenormalizationTask', () => {
             quantity: 3,
             unitPrice: 1000,
         })
-        order.status = OrderStatus.REFUNDED
-        await order.save()
+        let orderServices = new OrderServices(order)
+        await orderServices.setStatus(OrderStatus.REFUNDED)
         expect(spy).toHaveBeenCalledWith(order)
 
         let mOrder = await Orders.findOne({

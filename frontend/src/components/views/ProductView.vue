@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent.vue'
+import FeaturedProductsCarousel from '@/components/product/FeaturedProductsCarousel.vue'
 import ProductPictureCarousel from '@/components/product/ProductPictureCarousel.vue'
 import ReviewNoteComponent from '@/components/product/ReviewNoteComponent.vue'
+import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
-import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
-import FeaturedProductsCarousel from '@/components/product/FeaturedProductsCarousel.vue'
-import { ref, onMounted, reactive } from 'vue'
-import { apiClient } from '@/lib/apiClient'
-import { useRoute } from 'vue-router'
-import { useUserStore } from '@store/user'
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { apiClient } from '@/lib/apiClient'
 import type { Product, Review } from '@/types'
-import { useRouter } from 'vue-router'
+import { useUserStore } from '@store/user'
+import { onMounted, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import FormGrid from '../Forms/FormGrid.vue'
+
 
 
 
@@ -40,6 +49,14 @@ const breadcrumbLinks = ref([
     ['', '#'],
     ['', '#'],
 ])
+
+const reviewForm = reactive<{rate: number, content: string}>(
+    {
+        rate: 0,
+        content: '',
+    }
+
+)
 
 const fetchProduct = async () => {
     try{
@@ -147,6 +164,19 @@ onMounted(async () => {
     loading.value = false
 
 })
+
+const sendReview = async () => {
+    if(user.isAuthenticated && product.value){
+        const data = {...reviewForm, productId: product.value.id, userId: user.getId}
+        const response = await apiClient.post('/reviews', data)
+        reviews.push(response.data.review)
+        toast({
+            title: 'Votre avis a été ajouté',
+        })
+        reviewForm.rate = 0
+        reviewForm.content = ''
+    }
+}
 </script>
 
 <template>
@@ -221,18 +251,18 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div v-if="reviews" class="flex justify-center mb-7">
-            <div class="w-4/5 flex flex-col items-center">
+        <div v-if="reviews" class="flex flex-col items-center justify-center mb-7">
+            <div class="w-3/5 flex flex-col items-center">
                 <h2 class="text-2xl font-semibold uppercase">
                     Avis des clients
                 </h2>
-                <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-4 text-left">
                     <ReviewNoteComponent
                         :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
                         :NbReviews="reviews.length"
                     />
+                    <div v-for="review in reviews.sort((r1, r2) => r2.rate - r1.rate).slice(0,7)" :key="review.id" class="flex flex-col gap-2">
                     <div class="flex flex-col gap-4">
-                        <div v-for="review in reviews" :key="review.id" class="flex flex-col gap-2">
                             <div>
                                 <p class="text-lg font-semibold mb-0">{{ review.rate }}/5</p>
                                 <p class="text-sm font-light">{{ new Date(review.createdAt).toLocaleDateString() }}</p>
@@ -242,6 +272,40 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+
+            <div class="w-2/5 flex flex-col items-center mt-4" v-if="user.isAuthenticated">
+
+                <div class="w-full flex flex-col gap-4">
+                    <h2 class="text-lg tracking-wider uppercase">
+                        Laisser un avis
+                    </h2>
+                    <form @submit.prevent="sendReview()">
+                        <FormGrid>
+                            <Select v-model="reviewForm.rate">
+                                <SelectTrigger class="col-span-full">
+                                <SelectValue placeholder="Choisir une note" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem v-for="value in 5" :value="value.toString()" :key="value">
+                                    {{ value }}
+                                    </SelectItem>
+                                </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            
+                            <textarea v-model="reviewForm.content" rows="3" class="col-span-full border border-[hsl(0 0% 89.8%)]"></textarea>
+                            <Button class="uppercase tracking-wider col-start-7 col-span-6">Envoyer</Button>
+                        </FormGrid>
+
+
+                    </form>
+
+                </div>
+
+            </div>
         </div>
+
+        
     </div>
 </template>
