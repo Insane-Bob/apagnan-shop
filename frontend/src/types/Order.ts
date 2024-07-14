@@ -10,6 +10,14 @@ export interface Order {
     createdAt: string
     shippingAddressId: number
     billingAddressId: number
+    statusHistory: [
+        {
+            id: number
+            orderId: number
+            status: OrderStatus
+            createdAt: string
+        },
+    ]
     status: OrderStatus
     updatedAt: string
     orderDetails: OrderDetails[]
