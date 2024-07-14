@@ -92,7 +92,7 @@ export const adminRoutes = [
                 path: 'refunds',
                 component: AdminRefundsTable,
                 name: 'Demandes de remboursement',
-                meta: { label: 'Remboursement', icon: 'people-circle' },
+                meta: { label: 'Remboursement', icon: 'wallet' },
             },
         ],
     },
