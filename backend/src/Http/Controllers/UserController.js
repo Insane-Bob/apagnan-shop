@@ -93,7 +93,7 @@ export class UserController extends Controller {
     }
 
     async askLoginAs() {
-        his.can(UserPolicy.index)
+        this.can(UserPolicy.index)
         this.user_resource
         const accessLink = await AccessLinkServices.createAccessLink(
             this.user_resource.id,
