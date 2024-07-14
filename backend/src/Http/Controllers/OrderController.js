@@ -17,6 +17,7 @@ import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { OrderServices } from '../../Services/OrderServices.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -142,8 +143,8 @@ export class OrderController extends Controller {
             'Cannot update a cancelled order',
         )
 
-        const rowsEdited = await this.order.update(payload)
-        NotFoundException.abortIf(!rowsEdited)
+        let orderServices = new OrderServices(this.order)
+        await orderServices.setStatus(payload.status)
 
         if (payload.status)
             await NotificationsServices.notifyOrderStatusUpdate(

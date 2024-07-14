@@ -14,12 +14,15 @@ import { UserFactory } from '../../../database/factories/UserFactory.js'
 import { OrderRefundRequestDenormalizationTask } from './OrderRefundRequestDenormalizationTask.js'
 import { CustomerFactory } from '../../../database/factories/CustomerFactory.js'
 import { AddressFactory } from '../../../database/factories/AddressFactory.js'
+import { OrderStatus } from '../../../Enums/OrderStatus.js'
+import { OrderServices } from '../../../Services/OrderServices.js'
 
 let order
 let products
 let user
 let refund
 let Refunds
+
 describe('OrderRefundRequestDenormalizarionTask', () => {
     const denormalizerQueue = DenormalizerQueue.getInstance()
     denormalizerQueue.enqueue = jest.fn((task) => task.execute())
@@ -86,8 +89,8 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
             OrderRefundRequestDenormalizationTask.prototype,
             'execute',
         )
-        order.status = 'shipped'
-        await order.save()
+        let orderService = new OrderServices(order)
+        await orderService.setStatus(OrderStatus.SHIPPED)
         expect(spy).not.toHaveBeenCalled()
         spy.mockRestore()
     })
