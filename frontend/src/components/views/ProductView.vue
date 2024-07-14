@@ -108,7 +108,6 @@ const fetchCollection = async () => {
     ]
 
     }catch(e){
-        console.log(e)
         toast({
             title: 'La collection n\'existe pas',
             variant: 'destructive',

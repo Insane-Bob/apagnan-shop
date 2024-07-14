@@ -137,10 +137,8 @@ const fetchCollections = async () => {
 }
 
 const updateCollection = async (row: any) => {
-    console.log(row)
     const response = await apiClient.patch('collections/' + row.slug, row)
     const data = response.data
-    console.log('result',data.collection)
     collections.splice(collections.findIndex((c: any) => c.slug === row.slug), 1, data.collection)
 }
 

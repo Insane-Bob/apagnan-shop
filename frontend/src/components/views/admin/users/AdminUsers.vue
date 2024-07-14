@@ -97,7 +97,6 @@ const fetchCollections = async () => {
     const response = await apiClient.get('/users')
     const data = await response.data
     data.users.forEach((u: any) => {
-        console.log(u)
         users.push(u)
     })
     page.total = users.length
@@ -106,7 +105,6 @@ const fetchCollections = async () => {
 const loginAs= async(id: number) => {
     try{
         const response = await apiClient.post('users/ask-login-as/'+id)
-        console.log(response)
         if(response.status !== 200){
             toast({
                 title: 'Une erreur est arrivé',
