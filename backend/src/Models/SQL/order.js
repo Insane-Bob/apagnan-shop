@@ -64,12 +64,17 @@ export class Order extends Model {
     }
 
     static hooks(models) {
-        models.Order.addHook('afterCreate', async (order) => {
-            let status = await models.OrderStatus.create({
-                orderId: order.id,
-                status: OrderStatus.PENDING,
-                createdAt: new Date(),
-            })
+        models.Order.addHook('afterCreate', async (order, options) => {
+            let status = await models.OrderStatus.create(
+                {
+                    orderId: order.id,
+                    status: OrderStatus.PENDING,
+                    createdAt: new Date(),
+                },
+                {
+                    transaction: options.transaction,
+                },
+            )
             order.statusHistory = [status]
         })
     }
