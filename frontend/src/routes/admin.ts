@@ -5,6 +5,8 @@ import AdminCustomers from '@components/views/admin/AdminCustomers.vue'
 import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
 import AdminUsers from '@components/views/admin/users/AdminUsers.vue'
+import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
+import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
 
 export const adminRoutes = [
     {
@@ -72,6 +74,12 @@ export const adminRoutes = [
                 component: AdminUsers,
                 name: 'Utilisateurs',
                 meta: { label: 'Utilisateurs', icon: 'people-circle' },
+            },
+            {
+                path: 'refunds',
+                component: AdminRefundsTable,
+                name: 'Demandes de remboursement',
+                meta: { label: 'Remboursement', icon: 'wallet' },
             },
         ],
     },
