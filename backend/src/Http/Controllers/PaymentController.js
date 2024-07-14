@@ -133,7 +133,6 @@ export class PaymentController extends Controller {
             'Session not found',
         )
         const checkoutSession = checkoutSessions.data[0]
-
         const payment = await Database.getInstance().models.Payment.findOne({
             where: {
                 sessionId: checkoutSession.id,
