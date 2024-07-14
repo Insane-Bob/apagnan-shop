@@ -6,6 +6,7 @@ import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import { apiClient } from '@/lib/apiClient'
 import { useToast } from '@components/ui/toast/use-toast'
 import Dashboard from '@components/views/admin/Dashboard.vue'
+import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
 
 export const adminRoutes = [
     {
@@ -86,6 +87,12 @@ export const adminRoutes = [
                 component: AdminUsers,
                 name: 'Utilisateurs',
                 meta: { label: 'Utilisateurs', icon: 'people-circle' },
+            },
+            {
+                path: 'refunds',
+                component: AdminRefundsTable,
+                name: 'Demandes de remboursement',
+                meta: { label: 'Remboursement', icon: 'people-circle' },
             },
         ],
     },

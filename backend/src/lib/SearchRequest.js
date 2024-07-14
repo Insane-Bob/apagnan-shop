@@ -50,4 +50,11 @@ export class SearchRequest {
             order: this.order,
         }
     }
+
+    get queryWithoutPagination() {
+        return {
+            where: this.where,
+            order: this.order,
+        }
+    }
 }
