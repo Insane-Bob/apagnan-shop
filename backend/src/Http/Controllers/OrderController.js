@@ -42,9 +42,13 @@ export class OrderController extends Controller {
         )
         this.res.json(orders)
     }
-    show() {
+    async show() {
         this.can(OrderPolicy.show, this.order)
-        this.res.json(this.order)
+        const refundsRequest = await this.order.getRefundRequestOrders()
+        this.res.json({
+            ...this.order.toJSON(),
+            RefundRequestOrders: refundsRequest,
+        })
     }
     async store() {
         const payload = this.validate(OrderValidator, OrderValidator.create())
