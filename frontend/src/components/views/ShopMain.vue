@@ -185,8 +185,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
-import ProductCard from '@components/Cards/ProductCard.vue'
-import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
+import ProductCard from '@components/cards/ProductCard.vue'
+import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
 import {
