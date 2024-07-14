@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import DataTable from '@components/tables/DataTable.vue'
-import Button from '@components/ui/button/Button.vue'
-import CollectionForm from '@components/views/admin/collections/CollectionForm.vue'
-import { Dialog, DialogContent, DialogTrigger } from '@components/ui/dialog'
-import { Page, TableActions, TableColumns, User } from '@types'
-import { onMounted, reactive, ref } from 'vue'
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const CollectionUrl = API_BASE_URL + '/users/'
+import { apiClient } from '@/lib/apiClient';
+import DataTable from '@components/tables/DataTable.vue';
+import { Page, TableActions, TableColumns, User } from '@types';
+import { onMounted, reactive } from 'vue';
 
 const users = reactive<User[]>([])
 
@@ -63,6 +59,14 @@ const columns: TableColumns[] = [
 
 const actions: TableActions[] = [
     {
+        label: 'Se connecter en tant que',
+        icon: 'glasses-outline',
+        class: 'text-blue-500',
+        action: (row: any) => {
+            console.log('Se connecter en tant que', row)
+        },
+    },
+    {
         label: 'Bannir',
         icon: 'ban-outline',
         class: 'text-red-500',
@@ -85,8 +89,8 @@ onMounted(() => {
 })
 
 const fetchCollections = async () => {
-    const response = await fetch(CollectionUrl)
-    const data = await response.json()
+    const response = await apiClient.get('/users')
+    const data = await response.data
     data.users.forEach((u: any) => {
         console.log(u)
         users.push(u)
@@ -95,7 +99,6 @@ const fetchCollections = async () => {
 }
 </script>
 <template>
-    <Dialog>
         <div class="flex flex-col mx-6">
             <DataTable
                 v-if="users.length > 0"
@@ -107,12 +110,4 @@ const fetchCollections = async () => {
                 @emit-previous-page="onPreviousPage"
             ></DataTable>
         </div>
-
-        <DialogContent>
-            <CollectionForm
-                :collection="form.collection"
-                @reload-collection="reloadCollection"
-            ></CollectionForm>
-        </DialogContent>
-    </Dialog>
 </template>

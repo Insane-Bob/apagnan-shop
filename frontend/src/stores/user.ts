@@ -52,6 +52,7 @@ export const useUserStore = defineStore('user', {
     },
     getters: {
         isAuthenticated: (state: any): boolean => !!state.user,
+        isAdmin: (state: any): boolean => state.user?.role === 'admin',
         getId: (state: any): number => state.user?.id,
         get: (state: any): User => state.user,
         getCart: (state: any): BasketItem[] => state.cart,
