@@ -193,4 +193,15 @@ export class PaymentServices {
             },
         })
     }
+
+    static retrieveCheckoutSessionFromPaymentIntentID(paymentIntentId) {
+        return stripe.checkout.sessions.list({
+            payment_intent: paymentIntentId,
+        })
+    }
+
+    static constructEvent(...args) {
+        args.push(process.env.STRIPE_WEBHOOK_SECRET)
+        return stripe.webhooks.constructEvent(...args)
+    }
 }
