@@ -261,8 +261,8 @@ const sendReview = async () => {
                         :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
                         :NbReviews="reviews.length"
                     />
+                    <div v-for="review in reviews.sort((r1, r2) => r2.rate - r1.rate).slice(0,7)" :key="review.id" class="flex flex-col gap-2">
                     <div class="flex flex-col gap-4">
-                        <div v-for="review in reviews.sort((r1, r2) => r2.rate - r1.rate).slice(0,7)" :key="review.id" class="flex flex-col gap-2">
                             <div>
                                 <p class="text-lg font-semibold mb-0">{{ review.rate }}/5</p>
                                 <p class="text-sm font-light">{{ new Date(review.createdAt).toLocaleDateString() }}</p>
