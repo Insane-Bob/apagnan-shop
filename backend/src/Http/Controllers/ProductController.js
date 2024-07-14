@@ -3,6 +3,7 @@ import { Database } from '../../Models/index.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 import { ProductServices } from '../../Services/ProductServices.js'
 import { ProductPolicy } from '../Policies/ProductPolicy.js'
+import { ProductValidator } from '../../Validator/ProductValidator.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
@@ -35,17 +36,17 @@ export class ProductController extends Controller {
 
     async createProduct() {
         this.can(ProductPolicy.update)
-        const product = await Database.getInstance().models.Product.create(
-            this.req.body.all(),
-        )
-        if (this.req.files && this.req.files.length > 0) {
+        const payload = this.validate(ProductValidator)
+        const product =
+            await Database.getInstance().models.Product.create(payload)
+        /* if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
                 modelId: product.id,
                 modelName: 'product',
                 imagePath: file.path,
             }))
             await Database.getInstance().models.Upload.bulkCreate(imagePaths)
-        }
+        } */
         if (product) {
             this.res.status(201).json({
                 product: product,
@@ -55,19 +56,20 @@ export class ProductController extends Controller {
 
     async updateProduct() {
         this.can(ProductPolicy.update)
-        const rowsEdited = await this.product.update(this.req.body.all())
-        if (this.req.files && this.req.files.length > 0) {
+        const payload = this.validate(ProductValidator)
+        const rowsEdited = await this.product.update(payload)
+        /* if (this.req.files && this.req.files.length > 0) {
             const imagePaths = this.req.files.map((file) => ({
                 modelId: product.id,
                 modelName: 'product',
                 imagePath: file.path,
             }))
             await Database.getInstance().models.Upload.bulkCreate(imagePaths)
-        }
+        } */
         NotFoundException.abortIf(!rowsEdited)
 
         this.res.status(200).json({
-            product: product,
+            product: this.product,
         })
     }
 

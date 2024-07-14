@@ -1,6 +1,7 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { ReviewValidator } from '../../Validator/ReviewValidator.js'
 
 export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
@@ -28,9 +29,9 @@ export class ReviewController extends Controller {
     }
 
     async createReview() {
-        const review = await Database.getInstance().models.Review.create(
-            this.req.body.all(),
-        )
+        const payload = this.validate(ReviewValidator)
+        const review =
+            await Database.getInstance().models.Review.create(payload)
         if (review) {
             this.res.status(201).json({
                 review: review,
@@ -39,12 +40,13 @@ export class ReviewController extends Controller {
     }
 
     async updateReview() {
-        const rowsEdited = await this.review.update(this.req.body.all())
+        const payload = this.validate(ReviewValidator)
+        const rowsEdited = await this.review.update(payload)
 
         NotFoundException.abortIf(!rowsEdited)
 
         this.res.status(200).json({
-            review: review,
+            review: this.review,
         })
     }
 
