@@ -33,6 +33,12 @@ export default function (router) {
 
             this.post('/ask-reset-password', UserController, 'askResetPassword')
 
+            this.post(
+                '/ask-login-as/:user_resource',
+                UserController,
+                'askLoginAs',
+            )
+
             this.group('/:user_resource', function(){
                 widgetRoute(this)
                 basketRoute(this)

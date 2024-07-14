@@ -60,6 +60,17 @@ export class PaymentServices {
         const payment = await orderService.getLastSuccessPayment()
         BadRequestException.abortIf(!payment, 'No payment to refund')
 
+        const refundRequestExists =
+            await Database.getInstance().models.RefundRequestOrder.findOne({
+                where: {
+                    sessionId: payment.sessionId,
+                },
+            })
+        BadRequestException.abortIf(
+            refundRequestExists,
+            'Already asked for refund',
+        )
+
         const refundRequest =
             await Database.getInstance().models.RefundRequestOrder.create({
                 orderId: order.id,
@@ -181,5 +192,16 @@ export class PaymentServices {
                 sessionId,
             },
         })
+    }
+
+    static retrieveCheckoutSessionFromPaymentIntentID(paymentIntentId) {
+        return stripe.checkout.sessions.list({
+            payment_intent: paymentIntentId,
+        })
+    }
+
+    static constructEvent(...args) {
+        args.push(process.env.STRIPE_WEBHOOK_SECRET)
+        return stripe.webhooks.constructEvent(...args)
     }
 }

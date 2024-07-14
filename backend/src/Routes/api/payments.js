@@ -15,5 +15,7 @@ export default function (router) {
             AccessLinkMiddleware,
             100,
         )
+
+        this.post('/webhook', PaymentController, 'webhook')
     })
 }

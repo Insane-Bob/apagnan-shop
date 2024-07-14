@@ -8,6 +8,7 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { OrderPolicy } from '../Policies/OrderPolicy.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import {
+    BadRequestException,
     ForbiddenException,
     NotFoundException,
 } from '../../Exceptions/HTTPException.js'
@@ -41,9 +42,13 @@ export class OrderController extends Controller {
         )
         this.res.json(orders)
     }
-    show() {
+    async show() {
         this.can(OrderPolicy.show, this.order)
-        this.res.json(this.order)
+        const refundsRequest = await this.order.getRefundRequestOrders()
+        this.res.json({
+            ...this.order.toJSON(),
+            RefundRequestOrders: refundsRequest,
+        })
     }
     async store() {
         const payload = this.validate(OrderValidator, OrderValidator.create())
@@ -166,6 +171,14 @@ export class OrderController extends Controller {
     async askForRefund() {
         this.can(OrderPolicy.show, this.order)
         const payload = this.validate(AskForRefundValidator)
+        BadRequestException.abortIf(
+            this.order.status != OrderStatus.DELIVERED,
+            'Cannot refund an order that is not delivered',
+        )
+        BadRequestException.abortIf(
+            this.order.status == OrderStatus.REFUNDED,
+            'Cannot refund an order that is already refunded',
+        )
         //@TODO : handle the choice of the items and the quantity to refund
         const refundRequest = await PaymentServices.askForRefund(
             this.order,

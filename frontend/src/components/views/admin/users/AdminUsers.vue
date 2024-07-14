@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import DataTable from '@components/tables/DataTable.vue'
-import Button from '@components/ui/button/Button.vue'
-import CollectionForm from '@components/views/admin/collections/CollectionForm.vue'
-import { Dialog, DialogContent, DialogTrigger } from '@components/ui/dialog'
-import { Page, TableActions, TableColumns, User } from '@types'
-import { onMounted, reactive, ref } from 'vue'
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const CollectionUrl = API_BASE_URL + '/users/'
+import { apiClient } from '@/lib/apiClient';
+import DataTable from '@components/tables/DataTable.vue';
+import { Page, TableActions, TableColumns, User } from '@types';
+import { onMounted, reactive } from 'vue';
+import { useToast } from '@/components/ui/toast';
+import { useUserStore } from '@/stores/user';
+
 
 const users = reactive<User[]>([])
+const user = useUserStore()
+const {toast} = useToast()
 
 const page = reactive<Page>({
     current: 1,
@@ -63,6 +64,14 @@ const columns: TableColumns[] = [
 
 const actions: TableActions[] = [
     {
+        label: 'Se connecter en tant que',
+        icon: 'glasses-outline',
+        class: 'text-blue-500',
+        action: (row: any) => {
+            loginAs(row.id)
+        },
+    },
+    {
         label: 'Bannir',
         icon: 'ban-outline',
         class: 'text-red-500',
@@ -85,17 +94,57 @@ onMounted(() => {
 })
 
 const fetchCollections = async () => {
-    const response = await fetch(CollectionUrl)
-    const data = await response.json()
+    const response = await apiClient.get('/users')
+    const data = await response.data
     data.users.forEach((u: any) => {
         console.log(u)
         users.push(u)
     })
     page.total = users.length
 }
+
+const loginAs= async(id: number) => {
+    try{
+        const response = await apiClient.post('users/ask-login-as/'+id)
+        console.log(response)
+        if(response.status !== 200){
+            toast({
+                title: 'Une erreur est arrivé',
+                variant: 'destructive'
+            })
+            return;
+        }
+        const accessLink = response.data.a
+
+        const loginResponse = await apiClient.get('login/' + accessLink)
+
+        if(loginResponse.data.accessToken && loginResponse.data.refreshToken){
+            const oldAccessToken = localStorage.getItem('accessToken') || ''
+            const oldRefreshToken = localStorage.getItem('refreshToken') || ''
+
+            localStorage.setItem('accessToken', loginResponse.data.accessToken)
+            localStorage.setItem('refreshToken', loginResponse.data.refreshToken)
+
+            localStorage.setItem('oldAccessToken', oldAccessToken)
+            localStorage.setItem('oldRefreshToken', oldRefreshToken)
+
+            const newMe = await apiClient.get('me');
+
+            user.setUser(newMe.data.user)
+            user.setLoggedAs(true)
+
+            window.location.href = '/home' 
+        }
+    }catch(e){
+        toast({
+            title: 'Une erreur est arrivé',
+            variant: 'destructive'
+        })
+        return;
+    }
+}
 </script>
 <template>
-    <Dialog>
         <div class="flex flex-col mx-6">
             <DataTable
                 v-if="users.length > 0"
@@ -107,12 +156,4 @@ const fetchCollections = async () => {
                 @emit-previous-page="onPreviousPage"
             ></DataTable>
         </div>
-
-        <DialogContent>
-            <CollectionForm
-                :collection="form.collection"
-                @reload-collection="reloadCollection"
-            ></CollectionForm>
-        </DialogContent>
-    </Dialog>
 </template>
