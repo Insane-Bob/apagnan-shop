@@ -92,6 +92,18 @@ export class UserController extends Controller {
         })
     }
 
+    async askLoginAs() {
+        his.can(UserPolicy.index)
+        this.user_resource
+        const accessLink = await AccessLinkServices.createAccessLink(
+            this.user_resource.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(5),
+            1,
+        )
+        this.res.json({ a: accessLink.identifier })
+    }
+
     async activateAccount() {
         const user = this.req.getUser()
         NotFoundException.abortIf(user.isActive, 'Account already activated')

@@ -3,8 +3,13 @@ import { apiClient } from '@/lib/apiClient';
 import DataTable from '@components/tables/DataTable.vue';
 import { Page, TableActions, TableColumns, User } from '@types';
 import { onMounted, reactive } from 'vue';
+import { useToast } from '@/components/ui/toast';
+import { useUserStore } from '@/stores/user';
+
 
 const users = reactive<User[]>([])
+const user = useUserStore()
+const {toast} = useToast()
 
 const page = reactive<Page>({
     current: 1,
@@ -63,7 +68,7 @@ const actions: TableActions[] = [
         icon: 'glasses-outline',
         class: 'text-blue-500',
         action: (row: any) => {
-            console.log('Se connecter en tant que', row)
+            loginAs(row.id)
         },
     },
     {
@@ -96,6 +101,41 @@ const fetchCollections = async () => {
         users.push(u)
     })
     page.total = users.length
+}
+
+const loginAs= async(id: number) => {
+    const response = await apiClient.post('users/ask-login-as/'+id)
+    console.log(response)
+    if(response.status !== 200){
+        toast({
+            title: 'Une erreur est arrivé',
+            variant: 'destructive'
+        })
+        return;
+    }
+    const accessLink = response.data.a
+
+    const loginResponse = await apiClient.get('login/' + accessLink)
+
+    if(loginResponse.data.accessToken && loginResponse.data.refreshToken){
+        const oldAccessToken = localStorage.getItem('accessToken') || ''
+        const oldRefreshToken = localStorage.getItem('refreshToken') || ''
+
+        localStorage.setItem('accessToken', loginResponse.data.accessToken)
+        localStorage.setItem('refreshToken', loginResponse.data.refreshToken)
+
+        localStorage.setItem('oldAccessToken', oldAccessToken)
+        localStorage.setItem('oldRefreshToken', oldRefreshToken)
+
+        const newMe = await apiClient.get('me');
+
+        user.setUser(newMe.data.user)
+        user.setLoggedAs(true)
+
+        window.location.href = '/home' 
+
+    }
+
 }
 </script>
 <template>

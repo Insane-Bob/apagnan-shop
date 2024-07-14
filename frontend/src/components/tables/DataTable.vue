@@ -163,7 +163,7 @@ function onExecMultiAction(callBack: (item: any) => void){
                         <div class="flex justify-end space-x-2 ">
                             <div v-for="action in props.actions" :key="action.label" :class="{'hidden': action.condition? !action.condition(row): false}" >
                                 <div v-if="!action.trigger || action.trigger === false" class="relative group transition delay-1000"   @click="action.action(row)">
-                                    <ion-icon  @click="action.action(row)" class="cursor-pointer hover:scale-105 duration-200 text-xl"  :class="action.class"  :name="action.icon"></ion-icon>
+                                    <ion-icon  class="cursor-pointer hover:scale-105 duration-200 text-xl"  :class="action.class"  :name="action.icon"></ion-icon>
                                     <span class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none">{{ action.label }}</span>
                                 </div>
                                 <DialogTrigger v-else class="relative group transition delay-1000">

@@ -104,7 +104,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-12 md:mt-0 text-white font-bold text-4xl md:text-[160px] opacity-75"
+                class="main-title uppercase mt-12 md:mt-5 lg:mt-0  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>

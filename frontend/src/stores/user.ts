@@ -8,8 +8,9 @@ export const useUserStore = defineStore('user', {
         return {
             user: null as User | null,
             cart: [] as BasketItem[],
-            newItem: false as Boolean,
+            newItem: false as boolean,
             addresses: [] as any,
+            loggedAs: false as boolean,
         }
     },
     actions: {
@@ -49,6 +50,9 @@ export const useUserStore = defineStore('user', {
         setAddresses(adresses: Address[]) {
             this.addresses = adresses
         },
+        setLoggedAs(value: boolean) {
+            this.loggedAs = value
+        },
     },
     getters: {
         isAuthenticated: (state: any): boolean => !!state.user,
@@ -63,5 +67,6 @@ export const useUserStore = defineStore('user', {
         getCustomerId: (state: any): number => state.user?.Customer.id,
         identity: (state: any) =>
             state.user?.firstName + ' ' + state.user?.lastName,
+        isLoggedAs: (state: any) => state.loggedAs,
     },
 })
