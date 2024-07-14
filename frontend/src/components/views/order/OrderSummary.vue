@@ -61,19 +61,15 @@ onBeforeMount(() => {
     }
 })
 
-window.addEventListener(
-    'message',
-    (event) => {
-        if (event.origin !== import.meta.env.VITE_FRONT_END_URL) return
-        event.data === 'success'
-            ? router.push('/order/success')
-            : router.push('/order/fail')
-    },
-    false,
-)
+let channel = new BroadcastChannel('payment')
+channel.onmessage = (event) => {
+    event.data === 'success'
+        ? router.push('/order/success')
+        : router.push('/order/fail')
+}
 
 onUnmounted(() => {
-    window.removeEventListener('message', () => {})
+    channel.close()
 })
 
 const onSelectAddressOption = () => {
