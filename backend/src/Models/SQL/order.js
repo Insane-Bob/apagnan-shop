@@ -1,12 +1,9 @@
 'use strict'
 
+import { Model } from 'sequelize'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
-import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
-import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
-import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
-import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
 
-export class Order extends DenormalizableModel {
+export class Order extends Model {
     static associate(models) {
         models.Order.belongsTo(models.Customer, {
             foreignKey: 'customerId',
@@ -26,6 +23,10 @@ export class Order extends DenormalizableModel {
             foreignKey: 'billingAddressId',
             as: 'billing_address',
         })
+        models.Order.hasMany(models.OrderStatus, {
+            foreignKey: 'orderId',
+            as: 'statusHistory',
+        })
     }
 
     static addScopes(models) {
@@ -33,6 +34,10 @@ export class Order extends DenormalizableModel {
             'defaultScope',
             {
                 include: [
+                    {
+                        model: models.OrderStatus,
+                        as: 'statusHistory',
+                    },
                     {
                         model: models.OrderDetail,
                     },
@@ -58,6 +63,17 @@ export class Order extends DenormalizableModel {
         )
     }
 
+    static hooks(models) {
+        models.Order.addHook('afterCreate', async (order) => {
+            let status = await models.OrderStatus.create({
+                orderId: order.id,
+                status: OrderStatus.PENDING,
+                createdAt: new Date(),
+            })
+            order.statusHistory = [status]
+        })
+    }
+
     getTotal() {
         if (this.OrderDetails) {
             return this.OrderDetails.reduce((acc, orderDetail) => {
@@ -69,12 +85,6 @@ export class Order extends DenormalizableModel {
     }
 }
 function model(sequelize, DataTypes) {
-    Order.registerDenormalizerTask(
-        new OrderDenormalizationTask()
-            .when([DenormalizerTask.EVENT.UPDATED])
-            .on(['status']),
-    )
-
     Order.init(
         {
             customerId: DataTypes.INTEGER,
@@ -85,11 +95,6 @@ function model(sequelize, DataTypes) {
             },
             shippingAddressId: DataTypes.INTEGER,
             billingAddressId: DataTypes.INTEGER,
-            status: {
-                type: DataTypes.STRING(50),
-                allowNull: false,
-                defaultValue: OrderStatus.PENDING,
-            },
             updatedAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
@@ -98,6 +103,19 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.VIRTUAL,
                 get() {
                     return this.getTotal()
+                },
+            },
+            status: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (!this.statusHistory) return null
+                    return (
+                        this.statusHistory.reduce((acc, status) => {
+                            return status.createdAt > acc.createdAt
+                                ? status
+                                : acc
+                        }, this.statusHistory[0])?.status ?? null
+                    )
                 },
             },
         },

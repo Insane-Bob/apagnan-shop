@@ -4,4 +4,8 @@ export class OrderStatus {
     static DELIVERED = 'delivered'
     static REFUNDED = 'refunded'
     static CANCELLED = 'cancelled'
+
+    static isValid(status) {
+        return Object.values(OrderStatus).includes(status)
+    }
 }

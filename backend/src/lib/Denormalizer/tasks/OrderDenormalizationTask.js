@@ -29,7 +29,10 @@ export class OrderDenormalizationTask extends DenormalizerTask {
                 attributes: ['id', 'status', 'createdAt'],
                 include: [
                     {
-                        association: 'OrderDetails', // Utilisez l'association définie dans votre modèle Order
+                        association: 'statusHistory',
+                    },
+                    {
+                        model: Database.getInstance().models.OrderDetail,
                         attributes: ['unitPrice', 'quantity'],
                         include: {
                             model: Database.getInstance().models.Product,
