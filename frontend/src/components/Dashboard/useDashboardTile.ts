@@ -3,7 +3,6 @@ import { apiClient } from '../../lib/apiClient.ts'
 
 export function useDashboardTile(props) {
     const dateRange = computed(() => {
-        console.log(props)
         return props.dateRange
     })
 

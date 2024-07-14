@@ -11,8 +11,17 @@ export class ProductController extends Controller {
             ? await this.collection.getProducts()
             : await Database.getInstance().models.Product.findAll()
         await ProductServices.loadRemainingStock(products)
+
+        const images = await Database.getInstance().models.Upload.findAll({
+            where: {
+                modelId: products.map((product) => product.id),
+                modelName: 'product',
+            },
+        })
+
         this.res.status(200).json({
             products,
+            images,
         })
     }
 
