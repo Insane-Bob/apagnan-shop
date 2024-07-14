@@ -40,6 +40,7 @@ services:
         condition: service_completed_successfully
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
+      - MONGO_URI=mongodb://mongodb/mongo
   db:
     image: postgres:12
     ports:

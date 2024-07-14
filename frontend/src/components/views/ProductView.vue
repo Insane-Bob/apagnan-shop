@@ -3,6 +3,7 @@ import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent
 import ProductPictureCarousel from '@/components/product/ProductPictureCarousel.vue'
 import ReviewNoteComponent from '@/components/product/ReviewNoteComponent.vue'
 import Button from '@/components/ui/button/Button.vue'
+import Input from '@/components/ui/input/Input.vue'
 import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
 import FeaturedProductsCarousel from '@/components/product/FeaturedProductsCarousel.vue'
 import { ref, onMounted } from 'vue'
@@ -22,6 +23,8 @@ const productSlug = route.params.pslug
 const ProductUrl = API_BASE_URL + '/products/' + productSlug
 const CollectionUrl = API_BASE_URL + '/collections/' + collectionSlug
 
+
+const quantitySelected = ref(1)
 const product = ref<Product | null>(null)
 const specifics = ref([])
 const reviews = ref({ note: 0, nbReviews: 0 })
@@ -76,8 +79,8 @@ const fetchProductSpecifics = async () => {
 
 const addToCart = async () => {
     if (user.isAuthenticated && product.value) {
-        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + product.value.id, {quantity: 1} )
-        user.setCart(reponse.data.items)
+        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + product.value.id, {quantity: quantitySelected.value} )
+        user.addItem(reponse.data.items)
         toast({
             title: 'Le produit a été ajouté à votre panier',
         })
@@ -122,9 +125,15 @@ onMounted(() => {
                         </p>
                         <p>{{ product?.description }}</p>
                     </div>
-                    <div class="flex gap-4">
-                        <Button>Acheter maintenant</Button>
-                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()">Ajouter au panier</Button>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex items-center gap-x-2 max-w-72">
+                            <p>Quantité</p>
+                            <Input type="number" class="border-2 border-black rounded-sm max-w-24" placeholder="Quantité" v-model="quantitySelected" />
+                        </div>
+                        <Button v-if="user.isAuthenticated" variant="outline" @click="addToCart()" class="flex items-center gap-x-2">
+                            Ajouter au panier
+                            <ion-icon name="cart-outline" class="text-lg font-semibold"></ion-icon>
+                        </Button>
                     </div>
                     <div class="text-slate-400 flex items-center gap-2">
                         En savoir plus

@@ -14,5 +14,6 @@ export interface Product {
     collectionId: number
     published: boolean
     stock: number
+    images: { path: string }[]
     reviews: Review[]
 }

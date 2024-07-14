@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Validator } from './Validator.js'
-import { USER_ROLES } from '../Models/user.js'
+import { USER_ROLES } from '../Models/SQL/user.js'
 
 export class UserUpdateValidator extends Validator {
     constructor(schema = UserUpdateValidator.update()) {

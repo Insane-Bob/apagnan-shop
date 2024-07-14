@@ -4,11 +4,20 @@
 module.exports = {
     async up(queryInterface, Sequelize) {
         //add addressId to orders
-        await queryInterface.addColumn('Orders', 'addressId', {
+        await queryInterface.addColumn('Orders', 'billingAddressId', {
             type: Sequelize.INTEGER,
             allowNull: false,
             references: {
-                model: 'BillingAddresses',
+                model: 'Addresses',
+                key: 'id',
+            },
+        })
+
+        await queryInterface.addColumn('Orders', 'shippingAddressId', {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Addresses',
                 key: 'id',
             },
         })
@@ -22,7 +31,8 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        await queryInterface.removeColumn('Orders', 'addressId')
+        await queryInterface.removeColumn('Orders', 'shippingAddressId')
+        await queryInterface.removeColumn('Orders', 'billingAddressId')
         await queryInterface.removeColumn('Orders', 'status')
     },
 }

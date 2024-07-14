@@ -1,10 +1,11 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
-import AdminCustomers from '@/components/views/admin/AdminCustomers.vue'
-import AdminCollections from '@/components/views/admin/collections/AdminCollections.vue'
-import AdminUsers from '@/components/views/admin/users/AdminUsers.vue'
+import AdminCustomers from '@components/views/admin/AdminCustomers.vue'
+import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
+import AdminUsers from '@components/views/admin/users/AdminUsers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import { apiClient } from '@/lib/apiClient'
-import { useToast } from '@/components/ui/toast/use-toast'
+import { useToast } from '@components/ui/toast/use-toast'
+import Dashboard from '@components/views/admin/Dashboard.vue'
 
 export const adminRoutes = [
     {
@@ -44,7 +45,7 @@ export const adminRoutes = [
         children: [
             {
                 path: 'dashboard',
-                component: WorkInProgress,
+                component: Dashboard,
                 name: 'Dashboard',
                 meta: { label: 'Dashboard', icon: 'home' },
             },

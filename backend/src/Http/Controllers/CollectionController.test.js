@@ -2,7 +2,7 @@ import request from 'supertest'
 import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 
 let app = null
 describe('UserController test routes', () => {

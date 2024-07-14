@@ -2,7 +2,8 @@ import Stripe from 'stripe'
 import { Database } from '../Models/index.js'
 import { OrderServices } from './OrderServices.js'
 import { URLUtils } from '../utils/url.js'
-import { PaymentStatus } from '../Models/payment.js'
+import { AccessLinkServices } from './AccessLinkServices.js'
+import { PaymentStatus } from '../Models/SQL/payment.js'
 import { BadRequestException } from '../Exceptions/HTTPException.js'
 import { OrderStatus } from '../Enums/OrderStatus.js'
 const stripe = new Stripe(process.env.STRIPE_KEY)
@@ -17,18 +18,25 @@ export class PaymentServices {
      * @param {Order} order
      * @returns {Promise<void>}
      */
-    static async createCheckoutSession(order) {
+    static async createCheckoutSession(order, user) {
         const orderService = new OrderServices(order)
         const lineItems = await orderService.getStripeLineItems()
         const customer = await orderService.getCustomer()
+
+        const accessLink = await AccessLinkServices.createAccessLink(
+            user.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(60),
+            100, // Replace to 1
+        )
 
         const session = await stripe.checkout.sessions.create({
             customer: customer.stripeId,
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/success?orderId=${order.id}`,
-            cancel_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/cancel?orderId=${order.id}`,
+            success_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/success?orderId=${order.id}&a=${accessLink.identifier}`,
+            cancel_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/cancel?orderId=${order.id}&a=${accessLink.identifier}`,
         })
 
         await PaymentServices.createPayment(order, {
@@ -72,9 +80,8 @@ export class PaymentServices {
     static async createRefund(refundRequest) {
         BadRequestException.abortIf(refundRequest.approved, 'Already approved')
 
-        const transaction = await Database.getInstance().transaction()
+        const transaction = await Database.transaction()
         try {
-            await transaction.commit()
             await refundRequest.update(
                 {
                     approved: true,
@@ -118,10 +125,10 @@ export class PaymentServices {
                     transaction,
                 },
             )
-
+            await transaction.commit()
             return refund
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }

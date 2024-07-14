@@ -26,7 +26,6 @@ export class ProductBasketCleanerJob {
 
         const basketsIds = []
         for (const item of basketsItems) {
-            console.log(item)
             try {
                 await StockService.addStock(
                     item.stockTransaction.productId,

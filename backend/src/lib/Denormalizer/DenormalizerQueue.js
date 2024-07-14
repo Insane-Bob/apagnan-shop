@@ -17,7 +17,8 @@ export class DenormalizerQueue {
      */
     async enqueue(task) {
         this.queue.push(task)
-        await this.process()
+        this.process().then()
+        return true
     }
 
     async process() {
@@ -29,5 +30,20 @@ export class DenormalizerQueue {
             await task.execute()
         }
         this.started = false
+    }
+
+    waitForEmptyQueue() {
+        let emptyTry = 0
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (this.queue.length === 0) {
+                    emptyTry++
+                    if (emptyTry > 1) {
+                        clearInterval(interval)
+                        resolve()
+                    }
+                }
+            }, 100)
+        })
     }
 }

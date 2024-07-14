@@ -11,10 +11,11 @@ import {
     ForbiddenException,
     NotFoundException,
 } from '../../Exceptions/HTTPException.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
+import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -48,17 +49,30 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.store, payload.customerId)
 
         const billingAddress =
-            await Database.getInstance().models.BillingAddress.findOne({
+            await Database.getInstance().models.Address.findOne({
                 where: {
-                    id: payload.addressId,
+                    id: payload.billingAddressId,
                     customerId: payload.customerId,
                 },
             })
         NotFoundException.abortIf(!billingAddress, 'Billing address not found')
 
+        const shippingAddress =
+            await Database.getInstance().models.Address.findOne({
+                where: {
+                    id: payload.shippingAddressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(
+            !shippingAddress,
+            'Shipping address not found',
+        )
+
         const orderPayload = {
             customerId: payload.customerId,
-            addressId: payload.addressId,
+            shippingAddressId: payload.shippingAddressId,
+            billingAddressId: payload.billingAddressId,
         }
 
         const transaction = await Database.transaction()
@@ -101,9 +115,11 @@ export class OrderController extends Controller {
             await transaction.commit()
             order.OrderDetails = await order.getOrderDetails()
 
+            await new OrderDenormalizationTask().execute(order)
+
             this.res.status(201).json(order)
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }
@@ -139,7 +155,10 @@ export class OrderController extends Controller {
 
     async pay() {
         this.can(OrderPolicy.show, this.order)
-        const session = await PaymentServices.createCheckoutSession(this.order)
+        const session = await PaymentServices.createCheckoutSession(
+            this.order,
+            this.req.getUser(),
+        )
         this.res.json(session)
     }
 

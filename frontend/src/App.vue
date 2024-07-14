@@ -6,26 +6,47 @@ import { onMounted, ref } from 'vue';
 import { useUserStore } from '@store/user'
 
 const user = useUserStore()
-const loading = ref(false)
+const loaded = ref(false)
 
 onMounted( async () => {
 
-  if(localStorage.getItem('accessToken')) {
-    const response = await apiClient.get('/me')
-    user.setUser(response.data.user)
+  try{
+    if(localStorage.getItem('accessToken')) {
+      const response = await apiClient.get('/me')
 
-    const response2 = await apiClient.get('/users/' + user.getId + '/basket')
-    user.setCart(response2.data)
-    loading.value = true
-  }else{
-    loading.value = true
+    
+      if(response.status === 401){
+
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        user.setUser(null)
+        loaded.value = true
+      
+      }else{
+        user.setUser(response.data.user)
+
+        const cartResponse = await apiClient.get('/users/' + user.getId + '/basket')
+        user.setCart(cartResponse.data)
+
+        const addressesResponses = await apiClient.get('/users/' + user.getId + '/addresses')
+        user.setAddresses(addressesResponses.data)
+        loaded.value = true
+      }
+    }
+  }catch(e){
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    user.setUser(null)
+    loaded.value = true
+  }finally{
+    loaded.value = true
   }
 });
 
 </script>
 
 <template>
-  <RouterView v-if="loading"></RouterView>
+  <RouterView v-if="loaded"></RouterView>
   <Toaster />
 </template>
 
