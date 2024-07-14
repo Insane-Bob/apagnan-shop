@@ -128,6 +128,7 @@ export function mockDatabase(databaseClass) {
             Collection: getModelMock(),
             Upload: getModelMock(),
             Address: getModelMock(),
+            AccessLink: getModelMock(),
         },
     }))
 }
