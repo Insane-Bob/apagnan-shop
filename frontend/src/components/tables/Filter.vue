@@ -19,8 +19,6 @@ const isOpen = ref(false)
 const filterSelected = reactive([])
 const modelValue = defineModel()
 
-const v = computed(() => modelValue.value)
-
 //define TYPE
 type FilterSelected = {
     value: string
@@ -41,13 +39,6 @@ function handleFilterSelected(value: FilterSelected) {
         )
     }
 }
-
-watch(v, (value) => {
-    console.log(value.length == 0)
-    // if (value.length === 0) {
-    //     filterSelected.splice(0, filterSelected.length)
-    // }
-})
 
 provide('handleFilterSelected', handleFilterSelected)
 provide('filterSelected', filterSelected)
