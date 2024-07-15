@@ -1,0 +1,42 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name : install and decode base 64 ssh private key
+        run: |
+          echo ${{ secrets.SSH_PRIVATE_KEY }} | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ secrets.SERVER_DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        env:
+          SERVER_DEPLOY_HOST: ${{ secrets.SERVER_DEPLOY_HOST }}
+          SERVER_DEPLOY_USER: ${{ secrets.SERVER_DEPLOY_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST << 'EOF'
+            cd /root/apagnan-shop
+            docker compose down
+            git pull
+            docker compose up -d
+            docker compose exec backend npx sequelize-cli db:migrate
+            docker compose restart backend
+            docker compose stop frontend
+            cd frontend
+            npm run build
+          EOF
