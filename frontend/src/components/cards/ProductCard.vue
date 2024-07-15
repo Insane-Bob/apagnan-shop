@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
-import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
+import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
 
 const props = defineProps({
     name: String,
