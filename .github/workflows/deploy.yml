@@ -34,7 +34,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment: apagain
+    environment: apagnain-shop
 
     steps:
       - name: Checkout repository
