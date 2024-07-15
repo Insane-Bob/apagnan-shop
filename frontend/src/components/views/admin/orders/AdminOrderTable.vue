@@ -75,7 +75,6 @@ const customers = computed(() => {
             label: `${row.Customer.User.firstName} ${row.Customer.User.lastName}`,
         }
     })
-    console.log(customers)
     return customers.filter(
         (v, i, a) => a.findIndex((t) => t.value === v.value) === i,
     )
