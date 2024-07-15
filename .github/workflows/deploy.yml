@@ -4,8 +4,33 @@ on:
   push:
     branches:
       - main
+      - 99-créer-une-action-de-déploiement
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -24,11 +49,19 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa ${{ secrets.SERVER_DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
       - name: Deploy to server
         env:
           SERVER_DEPLOY_HOST: ${{ secrets.SERVER_DEPLOY_HOST }}
           SERVER_DEPLOY_USER: ${{ secrets.SERVER_DEPLOY_USER }}
         run: |
+          scp -r frontend/dist $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST:/root/apagnan-shop/frontend/
+        
           ssh -o StrictHostKeyChecking=no $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST << 'EOF'
             cd /root/apagnan-shop
             docker compose down
@@ -37,6 +70,4 @@ jobs:
             docker compose exec backend npx sequelize-cli db:migrate
             docker compose restart backend
             docker compose stop frontend
-            cd frontend
-            npm run build
           EOF
