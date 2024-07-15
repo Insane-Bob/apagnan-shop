@@ -1,4 +1,24 @@
 services:
+  nginx:
+    build:
+        context: ./docker
+        dockerfile: ./nginx.Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+      db:
+        condition: service_started
+      mongodb:
+        condition: service_started
+    networks:
+      - app-network
+
   npm-backend:
     image: node:20
     volumes:
@@ -19,21 +39,22 @@ services:
     build:
         context: .
         dockerfile: ./docker/frontend.Dockerfile
-    ports:
-      - "5173:5173"
     volumes:
       - ./frontend:/app/frontend
+    ports:
+      - "5173:5173"
     depends_on:
       backend:
         condition: service_started
       npm-frontend:
         condition: service_completed_successfully
+    networks:
+      - app-network
   backend:
     build:
         context: .
         dockerfile: ./docker/backend.Dockerfile
     ports:
-      - "80:3000"
       - "9229:9229"
     volumes:
       - ./backend:/app/backend
@@ -47,6 +68,8 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - MONGO_URI=mongodb://mongodb/mongo
+    networks:
+      - app-network
   db:
     image: postgres:12
     ports:
@@ -60,6 +83,8 @@ services:
     depends_on:
       npm-frontend:
         condition: service_completed_successfully
+    networks:
+      - app-network
   mongodb:
     image: mongo:4
     ports:
@@ -69,6 +94,11 @@ services:
     depends_on:
       npm-frontend:
         condition: service_completed_successfully
+    networks:
+      - app-network
 volumes:
     db:
     mongodb:
+networks:
+  app-network:
+    driver: bridge
