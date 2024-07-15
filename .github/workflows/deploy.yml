@@ -57,13 +57,10 @@ jobs:
           path: frontend/dist
 
       - name: Deploy to server
-        env:
-          SERVER_DEPLOY_HOST: ${{ secrets.SERVER_DEPLOY_HOST }}
-          SERVER_DEPLOY_USER: ${{ secrets.SERVER_DEPLOY_USER }}
         run: |
-          scp -r frontend/dist $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST:/root/apagnan-shop/frontend/
+          scp -r frontend/dist root@64.226.64.70:/root/apagnan-shop/frontend/
         
-          ssh -o StrictHostKeyChecking=no $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no root@64.226.64.70 << 'EOF'
             cd /root/apagnan-shop
             docker compose down
             git pull
