@@ -11,6 +11,7 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { Database } from '../../Models/index.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { StockService } from '../../Services/StockService.js'
+import { OrderStatus } from '../../Enums/OrderStatus.js'
 
 export class PaymentController extends Controller {
     /** @type {Order} */
@@ -85,6 +86,8 @@ export class PaymentController extends Controller {
             status: PaymentStatus.FAILED,
             paymentIntentId: session.payment_intent,
         })
+
+        await this.orderService.setStatus(OrderStatus.PAYMENT_FAILED)
 
         await NotificationsServices.notifyFailedPaymentCustomer(
             this.order.Customer.User,
@@ -171,6 +174,11 @@ export class PaymentController extends Controller {
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
 
+        let order = await payment.getOrder()
+        let service = new OrderServices(order)
+        await service.setStatus(OrderStatus.PAID, undefined, false)
+        await service.setStatus(OrderStatus.PROCESSING)
+
         await PaymentServices.updatePayment(checkoutSession.id, {
             paymentIntentId: paymentIntent.id,
             status: PaymentStatus.SUCCEEDED,
@@ -191,6 +199,10 @@ export class PaymentController extends Controller {
 
         if (!payment) return
         if (payment.status === PaymentStatus.FAILED) return
+
+        let order = await payment.getOrder()
+        let service = new OrderServices(order)
+        await service.setStatus(OrderStatus.PAYMENT_FAILED)
 
         await PaymentServices.updatePayment(checkoutSession.id, {
             paymentIntentId: paymentIntent.id,

@@ -5,6 +5,12 @@ import OrderSummary from '@/components/views/order/OrderSummary.vue'
 import OrderSuccess from '@/components/views/order/OrderSuccess.vue'
 import OrderFail from '@/components/views/order/OrderFail.vue'
 
+export const orderRoutesName = {
+    SUMMARY: 'OrderSummary',
+    SUCCESS: 'OrderSuccess',
+    FAIL: 'OrderFail',
+}
+
 export const orderRoutes = [
     {
         path: '/order',
@@ -26,9 +32,17 @@ export const orderRoutes = [
         },
 
         children: [
-            { path: 'summary', component: OrderSummary },
-            { path: 'success', component: OrderSuccess },
-            { path: 'fail', component: OrderFail },
+            {
+                path: 'summary',
+                component: OrderSummary,
+                name: orderRoutesName.SUMMARY,
+            },
+            {
+                path: 'success',
+                component: OrderSuccess,
+                name: orderRoutesName.SUCCESS,
+            },
+            { path: 'fail', component: OrderFail, name: orderRoutesName.FAIL },
         ],
     },
 ]
