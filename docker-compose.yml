@@ -1,10 +1,20 @@
 services:
+  npm-backend:
+    image: node:20
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend
+    command: [ "npm", "install" ]
+
   npm-frontend:
     image: node:20
     volumes:
       - ./frontend:/app/frontend
     working_dir: /app/frontend
     command: ["npm", "install"]
+    depends_on:
+      npm-backend:
+        condition: service_completed_successfully
   frontend:
     build:
         context: .
@@ -18,12 +28,6 @@ services:
         condition: service_started
       npm-frontend:
         condition: service_completed_successfully
-  npm-backend:
-    image: node:20
-    volumes:
-      - ./backend:/app/backend
-    working_dir: /app/backend
-    command: ["npm", "install"]
   backend:
     build:
         context: .
@@ -35,6 +39,8 @@ services:
       - ./backend:/app/backend
     depends_on:
       db:
+        condition: service_started
+      mongodb:
         condition: service_started
       npm-backend:
         condition: service_completed_successfully
@@ -51,12 +57,18 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+    depends_on:
+      npm-frontend:
+        condition: service_completed_successfully
   mongodb:
     image: mongo:4
     ports:
       - "27017:27017"
     volumes:
         - mongodb:/data/db
+    depends_on:
+      npm-frontend:
+        condition: service_completed_successfully
 volumes:
     db:
     mongodb:
