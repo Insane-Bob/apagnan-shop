@@ -8,14 +8,28 @@ import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { USER_ROLES } from '../../Models/SQL/user.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
         this.can(UserPolicy.index)
-        const users = await Database.getInstance().models.User.findAll()
+        let search = new SearchRequest(
+            this.req,
+            ['role'],
+            ['email', 'firstName', 'lastName'],
+        )
+
+        const data = await Database.getInstance().models.User.findAll(
+            search.query,
+        )
+        const total = await Database.getInstance().models.User.count(
+            search.queryWithoutPagination,
+        )
+
         this.res.json({
-            users,
+            data,
+            total,
         })
     }
     async show() {
