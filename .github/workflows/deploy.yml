@@ -40,6 +40,7 @@ jobs:
 
       - name : install and decode base 64 ssh private key
         run: |
+          mkdir -p ~/.ssh
           echo ${{ secrets.SSH_PRIVATE_KEY }} | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa ${{ secrets.SERVER_DEPLOY_HOST }} >> ~/.ssh/known_hosts
