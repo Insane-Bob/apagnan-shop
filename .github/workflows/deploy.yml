@@ -22,11 +22,12 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          ls
           npm install
 
       - name: Build project
-        run: npm run build
+        run: |
+          cd frontend
+          npm run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
