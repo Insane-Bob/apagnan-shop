@@ -70,7 +70,7 @@ export class OrderServices {
         return Database.getInstance().models.Order.findByPk(orderId)
     }
 
-    async setStatus(status, ...args) {
+    async setStatus(status, options, denormalize = true) {
         if (!OrderStatus.isValid(status)) return
         let s = await Database.getInstance().models.OrderStatus.create(
             {
@@ -78,10 +78,11 @@ export class OrderServices {
                 status,
                 orderId: this.order.id,
             },
-            ...args,
+            options,
         )
         this.order.statusHistory.push(s)
-        await new OrderDenormalizationTask().execute(this.order)
+        if (denormalize)
+            await new OrderDenormalizationTask().execute(this.order)
         return s
     }
 }

@@ -18,6 +18,7 @@ import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { OrderServices } from '../../Services/OrderServices.js'
+import { PaymentStatus } from '../../Models/SQL/payment.js'
 import Sequelize, { Op } from 'sequelize'
 
 export class OrderController extends Controller {
@@ -182,6 +183,14 @@ export class OrderController extends Controller {
 
     async pay() {
         this.can(OrderPolicy.show, this.order)
+        let service = new OrderServices(this.order)
+        let payment = await service.getLastPayment()
+        if (payment)
+            BadRequestException.abortIf(
+                payment.status === PaymentStatus.SUCCEEDED,
+                'Payment already done',
+            )
+
         const session = await PaymentServices.createCheckoutSession(
             this.order,
             this.req.getUser(),
@@ -209,5 +218,28 @@ export class OrderController extends Controller {
         await NotificationsServices.notifyNewRefundRequest(refundRequest)
         await NotificationsServices.notifyACKRefund(customer, refundRequest)
         this.res.sendStatus(201)
+    }
+
+    async getProducts() {
+        this.can(OrderPolicy.show, this.order)
+
+        //get the products of the order
+        const orderDetails = await this.order.OrderDetails
+        const products = await Promise.all(
+            orderDetails.map(async (od) => {
+                return {
+                    ...od.toJSON(),
+                    product:
+                        await Database.getInstance().models.Product.findByPk(
+                            od.productId,
+                        ),
+                }
+            }),
+        )
+
+        return this.res.json({
+            data: products,
+            total: products.length,
+        })
     }
 }

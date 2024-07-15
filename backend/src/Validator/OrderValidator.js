@@ -24,9 +24,11 @@ export class OrderValidator extends Validator {
         return z.object({
             status: z.enum([
                 OrderStatus.PENDING,
+                OrderStatus.PAID,
+                OrderStatus.PROCESSING,
+                OrderStatus.SHIPPED,
                 OrderStatus.DELIVERED,
                 OrderStatus.REFUNDED,
-                OrderStatus.SHIPPED,
                 OrderStatus.CANCELLED,
             ]),
         })
