@@ -118,4 +118,14 @@ describe('UserController test routes', () => {
         loginAsAdmin()
         await testRequest('/api/users/2', 'delete', 200)
     })
+
+    test("POST /ask-login-as/:user_resource - user can't access ", async () => {
+        loginAsUser()
+        await testRequest('/api/users/ask-login-as/1', 'post', 403)
+    })
+
+    test('POST /ask-login-as/:user_resource - admin can access ', async () => {
+        loginAsAdmin()
+        await testRequest('/api/users/ask-login-as/1', 'post', 200)
+    })
 })

@@ -1,5 +1,9 @@
 import { Controller } from '../../Core/Controller.js'
-import { BadRequestException } from '../../Exceptions/HTTPException.js'
+import {
+    BadRequestException,
+    HTTPException,
+    NotFoundException,
+} from '../../Exceptions/HTTPException.js'
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
@@ -7,13 +11,14 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { Database } from '../../Models/index.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { StockService } from '../../Services/StockService.js'
+import { OrderStatus } from '../../Enums/OrderStatus.js'
 
 export class PaymentController extends Controller {
     /** @type {Order} */
     order
     /** @type {OrderServices} */
     orderService
-    async beforeEach() {
+    async fetchOrder() {
         const orderId = this.req.query.get('orderId', null)
         BadRequestException.abortIf(!orderId, 'Invalid order id')
 
@@ -23,38 +28,15 @@ export class PaymentController extends Controller {
         this.orderService = new OrderServices(this.order)
     }
 
+    /**
+     * Sur le success on ne fait que retirer les produits du panier et mettre à jour le stock
+     * @returns {Promise<void>}
+     */
     async success() {
         this.can()
+        await this.fetchOrder()
         const payment = await this.orderService.getLastPayment()
         if (!payment) return this.cancel()
-
-        const session = await PaymentServices.retrieveSession(
-            payment.sessionId,
-            {
-                expand: ['payment_intent'],
-            },
-        )
-
-        const validSuccessStatus = ['processing', 'succeeded']
-        const stripePayment = session.payment_intent
-
-        if (
-            !stripePayment ||
-            !validSuccessStatus.includes(stripePayment.status)
-        )
-            return this.cancel()
-
-        if (payment.status === PaymentStatus.SUCCEEDED)
-            return this.res.json({
-                message: 'Payment already succeeded',
-            })
-
-        await PaymentServices.updatePayment(session.id, {
-            status: PaymentStatus.SUCCEEDED,
-            paymentIntentId: session.payment_intent.id,
-        })
-
-        //@TODO : send to the transport supplier
 
         let orderDetails = this.order.OrderDetails.map((orderDetail) => ({
             productId: orderDetail.productId,
@@ -78,11 +60,6 @@ export class PaymentController extends Controller {
                     transaction,
                 )
 
-                await NotificationsServices.notifySuccessPaymentCustomer(
-                    this.order.Customer.User,
-                    this.order,
-                )
-
                 await transaction.commit()
 
                 this.res.redirect(process.env.FRONT_END_URL + '/order/success')
@@ -94,8 +71,13 @@ export class PaymentController extends Controller {
         }
     }
 
+    /**
+     * Si l'utilisateur annule la checkout session on annule le paiement mais on ne touche pas au panier
+     * @returns {Promise<void>}
+     */
     async cancel() {
         this.can()
+        await this.fetchOrder()
         const payment = await this.orderService.getLastPayment()
         BadRequestException.abortIf(!payment, 'Invalid payment')
 
@@ -105,12 +87,131 @@ export class PaymentController extends Controller {
             paymentIntentId: session.payment_intent,
         })
 
+        await this.orderService.setStatus(OrderStatus.PAYMENT_FAILED)
+
         await NotificationsServices.notifyFailedPaymentCustomer(
             this.order.Customer.User,
         )
 
         this.res.json({
             message: 'Payment failed',
-        }) //@TODO : Return a redirect to the cancel page
+        })
+    }
+
+    async webhook() {
+        const sig = this.req.headers.get('stripe-signature')
+        try {
+            let payload = PaymentServices.constructEvent(
+                this.req._req.body,
+                sig,
+            )
+
+            if (payload.object != 'event')
+                return this.res.status(422).json({ message: 'Invalid payload' })
+            const type = payload.type
+            const object = payload.data.object
+
+            if (type === 'payment_intent.succeeded') {
+                await this.onPaymentSucceeded(object)
+            }
+
+            if (type === 'payment_intent.payment_failed') {
+                await this.onPaymentFailed(object)
+            }
+
+            this.res.json({ received: true })
+        } catch (err) {
+            if (err instanceof HTTPException) throw err
+            BadRequestException.abort(err.message)
+        }
+    }
+
+    async webhookFetch(paymentIntent) {
+        const checkoutSessions =
+            await PaymentServices.retrieveCheckoutSessionFromPaymentIntentID(
+                paymentIntent.id,
+            )
+        NotFoundException.abortIf(
+            checkoutSessions.data.length !== 1,
+            'Session not found',
+        )
+        const checkoutSession = checkoutSessions.data[0]
+        const payment = await Database.getInstance().models.Payment.findOne({
+            where: {
+                sessionId: checkoutSession.id,
+            },
+            include: [
+                {
+                    model: Database.getInstance().models.Order,
+                    include: [
+                        {
+                            model: Database.getInstance().models.Customer,
+                            include: [
+                                {
+                                    model: Database.getInstance().models.User,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+
+        NotFoundException.abortIf(!payment, 'Payment not found')
+
+        return {
+            checkoutSession,
+            payment,
+        }
+    }
+
+    async onPaymentSucceeded(paymentIntent) {
+        if (!paymentIntent) return
+
+        const { payment, checkoutSession } =
+            await this.webhookFetch(paymentIntent)
+
+        if (!payment) return
+        if (payment.status === PaymentStatus.SUCCEEDED) return
+
+        let order = await payment.getOrder()
+        let service = new OrderServices(order)
+        await service.setStatus(OrderStatus.PAID, undefined, false)
+        await service.setStatus(OrderStatus.PROCESSING)
+
+        await PaymentServices.updatePayment(checkoutSession.id, {
+            paymentIntentId: paymentIntent.id,
+            status: PaymentStatus.SUCCEEDED,
+        })
+
+        await NotificationsServices.notifySuccessPaymentCustomer(
+            payment.Order.Customer.User,
+            payment.Order,
+        )
+        //@TODO : send to the transport supplier
+    }
+
+    async onPaymentFailed(paymentIntent) {
+        if (!paymentIntent) return
+
+        const { payment, checkoutSession } =
+            await this.webhookFetch(paymentIntent)
+
+        if (!payment) return
+        if (payment.status === PaymentStatus.FAILED) return
+
+        let order = await payment.getOrder()
+        let service = new OrderServices(order)
+        await service.setStatus(OrderStatus.PAYMENT_FAILED)
+
+        await PaymentServices.updatePayment(checkoutSession.id, {
+            paymentIntentId: paymentIntent.id,
+            status: PaymentStatus.FAILED,
+        })
+
+        await NotificationsServices.notifyFailedPaymentCustomer(
+            payment.Order.Customer.User,
+            payment.Order,
+        )
     }
 }
