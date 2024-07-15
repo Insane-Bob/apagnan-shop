@@ -66,8 +66,6 @@ const columns: TableColumns[] = [
     },
 ]
 
-const actions: TableActions[] = []
-
 const customers = computed(() => {
     let customers = rows.value.map((row: any) => {
         return {
@@ -102,7 +100,6 @@ const customers = computed(() => {
             <DataTable
                 :columns="columns"
                 :rows="rows"
-                :actions="actions"
                 :pagination="pagination"
                 :sorting="sorting"
             >
