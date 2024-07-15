@@ -38,6 +38,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install SSH client and ssh-keyscan
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
+          which ssh-keyscan || (sudo apt-get update && sudo apt-get install -y openssh-client)
+
       - name: Install and decode base64 SSH private key
         run: |
           mkdir -p ~/.ssh
