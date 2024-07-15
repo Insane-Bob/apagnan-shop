@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref } from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
-import { Product, Collection } from '@types'
+import DataTable from '@/components/tables/DataTable.vue'
+import SpecificFormItem from '@/components/views/admin/specifics/SpecificForm.vue'
+import { Product, Collection, Specific, Page } from '@types'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { apiClient } from '@/lib/apiClient'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -36,6 +39,58 @@ const product = reactive<{ product: Product }>({
 })
 
 const collections = reactive<Collection[]>([])
+
+const specifics = reactive<Specific[]>([])
+const SpecificForm = reactive<{ specific: Specific | null }>({
+    specific: null,
+})
+
+const page = reactive<Page>({
+    current: 1,
+    total: specifics.length,
+    perPage: 10,
+})
+
+const columns = [
+    {
+        label: 'Nom',
+        key: 'name',
+        sorting: true,
+    },
+    {
+        label: 'Contenu',
+        key: 'content',
+        sorting: true,
+    },
+]
+
+const actions = [
+    {
+        label: 'Modifier',
+        icon: 'pencil-outline',
+        class: 'text-blue-500',
+        trigger: true,
+        action: (specific: Specific) => {
+            SpecificForm.specific = specific
+        },
+    },
+    {
+        label: 'Supprimer',
+        icon: 'trash-outline',
+        class: 'text-red-500',
+        action: (specific: Specific) => {
+            console.log('delete', specific)
+        },
+    },
+]
+
+function onNextPage() {
+    page.current++
+}
+
+function onPreviousPage() {
+    page.current--
+}
 
 interface Image {
     id: number
@@ -89,7 +144,17 @@ onMounted(() => {
         fetchProductData()
     }
     fetchCollections()
+    fetchSpecifics()
 })
+
+const fetchSpecifics = async () => {
+    const response = await apiClient.get(
+        'products/' + slug.value + '/specifics',
+    )
+    const data = await response.data
+    specifics.push(...data.specifics)
+    page.total = specifics.length
+}
 </script>
 
 <template>
@@ -162,23 +227,58 @@ onMounted(() => {
                 class=""
             />
         </div>
-
-        <div class="mt-4">
-            <h3 class="text-lg font-semibold">Images</h3>
-            <div class="flex flex-wrap gap-4 mt-2">
-                <div v-for="image in images" :key="image.id" class="w-32 h-32">
-                    <img
-                        :src="`/src/${image.path}`"
-                        :alt="`Image ${image.id}`"
-                        class="w-full h-full object-cover"
-                    />
-                </div>
-            </div>
-        </div>
         <div class="mt-4">
             <Button type="submit">
                 {{ slug === 'new' ? 'Créer' : 'Modifier' }}
             </Button>
         </div>
     </form>
+
+    <div class="mt-4">
+        <h3 class="text-lg font-semibold">Spécifiques</h3>
+        <Dialog>
+            <div class="flex flex-col mx-6">
+                <DialogTrigger>
+                    <Button
+                        @click="SpecificForm.specific = null"
+                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+                    >
+                        <span>Ajouter une specificité</span>
+                        <ion-icon
+                            class="text-lg"
+                            name="add-circle-outline"
+                        ></ion-icon>
+                    </Button>
+                </DialogTrigger>
+                <DataTable
+                    v-if="specifics.length > 0"
+                    :columns="columns"
+                    :rows="specifics"
+                    :page="page"
+                    :actions="actions"
+                    @emit-next-page="onNextPage"
+                    @emit-previous-page="onPreviousPage"
+                ></DataTable>
+            </div>
+
+            <DialogContent>
+                <SpecificFormItem
+                    :specific="SpecificForm.specific"
+                ></SpecificFormItem>
+            </DialogContent>
+        </Dialog>
+    </div>
+
+    <div class="mt-4">
+        <h3 class="text-lg font-semibold">Images</h3>
+        <div class="flex flex-wrap gap-4 mt-2">
+            <div v-for="image in images" :key="image.id" class="w-32 h-32">
+                <img
+                    :src="`/src/${image.path}`"
+                    :alt="`Image ${image.id}`"
+                    class="w-full h-full object-cover"
+                />
+            </div>
+        </div>
+    </div>
 </template>

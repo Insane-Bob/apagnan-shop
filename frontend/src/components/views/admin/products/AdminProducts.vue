@@ -66,8 +66,8 @@ const actions: TableActions[] = [
     },
     {
         label: 'Supprimer',
-        icon: 'pencil-outline',
-        class: 'text-blue-500',
+        icon: 'trash-outline',
+        class: 'text-red-500',
         action: (product: Product) => {
             deleteProduct(product)
         },
@@ -87,7 +87,8 @@ onMounted(() => {
 })
 
 const deleteProduct = async (product: Product) => {
-    // delete product
+    // TODO : Replace delete with soft delete (update product to set deletedAt)
+    const response = await apiClient.delete('products/' + product.slug)
 }
 
 const fetchProducts = async () => {
