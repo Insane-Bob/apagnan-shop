@@ -153,7 +153,6 @@ async function submit() {
 }
 
 function handleError(error) {
-    console.error('Login failed', error)
     toast({
         title: 'Erreur',
         description: 'La connexion a échoué, veuillez réessayer.',
