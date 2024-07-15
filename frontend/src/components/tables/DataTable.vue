@@ -28,7 +28,10 @@ const props = defineProps<{
     }[]
     page?: Page
     pagination?: object
-    search: {}
+    search?: {
+        key: string
+        value: string
+    }[]
     sorting?: {
         key: string
         direction: string
