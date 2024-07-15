@@ -26,6 +26,34 @@ export class CollectionController extends Controller {
         })
     }
 
+    async getPromotedCollection() {
+        const collection =
+            await Database.getInstance().models.Collection.findOne({
+                where: {
+                    promoted: true,
+                },
+                include: [
+                    {
+                        model: Database.getInstance().models.Product,
+                        include: [
+                            {
+                                model: Database.getInstance().models.Upload,
+                                as: 'images',
+                            },
+                        ],
+                    },
+                    {
+                        model: Database.getInstance().models.Upload,
+                        as: 'image',
+                    },
+                ],
+            })
+
+        this.res.json({
+            collection: collection,
+        })
+    }
+
     async createCollection() {
         this.can(CollectionPolicy.update)
         const collection =

@@ -1,4 +1,5 @@
 import type { Review } from './Review'
+import type { Upload } from './Upload'
 export interface Product {
     id: number
     name: string
@@ -14,6 +15,6 @@ export interface Product {
     collectionId: number
     published: boolean
     stock: number
-    images: { path: string }[]
+    images: Upload[]
     reviews: Review[]
 }

@@ -16,9 +16,9 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { apiClient } from '@/lib/apiClient'
-import type { Product, Review } from '@/types'
+import type { Collection, Product, Review } from '@/types'
 import { useUserStore } from '@store/user'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormGrid from '../Forms/FormGrid.vue'
 
@@ -40,7 +40,7 @@ const product = ref<Product | null>(null)
 const otherProducts= ref<Product[]>([])
 const specifics = ref([])
 const reviews = reactive<Review[]>([])
-const collection = ref({})
+const collection = ref<Collection>({} as Collection)
 const collectionImage = ref('')
 const carouselImages = ref<string[]>([])
 const breadcrumbLinks = ref([
@@ -188,6 +188,23 @@ const sendReview = async () => {
         reviewForm.content = ''
     }
 }
+
+
+watch(() => route.params.pslug, async () => {
+    loading.value = true
+
+    reviews.splice(0, reviews.length)
+    specifics.value = []
+    otherProducts.value = []
+
+
+    await fetchProduct()
+    await fetchCollection()
+    await fetchProductReviews()
+    await fetchProductSpecifics()
+    await fetchCollectionProducts()
+    loading.value = false
+})
 </script>
 
 <template>
@@ -202,27 +219,23 @@ const sendReview = async () => {
             <MyBreadcrumbComponent :links="breadcrumbLinks" />
         </div>
         <div v-if="!loading && product" class="flex justify-center">
-            <div class="w-4/5 flex justify-center gap-16 mb-16">
+            <div class="w-4/5 flex flex-col md:flex-row justify-center gap-16 mb-16">
                 <ProductPictureCarousel :imageUrls="carouselImages" />
-                <div class="w-1/2 flex flex-col gap-10">
-                    <h1 class="text-3xl font-bold font-title">
-                        {{ product?.name }}
-                    </h1>
-                    <ReviewNoteComponent
-                        :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
-                        :NbReviews="reviews.length"
-                    />
+                <div class="w-full md:w-1/2 flex flex-col  gap-10">
+                    <div>
+                        <h1 class="text-3xl font-bold font-title">
+                            {{ product?.name }}
+                        </h1>
+                        <ReviewNoteComponent
+                            :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
+                            :NbReviews="reviews.length"
+                        />
+                    </div>
                     <div>
                         <p class="text-2xl font-semibold">€ {{ product.price }}</p>
                         <p class="text-sm" :class="{'text-red-400':!(product.stock>0), 'text-orange-400':(product.stock>0)}" v-if="product.stock < 10">{{ product.stock>0?'Il reste '+ product.stock + ' article(s)': 'Il n\'y a plus de stock, revenez plus tard'}}</p>
                     </div>
-                    <div class="flex flex-col gap-3">
-                        <h2 class="font-semibold text-xl">Détail du produit</h2>
-                        <p class="text-slate-400" v-if="product.modele">
-                            Modèle {{ product.modele }}
-                        </p>
-                        <p>{{ product.description }}</p>
-                    </div>
+                    
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex items-center gap-x-2 max-w-72">
                             <p>Quantité</p>
@@ -237,6 +250,13 @@ const sendReview = async () => {
                                 Connexion requise
                             </Button>
                         </div>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <h2 class="font-semibold text-xl">Détail du produit</h2>
+                        <p class="text-slate-400" v-if="product.modele">
+                            Modèle {{ product.modele }}
+                        </p>
+                        <p>{{ product.description }}</p>
                     </div>
                     <div @click="showMore = !showMore" class="text-slate-400 flex items-center gap-2 cursor-pointer">
                         {{showMore?'Voir moins':'En savoir plus'}}
@@ -258,8 +278,12 @@ const sendReview = async () => {
                 <h2 class="text-2xl font-semibold uppercase">
                     Vous aimerez aussi
                 </h2>
-                <FeaturedProductsCarousel :products= otherProducts />
+                <FeaturedProductsCarousel :collection="collection" :products= otherProducts />
             </div>
+        </div>
+
+        <div class="w-full flex justify-center my-4">
+            <hr class="border-b border-primary/40 w-2/5" />
         </div>
 
         <div v-if="reviews" class="flex flex-col items-center justify-center mb-7">
@@ -282,7 +306,7 @@ const sendReview = async () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>       
 
             <div class="w-2/5 flex flex-col items-center mt-4" v-if="user.isAuthenticated">
 

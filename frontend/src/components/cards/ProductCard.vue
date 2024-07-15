@@ -1,25 +1,36 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
-import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
+import type { Upload, Collection } from '@types';
 
-const props = defineProps({
-    name: String,
-    shortDescription: String,
-    price: Number,
-    image: String,
-    loading: Boolean,
-})
+const props = defineProps<{
+    name: string,
+    shortDescription: string,
+    price: number,
+    image?: Upload,
+    slug: string,
+    collection: Collection
+}>()
 </script>
 
 <template>
-    <article v-if="!loading" class="flex-col w-[366px]">
+    <article class="flex-col w-[366px]">
         <div class="w-[366px] h-[471px] bg-primary">
-            <img
-                :src="props.image"
+            <img v-if="props.image"
+                :src="'/src/' + props.image.path"
                 alt="product image"
                 class="w-full h-full object-cover"
             />
+            <div v-else class="relative h-full w-full">
+                <img 
+                    src="/src/assets/images/noPhotoAvailable.webp"
+                    alt="product image"
+                    class="w-full h-full object-cover relative"
+                />
+                <div class="absolute top-0 left-0 w-full h-full bg-black/60 flex justify-center items-center">
+                    <p class="text-white text-4xl -rotate-45 tracking-widest uppercase">Image non <br/>disponible</p>
+                </div>
+            </div>
         </div>
         <div class="flex justify-between mb-2">
             <div class="flex flex-col">
@@ -31,7 +42,8 @@ const props = defineProps({
                 <p>{{ props.price }}€</p>
             </div>
         </div>
-        <Button class="w-full">Acheter</Button>
+        <RouterLink :to="'/collections/' + collection.slug + '/products/'+ slug ">
+            <Button class="w-full uppercase tracking-wider">Ce nain m'intéresse</Button>
+        </RouterLink>
     </article>
-    <ProductCardSkeleton v-else />
 </template>

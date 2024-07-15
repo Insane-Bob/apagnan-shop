@@ -1,14 +1,16 @@
 <template>
     <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
     <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
-        <div
+        <div 
             class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20"
         >
-            <img
-                src="/src/assets/images/main-gnome.webp"
+            <img v-if="collection.image"
+                :src="'/src/'+ collection.image.path "
                 alt="Main Gnome"
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
+
+            <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
 
             <header
                 class="main-header fixed top-0 h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
@@ -113,61 +115,23 @@
             <CookiesModal :open="showCookiesModal" />
 
             <div class="flex flex-col justify-center items-center gap-y-3">
-                <p class="text-white text-lg md:text-[20px] uppercase">
-                    Nain’TERstellar 2024
+                <p class="text-white text-lg md:text-[20px] uppercase tracking-wider">
+                    {{ collection.name }}
                 </p>
-                <Button variant="secondary" class="uppercase"
-                    >Découvrir la collection</Button
-                >
+                <RouterLink to="#promoted">
+                    <Button variant="secondary" class="uppercase" 
+                        >Découvrir la collection</Button
+                    >
+                </RouterLink>
             </div>
         </div>
 
         <div
             v-if="!loading"
-            id="shop"
+            id="promoted"
             class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
         >
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
-
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
-
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
-
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
-
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
-
-            <ProductCard
-                name="Nain'Garde"
-                shortDescription="Nain'Garde est un nain de jardin qui protège votre jardin des intrus"
-                :price="1978"
-                image="/src/assets/images/green-gnome.png"
-            />
+            <ProductCard :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description.slice(0,25)" :price="product.price" :image="product.images[0]" />
         </div>
 
         <div
@@ -183,25 +147,30 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
-import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import CookiesModal from '@components/Modals/CookiesModal.vue'
+import { apiClient } from '@/lib/apiClient'
+import type { Collection } from '@/types'
 import ProductCard from '@components/Cards/ProductCard.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
+import CookiesModal from '@components/Modals/CookiesModal.vue'
 import Button from '@components/ui/button/Button.vue'
+import { useUserStore } from '@store/user'
 import {
     computed,
-    onBeforeMount,
     onMounted,
     onUnmounted,
     reactive,
-    ref,
+    ref
 } from 'vue'
+import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import { useUserStore } from '@store/user'
+import { useToast } from '../ui/toast'
+
+
 
 const user = useUserStore()
-
+const { toast } = useToast()
 const isLogged = computed(() => user.isAuthenticated)
 
 const loading = ref(true)
@@ -210,6 +179,8 @@ const search = reactive({
     query: '',
     show: false,
 })
+
+const collection = ref<Collection>({} as Collection)
 
 const menuMobileOpen = ref(false)
 
@@ -237,12 +208,22 @@ function changeBrightness() {
     const headerTitle = document.querySelector('.header-title')
 
     if (mainShopPage) {
-        mainShopPage.classList.toggle('brightness-50')
+        if(isOnTop.value){
+            mainShopPage.classList.add('brightness-50')
+        }else{
+            mainShopPage.classList.remove('brightness-50')
+        }
     }
 
     if (mainTitle) {
-        mainTitle.classList.toggle('opacity-75')
-        mainTitle.classList.toggle('opacity-0')
+        if(isOnTop.value){
+            mainTitle.classList.add('opacity-75')
+            mainTitle.classList.remove('opacity-0')
+
+        }else{
+            mainTitle.classList.remove('opacity-75')
+            mainTitle.classList.add('opacity-0')
+        }
     }
 
     if (mainHeader) {
@@ -252,8 +233,15 @@ function changeBrightness() {
 
     if (HeaderIcons) {
         HeaderIcons.forEach((icon) => {
-            icon.classList.toggle('text-black')
-            icon.classList.toggle('text-white')
+            if(isOnTop.value){
+                icon.classList.add('text-white')
+                icon.classList.remove('text-black')
+                return
+            }else{
+                icon.classList.remove('text-white')
+                icon.classList.add('text-black')
+            }
+            
         })
     }
 
@@ -278,21 +266,34 @@ const scrollFunction = () => {
 
 window.addEventListener('scroll', scrollFunction)
 
-onBeforeMount(() => {
-    setTimeout(() => {
-        loading.value = false
-    }, 2000)
-})
-
 onUnmounted(() => {
     window.removeEventListener('scroll', scrollFunction)
 })
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchPromotedCollection()
+    loading.value = false
+
     setTimeout(() => {
         showCookiesModal.value = false
     }, 500)
 })
+
+
+const fetchPromotedCollection = async () => {
+    try{
+    const response = await  apiClient.get('collections/promoted')
+    console.log(response.data)
+
+    collection.value = response.data.collection
+    }catch(e){
+        toast({
+            title: 'Une Erreur est survenue',
+            variant: 'destructive'
+        })
+    }
+
+}
 </script>
 
 <style scoped>
