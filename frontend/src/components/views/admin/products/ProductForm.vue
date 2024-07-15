@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import StockForm from '../stocks/StockForm.vue'
 
 const router = useRouter()
 const props = defineProps<{
@@ -180,6 +181,17 @@ const fetchSpecifics = async () => {
             </template>
         </FormInput>
         <FormInput>
+            <template #label>Stock</template>
+            <template #input="inputProps">
+                <input
+                    type="number"
+                    v-model="product.product.stock"
+                    v-bind="inputProps"
+                    disabled
+                />
+            </template>
+        </FormInput>
+        <FormInput>
             <template #label>Description</template>
             <template #input="inputProps">
                 <textarea
@@ -227,10 +239,18 @@ const fetchSpecifics = async () => {
                 class=""
             />
         </div>
-        <div class="mt-4">
+        <div class="mt-4 flex gap-2">
             <Button type="submit">
                 {{ slug === 'new' ? 'Créer' : 'Modifier' }}
             </Button>
+            <Dialog>
+                <DialogTrigger>
+                    <Button type="button">Gestion du stock</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <StockForm :productId="product.product.id"></StockForm>
+                </DialogContent>
+            </Dialog>
         </div>
     </form>
 
