@@ -1,5 +1,5 @@
 import { Request } from '../Core/Request.js'
-import { User } from '../Models/user.js'
+import { User } from '../Models/SQL/user.js'
 
 export function actingAs(user) {
     if (!(user instanceof User)) {

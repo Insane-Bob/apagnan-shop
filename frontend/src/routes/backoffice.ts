@@ -1,7 +1,7 @@
 import MyProfile from '@components/views/MyProfile.vue'
 import HeaderLayout from '@/layout/HeaderLayout.vue'
 import CommandResume from '@components/views/CommandResume.vue'
-import { apiClient } from '@/lib/apiClient'
+import MyCommands from '@components/views/MyCommands.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useUserStore } from '@store/user'
@@ -28,6 +28,7 @@ export const backofficeRoutes = [
 
         children: [
             { path: '', component: MyProfile },
+            { path: 'commands', component: MyCommands },
             { path: 'command/:id', component: CommandResume },
         ],
     },

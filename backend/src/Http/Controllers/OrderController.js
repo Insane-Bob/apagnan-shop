@@ -8,13 +8,16 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { OrderPolicy } from '../Policies/OrderPolicy.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import {
+    BadRequestException,
     ForbiddenException,
     NotFoundException,
 } from '../../Exceptions/HTTPException.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { OrderDetailsServices } from '../../Services/OrderDetailsServices.js'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
+import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
+import { OrderServices } from '../../Services/OrderServices.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -39,26 +42,43 @@ export class OrderController extends Controller {
         )
         this.res.json(orders)
     }
-    show() {
+    async show() {
         this.can(OrderPolicy.show, this.order)
-        this.res.json(this.order)
+        const refundsRequest = await this.order.getRefundRequestOrders()
+        this.res.json({
+            ...this.order.toJSON(),
+            RefundRequestOrders: refundsRequest,
+        })
     }
     async store() {
         const payload = this.validate(OrderValidator, OrderValidator.create())
         this.can(OrderPolicy.store, payload.customerId)
 
         const billingAddress =
-            await Database.getInstance().models.BillingAddress.findOne({
+            await Database.getInstance().models.Address.findOne({
                 where: {
-                    id: payload.addressId,
+                    id: payload.billingAddressId,
                     customerId: payload.customerId,
                 },
             })
         NotFoundException.abortIf(!billingAddress, 'Billing address not found')
 
+        const shippingAddress =
+            await Database.getInstance().models.Address.findOne({
+                where: {
+                    id: payload.shippingAddressId,
+                    customerId: payload.customerId,
+                },
+            })
+        NotFoundException.abortIf(
+            !shippingAddress,
+            'Shipping address not found',
+        )
+
         const orderPayload = {
             customerId: payload.customerId,
-            addressId: payload.addressId,
+            shippingAddressId: payload.shippingAddressId,
+            billingAddressId: payload.billingAddressId,
         }
 
         const transaction = await Database.transaction()
@@ -101,9 +121,11 @@ export class OrderController extends Controller {
             await transaction.commit()
             order.OrderDetails = await order.getOrderDetails()
 
+            await new OrderDenormalizationTask().execute(order)
+
             this.res.status(201).json(order)
         } catch (e) {
-            console.log(e)
+            console.error(e)
             await transaction.rollback()
             throw e
         }
@@ -125,8 +147,8 @@ export class OrderController extends Controller {
             'Cannot update a cancelled order',
         )
 
-        const rowsEdited = await this.order.update(payload)
-        NotFoundException.abortIf(!rowsEdited)
+        let orderServices = new OrderServices(this.order)
+        await orderServices.setStatus(payload.status)
 
         if (payload.status)
             await NotificationsServices.notifyOrderStatusUpdate(
@@ -139,13 +161,24 @@ export class OrderController extends Controller {
 
     async pay() {
         this.can(OrderPolicy.show, this.order)
-        const session = await PaymentServices.createCheckoutSession(this.order)
+        const session = await PaymentServices.createCheckoutSession(
+            this.order,
+            this.req.getUser(),
+        )
         this.res.json(session)
     }
 
     async askForRefund() {
         this.can(OrderPolicy.show, this.order)
         const payload = this.validate(AskForRefundValidator)
+        BadRequestException.abortIf(
+            this.order.status != OrderStatus.DELIVERED,
+            'Cannot refund an order that is not delivered',
+        )
+        BadRequestException.abortIf(
+            this.order.status == OrderStatus.REFUNDED,
+            'Cannot refund an order that is already refunded',
+        )
         //@TODO : handle the choice of the items and the quantity to refund
         const refundRequest = await PaymentServices.askForRefund(
             this.order,

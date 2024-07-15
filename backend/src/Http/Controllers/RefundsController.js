@@ -14,8 +14,15 @@ export class RefundsController extends Controller {
             await Database.getInstance().models.RefundRequestOrder.findAll(
                 search.query,
             )
+        const totalRefunds =
+            await Database.getInstance().models.RefundRequestOrder.count(
+                search.queryWithoutPagination,
+            )
 
-        this.res.json(refunds)
+        this.res.json({
+            data: refunds,
+            total: totalRefunds,
+        })
     }
 
     async show() {

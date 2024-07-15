@@ -6,6 +6,10 @@ import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
 
@@ -95,8 +99,20 @@ export class UserController extends Controller {
         })
     }
 
-    async activateAccount() {        
-        const user = this.user_resource
+    async askLoginAs() {
+        this.can(UserPolicy.index)
+        this.user_resource
+        const accessLink = await AccessLinkServices.createAccessLink(
+            this.user_resource.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(5),
+            1,
+        )
+        this.res.json({ a: accessLink.identifier })
+    }
+
+    async activateAccount() {
+        const user = this.req.getUser()
         NotFoundException.abortIf(user.isActive, 'Account already activated')
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)

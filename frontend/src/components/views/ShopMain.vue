@@ -39,10 +39,16 @@
 
                     <Sheet v-if="isLogged">
                         <SheetTrigger>
-                            <ion-icon
-                                name="cart-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
+                            <div class="relative group">
+                                <ion-icon 
+                                    name="cart-outline"
+                                    class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                                ></ion-icon>
+                                <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
+                                    <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
+                                    <span class="text-white">{{ user.countCartItem }}</span>
+                                </div>
+                            </div>
                         </SheetTrigger>
                         <SheetContent><CartDrawer /></SheetContent>
                     </Sheet>
@@ -63,11 +69,10 @@
 
                     <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
                         <ion-icon
-                                name="laptop-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
+                            name="laptop-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
                     </RouterLink>
-
 
                     <form
                         @submit.prevent="onSearch()"
@@ -108,7 +113,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-12 md:mt-0 text-white font-bold text-4xl md:text-[160px] opacity-75"
+                class="main-title uppercase mt-12 md:mt-5 lg:mt-0  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
@@ -189,8 +194,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
-import ProductCard from '@components/cards/ProductCard.vue'
-import ProductCardSkeleton from '@components/cards/ProductCardSkeleton.vue'
+import ProductCard from '@components/Cards/ProductCard.vue'
+import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
 import {

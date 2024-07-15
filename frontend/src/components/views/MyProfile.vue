@@ -1,3 +1,11 @@
+<script lang="ts" setup>
+import LinkCard from '@components/Cards/LinkCard.vue'
+
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
+</script>
+
 <template>
     <div class="relative">
         <div class="sticky top-0 z-10">
@@ -26,6 +34,7 @@
                 ></LinkCard>
 
                 <LinkCard
+                    to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
                     image="/src/assets/images/commandesListe.webp"

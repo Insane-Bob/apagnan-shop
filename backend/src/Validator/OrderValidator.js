@@ -10,7 +10,8 @@ export class OrderValidator extends Validator {
     static create() {
         return z.object({
             customerId: z.number().int().positive(),
-            addressId: z.number().int().positive(),
+            shippingAddressId: z.number().int().positive(),
+            billingAddressId: z.number().int().positive(),
             products: z.array(
                 z.object({
                     productId: z.number().int().positive(),
