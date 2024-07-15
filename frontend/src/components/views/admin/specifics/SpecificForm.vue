@@ -17,9 +17,12 @@ import { Specific } from '@types'
 
 const props = defineProps<{
     specific?: Specific
+    productId?: number
 }>()
+
 const name = ref(props.specific?.name || '')
 const content = ref(props.specific?.content || '')
+const productId = ref(props.productId || 0)
 
 const onSubmit = () => {
     if (props.specific) {
@@ -45,6 +48,7 @@ const createSpecific = async () => {
     const response = await apiClient.post('specifics/', {
         name: name.value,
         content: content.value,
+        productId: productId.value,
     })
 
     if (response.status === 201) {

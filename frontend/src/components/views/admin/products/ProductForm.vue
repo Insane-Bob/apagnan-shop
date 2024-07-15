@@ -264,6 +264,7 @@ const fetchSpecifics = async () => {
             <DialogContent>
                 <SpecificFormItem
                     :specific="SpecificForm.specific"
+                    :productId="product.product.id"
                 ></SpecificFormItem>
             </DialogContent>
         </Dialog>
