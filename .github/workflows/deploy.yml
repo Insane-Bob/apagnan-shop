@@ -34,8 +34,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment: apagnain-shop
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -47,9 +45,11 @@ jobs:
           which ssh-keyscan || (sudo apt-get update && sudo apt-get install -y openssh-client)
 
       - name: Install and decode base64 SSH private key
+        env :
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 --decode > ~/.ssh/id_rsa
+          echo $SSh_PRIVATE_KEY | base64 --decode > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Download build artifacts
