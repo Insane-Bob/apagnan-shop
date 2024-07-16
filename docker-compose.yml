@@ -8,10 +8,6 @@ services:
     volumes:
       - ./frontend/dist:/usr/share/nginx/html
     depends_on:
-      frontend:
-        condition: service_started
-      backend:
-        condition: service_started
       db:
         condition: service_started
       mongodb:
@@ -65,6 +61,8 @@ services:
         condition: service_started
       npm-backend:
         condition: service_completed_successfully
+      nginx:
+        condition: service_started
     environment:
       - DATABASE_URL=postgres://postgres:postgres@db:5432/postgres
       - MONGO_URI=mongodb://mongodb/mongo
@@ -80,9 +78,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-    depends_on:
-      npm-frontend:
-        condition: service_completed_successfully
     networks:
       - app-network
   mongodb:
@@ -91,9 +86,6 @@ services:
       - "27017:27017"
     volumes:
         - mongodb:/data/db
-    depends_on:
-      npm-frontend:
-        condition: service_completed_successfully
     networks:
       - app-network
 volumes:
