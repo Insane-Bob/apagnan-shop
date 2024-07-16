@@ -2,6 +2,11 @@
 import Button from '@/components/ui/button/Button.vue'
 import {useRoute} from "vue-router";
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
+import { useUserStore } from '@/stores/user';
+
+const user = useUserStore()
+
+user.setCart([])
 
 if (window.opener) {
   const route = useRoute()
