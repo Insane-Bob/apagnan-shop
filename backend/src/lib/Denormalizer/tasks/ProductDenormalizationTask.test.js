@@ -11,6 +11,7 @@ import { ProductFactory } from '../../../database/factories/ProductFactory.js'
 import { ReviewFactory } from '../../../database/factories/ReviewFactory.js'
 import { DenormalizerQueue } from '../DenormalizerQueue.js'
 import { Database } from '../../../Models/index.js'
+import { ProductDenormalizationTask } from './ProductDenormalizationTask.js'
 
 let users
 let reviews = []
@@ -83,6 +84,16 @@ describe('ProductDenormalizationTask', () => {
         expect(mProduct.name).toBe('New name')
     })
 
+    test('Product delete', async () => {
+        let product3 = await ProductFactory.count(1).create()
+        let mProduct = await Products.findOne({ id: product3.id })
+        expect(mProduct).toBeTruthy()
+
+        await product3.destroy()
+        mProduct = await Products.findOne({ id: product3.id })
+        expect(mProduct).toBeFalsy()
+    })
+
     test('Review edition / creation', async () => {
         let randomReviewIndex = Math.floor(Math.random() * reviews.length)
         let review = reviews[randomReviewIndex]
@@ -134,6 +145,31 @@ describe('ProductDenormalizationTask', () => {
             },
         ])
         expect(mReview.length).toBe(1)
+    })
+
+    test('Review delete', async () => {
+        let randomReviewIndex = Math.floor(Math.random() * reviews.length)
+        let review = reviews[randomReviewIndex]
+
+        const spy = jest.spyOn(ProductDenormalizationTask.prototype, 'execute')
+        await review.destroy()
+        expect(spy).toHaveBeenCalled()
+
+        let mReview = await Products.aggregate([
+            { $unwind: '$Reviews' },
+            {
+                $replaceRoot: {
+                    newRoot: '$Reviews',
+                },
+            },
+            {
+                $match: {
+                    content: review.content,
+                    rate: review.rate,
+                },
+            },
+        ])
+        expect(mReview.length).toBe(0)
     })
 
     test('User edition', async () => {
@@ -234,5 +270,21 @@ describe('ProductDenormalizationTask', () => {
 
         expect(mCollectionAfter).toBeTruthy()
         expect(mCollectionAfter.productCount).toBe(mCollection.productCount)
+    })
+
+    test('Collection delete', async () => {
+        const product = await ProductFactory.count(1).create()
+        let mProduct = await Products.findOne({ id: product.id })
+        expect(mProduct).toBeTruthy()
+
+        let spy = jest.spyOn(ProductDenormalizationTask.prototype, 'execute')
+        let collection = await product.getCollection()
+
+        await collection.destroy()
+        expect(spy).toHaveBeenCalled()
+        let dbProduct = await Database.getInstance().models.Product.findByPk(
+            product.id,
+        )
+        expect(dbProduct).toBeFalsy()
     })
 })

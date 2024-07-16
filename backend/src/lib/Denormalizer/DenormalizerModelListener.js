@@ -19,8 +19,8 @@ export class DenormalizerModelListener {
     runTasks(instance, event) {
         let queue = DenormalizerQueue.getInstance()
         let tasks = this.denormalizersTasks.map(async (t) => {
-            if (!t.checkChanges(instance, event)) return false
             t.setEventType(event)
+            if (!t.checkChanges(instance, event)) return false
             return await queue.enqueue({
                 execute: () => t.execute.call(t, instance),
             })
@@ -55,15 +55,57 @@ export class DenormalizerModelListener {
         )
     }
 
-    // a deporter dans une autre classe ce n'est pas de la denormalisation
-    // async beforeDestroy(instance){
-    //     //return this.denormalizersTasks.map(t => t.collection.deleteOne({ _id: instance.id }))
-    // }
-    //
-    // async beforeBulkDestroy(query){
-    //     //const instances = await this.model.findAll(query)
-    //     //return Promise.all(instances.map(i => this.denormalizersTasks.map(t => t.collection.deleteOne({ _id: i.id })))
-    // }
+    async beforeDestroy(instance) {
+        /**
+         * @type {Awaited<{task:DenormalizerTask, instances: Object[]}>}
+         */
+        let tasksWithInstancesBeforeDestroy = await Promise.all(
+            this.denormalizersTasks.map(async (task) => {
+                return {
+                    task,
+                    instances: await task.getInstances(instance),
+                }
+            }),
+        )
+        this.model.afterDestroy(async () => {
+            let queue = DenormalizerQueue.getInstance()
+            for (let { task, instances } of tasksWithInstancesBeforeDestroy) {
+                let newTask = new task.constructor()
+                newTask.setEventType(DenormalizerTask.EVENT.DELETED)
+                await queue.enqueue({
+                    execute: () => newTask.execute.call(newTask, instances),
+                })
+            }
+            this.model.removeHook('afterDestroy')
+        })
+    }
+
+    async beforeBulkDestroy(query) {
+        let instances = await this.model.findAll(query)
+        let tasksWithInstancesBeforeDestroy = await Promise.all(
+            this.denormalizersTasks.map(async (task) => {
+                return {
+                    task,
+                    instances: (
+                        await Promise.all(
+                            instances.map((i) => task.getInstances(i)),
+                        )
+                    ).flat(),
+                }
+            }),
+        )
+        this.model.afterBulkDestroy(async () => {
+            let queue = DenormalizerQueue.getInstance()
+            for (let { task, instances } of tasksWithInstancesBeforeDestroy) {
+                let newTask = new task.constructor()
+                newTask.setEventType(DenormalizerTask.EVENT.DELETED)
+                await queue.enqueue({
+                    execute: () => newTask.execute.call(newTask, instances),
+                })
+            }
+            this.model.removeHook('afterBulkDestroy')
+        })
+    }
 
     listen() {
         this.model.afterCreate(this.afterCreate.bind(this))
@@ -74,11 +116,9 @@ export class DenormalizerModelListener {
 
         this.model.afterBulkUpdate(this.afterBulkUpdate.bind(this))
 
-        // this.model.beforeDestroy(this.beforeDestroy.bind(this))
-        //
-        // this.model.beforeBulkDestroy(this.beforeBulkDestroy.bind(this))
+        this.model.beforeDestroy(this.beforeDestroy.bind(this))
 
-        //Start denormalization for all instances of the model
+        this.model.beforeBulkDestroy(this.beforeBulkDestroy.bind(this))
     }
 
     destroy() {
@@ -86,7 +126,7 @@ export class DenormalizerModelListener {
         this.model.removeHook('afterBulkCreate')
         this.model.removeHook('afterUpdate')
         this.model.removeHook('afterBulkUpdate')
-        // this.model.removeHook('beforeDestroy')
-        // this.model.removeHook('beforeBulkDestroy')
+        this.model.removeHook('beforeDestroy')
+        this.model.removeHook('beforeBulkDestroy')
     }
 }
