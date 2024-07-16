@@ -19,24 +19,6 @@ function model(sequelize, DataTypes) {
             })
         }
 
-        static addScopes(models) {
-            models.Order.addScope(
-                'defaultScope',
-                {
-                    include: [
-                        {
-                            model: models.Product,
-                            include: [
-                                {
-                                    model: models.Upload,
-                                },
-                            ],
-                        },
-                    ],
-                },
-                { override: true },
-            )
-        }
     }
 
     Collection.registerDenormalizerTask(
