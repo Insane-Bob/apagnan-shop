@@ -19,6 +19,7 @@ import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
+import Sequelize, { Op } from 'sequelize'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -32,16 +33,36 @@ export class OrderController extends Controller {
 
     async index() {
         this.can(UserPolicy.show, this.userContext)
-
         if (this.customer) this.req.query.set('customerId', this.customer.id)
         if (!this.req.getUser().hasRole(USER_ROLES.ADMIN))
             this.req.query.set('customerId', this.req.getUser().customer.id)
+        const filters = this.validate(OrderValidator, OrderValidator.index())
 
         const search = new SearchRequest(this.req, ['customerId'])
+
+        if (filters.status) {
+            const sql = Sequelize.literal(
+                '(SELECT "OrderStatuses"."orderId" FROM "OrderStatuses" WHERE  "OrderStatuses".status IN (:status) AND  "OrderStatuses"."createdAt" = (SELECT MAX(o."createdAt") FROM "OrderStatuses" as o WHERE "OrderStatuses"."orderId" = o."orderId"))',
+            )
+            search.addWhere({
+                id: {
+                    [Op.in]: sql,
+                },
+            })
+            search.addReplacement('status', filters.status)
+        }
         const orders = await Database.getInstance().models.Order.findAll(
             search.query,
         )
-        this.res.json(orders)
+
+        const total = await Database.getInstance().models.Order.count(
+            search.queryWithoutPagination,
+        )
+
+        this.res.json({
+            data: orders,
+            total,
+        })
     }
     async show() {
         this.can(OrderPolicy.show, this.order)

@@ -1,11 +1,12 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
 import { apiClient } from '@/lib/apiClient'
-import AdminCustomers from '@components/views/admin/AdminCustomers.vue'
 import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
-import AdminUsers from '@components/views/admin/users/AdminUsers.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
+import AdminCustomerTable from '@components/views/admin/products/AdminCustomerTable.vue'
+import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
+import AdminOrderTable from '@components/views/admin/orders/AdminOrderTable.vue'
 
 export const adminRoutes = [
     {
@@ -50,27 +51,13 @@ export const adminRoutes = [
             },
             {
                 path: 'orders',
-                component: WorkInProgress,
+                component: AdminOrderTable,
                 name: 'Commandes',
                 meta: { label: 'Commandes', icon: 'cart' },
             },
             {
-                path: 'customers',
-                component: AdminCustomers,
-                name: 'Clients',
-                meta: { label: 'Clients', icon: 'people' },
-                children: [
-                    {
-                        path: ':id',
-                        component: WorkInProgress,
-                        name: 'Client',
-                        meta: { label: 'Client' },
-                    },
-                ],
-            },
-            {
                 path: 'users',
-                component: AdminUsers,
+                component: AdminUsersTable,
                 name: 'Utilisateurs',
                 meta: { label: 'Utilisateurs', icon: 'people-circle' },
             },

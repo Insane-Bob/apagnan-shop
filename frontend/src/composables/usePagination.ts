@@ -4,7 +4,7 @@ export function usePagination(collectionLength: any) {
 
     const pagination = reactive({
         page: 1,
-        limit: 5,
+        limit: 10,
     })
 
     const total = computed(() => Math.ceil(length.value / pagination.limit))
@@ -35,9 +35,10 @@ export function usePagination(collectionLength: any) {
     }
 
     function goTo(page: number) {
-        if (page > 0 && page <= total.value) {
+        if (page > 0 && page <= total.value && page !== currentPage.value) {
             pagination.page = page
-        }
+            return true
+        } else return false
     }
 
     return {
