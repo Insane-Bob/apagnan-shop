@@ -6,6 +6,7 @@ import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { EmailSender } from '../lib/EmailSender.js'
+import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -15,33 +16,44 @@ export class NotificationsServices {
                     name: user.firstName + ' ' + user.lastName,
                 })
                 .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-        await EmailSender.send(
-            connectionAttempt3FailedEmail,
-            accessLinkIdentifier,
-        )
+        await EmailSender.send(connectionAttempt3FailedEmail)
     }
 
     static async notifyValidateEmail(user) {
         console.log(`Sending validate email to ${user.email}`)
     }
 
-    static async notifyRegisterUser(user) {
+    static async notifyRegisterUser(user, accessLink) {
+        const activation_link = `${process.env.APP_URL}/api/users/${user.id}/activate?a=${accessLink.identifier}`
         const registerEmail = new RegisterEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
+                activation_link,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
         await EmailSender.send(registerEmail)
     }
 
-    static async notifyResetPassword(user) {
+    static async notifyResetPassword(user, accessLink) {
+        const password_reset_link = `${process.env.FRONT_END_URL}/reset-password?user_id=${user.id}&a=${accessLink.identifier}`
         const resetPasswordEmail = new ResetPasswordEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+                password_reset_link,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(resetPasswordEmail)
+    }
+
+    static async notifyConfirmResetPassword(user) {
+        const confirmResetPasswordEmail = new ConfirmResetPasswordEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
-        await EmailSender.send(resetPasswordEmail)
+        await EmailSender.send(confirmResetPasswordEmail)
     }
 
     static async notifyRenewedPassword(user) {
@@ -101,7 +113,7 @@ export class NotificationsServices {
     static async notifyAccountActivated(user) {
         const activatedAccountEmail = new AccountActivatedEmail()
             .setParams({
-                user: user.firstName + ' ' + user.lastName,
+                name: user.firstName + ' ' + user.lastName,
             })
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 

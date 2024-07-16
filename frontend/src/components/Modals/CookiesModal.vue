@@ -1,14 +1,15 @@
 <template>
-    <AlertDialog>
+    <AlertDialog v-if="open">
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>
-                    <h2>
-                        Utilisation des Cookies sur Apagnain 🍪
-                    </h2>
-                    <AlertDialogCancel class="!text-xs underline">Continuer sans accepter</AlertDialogCancel>    
-                </AlertDialogTitle
-                >
+                    <h2>Utilisation des Cookies sur Apagnain 🍪</h2>
+                    <AlertDialogCancel
+                        class="!text-xs underline"
+                        @click="closeModal"
+                        >Continuer sans accepter</AlertDialogCancel
+                    >
+                </AlertDialogTitle>
                 <AlertDialogDescription>
                     Chez Apagnain, nous nous engageons à vous offrir une
                     expérience de navigation optimale et personnalisée. Pour ce
@@ -41,8 +42,12 @@
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogAction>Accepter les cookies</AlertDialogAction>
-                <AlertDialogCancel class="!text-black/40"
+                <AlertDialogAction @click="acceptCookies"
+                    >Accepter les cookies</AlertDialogAction
+                >
+                <AlertDialogCancel
+                    class="!text-black/40"
+                    @click="openCookieSettings"
                     >Paramètres des cookies</AlertDialogCancel
                 >
             </AlertDialogFooter>
@@ -62,4 +67,20 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+
+import { ref } from 'vue'
+
+const open = ref(true)
+
+const closeModal = () => {
+    open.value = false
+}
+
+const acceptCookies = () => {
+    closeModal()
+}
+
+const openCookieSettings = () => {
+    closeModal()
+}
 </script>

@@ -3,6 +3,8 @@ import HeaderLayout from '@/layout/HeaderLayout.vue'
 import CommandResume from '@components/views/CommandResume.vue'
 import MyCommands from '@components/views/MyCommands.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
+import { useUserStore } from '@store/user'
 
 
 export const backofficeRoutesName = {
@@ -47,5 +49,25 @@ export const backofficeRoutes = [
                 name: backofficeRoutesName.COMMAND_RESUME,
             }
         ],
+    },
+    {
+        path: '/logout',
+        component: WorkInProgress,
+        beforeEnter: async () => {
+            // Auth user
+            const user = useUserStore()
+            if (localStorage.getItem('accessToken')) {
+                const { toast } = useToast()
+                await apiClient.post('logout')
+                localStorage.removeItem('accessToken')
+                localStorage.removeItem('refreshToken')
+                user.clearUser()
+                toast({
+                    title: 'Déconnexion',
+                    description: 'Vous avez été déconnecté.',
+                })
+                return { name: 'Home' }
+            }
+        },
     },
 ]
