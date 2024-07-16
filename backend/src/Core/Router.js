@@ -3,6 +3,7 @@ import path from 'path'
 import { Request } from './Request.js'
 import { Middleware } from './Middleware.js'
 import { Provider } from './Provider.js'
+import process from "process";
 
 export class RouteGroup {
     constructor(path, callback, middlewares = [], providers = []) {
@@ -137,7 +138,15 @@ export class Router extends RouteGroup {
     async discoverRoutes() {
         /**read all files and sub files in routes */
         // eslint-disable-next-line no-undef
-        const normalizedPath = path.resolve('src/Routes')
+        const command = process.env.npm_lifecycle_event
+        let pathDir;
+        if(command == 'start'){
+            pathDir = 'dist/Routes'
+        }else{
+            pathDir = 'src/Routes'
+        }
+
+        const normalizedPath = path.resolve(pathDir)
         function readDir(dir) {
             let files = fs.readdirSync(dir)
             files = files.map((file) => {

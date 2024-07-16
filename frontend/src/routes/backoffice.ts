@@ -6,6 +6,13 @@ import { useToast } from '@/components/ui/toast/use-toast'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useUserStore } from '@store/user'
 
+
+export const backofficeRoutesName = {
+    PROFILE: 'MyProfile',
+    COMMANDS: 'MyCommands',
+    COMMAND_RESUME: 'CommandResume',
+}
+
 export const backofficeRoutes = [
     {
         path: '/profile',
@@ -25,11 +32,22 @@ export const backofficeRoutes = [
             })
             return { name: 'Home' }
         },
-
         children: [
-            { path: '', component: MyProfile },
-            { path: 'commands', component: MyCommands },
-            { path: 'command/:id', component: CommandResume },
+            {
+                path: '',
+                component: MyProfile,
+                name: backofficeRoutesName.PROFILE,
+            },
+            {
+                path: 'commands',
+                component: MyCommands,
+                name: backofficeRoutesName.COMMANDS,
+            },
+            {
+                path: 'command/:id',
+                component: CommandResume,
+                name: backofficeRoutesName.COMMAND_RESUME,
+            }
         ],
     },
     {

@@ -33,4 +33,32 @@ export class OrderValidator extends Validator {
             ]),
         })
     }
+
+    beforeValidation(req) {
+        if (req.query.has('status')) {
+            req.query.set('status', req.query.get('status').split(','))
+        }
+
+        if(req.query.has('withProducts')) {
+            req.query.set('withProducts', req.query.get('withProducts') === 'true')
+        }
+    }
+
+    static index() {
+        return z.object({
+            status: z
+                .array(
+                    z.enum([
+                        OrderStatus.PENDING,
+                        OrderStatus.DELIVERED,
+                        OrderStatus.REFUNDED,
+                        OrderStatus.SHIPPED,
+                        OrderStatus.CANCELLED,
+                    ]),
+                )
+                .optional(),
+            withProducts: z.boolean().optional(),
+            customerId: z.number().optional(),
+        })
+    }
 }

@@ -1,21 +1,35 @@
 import { Controller } from '../../Core/Controller.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
-import { USER_ROLES } from '../../Models/SQL/user.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
         this.can(UserPolicy.index)
-        const users = await Database.getInstance().models.User.findAll()
+        let search = new SearchRequest(
+            this.req,
+            ['role'],
+            ['email', 'firstName', 'lastName'],
+        )
+
+        const data = await Database.getInstance().models.User.findAll(
+            search.query,
+        )
+        const total = await Database.getInstance().models.User.count(
+            search.queryWithoutPagination,
+        )
+
         this.res.json({
-            users,
+            data,
+            total,
         })
     }
 

@@ -61,6 +61,44 @@ export class Order extends Model {
             },
             { override: true },
         )
+
+        models.Order.addScope('withProducts',{
+            include: [
+                {
+                    model: models.OrderStatus,
+                    as: 'statusHistory',
+                },
+                {
+                    model: models.OrderDetail,
+                    include: [
+                        {
+                            model: models.Product,
+                            include:[
+                                {
+                                   association: 'images'
+                                }
+                            ]
+                        },
+                    ],
+                },
+                {
+                    model: models.Address,
+                    as: 'billing_address',
+                },
+                {
+                    model: models.Address,
+                    as: 'shipping_address',
+                },
+                {
+                    model: models.Customer,
+                    include: [
+                        {
+                            model: models.User,
+                        },
+                    ],
+                },
+            ],
+        })
     }
 
     static hooks(models) {
@@ -108,6 +146,16 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.VIRTUAL,
                 get() {
                     return this.getTotal()
+                },
+            },
+            nbProducts: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return (
+                        this.OrderDetails?.reduce((acc, orderDetail) => {
+                            return acc + orderDetail.quantity
+                        }, 0) || null
+                    )
                 },
             },
             status: {

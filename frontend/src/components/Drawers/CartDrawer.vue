@@ -24,7 +24,7 @@ user.cartViewed()
             >
         </SheetHeader>
         <div
-            class="w-full max-h-[80vh] overflow-y-scroll grow flex flex-col justify-start divide-y divide-primary"
+            class="w-full overflow-y-auto grow flex flex-col justify-start divide-y divide-primary"
         >
             <div
                 v-if="user.countCartItem > 0"

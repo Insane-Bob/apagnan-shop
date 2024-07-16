@@ -62,7 +62,7 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
-                this.res.redirect(process.env.FRONT_END_URL + '/order/success')
+                this.res.redirect(process.env.FRONT_END_URL + '/order/success?orderId=' + this.order.id)
             }
         } catch (e) {
             console.error(e)
@@ -93,9 +93,7 @@ export class PaymentController extends Controller {
             this.order.Customer.User,
         )
 
-        this.res.json({
-            message: 'Payment failed',
-        })
+        this.res.redirect(process.env.FRONT_END_URL + '/order/fail?orderId=' + this.order.id)
     }
 
     async webhook() {

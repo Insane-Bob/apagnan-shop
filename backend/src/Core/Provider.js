@@ -29,6 +29,7 @@ export class Provider {
         const resource = await this.fetch(
             database.models[this.constructor.model],
             paramValue,
+            request
         )
 
         NotFoundException.abortIf(

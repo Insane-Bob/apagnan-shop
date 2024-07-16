@@ -17,6 +17,42 @@ function model(sequelize, DataTypes) {
             })
         }
 
+        static addScopes(models) {
+            RefundRequestOrder.addScope(
+                'withCustomer',
+                (customerIds = null) => {
+                    return {
+                        include: [
+                            {
+                                model: models.Order.unscoped(),
+                                attributes: ['id'],
+                                include: [
+                                    {
+                                        model: models.Customer,
+                                        attributes: ['id'],
+                                        where: customerIds
+                                            ? { id: customerIds }
+                                            : {},
+                                        include: [
+                                            {
+                                                model: models.User,
+                                                attributes: [
+                                                    'id',
+                                                    'email',
+                                                    'firstName',
+                                                    'lastName',
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    }
+                },
+            )
+        }
+
         async getCustomer() {
             const order = await this.getOrder()
             return order.getCustomer()

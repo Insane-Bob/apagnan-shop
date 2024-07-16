@@ -1,19 +1,59 @@
+import { Op } from 'sequelize'
+
 export class SearchRequest {
     /**
      * @param {Request} request
      * @param {Array<String>} keys
+     * @param {Array<String>} searchableFields
      */
-    constructor(request, keys) {
+    constructor(request, keys = [], searchableFields = []) {
         this.request = request
+        this.searchableFields = searchableFields
         this.keys = keys
+        this.additionalWhere = {}
+        this.replacements = {}
+    }
+
+
+    addReplacement(key, value) {
+        this.replacements[key] = value
+    }
+    addWhere(object) {
+        this.additionalWhere = {
+            ...this.additionalWhere,
+            ...object,
+        }
     }
 
     get where() {
-        const where = {}
+        const where = {
+            ...this.additionalWhere,
+        }
         for (const key of this.keys) {
             if (this.request.query.has(key)) {
-                where[key] = this.request.query.get(key)
+                let value = this.request.query.get(key)
+                if (typeof value === 'string' && value.includes(',')) {
+                    let arrayValue = value.split(',')
+                    where[key] = {
+                        [Op.in]: arrayValue,
+                    }
+                } else {
+                    where[key] = value
+                }
             }
+        }
+
+        if (
+            this.request.query.has('search') &&
+            this.request.query.get('search') !== ''
+        ) {
+            where[Op.or] = this.searchableFields.map((field) => {
+                return {
+                    [field]: {
+                        [Op.iLike]: `%${this.request.query.get('search')}%`,
+                    },
+                }
+            })
         }
         return where
     }
@@ -44,17 +84,18 @@ export class SearchRequest {
 
     get query() {
         return {
-            where: this.where,
+            ...this.queryWithoutPagination,
             limit: this.limit,
             offset: this.offset,
-            order: this.order,
         }
     }
+
 
     get queryWithoutPagination() {
         return {
             where: this.where,
             order: this.order,
+            replacements: this.replacements,
         }
     }
 }
