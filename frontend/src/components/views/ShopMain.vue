@@ -283,7 +283,6 @@ onMounted(async () => {
 const fetchPromotedCollection = async () => {
     try{
     const response = await  apiClient.get('collections/promoted')
-    console.log(response.data)
 
     collection.value = response.data.collection
     }catch(e){
