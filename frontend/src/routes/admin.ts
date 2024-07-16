@@ -4,7 +4,6 @@ import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
 import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
-import AdminCustomerTable from '@components/views/admin/products/AdminCustomerTable.vue'
 import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 import AdminOrderTable from '@components/views/admin/orders/AdminOrderTable.vue'
 
