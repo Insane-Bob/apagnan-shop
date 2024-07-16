@@ -102,7 +102,7 @@ jobs:
             cd /root/apagnan-shop
             docker compose down
             git pull
-            docker compose up -d --build backend
+            docker compose up -d --build nginx
             docker compose exec backend npx sequelize-cli db:migrate
             docker compose restart backend
           EOF
