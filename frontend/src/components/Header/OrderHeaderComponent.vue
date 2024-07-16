@@ -23,7 +23,7 @@ const menuMobileOpen = ref(false)
 
 <template>
     <header
-        class="main-header relative top-0 h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20  border-b border-primary/50"
+        class="main-header relative top-0 h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20"
     >
         <RouterLink to="/">
             <img

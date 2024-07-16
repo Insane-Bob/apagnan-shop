@@ -1,3 +1,5 @@
+import type {Product} from "@/types/Product";
+
 export interface OrderDetails {
     total: number
     id: number
@@ -7,4 +9,8 @@ export interface OrderDetails {
     createdAt: Date
     updatedAt: Date
     quantity: number
+}
+
+export interface OrderDetailsWithProducts extends OrderDetails{
+    Product: Product
 }

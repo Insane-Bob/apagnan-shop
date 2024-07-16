@@ -9,6 +9,15 @@ import Button from '../ui/button/Button.vue'
 import type { TableActions } from '@/types'
 import { useRouter } from 'vue-router'
 import { useSort } from '@/composables/useSort'
+import Card from "@components/ui/card/Card.vue";
+import CardDescription from "@components/ui/card/CardDescription.vue";
+import CardTitle from "@components/ui/card/CardTitle.vue";
+import CardHeader from "@components/ui/card/CardHeader.vue";
+import ProfileLayout from "@/layout/ProfileLayout.vue";
+import Separator from "@components/ui/separator/Separator.vue";
+import CardContent from "@components/ui/card/CardContent.vue";
+import CardFooter from "@components/ui/card/CardFooter.vue";
+import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
 
 const router = useRouter()
 const user = useUserStore()
@@ -19,9 +28,12 @@ const orders = reactive<Order[]>([])
 
 const statusTranslate = {
     pending: 'En attente',
+    processing: 'En cours de traitement',
+    paid: 'Payée',
+    cancel: 'Annulée',
     shipped: 'Expédiée',
     delivered: 'Livrée',
-    refund: 'Remboursée',
+    refunded: 'Remboursée',
     cancelled: 'Annulée',
 }
 
@@ -88,37 +100,101 @@ onMounted(async () => {
 })
 
 const fetchOrders = async () => {
-    const response = await apiClient.get('/users/' + user.getId + '/orders')
-    const data = response.data
+    const response = await apiClient.get('/users/' + user.getId + '/orders?withProducts=true&order=createdAt&direction=desc')
+    const data = response.data.data
     data.forEach((c: any) => {
         orders.push(c)
     })
 }
 </script>
 <template>
-    <div v-if="!loading" class="flex flex-col mx-6 mt-24">
+    <ProfileLayout>
+      <div class="flex flex-col gap-6">
         <h1 class="text-2xl font-bold uppercase tracking-wider">
-            Mes commandes
+          Mes commandes
         </h1>
-        <DataTable
-            v-if="orders.length > 0"
-            :columns="columns"
-            :rows="orders"
-            :actions="actions"
-            :sorting="dataTableSort"
-        ></DataTable>
-        <div v-else class="h-[80vh]">
-            <h2>Vous n'avez pas encore passé de commande</h2>
-            <div class="flex flex-col gap-y-7 justify-center items-center mt-6">
-                <img
-                    src="/src/assets/images/goToShop.webp"
-                    alt="aller dans la boutique"
-                    class="w-1/2 h-1/2 object-cover rounded-sm"
-                />
-                <RouterLink to="/products"
-                    ><Button>Aller dans la boutique</Button></RouterLink
-                >
-            </div>
+
+        <div class="flex gap-6">
+          <Card>
+            <CardHeader>
+              <CardDescription>
+                Commandes passés
+              </CardDescription>
+              <CardTitle>
+                {{ orders.length }}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>
+                Commandes en cours
+              </CardDescription>
+              <CardTitle>
+                {{ orders.filter((o)=> ['pending','paid','processing','shipped'].includes(o.status)).length }}
+
+              </CardTitle>
+            </CardHeader>
+          </Card>
         </div>
-    </div>
+
+        <div class="grid grid-cols-3 items-center">
+          <CardDescription class="col-span-1">Historique des commandes passés</CardDescription> <Separator class="col-span-2"/>
+        </div>
+
+        <div class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
+
+
+        <Card v-if="orders.length" v-for="order in orders">
+            <CardHeader class="flex flex-row justify-between">
+             <div>
+               <CardDescription>
+                 Commande n°{{ order.id }}
+               </CardDescription>
+               <CardTitle>
+                 {{ statusTranslate[order.status]}}
+               </CardTitle>
+             </div>
+              <div>
+                <RouterLink :to="'/profile/command/' + order.id">
+                  <Button variant="ghost" class="font-bold flex gap-4 text-primary">Voir le détail <ion-icon name="chevron-forward-outline"></ion-icon>
+                  </Button>
+                </RouterLink>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardDescription class="mb-2">Produits</CardDescription>
+              <OrderDetailsProductList :order-details="order.OrderDetails"/>
+            </CardContent>
+          <Separator/>
+            <CardFooter class="pt-4">
+              <div class="flex flex-1 flex-row justify-between">
+                <div>
+                  <CardDescription>Crée le</CardDescription>
+                  {{ new Date(order.createdAt.slice(0, order.createdAt.indexOf('T'))).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+                </div>
+                <div>
+                  <CardDescription>Total</CardDescription>
+                  <CardTitle>{{ order.total}} €</CardTitle>
+                </div>
+              </div>
+            </CardFooter>
+        </Card>
+        <div v-else class="h-[80vh]">
+          <h2>Vous n'avez pas encore passé de commande</h2>
+          <div class="flex flex-col gap-y-7 justify-center items-center mt-6">
+            <img
+                src="/src/assets/images/goToShop.webp"
+                alt="aller dans la boutique"
+                class="w-1/2 h-1/2 object-cover rounded-sm"
+            />
+            <RouterLink to="/products"
+            ><Button>Aller dans la boutique</Button></RouterLink
+            >
+          </div>
+        </div>
+        </div>
+
+      </div>
+    </ProfileLayout>
 </template>

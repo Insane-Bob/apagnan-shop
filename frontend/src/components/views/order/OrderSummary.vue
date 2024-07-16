@@ -19,6 +19,17 @@ import SummaryCard from '@components/Cards/SummaryCard.vue'
 
 import AddressForm from '@/components/views/order/AddressForm.vue'
 import type { BasketItem } from '@/types'
+import {backofficeRoutesName} from "@/routes/backoffice";
+import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
+import CardHeader from "@components/ui/card/CardHeader.vue";
+import Card from "@components/ui/card/Card.vue";
+import CardDescription from "@components/ui/card/CardDescription.vue";
+import CardContent from "@components/ui/card/CardContent.vue";
+import Avatar from "@components/ui/avatar/Avatar.vue";
+import AvatarFallback from "@components/ui/avatar/AvatarFallback.vue";
+import Badge from "@components/ui/badge/Badge.vue";
+import CardTitle from "@components/ui/card/CardTitle.vue";
+import CardFooter from "@components/ui/card/CardFooter.vue";
 
 const user = useUserStore()
 const router = useRouter()
@@ -50,6 +61,8 @@ const billingStreet = ref('')
 
 const waitingPaymentModal = ref(false)
 
+usePaymentBroadcastChannel()
+
 onBeforeMount(() => {
     user.cartViewed()
     if (user.countCartItem === 0) {
@@ -61,16 +74,6 @@ onBeforeMount(() => {
     }
 })
 
-let channel = new BroadcastChannel('payment')
-channel.onmessage = (event) => {
-    event.data === 'success'
-        ? router.push('/order/success')
-        : router.push('/order/fail')
-}
-
-onUnmounted(() => {
-    channel.close()
-})
 
 const onSelectAddressOption = () => {
     if (addressOption.value === 'custom') {
@@ -213,74 +216,80 @@ const goBack = () => {
 </script>
 
 <template>
-    <div
-        @click="goBack()"
-        class="ml-8 flex items-center gap-x-2 mt-4 hover:text-primary duration-150"
-    >
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        <span>Revenir en arrière</span>
-    </div>
-    <div class="mx-24 my-8 flex gap-x-12">
-        <div class="grow flex flex-col">
-            <div
-                class="border border-primary/50 w-full flex flex-col items-start justify-center h-min p-2 text-xs"
-            >
-                <p class="uppercase tracking-wide font-medium">
-                    Vous êtes en train de passer une commande en tant que:
-                </p>
-                <p>{{ user.get.email }}</p>
-            </div>
-
-            <div class="mt-12">
-                <div class="flex justify-start items-center gap-x-2">
-                    <div
-                        class="border rounded-full border-primary text-primary aspect-square text-2xl h-10 w-10 flex justify-center items-center"
-                    >
-                        1
-                    </div>
-                    <h1 class="text-2xl uppercase tracking-wider">
-                        Adresse de Livraison
-                    </h1>
+  <div class="bg-slate-50 py-12 flex-1">
+    <div class="max-w-[1000px] mx-auto flex flex-col gap-12">
+     <div>
+       <Button variant="ghost" @click="goBack()"
+               class="flex items-center gap-x-2 hover:text-primary duration-150"
+       >
+         <ion-icon name="arrow-back-outline"></ion-icon>
+         Revenir en arrière
+       </Button>
+     </div>
+      <div class="grid grid-cols-5 gap-12">
+        <div class="col-span-3 flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <div class="flex gap-4 items-center font-medium">
+                <Avatar>
+                  <AvatarFallback>
+                    {{
+                      user.get.firstName.charAt(0) +
+                      user.get.lastName.charAt(0)
+                    }}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  {{
+                    user.identity
+                  }}
+                  <small class="text-slate-400 block">{{ user.get.email }}</small>
                 </div>
-                <small class="font-light"
-                    >Où devons-nous effectuer la livraison?</small
-                >
-                <Select
-                    class="my-2"
-                    v-model="addressOption"
-                    @update:modelValue="onSelectAddressOption()"
-                >
-                    <SelectTrigger>
-                        <SelectValue placeholder="Choisir une adresse" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="custom"
-                            >-- Définir une adresse --</SelectItem
-                        >
-                        <SelectGroup
-                            v-if="user.getAddresses.length > 0"
-                            label="Adresses"
-                        >
-                            <SelectLabel>Adresse Sauvegardée</SelectLabel>
-                            <SelectItem
-                                v-for="(address, index) in user.getAddresses"
-                                :key="index"
-                                :value="address.id.toString()"
-                                >{{
-                                    address.street +
-                                    ', ' +
-                                    address.city +
-                                    ' ' +
-                                    address.postalCode +
-                                    ', ' +
-                                    address.country
-                                }}</SelectItem
-                            >
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-            </div>
-            <form v-if="customAddress">
+              </div>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader class="pb-2">
+              <div class="flex gap-2 font-medium"><Badge>1</Badge>Addresse de livraison</div>
+            </CardHeader>
+            <CardContent>
+              <small class="font-light block mb-2">
+                Où devons-nous effectuer la livraison?
+              </small>
+              <Select
+                  v-model="addressOption"
+                  @update:modelValue="onSelectAddressOption()"
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir une adresse" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom"
+                  >-- Définir une adresse --</SelectItem
+                  >
+                  <SelectGroup
+                      v-if="user.getAddresses.length > 0"
+                      label="Adresses"
+                  >
+                    <SelectLabel>Adresse Sauvegardée</SelectLabel>
+                    <SelectItem
+                        v-for="(address, index) in user.getAddresses"
+                        :key="index"
+                        :value="address.id.toString()"
+                    >{{
+                        address.street +
+                        ', ' +
+                        address.city +
+                        ' ' +
+                        address.postalCode +
+                        ', ' +
+                        address.country
+                      }}</SelectItem
+                    >
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <form v-if="customAddress">
                 <AddressForm
                     v-model:city="shippingCity"
                     v-model:region="shippingRegion"
@@ -288,30 +297,23 @@ const goBack = () => {
                     v-model:postal-code="shippingPostalCode"
                     v-model:street="shippingStreet"
                 />
-            </form>
-
-            <div class="mt-12">
-                <div class="flex justify-start items-center gap-x-2">
-                    <div
-                        class="border rounded-full border-primary text-primary aspect-square text-2xl h-10 w-10 flex justify-center items-center"
-                    >
-                        2
-                    </div>
-                    <h1 class="text-2xl uppercase tracking-wider">
-                        Adresse de facturation
-                    </h1>
-                </div>
-                <small class="font-light"
-                    >À quelle adresse devons-nous vous facturer?</small
-                >
-            </div>
-            <div class="flex items-center gap-x-2 mt-4">
-                <label class="text-base font-light"
-                    >Même adresse que l'addresse de livraison.</label
-                >
+              </form>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader class="pb-2">
+              <div class="flex gap-2 font-medium"><Badge>2</Badge>Addresse de facturation</div>
+            </CardHeader>
+            <CardContent>
+              <small class="font-light">
+                À quelle adresse devons-nous vous facturer?
+              </small>
+              <div class="flex items-center gap-x-2 mt-4">
+                <label class="text-base font-light">
+                  Même adresse que l'addresse de livraison.</label>
                 <Switch v-model:checked="sameAddress" />
-            </div>
-            <form v-if="!sameAddress">
+              </div>
+              <form v-if="!sameAddress">
                 <AddressForm
                     v-model:city="billingCity"
                     v-model:region="billingRegion"
@@ -319,94 +321,93 @@ const goBack = () => {
                     v-model:postal-code="billingPostalCode"
                     v-model:street="billingStreet"
                 />
-            </form>
-
-            <Button
-                @click="goToPayment"
-                class="mt-4 max-w-md min-w-fit uppercase tracking-wider"
-                :variant="waitingPaymentModal ? 'secondary' : 'default'"
-                >{{
-                    waitingPaymentModal ? 'Chargement...' : 'Passer au paiement'
-                }}</Button
-            >
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
-        <aside
-            class="w-96 px-12 py-8 h-full border border-primary/50 flex flex-col items-center"
-        >
-            <h1 class="text-center uppercase tracking-wide font-bold">
-                Récapitulatif
-            </h1>
-            <h2
-                class="text-center uppercase tracking-wide font-bold whitespace-nowrap flex justify-center items-center gap-x-1"
-            >
-                {{ user.countCartItem }}
-                Article{{ user.countCartItem > 1 ? 's' : '' }}
-            </h2>
-            <hr class="border-b-[0.5px] border-primary/40 my-4 w-full" />
-
+        <Card class="col-span-2">
+          <CardHeader>
+            <CardTitle>
+              Récapitulatif
+            </CardTitle>
+            <CardDescription>
+              {{ user.countCartItem }}
+              Article{{ user.countCartItem > 1 ? 's' : '' }}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <SummaryCard
                 v-for="(item, index) in user.getCart"
                 :key="index"
                 :item="item"
             />
+            <div class="flex flex-col gap-4 font-light">
+              <div class="flex justify-between items-center">
+                Sous-total
+                <span>
+                  €
+                  {{
+                    user.getCart.reduce(
+                        (acc: number, item: BasketItem) =>
+                            acc + item.product.price * item.quantity,
+                        0,
+                    )
+                  }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                Livraison
+                <p>€ 0 (offerte)</p>
+              </div>
 
-            <div class="flex flex-col w-full text-sm gap-y-4">
-                <div
-                    class="flex justify-between items-center w-full font-light"
-                >
-                    <p>Sous-total</p>
-                    <p>
-                        €
-                        {{
-                            user.getCart.reduce(
-                                (acc: number, item: BasketItem) =>
-                                    acc + item.product.price * item.quantity,
-                                0,
-                            )
-                        }}
-                    </p>
-                </div>
+              <div class="flex justify-between items-center font-medium text-sm uppercase">
+                Total
+                <p>
+                  €
+                  {{
+                    user.getCart.reduce(
+                        (acc: number, item: BasketItem) =>
+                            acc + item.product.price * item.quantity,
+                        0,
+                    )
+                  }}
+                </p>
+              </div>
 
-                <div
-                    class="flex justify-between items-center w-full font-light"
-                >
-                    <p>Livraison</p>
-                    <p>€ 0 (offerte)</p>
-                </div>
+              <div
+                  class="flex justify-between items-center"
+              >
+                TVA
+                <p>
+                  €
+                  {{
+                    user.getCart.reduce(
+                        (acc: number, item: BasketItem) =>
+                            acc + item.product.price * item.quantity,
+                        0,
+                    ) * 0.2
+                  }}
+                </p>
+              </div>
 
-                <div
-                    class="flex justify-between items-center w-full font-medium text-sm uppercase tracking-wide"
-                >
-                    <p>Total</p>
-                    <p>
-                        €
-                        {{
-                            user.getCart.reduce(
-                                (acc: number, item: BasketItem) =>
-                                    acc + item.product.price * item.quantity,
-                                0,
-                            )
-                        }}
-                    </p>
-                </div>
 
-                <div
-                    class="flex justify-between items-center w-full font-light"
-                >
-                    <p>TVA</p>
-                    <p>
-                        €
-                        {{
-                            user.getCart.reduce(
-                                (acc: number, item: BasketItem) =>
-                                    acc + item.product.price * item.quantity,
-                                0,
-                            ) * 0.2
-                        }}
-                    </p>
-                </div>
             </div>
-        </aside>
+          </CardContent>
+          <CardFooter>
+            <Button
+                @click="goToPayment"
+                class="mt-4 w-full uppercase "
+                :variant="waitingPaymentModal ? 'secondary' : 'default'"
+            >
+              {{
+                waitingPaymentModal ? 'Chargement...' : 'Passer au paiement'
+              }}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
+  </div>
+
 </template>
