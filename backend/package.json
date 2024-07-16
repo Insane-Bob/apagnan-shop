@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "key:generate": "node scripts/generateRSA256Keys.js",
-    "test:server": "jest",
+    "test:server": "NODE_ENV=test jest",
     "babel-node": "babel-node --inspect=0.0.0.0 --presets='@babel/preset-env'",
     "dev": "nodemon --exec npm run babel-node -- src/server.js",
     "build" : "babel src --out-dir dist --copy-files",
