@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import Button from '@/components/ui/button/Button.vue'
+import {useRoute} from "vue-router";
+import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
 
 if (window.opener) {
-    let channel = new BroadcastChannel('payment')
-    channel.postMessage('fail')
-    channel.close()
-    window.close()
+  const route = useRoute()
+  const {send} = usePaymentBroadcastChannel()
+  send({
+      type: 'payment',
+      status: 'fail',
+      orderId: route.query.orderId
+  })
+  window.close()
 }
 </script>
 
@@ -15,13 +20,5 @@ if (window.opener) {
             Paiement refusé <br />
             Envoyé un message à notre support
         </h1>
-        <Button
-            class="mt-4 cursor-not-allowed"
-            to="/"
-            variant="secondary"
-            disabled
-            >Envoyé un message</Button
-        >
-        <Button class="mt-4" to="/">Retour à l'accueil</Button>
     </div>
 </template>

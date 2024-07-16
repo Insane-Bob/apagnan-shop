@@ -38,6 +38,10 @@ export class OrderValidator extends Validator {
         if (req.query.has('status')) {
             req.query.set('status', req.query.get('status').split(','))
         }
+
+        if(req.query.has('withProducts')) {
+            req.query.set('withProducts', req.query.get('withProducts') === 'true')
+        }
     }
 
     static index() {
@@ -53,7 +57,7 @@ export class OrderValidator extends Validator {
                     ]),
                 )
                 .optional(),
-
+            withProducts: z.boolean().optional(),
             customerId: z.number().optional(),
         })
     }

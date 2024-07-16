@@ -10,14 +10,10 @@ export class SearchRequest {
         this.request = request
         this.searchableFields = searchableFields
         this.keys = keys
-        this.include = []
         this.additionalWhere = {}
         this.replacements = {}
     }
 
-    addInclude(model) {
-        this.include.push(model)
-    }
 
     addReplacement(key, value) {
         this.replacements[key] = value
@@ -94,11 +90,11 @@ export class SearchRequest {
         }
     }
 
+
     get queryWithoutPagination() {
         return {
             where: this.where,
             order: this.order,
-            include: this.include,
             replacements: this.replacements,
         }
     }
