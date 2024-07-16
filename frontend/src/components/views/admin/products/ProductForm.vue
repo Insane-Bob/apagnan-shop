@@ -164,146 +164,154 @@ const fetchSpecifics = async () => {
 </script>
 
 <template>
-    <form @submit.prevent="onSubmit">
-        <FormInput :errors="errors" name="name">
-            <template #label>Nom</template>
-            <template #input="inputProps">
-                <input
-                    type="text"
-                    v-model="product.product.name"
-                    v-bind="inputProps"
-                />
-            </template>
-        </FormInput>
-        <FormInput :errors="errors" name="price">
-            <template #label>Prix</template>
-            <template #input="inputProps">
-                <input
-                    type="number"
-                    v-model="product.product.price"
-                    v-bind="inputProps"
-                />
-            </template>
-        </FormInput>
-        <FormInput>
-            <template #label>Stock</template>
-            <template #input="inputProps">
-                <input
-                    type="number"
-                    v-model="product.product.stock"
-                    v-bind="inputProps"
-                    disabled
-                />
-            </template>
-        </FormInput>
-        <FormInput :errors="errors" name="description">
-            <template #label>Description</template>
-            <template #input="inputProps">
-                <textarea
-                    v-model="product.product.description"
-                    v-bind="inputProps"
-                ></textarea>
-            </template>
-        </FormInput>
-        <FormInput :errors="errors" name="collectionId">
-            <template #label>Collection</template>
-            <template #input="inputProps">
-                <Select v-model="product.product.collectionId">
-                    <SelectTrigger class="w-full">
-                        <SelectValue placeholder="Select a collection" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Collections</SelectLabel>
-                            <SelectItem
-                                v-for="collection in collections"
-                                :key="collection.id"
-                                :value="collection.id"
-                            >
-                                {{ collection.name }}
-                            </SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-            </template>
-        </FormInput>
-        <div
-            class="row-span-1 col-start-1 col-span-full flex items-center gap-x-4"
-        >
-            <Label
-                @click="product.product.published = !product.product.published"
-                for="published"
-                class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+    <div class="max-w-4xl mx-auto p-6">
+        <form @submit.prevent="onSubmit" class="space-y-6">
+            <FormInput :errors="errors" name="name" class="w-full sm:w-1/2">
+                <template #label>Nom</template>
+                <template #input="inputProps">
+                    <input
+                        type="text"
+                        v-model="product.product.name"
+                        v-bind="inputProps"
+                    />
+                </template>
+            </FormInput>
+            <FormInput :errors="errors" name="price" class="w-full sm:w-1/2">
+                <template #label>Prix</template>
+                <template #input="inputProps">
+                    <input
+                        type="number"
+                        v-model="product.product.price"
+                        v-bind="inputProps"
+                    />
+                </template>
+            </FormInput>
+            <FormInput class="w-full sm:w-1/2">
+                <template #label>Stock</template>
+                <template #input="inputProps">
+                    <input
+                        type="number"
+                        v-model="product.product.stock"
+                        v-bind="inputProps"
+                        disabled
+                    />
+                </template>
+            </FormInput>
+            <FormInput :errors="errors" name="description" class="w-full">
+                <template #label>Description</template>
+                <template #input="inputProps">
+                    <textarea
+                        v-model="product.product.description"
+                        v-bind="inputProps"
+                    ></textarea>
+                </template>
+            </FormInput>
+            <FormInput
+                :errors="errors"
+                name="collectionId"
+                class="w-full sm:w-1/2"
             >
-                Publié
-            </Label>
-            <Switch
-                name="published"
-                :checked="product.product.published"
-                @click="product.product.published = !product.product.published"
-                class=""
-            />
-        </div>
-        <div class="mt-4 flex gap-2">
-            <Button type="submit">
-                {{ slug === 'new' ? 'Créer' : 'Modifier' }}
-            </Button>
+                <template #label>Collection</template>
+                <template #input="inputProps">
+                    <Select v-model="product.product.collectionId">
+                        <SelectTrigger class="w-full">
+                            <SelectValue placeholder="Select a collection" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectLabel>Collections</SelectLabel>
+                                <SelectItem
+                                    v-for="collection in collections"
+                                    :key="collection.id"
+                                    :value="collection.id"
+                                >
+                                    {{ collection.name }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </template>
+            </FormInput>
+            <div class="flex items-center gap-x-4">
+                <Label
+                    @click="
+                        product.product.published = !product.product.published
+                    "
+                    for="published"
+                    class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                >
+                    Publié
+                </Label>
+                <Switch
+                    name="published"
+                    :checked="product.product.published"
+                    @click="
+                        product.product.published = !product.product.published
+                    "
+                    class=""
+                />
+            </div>
+            <div class="flex gap-4">
+                <Button type="submit">
+                    {{ slug === 'new' ? 'Créer' : 'Modifier' }}
+                </Button>
+                <Dialog>
+                    <DialogTrigger>
+                        <Button type="button">Gestion du stock</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <StockForm :productId="product.product.id"></StockForm>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </form>
+
+        <div class="mt-16">
+            <h3 class="text-lg font-semibold mb-4">Spécifiques</h3>
             <Dialog>
-                <DialogTrigger>
-                    <Button type="button">Gestion du stock</Button>
-                </DialogTrigger>
+                <div class="flex flex-col mx-6">
+                    <DialogTrigger>
+                        <Button
+                            @click="SpecificForm.specific = null"
+                            class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+                        >
+                            <span>Ajouter une specificité</span>
+                            <ion-icon
+                                class="text-lg"
+                                name="add-circle-outline"
+                            ></ion-icon>
+                        </Button>
+                    </DialogTrigger>
+                    <DataTable
+                        v-if="specifics.length > 0"
+                        :columns="columns"
+                        :rows="specifics"
+                        :page="page"
+                        :actions="actions"
+                        @emit-next-page="onNextPage"
+                        @emit-previous-page="onPreviousPage"
+                    ></DataTable>
+                </div>
+
                 <DialogContent>
-                    <StockForm :productId="product.product.id"></StockForm>
+                    <SpecificFormItem
+                        :specific="SpecificForm.specific"
+                        :productId="product.product.id"
+                    ></SpecificFormItem>
                 </DialogContent>
             </Dialog>
         </div>
-    </form>
 
-    <div class="mt-4">
-        <h3 class="text-lg font-semibold">Spécifiques</h3>
-        <Dialog>
-            <div class="flex flex-col mx-6">
-                <DialogTrigger>
-                    <Button
-                        @click="SpecificForm.specific = null"
-                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
-                    >
-                        <span>Ajouter une specificité</span>
-                        <ion-icon
-                            class="text-lg"
-                            name="add-circle-outline"
-                        ></ion-icon>
-                    </Button>
-                </DialogTrigger>
-                <DataTable
-                    v-if="specifics.length > 0"
-                    :columns="columns"
-                    :rows="specifics"
-                    :page="page"
-                    :actions="actions"
-                    @emit-next-page="onNextPage"
-                    @emit-previous-page="onPreviousPage"
-                ></DataTable>
-            </div>
-
-            <DialogContent>
-                <SpecificFormItem
-                    :specific="SpecificForm.specific"
-                    :productId="product.product.id"
-                ></SpecificFormItem>
-            </DialogContent>
-        </Dialog>
-    </div>
-
-    <div class="mt-4">
-        <h3 class="text-lg font-semibold">Images</h3>
-        <div class="flex flex-wrap gap-4 mt-2">
-            <div v-for="image in images" :key="image.id" class="w-32 h-32">
-                <img
-                    :src="`/src/${image.path}`"
-                    :alt="`Image ${image.id}`"
-                    class="w-full h-full object-cover"
-                />
+        <div class="mt-4">
+            <h3 class="text-lg font-semibold">Images</h3>
+            <div class="flex flex-wrap gap-4 mt-2">
+                <div v-for="image in images" :key="image.id" class="w-32 h-32">
+                    <img
+                        :src="`/src/${image.path}`"
+                        :alt="`Image ${image.id}`"
+                        class="w-full h-full object-cover"
+                    />
+                </div>
             </div>
         </div>
     </div>
