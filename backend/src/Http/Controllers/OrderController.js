@@ -20,7 +20,6 @@ import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDeno
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
 import Sequelize, { Op } from 'sequelize'
-import { PaymentStatus } from '../../Models/SQL/payment.js'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
