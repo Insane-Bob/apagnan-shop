@@ -1,9 +1,18 @@
 import mongoose from 'mongoose'
 import fs from 'fs'
 import path from 'path'
+import process from "process";
 
 async function loadModels() {
-    const mongooseSchemasDir = path.resolve('./src/Models/Mongo')
+    const command = process.env.npm_lifecycle_event
+    let pathDir;
+    if(command == 'start'){
+        pathDir = 'dist/Models/Mongo'
+    }else{
+        pathDir = 'src/Models/Mongo'
+    }
+
+    const mongooseSchemasDir = path.resolve(pathDir)
     const mongooseSchemas = {}
     const mongooseFiles = fs.readdirSync(mongooseSchemasDir)
     for (let modelFile of mongooseFiles) {

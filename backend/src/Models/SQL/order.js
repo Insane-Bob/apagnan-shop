@@ -110,6 +110,16 @@ function model(sequelize, DataTypes) {
                     return this.getTotal()
                 },
             },
+            nbProducts: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return (
+                        this.OrderDetails?.reduce((acc, orderDetail) => {
+                            return acc + orderDetail.quantity
+                        }, 0) || null
+                    )
+                },
+            },
             status: {
                 type: DataTypes.VIRTUAL,
                 get() {
