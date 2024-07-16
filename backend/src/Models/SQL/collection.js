@@ -18,6 +18,7 @@ function model(sequelize, DataTypes) {
                 foreignKey: 'collectionId',
             })
         }
+
     }
 
     Collection.registerDenormalizerTask(
