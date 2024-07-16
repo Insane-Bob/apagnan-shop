@@ -1,8 +1,8 @@
-import MyProfile from '@components/views/MyProfile.vue'
+import ProfileForm from '@/components/Forms/Profile/ProfileForm.vue'
+import { useToast } from '@/components/ui/toast/use-toast'
 import HeaderLayout from '@/layout/HeaderLayout.vue'
 import CommandResume from '@components/views/CommandResume.vue'
 import MyCommands from '@components/views/MyCommands.vue'
-import { useToast } from '@/components/ui/toast/use-toast'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useUserStore } from '@store/user'
 import NotificationManagementView from "@components/views/NotificationManagementView.vue";
