@@ -93,7 +93,7 @@ const onQuantityUpdated = async () => {
                             <SelectValue  placeholder="Quantité" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="(value,index) in (product.stock +  parseInt(quantity)) + 1" :value="value.toFixed()" :key="index">
+                                <SelectItem v-for="(value,index) in (product.stock +  parseInt(quantity))" :value="value.toFixed()" :key="index">
                                     {{ value.toFixed() }}
                                 </SelectItem>
                             </SelectContent>
