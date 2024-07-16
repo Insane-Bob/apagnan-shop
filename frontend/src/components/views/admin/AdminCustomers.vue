@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DataTable from '@/components/tables/DataTable.vue'
-import AdminCustomer from '@/components/views/admin/AdminCustomer.vue'
+import DataTable from '@components/tables/DataTable.vue'
+import AdminCustomer from '@components/views/admin/AdminCustomer.vue'
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { data as customerData } from './datas/customers'
@@ -53,7 +53,6 @@ function affectSimpleAction(event: { callback: Function; row: any }) {
         }
     })
 }
-
 </script>
 <template>
     <div v-if="!$route.params.id" div class="mx-8">

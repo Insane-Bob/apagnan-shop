@@ -2,7 +2,7 @@ import request from 'supertest'
 import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 
 let app = null
 describe('UserController test routes', () => {
@@ -117,5 +117,15 @@ describe('UserController test routes', () => {
     test('DELETE /api/users/:id - admin delete user', async () => {
         loginAsAdmin()
         await testRequest('/api/users/2', 'delete', 200)
+    })
+
+    test("POST /ask-login-as/:user_resource - user can't access ", async () => {
+        loginAsUser()
+        await testRequest('/api/users/ask-login-as/1', 'post', 403)
+    })
+
+    test('POST /ask-login-as/:user_resource - admin can access ', async () => {
+        loginAsAdmin()
+        await testRequest('/api/users/ask-login-as/1', 'post', 200)
     })
 })

@@ -1,9 +1,9 @@
 export interface Review {
     id: number
-    content: string
     rate: number
+    content: string
     productId: number
     userId: number
-    createdAt: string
     updatedAt: string
+    createdAt: string
 }

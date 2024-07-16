@@ -4,18 +4,45 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { RefundPolicy } from '../Policies/RefundPolicy.js'
 import { Database } from '../../Models/index.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
+import { RefundRequestValidator } from '../../Validator/RefundRequestValidator.js'
+import { Op } from 'sequelize'
 
 export class RefundsController extends Controller {
     refund_request
     async index() {
         this.can(RefundPolicy.index)
-        let search = new SearchRequest(this.req, ['approved', 'orderId'])
-        const refunds =
-            await Database.getInstance().models.RefundRequestOrder.findAll(
-                search.query,
-            )
+        const filters = this.validate(
+            RefundRequestValidator,
+            RefundRequestValidator.index(),
+        )
+        let search = new SearchRequest(
+            this.req,
+            ['approved', 'orderId'],
+            ['reason'],
+        )
 
-        this.res.json(refunds)
+        let customerIds = filters?.customersIds || null
+
+        search.addWhere({
+            '$Order.id$': { [Op.not]: null },
+        })
+
+        const refunds = await Database.getInstance()
+            .models.RefundRequestOrder.scope({
+                method: ['withCustomer', customerIds],
+            })
+            .findAll(search.query)
+
+        const totalRefunds = await Database.getInstance()
+            .models.RefundRequestOrder.scope({
+                method: ['withCustomer', customerIds],
+            })
+            .count(search.queryWithoutPagination)
+
+        this.res.json({
+            data: refunds,
+            total: totalRefunds,
+        })
     }
 
     async show() {

@@ -21,6 +21,8 @@ export default function (router) {
                 this.get('/reviews', ReviewController, 'getReviews')
                 this.get('/specifics', SpecificController, 'getSpecifics')
             })
+
+            this.get('/:product/stock', ProductController, 'streamStock')
         })
         .provide(ProductProvider)
 }
