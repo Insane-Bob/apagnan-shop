@@ -131,7 +131,7 @@
             id="promoted"
             class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
         >
-            <ProductCard :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description.slice(0,25)" :price="product.price" :image="product.images[0]" />
+            <ProductCard2 :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description.slice(0,25)" :price="product.price" :image="product.images[0]" />
         </div>
 
         <div
@@ -149,7 +149,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import { apiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
-import ProductCard from '@components/Cards/ProductCard.vue'
+import ProductCard2 from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
