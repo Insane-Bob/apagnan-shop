@@ -165,7 +165,7 @@ import {
 } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import { useToast } from '../ui/toast'
+import { useToast } from '@components/ui/toast'
 
 
 
@@ -283,7 +283,6 @@ onMounted(async () => {
 const fetchPromotedCollection = async () => {
     try{
     const response = await  apiClient.get('collections/promoted')
-    console.log(response.data)
 
     collection.value = response.data.collection
     }catch(e){
