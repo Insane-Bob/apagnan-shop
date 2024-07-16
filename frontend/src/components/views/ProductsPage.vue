@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SmallProductCard from '@components/Cards/SmallProductCard.vue'
+import SmallProductCard from '@components/cards/SmallProductCard.vue'
 import Slider from '@components/ui/slider/Slider.vue'
 import { onBeforeMount, onUpdated, reactive, ref } from 'vue'
 

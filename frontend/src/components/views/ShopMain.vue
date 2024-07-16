@@ -34,7 +34,9 @@
                                 class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                             ></ion-icon>
                         </SheetTrigger>
-                        <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
+                        <SheetContent>
+                            <AuthDrawer />
+                        </SheetContent>
                     </Sheet>
 
                     <Sheet v-if="isLogged">
@@ -50,12 +52,19 @@
                                 </div>
                             </div>
                         </SheetTrigger>
-                        <SheetContent><CartDrawer></CartDrawer></SheetContent>
+                        <SheetContent><CartDrawer /></SheetContent>
                     </Sheet>
 
                     <RouterLink to="/profile" v-if="isLogged">
                         <ion-icon
                             name="person-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                    </RouterLink>
+
+                    <RouterLink to="/logout" v-if="isLogged">
+                        <ion-icon
+                            name="log-out-outline"
                             class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                         ></ion-icon>
                     </RouterLink>
@@ -198,7 +207,7 @@ const onSearch = () => {
 }
 
 const isOnTop = ref(true)
-const showCookiesModal = ref(false)
+const showCookiesModal = ref(true)
 
 function changeBrightness() {
     const mainShopPage = document.querySelector('.main-shop-page')

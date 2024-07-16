@@ -6,12 +6,12 @@ import {
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
-import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 export class AuthController extends Controller {
     async login() {
@@ -25,6 +25,7 @@ export class AuthController extends Controller {
         )
 
         const database = Database.getInstance()
+
         if (!UserServices.comparePassword(password, user.password)) {
             await database.models.UserConnectionAttempt.create({
                 userId: user.id,
@@ -92,6 +93,7 @@ export class AuthController extends Controller {
             refreshToken: token.refreshToken,
         })
     }
+
     async register() {
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
@@ -106,11 +108,40 @@ export class AuthController extends Controller {
                 email,
                 password,
             )
-            await NotificationsServices.notifyRegisterUser(user)
+            const accessLink = await AccessLinkServices.createAccessLink(
+                user.id,
+                AccessLinkServices.getDate(),
+                AccessLinkServices.getDate(20),
+                1,
+            )
+            await NotificationsServices.notifyRegisterUser(user, accessLink)
             this.res.status(201).json(user)
         } catch (e) {
             throw e
         }
+    }
+
+    async resendActivationEmail() {
+        const { email } = this.validate(AskResetPasswordValidator)
+
+        const user = await UserServices.retrieveUserByEmail(email)
+        UnauthorizedException.abortIf(!user, 'User not found')
+        UnauthorizedException.abortIf(
+            user.isActive,
+            'User is already activated',
+        )
+
+        const accessLink = await AccessLinkServices.createAccessLink(
+            user.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(20),
+            1,
+        )
+        await NotificationsServices.notifyRegisterUser(user, accessLink)
+
+        this.res.json({
+            message: 'Activation email sent',
+        })
     }
 
     async logout() {
@@ -148,19 +179,6 @@ export class AuthController extends Controller {
         this.res.json({
             accessToken: TokenServices.generateAccessToken(newToken),
             refreshToken: newToken.refreshToken,
-        })
-    }
-
-    async resetPassword() {
-        const { email } = this.validate(AskResetPasswordValidator)
-
-        const user = await UserServices.retrieveUserByEmail(email)
-        UnauthorizedException.abortIf(!user, 'User not found')
-
-        await NotificationsServices.notifyResetPassword(user)
-
-        this.res.json({
-            message: 'An email has been sent to reset your password',
         })
     }
 
