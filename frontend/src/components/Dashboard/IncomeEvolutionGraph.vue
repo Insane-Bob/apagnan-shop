@@ -5,7 +5,6 @@ import CardHeader from '@components/ui/card/CardHeader.vue'
 import CardDescription from '@components/ui/card/CardDescription.vue'
 import CardTitle from '@components/ui/card/CardTitle.vue'
 import AreaChart from '@components/ui/chart-area/AreaChart.vue'
-import { defineProps } from 'vue/dist/vue'
 
 const props = defineProps({
     dateRange: {

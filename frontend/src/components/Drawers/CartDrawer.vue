@@ -10,6 +10,7 @@ import CartCard from '@components/Cards/CartCard.vue'
 import Button from '@components/ui/button/Button.vue'
 import { useUserStore } from '@store/user'
 import { RouterLink } from 'vue-router'
+import { orderRoutesName } from '@/routes/order'
 
 const user = useUserStore()
 user.cartViewed()
@@ -63,7 +64,11 @@ user.cartViewed()
                 </p>
             </div>
             <hr class="border-b-2 border-primary my-3" />
-            <RouterLink to="/order/summary">
+            <RouterLink
+                :to="{
+                    name: orderRoutesName.SUMMARY,
+                }"
+            >
                 <Button class="w-full uppercase tracking-wider font-light"
                     >Règlement</Button
                 >

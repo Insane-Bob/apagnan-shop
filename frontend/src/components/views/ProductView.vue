@@ -12,7 +12,7 @@ import {
     SelectGroup,
     SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { apiClient } from '@/lib/apiClient'
@@ -21,9 +21,7 @@ import { useUserStore } from '@store/user'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormGrid from '../Forms/FormGrid.vue'
-
-
-
+import { useCart } from '@/composables/useCart'
 
 const user = useUserStore()
 const router = useRouter()
@@ -34,10 +32,9 @@ const route = useRoute()
 const loading = ref(false)
 const showMore = ref(false)
 
-
-const quantitySelected = ref(1)
 const product = ref<Product | null>(null)
-const otherProducts= ref<Product[]>([])
+const cart = useCart(product)
+const otherProducts = ref<Product[]>([])
 const specifics = ref([])
 const reviews = reactive<Review[]>([])
 const collection = ref<Collection>({} as Collection)
@@ -50,33 +47,34 @@ const breadcrumbLinks = ref([
     ['', '#'],
 ])
 
-const reviewForm = reactive<{rate: number, content: string}>(
-    {
-        rate: 0,
-        content: '',
-    }
-
-)
+const reviewForm = reactive<{ rate: number; content: string }>({
+    rate: 0,
+    content: '',
+})
 
 const fetchProduct = async () => {
-    try{
-    const response = await apiClient.get('products/' + route.params.pslug)
-    const data = response.data
+    try {
+        const response = await apiClient.get('products/' + route.params.pslug)
+        const data = response.data
 
-
-    product.value = data.product
-    breadcrumbLinks.value[3] = [
-        data.product.name,
-        '/collections/' + route.params.cslug + '/products/' + route.params.pslug,
-    ]
-    if(data.images.length > 0){
-    carouselImages.value = data.images.map((image: {path: string}) => '/src/' + image.path)
-    }else{
-        carouselImages.value = ['/src/assets/images/noPhotoAvailable.webp']
-    }
-    }catch(e){
+        product.value = data.product
+        breadcrumbLinks.value[3] = [
+            data.product.name,
+            '/collections/' +
+                route.params.cslug +
+                '/products/' +
+                route.params.pslug,
+        ]
+        if (data.images.length > 0) {
+            carouselImages.value = data.images.map(
+                (image: { path: string }) => '/src/' + image.path,
+            )
+        } else {
+            carouselImages.value = ['/src/assets/images/noPhotoAvailable.webp']
+        }
+    } catch (e) {
         toast({
-            title: 'Le produit n\'existe pas',
+            title: "Le produit n'existe pas",
             variant: 'destructive',
         })
         router.push('/notFound')
@@ -84,40 +82,43 @@ const fetchProduct = async () => {
 }
 
 const fetchCollection = async () => {
-    try{
-    const response = await apiClient.get('collections/' + route.params.cslug)
-    const data = response.data
+    try {
+        const response = await apiClient.get(
+            'collections/' + route.params.cslug,
+        )
+        const data = response.data
 
-    if(product.value?.collectionId !== data.collection.id){
+        if (product.value?.collectionId !== data.collection.id) {
+            toast({
+                title: 'La collection ne correspond pas au produit',
+                variant: 'destructive',
+            })
+            router.push('/notFound')
+        }
+
+        collection.value = data.collection
+        if (data.image) {
+            collectionImage.value = data.image.path
+        } else {
+            collectionImage.value = '/src/assets/images/noPhotoAvailable.webp'
+        }
+        breadcrumbLinks.value[2] = [
+            data.collection.name,
+            '/collections/' + route.params.collectionSlug,
+        ]
+    } catch (e) {
         toast({
-            title: 'La collection ne correspond pas au produit',
-            variant: 'destructive',
-        })
-        router.push('/notFound')
-    }
-
-    collection.value = data.collection
-    if(data.image){
-    collectionImage.value = data.image.path
-    }else{
-        collectionImage.value = '/src/assets/images/noPhotoAvailable.webp'
-    }
-    breadcrumbLinks.value[2] = [
-        data.collection.name,
-        '/collections/' + route.params.collectionSlug,
-    ]
-
-    }catch(e){
-        toast({
-            title: 'La collection n\'existe pas',
+            title: "La collection n'existe pas",
             variant: 'destructive',
         })
         router.push('/notFound')
     }
 }
 
-const fetchCollectionProducts =  async () =>{
-    const response = await apiClient.get('collections/' + route.params.cslug + '/products')
+const fetchCollectionProducts = async () => {
+    const response = await apiClient.get(
+        'collections/' + route.params.cslug + '/products',
+    )
     const data = response.data
 
     const images = data.images
@@ -125,44 +126,36 @@ const fetchCollectionProducts =  async () =>{
     otherProducts.value = data.products
 
     otherProducts.value.forEach((product: Product) => {
-        product.images = images.filter((image: {modelId: number, modelName: string}) => image.modelId === product.id && image.modelName == 'product')
+        product.images = images.filter(
+            (image: { modelId: number; modelName: string }) =>
+                image.modelId === product.id && image.modelName == 'product',
+        )
     })
 
-    otherProducts.value = otherProducts.value.filter((p: Product) => p.id !== product.value?.id)
+    otherProducts.value = otherProducts.value.filter(
+        (p: Product) => p.id !== product.value?.id,
+    )
 
     otherProducts.value = otherProducts.value.slice(0, 5)
 }
 
 const fetchProductReviews = async () => {
-    const response = await apiClient.get('products/' + route.params.pslug + '/reviews')
+    const response = await apiClient.get(
+        'products/' + route.params.pslug + '/reviews',
+    )
     const data = await response.data
-    
+
     data.reviews.forEach((review: Review) => {
         reviews.push(review)
     })
 }
 
 const fetchProductSpecifics = async () => {
-    const response = await apiClient.get('products/' + route.params.pslug + '/specifics')
+    const response = await apiClient.get(
+        'products/' + route.params.pslug + '/specifics',
+    )
     const data = await response.data
     specifics.value = data.specifics
-}
-
-const addToCart = async () => {
-    if (user.isAuthenticated && product.value) {
-        if(quantitySelected.value > product.value.stock){
-            toast({
-                title: 'Il n\'y a pas assez de stock',
-                variant: 'destructive',
-            })
-            return
-        }
-        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + product.value.id, {quantity: quantitySelected.value} )
-        user.addItem(reponse.data.items)
-        toast({
-            title: 'Le produit a été ajouté à votre panier',
-        })
-    }
 }
 
 onMounted(async () => {
@@ -173,12 +166,15 @@ onMounted(async () => {
     await fetchCollectionProducts()
 
     loading.value = false
-
 })
 
 const sendReview = async () => {
-    if(user.isAuthenticated && product.value){
-        const data = {...reviewForm, productId: product.value.id, userId: user.getId}
+    if (user.isAuthenticated && product.value) {
+        const data = {
+            ...reviewForm,
+            productId: product.value.id,
+            userId: user.getId,
+        }
         const response = await apiClient.post('/reviews', data)
         reviews.push(response.data.review)
         toast({
@@ -232,21 +228,56 @@ watch(() => route.params.pslug, async () => {
                         />
                     </div>
                     <div>
-                        <p class="text-2xl font-semibold">€ {{ product.price }}</p>
-                        <p class="text-sm" :class="{'text-red-400':!(product.stock>0), 'text-orange-400':(product.stock>0)}" v-if="product.stock < 10">{{ product.stock>0?'Il reste '+ product.stock + ' article(s)': 'Il n\'y a plus de stock, revenez plus tard'}}</p>
+                        <p class="text-2xl font-semibold">
+                            € {{ product.price }}
+                        </p>
+                        <p
+                            class="text-sm"
+                            :class="{
+                                'text-red-400': !(product.stock > 0),
+                                'text-orange-400': product.stock > 0,
+                            }"
+                            v-if="product.stock < 10"
+                        >
+                            {{
+                                product.stock > 0
+                                    ? 'Il reste ' +
+                                      product.stock +
+                                      ' article(s)'
+                                    : "Il n'y a plus de stock, revenez plus tard"
+                            }}
+                        </p>
                     </div>
                     
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex items-center gap-x-2 max-w-72">
                             <p>Quantité</p>
-                            <Input type="number" class="border-2 border-black rounded-sm max-w-24" placeholder="Quantité" v-model="quantitySelected" />
+                            <Input
+                                type="number"
+                                class="border-2 border-black rounded-sm max-w-24"
+                                placeholder="Quantité"
+                                v-model="cart.quantitySelected"
+                            />
                         </div>
-                        <Button v-if="user.isAuthenticated" :disabled="product.stock<=0" variant="outline" @click="addToCart()" class="flex items-center gap-x-2">
+                        <Button
+                            v-if="user.isAuthenticated"
+                            :disabled="product.stock <= 0"
+                            variant="outline"
+                            @click="cart.addToCart()"
+                            class="flex items-center gap-x-2"
+                        >
                             Ajouter au panier
-                            <ion-icon name="cart-outline" class="text-lg font-semibold"></ion-icon>
+                            <ion-icon
+                                name="cart-outline"
+                                class="text-lg font-semibold"
+                            ></ion-icon>
                         </Button>
                         <div v-else>
-                            <Button  variant="outline" disabled class="flex items-center gap-x-2">
+                            <Button
+                                variant="outline"
+                                disabled
+                                class="flex items-center gap-x-2"
+                            >
                                 Connexion requise
                             </Button>
                         </div>
@@ -273,7 +304,7 @@ watch(() => route.params.pslug, async () => {
                 <SpecificsListComponent :specifics="specifics" />
             </div>
         </div>
-        <div v-if="otherProducts.length>0" class="flex justify-center mb-7">
+        <div v-if="otherProducts.length > 0" class="flex justify-center mb-7">
             <div class="w-4/5 flex gap-16 flex-col items-center">
                 <h2 class="text-2xl font-semibold uppercase">
                     Vous aimerez aussi
@@ -293,14 +324,33 @@ watch(() => route.params.pslug, async () => {
                 </h2>
                 <div class="flex flex-col gap-4 text-left">
                     <ReviewNoteComponent
-                        :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
+                        :note="
+                            reviews.reduce(
+                                (acc, review) => acc + review.rate,
+                                0,
+                            ) / reviews.length
+                        "
                         :NbReviews="reviews.length"
                     />
-                    <div v-for="review in reviews.sort((r1, r2) => r2.rate - r1.rate).slice(0,7)" :key="review.id" class="flex flex-col gap-2">
-                    <div class="flex flex-col gap-4">
+                    <div
+                        v-for="review in reviews
+                            .sort((r1, r2) => r2.rate - r1.rate)
+                            .slice(0, 7)"
+                        :key="review.id"
+                        class="flex flex-col gap-2"
+                    >
+                        <div class="flex flex-col gap-4">
                             <div>
-                                <p class="text-lg font-semibold mb-0">{{ review.rate }}/5</p>
-                                <p class="text-sm font-light">{{ new Date(review.createdAt).toLocaleDateString() }}</p>
+                                <p class="text-lg font-semibold mb-0">
+                                    {{ review.rate }}/5
+                                </p>
+                                <p class="text-sm font-light">
+                                    {{
+                                        new Date(
+                                            review.createdAt,
+                                        ).toLocaleDateString()
+                                    }}
+                                </p>
                             </div>
                             <p>{{ review.content }}</p>
                         </div>
@@ -308,8 +358,10 @@ watch(() => route.params.pslug, async () => {
                 </div>
             </div>       
 
-            <div class="w-2/5 flex flex-col items-center mt-4" v-if="user.isAuthenticated">
-
+            <div
+                class="w-2/5 flex flex-col items-center mt-4"
+                v-if="user.isAuthenticated"
+            >
                 <div class="w-full flex flex-col gap-4">
                     <h2 class="text-lg tracking-wider uppercase">
                         Laisser un avis
@@ -318,29 +370,36 @@ watch(() => route.params.pslug, async () => {
                         <FormGrid>
                             <Select v-model="reviewForm.rate">
                                 <SelectTrigger class="col-span-full">
-                                <SelectValue placeholder="Choisir une note" />
+                                    <SelectValue
+                                        placeholder="Choisir une note"
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem v-for="value in 5" :value="value.toString()" :key="value">
-                                    {{ value }}
-                                    </SelectItem>
-                                </SelectGroup>
+                                    <SelectGroup>
+                                        <SelectItem
+                                            v-for="value in 5"
+                                            :value="value.toString()"
+                                            :key="value"
+                                        >
+                                            {{ value }}
+                                        </SelectItem>
+                                    </SelectGroup>
                                 </SelectContent>
                             </Select>
-                            
-                            <textarea v-model="reviewForm.content" rows="3" class="col-span-full border border-[hsl(0 0% 89.8%)]"></textarea>
-                            <Button class="uppercase tracking-wider col-start-7 col-span-6">Envoyer</Button>
+
+                            <textarea
+                                v-model="reviewForm.content"
+                                rows="3"
+                                class="col-span-full border border-[hsl(0 0% 89.8%)]"
+                            ></textarea>
+                            <Button
+                                class="uppercase tracking-wider col-start-7 col-span-6"
+                                >Envoyer</Button
+                            >
                         </FormGrid>
-
-
                     </form>
-
                 </div>
-
             </div>
         </div>
-
-        
     </div>
 </template>
