@@ -7,7 +7,7 @@
     "test:server": "jest",
     "babel-node": "babel-node --inspect=0.0.0.0 --presets='@babel/preset-env'",
     "dev": "nodemon --exec npm run babel-node -- src/server.js",
-    "build" : "BUILD=true babel src --out-dir dist --copy-files",
+    "build" : "babel src --out-dir dist --copy-files",
     "start": "node dist/server.js"
   },
   "dependencies": {
