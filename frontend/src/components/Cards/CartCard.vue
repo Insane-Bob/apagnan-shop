@@ -21,8 +21,11 @@ const props = defineProps<{
     product: Product
 }>()
 
+const oldQuantity = ref(props.quantity.toString())
+
 const quantity = ref(props.quantity.toString())
 
+console.log(props.product)
 
 const removeFromCart = async () => {
     if (user.isAuthenticated && props.product) {
@@ -38,12 +41,24 @@ const removeFromCart = async () => {
 
 const onQuantityUpdated = async () => {
     if (user.isAuthenticated && props.product) {
-        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
-        user.addItem(reponse.data.items)
+        try{
+            const response = await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
 
-        toast({
-            title: 'Quantité mise à jour',
-        })
+            user.addItem(response.data.items)
+            oldQuantity.value = quantity.value
+            toast({
+                title: 'Quantité mise à jour',
+            })
+        }catch(e){
+            quantity.value = oldQuantity.value
+            await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
+            toast({
+                title: 'Erreur lors de la mise à jour de la quantité',
+                description: 'Il n\'y a pas assez de stock pour cette quantité',
+                variant: 'destructive'
+            })
+        }
+
         
     }
 }
@@ -78,7 +93,7 @@ const onQuantityUpdated = async () => {
                             <SelectValue  placeholder="Quantité" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="(value,index) in 100" :value="value.toFixed()" :key="index">
+                                <SelectItem v-for="(value,index) in (product.stock +  parseInt(quantity)) + 1" :value="value.toFixed()" :key="index">
                                     {{ value.toFixed() }}
                                 </SelectItem>
                             </SelectContent>
