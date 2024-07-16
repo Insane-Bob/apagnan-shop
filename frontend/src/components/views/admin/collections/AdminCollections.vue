@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
-import CollectionForm from '@/components/views/admin/collections/CollectionForm.vue'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { Collection, Page, TableActions, TableColumns } from '@types'
-import { onMounted, reactive, ref } from 'vue'
+import CollectionForm from '@/components/views/admin/collections/CollectionForm.vue'
+import { useFilters } from '@/composables/useFilters'
+import { useTable } from '@/composables/useTable'
 import { apiClient } from '@/lib/apiClient'
+import Filter from '@components/tables/Filter.vue'
+import FilterItem from '@components/tables/FilterItem.vue'
+import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
+import { Collection, TableActions, TableColumns } from '@types'
+import { reactive } from 'vue'
 
-const collections = reactive<Collection[]>([])
+const { filters, query, resetFilters } = useFilters({
+    published: [],
+    search: '',
+})
+
+const { fetch, rows, pagination, sorting } = useTable('/collections', query)
 
 const form = reactive<{ collection: Collection | null }>({
     collection: null,
 })
 
-const page = reactive<Page>({
-    current: 1,
-    total: collections.length,
-    perPage: 5,
-})
+
 
 const columns: TableColumns[] = [
     {
@@ -107,94 +113,72 @@ const actions: TableActions[] = [
         icon: 'trash-outline',
         class: 'text-red-500',
         action: (row: any) => {
-            console.log('Supprimer', row)
+            deleteCollection(row)
         },
     },
 ]
 
-function onNextPage() {
-    page.current++
-}
-
-function onPreviousPage() {
-    page.current--
-}
-
-onMounted(() => {
-    fetchCollections()
-})
-
-const fetchCollections = async () => {
-    const response = await apiClient.get('collections')
-    const data = await response.data
-    data.collections.forEach((c: any) => {
-        collections.push(c)
-    })
-    page.total = collections.length
-}
-
 const updateCollection = async (row: any) => {
-    const response = await apiClient.patch('collections/' + row.slug, row)
-    const data = response.data
-    collections.splice(
-        collections.findIndex((c: any) => c.slug === row.slug),
-        1,
-        data.collection,
-    )
-}
+    await apiClient.patch('collections/' + row.slug, row)
+    fetch()
 
-const reloadCollection = (collection: Collection) => {
-    if (form.collection) {
-        collections.splice(
-            collections.findIndex((c: any) => c.slug === form.collection.slug),
-            1,
-            collection,
-        )
-    } else {
-        collections.push(collection)
-    }
-    form.collection = null
-
-    page.total = collections.length
 }
 
 const removeOldPromoted = () => {
-    const oldPromoted = collections.find((c: any) => c.promoted)
+    const oldPromoted = rows.value.find((c: any) => c.promoted)
     if (oldPromoted) {
         updateCollection({ ...oldPromoted, promoted: false })
     }
+}
+
+const deleteCollection = async (row: any) => {
+    await apiClient.delete('collections/' + row.slug)
+    fetch()
 }
 </script>
 <template>
     <Dialog>
         <div class="flex flex-col mx-6">
-            <DialogTrigger>
-                <Button
-                    @click="form.collection = null"
-                    class="w-min whitespace-nowrap flex justify-center items-center gap-x-2 mb-6"
-                >
-                    <span>Créer une nouvelle collection</span>
-                    <ion-icon
-                        class="text-lg"
-                        name="add-circle-outline"
-                    ></ion-icon>
-                </Button>
-            </DialogTrigger>
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex gap-4 items-center">
+                    <OutlinedInput
+                        class="max-w-[200px]"
+                        placeholder="Recherche"
+                        v-model="filters.search"
+                    >
+                    </OutlinedInput>
+
+                    <Filter label="Status" v-model="filters.published">
+                        <FilterItem value="true" label="publié" />
+                        <FilterItem value="false" label="non publié" />
+                    </Filter>
+                </div>
+                <DialogTrigger>
+                    <Button
+                        @click="form.collection = null"
+                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+                    >
+                        <span>Créer une nouvelle collection</span>
+                        <ion-icon
+                            class="text-lg"
+                            name="add-circle-outline"
+                        ></ion-icon>
+                    </Button>
+                </DialogTrigger>
+            </div>
             <DataTable
-                v-if="collections.length > 0"
                 :columns="columns"
-                :rows="collections"
-                :page="page"
+                :rows="rows"
+                :pagination="pagination"
+                :sorting="sorting"
                 :actions="actions"
-                @emit-next-page="onNextPage"
-                @emit-previous-page="onPreviousPage"
             ></DataTable>
         </div>
 
         <DialogContent>
             <CollectionForm
                 :collection="form.collection"
-                @reload-collection="reloadCollection"
+                @reload-collection="fetch"
             ></CollectionForm>
         </DialogContent>
     </Dialog>

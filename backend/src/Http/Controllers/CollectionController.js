@@ -1,14 +1,25 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { CollectionPolicy } from '../Policies/CollectionPolicy.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class CollectionController extends Controller {
     async getCollections() {
+        let search = new SearchRequest(this.req, ['published'], ['name'])
+
+        const data = await Database.getInstance().models.Collection.findAll(
+            search.query,
+        )
+        const total = await Database.getInstance().models.Collection.count(
+            search.queryWithoutPagination,
+        )
+
         const collections =
             await Database.getInstance().models.Collection.findAll()
 
         this.res.json({
-            collections: collections,
+            data: data,
+            total: total,
         })
     }
 
