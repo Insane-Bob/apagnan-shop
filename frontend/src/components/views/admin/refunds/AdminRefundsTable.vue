@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import DataTable from '@components/tables/DataTable.vue'
-import { Dialog, DialogContent, DialogTrigger } from '@components/ui/dialog'
+import { Dialog } from '@components/ui/dialog'
 import { TableActions, TableColumns, User } from '@types'
-import { onMounted, ref, watch } from 'vue'
 import { apiClient } from '@/lib/apiClient'
-import { usePagination } from '@/composables/usePagination'
 import { useToast } from '@components/ui/toast'
-import { useSort } from '@/composables/useSort'
-
-const collection = ref<Object[]>([])
-
-const collectionLength = ref(0)
+import { useTable } from '@/composables/useTable'
+import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
+import FilterItem from '@components/tables/FilterItem.vue'
+import Filter from '@components/tables/Filter.vue'
+import { useFilters } from '@/composables/useFilters'
+import { computed } from 'vue'
 
 const { toast } = useToast()
-const {
-    currentPage,
-    dataTablePagination,
-    query: paginatedQuery,
-} = usePagination(collectionLength)
 
-const { dataTableSort, sortQuery } = useSort()
+const { filters, query } = useFilters({
+    approved: [],
+    search: '',
+    customersIds: [],
+})
+const { fetch, rows, pagination, sorting } = useTable('/refunds', query)
 
 const columns: TableColumns[] = [
     {
@@ -74,39 +73,47 @@ const actions: TableActions[] = [
     },
 ]
 
-onMounted(() => {
-    fetch()
+const customers = computed(() => {
+    let customers = rows.value.map((row: any) => {
+        return {
+            value: row.Order.Customer.id,
+            label: `${row.Order.Customer.User.firstName} ${row.Order.Customer.User.lastName}`,
+        }
+    })
+    return customers.filter(
+        (v, i, a) => a.findIndex((t) => t.value === v.value) === i,
+    )
 })
-
-watch([currentPage, sortQuery], () => {
-    fetch()
-})
-
-const fetch = async () => {
-    try {
-        const response = await apiClient.get(
-            '/refunds?' +
-                paginatedQuery.value.toString() +
-                '&' +
-                sortQuery.value.toString(),
-        )
-        collection.value = response.data.data
-        collectionLength.value = response.data.total
-    } catch (e) {
-        console.error(e)
-    }
-}
 </script>
 <template>
     <Dialog>
-        <div class="flex flex-col mx-6">
+        <div class="flex flex-col mx-6 gap-4">
+            <div class="flex gap-4 items-center">
+                <OutlinedInput
+                    class="max-w-[200px]"
+                    placeholder="Recherche"
+                    v-model="filters.search"
+                >
+                </OutlinedInput>
+
+                <Filter label="Approuvé" v-model="filters.approved">
+                    <FilterItem :value="1" label="oui" />
+                    <FilterItem :value="0" label="non" />
+                </Filter>
+                <Filter label="Client" v-model="filters.customersIds">
+                    <FilterItem
+                        :value="customer.value"
+                        :label="customer.label"
+                        v-for="customer in customers"
+                    />
+                </Filter>
+            </div>
             <DataTable
-                v-if="collection.length > 0"
                 :columns="columns"
-                :rows="collection"
+                :rows="rows"
                 :actions="actions"
-                :pagination="dataTablePagination"
-                :sorting="dataTableSort"
+                :pagination="pagination"
+                :sorting="sorting"
             >
                 <template #row:approved="{ row: { approved } }">
                     <div v-if="approved">

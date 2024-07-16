@@ -33,4 +33,28 @@ export class OrderValidator extends Validator {
             ]),
         })
     }
+
+    beforeValidation(req) {
+        if (req.query.has('status')) {
+            req.query.set('status', req.query.get('status').split(','))
+        }
+    }
+
+    static index() {
+        return z.object({
+            status: z
+                .array(
+                    z.enum([
+                        OrderStatus.PENDING,
+                        OrderStatus.DELIVERED,
+                        OrderStatus.REFUNDED,
+                        OrderStatus.SHIPPED,
+                        OrderStatus.CANCELLED,
+                    ]),
+                )
+                .optional(),
+
+            customerId: z.number().optional(),
+        })
+    }
 }
