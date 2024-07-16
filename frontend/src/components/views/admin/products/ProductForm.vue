@@ -27,6 +27,7 @@ const props = defineProps<{
     cslug: string
 }>()
 
+const errors = ref(null)
 const slug = ref(props.cslug)
 const product = reactive<{ product: Product }>({
     product: {
@@ -123,12 +124,16 @@ const createProduct = async () => {
 }
 
 const updateProduct = async () => {
-    const response = await apiClient.patch(
-        'products/' + slug.value,
-        product.product,
-    )
-    if (response.status === 200) {
-        router.push('/admin/products/' + response.data.product.slug)
+    try {
+        const response = await apiClient.patch(
+            'products/' + slug.value,
+            product.product,
+        )
+        if (response.status === 200) {
+            router.push('/admin/products/' + response.data.product.slug)
+        }
+    } catch (error) {
+        errors.value = error.response.data.errors
     }
 }
 
@@ -160,7 +165,7 @@ const fetchSpecifics = async () => {
 
 <template>
     <form @submit.prevent="onSubmit">
-        <FormInput>
+        <FormInput :errors="errors" name="name">
             <template #label>Nom</template>
             <template #input="inputProps">
                 <input
@@ -170,7 +175,7 @@ const fetchSpecifics = async () => {
                 />
             </template>
         </FormInput>
-        <FormInput>
+        <FormInput :errors="errors" name="price">
             <template #label>Prix</template>
             <template #input="inputProps">
                 <input
@@ -191,7 +196,7 @@ const fetchSpecifics = async () => {
                 />
             </template>
         </FormInput>
-        <FormInput>
+        <FormInput :errors="errors" name="description">
             <template #label>Description</template>
             <template #input="inputProps">
                 <textarea
@@ -200,7 +205,7 @@ const fetchSpecifics = async () => {
                 ></textarea>
             </template>
         </FormInput>
-        <FormInput>
+        <FormInput :errors="errors" name="collectionId">
             <template #label>Collection</template>
             <template #input="inputProps">
                 <Select v-model="product.product.collectionId">
