@@ -49,12 +49,15 @@ jobs:
           cd backend
           npm install
           npm run build
-
+          cd dist
+          npm init -y
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: backend-dist
           path: backend/dist
+
+
 
   deploy:
     runs-on: ubuntu-latest
