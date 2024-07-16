@@ -4,7 +4,16 @@ import process from 'process'
 import fs from 'fs'
 
 export async function loadSQLModels(sequelize) {
-    const SQLDirPath = path.resolve('src/Models/SQL')
+    const command = process.env.npm_lifecycle_event
+    let pathDir;
+    if(command == 'start'){
+        pathDir = 'dist/Models/SQL'
+    }else{
+        pathDir = 'src/Models/SQL'
+    }
+
+    const SQLDirPath = path.resolve(pathDir)
+
     const SQLModels = {}
     const SQLFiles = fs.readdirSync(SQLDirPath)
 
