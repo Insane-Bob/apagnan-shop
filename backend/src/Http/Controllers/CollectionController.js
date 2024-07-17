@@ -8,15 +8,19 @@ export class CollectionController extends Controller {
     async getCollections() {
         let search = new SearchRequest(this.req, ['published'], ['name'])
 
-        const data = await Database.getInstance().models.Collection.findAll(
-            search.query,
-        )
-        const total = await Database.getInstance().models.Collection.count(
-            search.queryWithoutPagination,
-        )
+        const model = Database.getInstance().models.Collection
+        if (this.req.query.has('withImage')) model.scope('withImage')
+        const total = await model.count(search.queryWithoutPagination)
 
-        const collections =
-            await Database.getInstance().models.Collection.findAll()
+        let query = { ...search.query }
+        if (this.req.query.has('random')) {
+            query.limit = search.query.limit || 1
+            query.offset = Math.floor(
+                Math.random() * (total - search.query.limit),
+            )
+        }
+
+        const data = await model.findAll(query)
 
         this.res.json({
             data: data,

@@ -39,11 +39,6 @@ const props = defineProps<{
     }
 }>()
 
-// const sorting = reactive({
-//     key: '',
-//     direction: '',
-// })
-
 const rows = computed(() => {
     return props.rows
 })
@@ -51,16 +46,6 @@ const rows = computed(() => {
 function onSort(key: string) {
     if (!props.sorting) return
     props.sorting.changeSort(key)
-}
-
-function sortDate(key: string) {
-    rows.value.sort((a, b) => {
-        if (sorting.direction === 'asc') {
-            return new Date(a[key]) > new Date(b[key]) ? 1 : -1
-        } else {
-            return new Date(a[key]) < new Date(b[key]) ? 1 : -1
-        }
-    })
 }
 
 function onSelectAll() {
@@ -79,20 +64,6 @@ function onSelect(id: number) {
         isAllSelected.value = rows.value.every((row) => row.selected)
     }
 }
-
-// function onPreviousPage() {
-//     if(!props.page) return
-//     if(props.page.current === 1) return
-//
-//     emit('emitPreviousPage')
-// }
-//
-// function onNextPage() {
-//     if(!props.page) return
-//     if(props.page.current*props.page.perPage >= props.page.total) return
-//
-//     emit('emitNextPage')
-// }
 
 function onSearchIn(event: any, key: string) {
     emit('updateSearch', { key, value: event.target.value })
@@ -309,7 +280,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                     <tr v-if="rows.length == 0">
                         <td
                             :colspan="props.columns.length + 1"
-                            class="text-center py-4"
+                            class="text-center py-4 bg-white"
                         >
                             Aucune donnée
                         </td>

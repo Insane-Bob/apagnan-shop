@@ -5,13 +5,37 @@ import { ProductServices } from '../../Services/ProductServices.js'
 import { ProductPolicy } from '../Policies/ProductPolicy.js'
 import { ProductValidator } from '../../Validator/ProductValidator.js'
 import { ProductStockObserver } from '../../Observers/ProductStockObserver.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
     async getProducts() {
-        const products = this.collection
-            ? await this.collection.getProducts()
-            : await Database.getInstance().models.Product.findAll()
+        let products
+
+        if (this.collection) {
+            products = await this.collection.getProducts()
+        } else {
+            // @CONFLICT - doit etre récuperer pour le systeme de suggestion
+            let search = new SearchRequest(this.req, ['published'], ['name'])
+
+            let model = Database.getInstance().models.Product
+            let total = await model.count(search.queryWithoutPagination)
+
+            if (this.req.query.has('withCollection'))
+                model = model.scope('withCollection')
+
+            let query = { ...search.query }
+            if (this.req.query.has('random')) {
+                query.limit = search.query.limit || 1
+                query.offset = Math.floor(
+                    Math.random() * (total - search.query.limit),
+                )
+            }
+            // @CONFLICT_END ---
+
+            products = await model.findAll(query)
+        }
+
         await ProductServices.loadRemainingStock(products)
 
         const images = await Database.getInstance().models.Upload.findAll({
@@ -22,7 +46,7 @@ export class ProductController extends Controller {
         })
 
         this.res.status(200).json({
-            products,
+            data: products,
             images,
         })
     }

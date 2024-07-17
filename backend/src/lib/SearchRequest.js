@@ -14,7 +14,6 @@ export class SearchRequest {
         this.replacements = {}
     }
 
-
     addReplacement(key, value) {
         this.replacements[key] = value
     }
@@ -87,9 +86,14 @@ export class SearchRequest {
             ...this.queryWithoutPagination,
             limit: this.limit,
             offset: this.offset,
+            attributes: this.attributes,
         }
     }
 
+    get attributes() {
+        if (!this.request.query.has('attributes')) return undefined
+        return this.request.query.get('attributes', '').split(',')
+    }
 
     get queryWithoutPagination() {
         return {

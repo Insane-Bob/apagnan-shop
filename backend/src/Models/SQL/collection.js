@@ -6,7 +6,7 @@ import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/Product
 function model(sequelize, DataTypes) {
     class Collection extends DenormalizableModel {
         static associate(models) {
-            Collection.hasOne(models.Upload, {
+            models.Collection.hasOne(models.Upload, {
                 foreignKey: 'modelId',
                 constraints: false,
                 scope: {
@@ -14,11 +14,25 @@ function model(sequelize, DataTypes) {
                 },
                 as: 'image',
             })
-            Collection.hasMany(models.Product, {
+            models.Collection.hasMany(models.Product, {
                 foreignKey: 'collectionId',
             })
         }
 
+        static addScopes(models) {
+            models.Collection.addScope('withImage', {
+                include: [
+                    {
+                        model: models.Upload,
+                    },
+                ],
+            })
+            models.Collection.addScope('withProducts', {
+                include: {
+                    model: models.Product,
+                },
+            })
+        }
     }
 
     Collection.registerDenormalizerTask(

@@ -30,7 +30,10 @@ async function fetch() {
     const { data: apiData } = await apiClient.get(
         '/stats/orders-taken?' + search,
     )
-    data.value = apiData
+    data.value = data.value = apiData.map((item) => ({
+      label: item.label,
+      count: item.count,
+    }))
 }
 
 onMounted(() => {
