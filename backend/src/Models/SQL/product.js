@@ -32,6 +32,14 @@ function model(sequelize, DataTypes) {
             })
         }
 
+        static addScopes(models) {
+            models.Product.addScope('withCollection', {
+                include: {
+                    model: models.Collection,
+                },
+            })
+        }
+
         async getStock() {
             const sql = `SELECT SUM(quantity) as stock FROM "StockTransactions" WHERE "productId" = :productId`
             const [result] = await sequelize.query(sql, {
