@@ -15,6 +15,8 @@ export default async function () {
     const users = await UserFactory.withWidget(false)
         .withCustomer()
         .count(10)
-        .create()
+        .create({
+             password: 'admin@email.comA2024',
+        })
     this.references.set('users', [...users, adminUser])
 }
