@@ -40,7 +40,7 @@ export class UserController extends Controller {
 
     async update() {
         this.can(UserPolicy.update, this.user_resource)
-
+        
         const payload = this.validate(
             UserUpdateValidator,
             this.req.getUser().hasRole(USER_ROLES.ADMIN)

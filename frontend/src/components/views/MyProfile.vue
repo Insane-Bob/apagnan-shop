@@ -1,21 +1,17 @@
 <template>
     <div class="relative">
-        <div class="sticky top-0 z-10">
-            <img
-                src="/src/assets/images/myProfileMenu.webp"
-                class="w-full md:h-[60vw] lg:h-[30vw] object-cover"
-            />
-            <h1
-                class="text-center text-xl sm:text-xl md:text-5xl w-full tracking-widest text-white uppercase absolute z-10 bottom-1/4 -y-translate-1/2 block"
-            >
-                Bienvenue, {{ user.get.firstName + ' ' + user.get.lastName }}
-            </h1>
-        </div>
-        <main class="bg-white w-screen relative mb-10 z-20">
-            <div
-                class="rotate-45 h-8 w-8 relative top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-black"
-            ></div>
-
+        <main class="bg-white">
+            <div class="flex flex-col justify-center items-center gap-2 mt-5">
+                <h1>
+                    Bienvenue sur votre espace personnel {{ user.user?.firstName }}
+                    {{ user.user?.lastName }} !
+                </h1>
+                <h2 class="text-sm text-primary">
+                    Vous pouvez ici
+                    consulter vos informations personnelles et votre historique
+                    de commandes.
+                </h2>
+            </div>
             <div
                 class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center p-8"
             >
