@@ -1,14 +1,14 @@
 import { Controller } from '../../Core/Controller.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { Database } from '../../Models/index.js'
-import { UserPolicy } from '../Policies/UserPolicy.js'
-import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
-import { UserServices } from '../../Services/UserServices.js'
-import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { USER_ROLES } from '../../Models/SQL/user.js'
-import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
+import { UserPolicy } from '../Policies/UserPolicy.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -32,10 +32,12 @@ export class UserController extends Controller {
             total,
         })
     }
+
     async show() {
         this.can(UserPolicy.show, this.user_resource)
         this.res.json(this.user_resource)
     }
+
     async update() {
         this.can(UserPolicy.update, this.user_resource)
 
@@ -60,7 +62,9 @@ export class UserController extends Controller {
                     },
                 },
             )
-            await NotificationsServices.notifyResetPassword(this.user_resource)
+            await NotificationsServices.notifyConfirmResetPassword(
+                this.user_resource,
+            )
         }
 
         if (payload.email != this.user_resource.email)
@@ -91,10 +95,7 @@ export class UserController extends Controller {
                 1,
             )
 
-            await NotificationsServices.notifyResetPassword(
-                user,
-                accessLink.identifier,
-            )
+            await NotificationsServices.notifyResetPassword(user, accessLink)
         } else {
             await new Promise((resolve) => setTimeout(resolve, 10)) // simulate a slow response
         }
@@ -124,8 +125,6 @@ export class UserController extends Controller {
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)
 
-        this.res.json({
-            message: 'Account activated',
-        })
+        this.res.redirect(`${process.env.FRONT_END_URL}/home`)
     }
 }

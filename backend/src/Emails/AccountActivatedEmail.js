@@ -4,6 +4,6 @@ import { EmailTemplate } from '../Enums/EmailTemplate.js'
 export class AccountActivatedEmail extends Email {
     constructor() {
         super()
-        this.templateId(EmailTemplate.ACCOUNT_ACTIVATED)
+        this.setTemplate(EmailTemplate.ACCOUNT_ACTIVATED)
     }
 }

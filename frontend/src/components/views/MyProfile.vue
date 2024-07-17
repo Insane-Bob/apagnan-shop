@@ -43,3 +43,11 @@ const user = useUserStore()
         </main>
     </div>
 </template>
+
+<script lang="ts" setup>
+import LinkCard from '@components/cards/LinkCard.vue'
+
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
+</script>

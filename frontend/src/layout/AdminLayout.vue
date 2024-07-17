@@ -39,7 +39,7 @@ const links = computed(() => {
 <template>
     <div class="flex">
         <aside
-            class="w-48 flex flex-col bg-primary h-screen text-primary-foreground"
+            class="w-52 flex flex-col bg-primary h-screen text-primary-foreground"
         >
             <h1 class="uppercase tracking-widest text-center text-2xl pt-8">
                 APAGNAIN

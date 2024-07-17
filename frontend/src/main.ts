@@ -29,9 +29,15 @@ const routes = [{ path: '/home', component: ShopMain }]
 const router = createRouter({
     history: createWebHistory(),
     routes,
-    scrollBehavior() {
-        // always scroll to top
-        return { top: 0 }
+    scrollBehavior(to: any) {
+        if (to.hash) {
+            return {
+                el: to.hash,
+                behavior: 'smooth',
+            }
+        } else {
+            return { top: 0 }
+        }
     },
 })
 

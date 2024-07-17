@@ -7,6 +7,7 @@ import type { Review } from './Review'
 import type { Address } from './Address'
 import type { Order } from './Order'
 import type { OrderDetails } from './OrderDetails'
+import type { Upload } from './Upload'
 
 // DATA TABLE TYPES
 import type { Page } from './Page'
@@ -29,4 +30,5 @@ export type {
     Address,
     Order,
     OrderDetails,
+    Upload,
 }

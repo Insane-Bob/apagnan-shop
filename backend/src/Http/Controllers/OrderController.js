@@ -39,7 +39,6 @@ export class OrderController extends Controller {
         const filters = this.validate(OrderValidator, OrderValidator.index())
 
         const search = new SearchRequest(this.req, ['customerId'])
-
         if (filters.status) {
             const sql = Sequelize.literal(
                 '(SELECT "OrderStatuses"."orderId" FROM "OrderStatuses" WHERE  "OrderStatuses".status IN (:status) AND  "OrderStatuses"."createdAt" = (SELECT MAX(o."createdAt") FROM "OrderStatuses" as o WHERE "OrderStatuses"."orderId" = o."orderId"))',
@@ -51,11 +50,18 @@ export class OrderController extends Controller {
             })
             search.addReplacement('status', filters.status)
         }
-        const orders = await Database.getInstance().models.Order.findAll(
+
+        let model = Database.getInstance().models.Order
+
+        if(filters.withProducts){
+            model = model.unscoped().scope('withProducts')
+        }
+
+        const orders = await model.findAll(
             search.query,
         )
 
-        const total = await Database.getInstance().models.Order.count(
+        const total = await model.count(
             search.queryWithoutPagination,
         )
 
@@ -63,6 +69,7 @@ export class OrderController extends Controller {
             data: orders,
             total,
         })
+
     }
     async show() {
         this.can(OrderPolicy.show, this.order)

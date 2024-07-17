@@ -2,14 +2,25 @@ import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { CollectionPolicy } from '../Policies/CollectionPolicy.js'
 import { CollectionValidator } from '../../Validator/CollectionValidator.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class CollectionController extends Controller {
     async getCollections() {
+        let search = new SearchRequest(this.req, ['published'], ['name'])
+
+        const data = await Database.getInstance().models.Collection.findAll(
+            search.query,
+        )
+        const total = await Database.getInstance().models.Collection.count(
+            search.queryWithoutPagination,
+        )
+
         const collections =
             await Database.getInstance().models.Collection.findAll()
 
         this.res.json({
-            collections: collections,
+            data: data,
+            total: total,
         })
     }
 
@@ -24,6 +35,34 @@ export class CollectionController extends Controller {
         this.res.json({
             collection: collection,
             image: image,
+        })
+    }
+
+    async getPromotedCollection() {
+        const collection =
+            await Database.getInstance().models.Collection.findOne({
+                where: {
+                    promoted: true,
+                },
+                include: [
+                    {
+                        model: Database.getInstance().models.Product,
+                        include: [
+                            {
+                                model: Database.getInstance().models.Upload,
+                                as: 'images',
+                            },
+                        ],
+                    },
+                    {
+                        model: Database.getInstance().models.Upload,
+                        as: 'image',
+                    },
+                ],
+            })
+
+        this.res.json({
+            collection: collection,
         })
     }
 

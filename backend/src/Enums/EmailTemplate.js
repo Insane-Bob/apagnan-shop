@@ -1,4 +1,4 @@
-export class EmailTemplate{
+export class EmailTemplate {
     static WELCOME = 1
     static FORGOT_PASSWORD = 2
     static BLOCKED_ACCOUNT = 3
@@ -7,4 +7,5 @@ export class EmailTemplate{
     static PAYMENT_ERROR = 6
     static DELIVERY_INCOMING = 7
     static ACCOUNT_ACTIVATED = 8
+    static CONFIRM_RESET_PASSWORD = 9
 }
