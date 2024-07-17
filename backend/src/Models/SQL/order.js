@@ -2,6 +2,7 @@
 
 import { Model } from 'sequelize'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
+import { PaymentStatus } from './payment.js'
 
 export class Order extends Model {
     static associate(models) {
@@ -62,7 +63,7 @@ export class Order extends Model {
             { override: true },
         )
 
-        models.Order.addScope('withProducts',{
+        models.Order.addScope('withProducts', {
             include: [
                 {
                     model: models.OrderStatus,
@@ -73,11 +74,11 @@ export class Order extends Model {
                     include: [
                         {
                             model: models.Product,
-                            include:[
+                            include: [
                                 {
-                                   association: 'images'
-                                }
-                            ]
+                                    association: 'images',
+                                },
+                            ],
                         },
                     ],
                 },
@@ -168,6 +169,19 @@ function model(sequelize, DataTypes) {
                                 ? status
                                 : acc
                         }, this.statusHistory[0])?.status ?? null
+                    )
+                },
+            },
+            paid: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (!this.Payments) return null
+                    return (
+                        this.Payments.reduce((acc, payment) => {
+                            return payment.createdAt > acc.createdAt
+                                ? payment
+                                : acc
+                        }, this.Payments[0])?.status == PaymentStatus.SUCCEEDED
                     )
                 },
             },

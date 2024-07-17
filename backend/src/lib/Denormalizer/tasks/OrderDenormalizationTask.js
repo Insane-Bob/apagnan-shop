@@ -26,10 +26,13 @@ export class OrderDenormalizationTask extends DenormalizerTask {
                 where: {
                     id: ordersIds,
                 },
-                attributes: ['id', 'status', 'createdAt'],
+                attributes: ['id', 'status', 'paid', 'createdAt'],
                 include: [
                     {
                         association: 'statusHistory',
+                    },
+                    {
+                        model: Database.getInstance().models.Payment,
                     },
                     {
                         model: Database.getInstance().models.OrderDetail,
