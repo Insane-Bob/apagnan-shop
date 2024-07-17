@@ -74,8 +74,7 @@ const widgetAvailable = reactive([
                     data
                         .filter(
                             (o) =>
-                                o._id.status == 'shipping' ||
-                                o._id.status == 'delivered',
+                                o._id.paid
                         )
                         .reduce((acc, curr) => acc + curr.total, 0) + '€'
             },
@@ -148,9 +147,10 @@ const widgetAvailable = reactive([
 ])
 
 let now = new Date()
+
 const dateRange = ref({
-    start: new CalendarDate(now.getFullYear(), now.getMonth(), 1),
-    end: new CalendarDate(now.getFullYear(), now.getMonth() + 1, 0),
+    start: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate() - 20),
+    end: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate() + 20),
 })
 const interval = ref('week')
 
@@ -176,8 +176,8 @@ watch(interval, () => {
             break
         default:
             dateRange.value = {
-                start: new CalendarDate(now.getFullYear(), now.getMonth(), 1),
-                end: new CalendarDate(now.getFullYear(), now.getMonth() + 1, 0),
+              start: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate() - 15),
+              end: new CalendarDate(now.getFullYear(), now.getMonth() + 1, now.getDate() + 15),
             }
     }
 })
@@ -252,11 +252,7 @@ watch(userGrid, () => {
                                     <Avatar
                                         class="flex h-9 w-9 items-center justify-center space-y-0 border"
                                     >
-                                        <AvatarImage
-                                            src="/avatars/02.png"
-                                            alt="Avatar"
-                                        />
-                                        <AvatarFallback>
+                                        <AvatarFallback >
                                             {{ item.User.firstName[0]
                                             }}{{ item.User.lastName[0] }}
                                         </AvatarFallback>
@@ -286,3 +282,4 @@ watch(userGrid, () => {
         </div>
     </div>
 </template>
+

@@ -53,23 +53,18 @@ export class OrderController extends Controller {
 
         let model = Database.getInstance().models.Order
 
-        if(filters.withProducts){
+        if (filters.withProducts) {
             model = model.unscoped().scope('withProducts')
         }
 
-        const orders = await model.findAll(
-            search.query,
-        )
+        const orders = await model.findAll(search.query)
 
-        const total = await model.count(
-            search.queryWithoutPagination,
-        )
+        const total = await model.count(search.queryWithoutPagination)
 
         this.res.json({
             data: orders,
             total,
         })
-
     }
     async show() {
         this.can(OrderPolicy.show, this.order)

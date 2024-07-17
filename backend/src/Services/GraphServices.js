@@ -41,7 +41,7 @@ export class GraphServices {
                 groupBy = {
                     date: {
                         $dateToString: {
-                            format: '%Y-%U',
+                            format: '%Y-W%U',
                             date: '$' + prop,
                         },
                     },
