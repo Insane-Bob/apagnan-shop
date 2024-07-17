@@ -14,6 +14,8 @@ export default function (router) {
             this.post('/', PromoController, 'create')
             this.patch('/:promo', PromoController, 'update')
             this.delete('/:promo', PromoController, 'delete')
+
+            this.get('/promoted', PromoController, 'getPromoted')
         })
         .provide(PromoProvider)
 }

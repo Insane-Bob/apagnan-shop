@@ -3,6 +3,7 @@ import { Database } from '../../Models/index.js'
 import { PromoValidator } from '../../Validator/PromoValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { PromoPolicy } from '../Policies/PromoPolicy.js'
+import { Op } from 'sequelize'
 
 export class PromoController extends Controller {
     promo /** @provide by PromoProvider */
@@ -25,6 +26,22 @@ export class PromoController extends Controller {
         this.res.json({
             data,
             total,
+        })
+    }
+
+    async getPromoted() {
+        const data = await Database.getInstance().models.Promo.findAll({
+            where: {
+                promoted: true,
+                available: true,
+                endDate: {
+                    [Op.gt]: new Date(),
+                },
+            },
+        })
+
+        this.res.json({
+            data,
         })
     }
 
