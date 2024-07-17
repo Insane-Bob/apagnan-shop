@@ -2,6 +2,7 @@ import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { NotFoundException } from '../../Exceptions/HTTPException.js'
 import { ReviewValidator } from '../../Validator/ReviewValidator.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
@@ -11,9 +12,30 @@ export class ReviewController extends Controller {
                 reviews: await this.product.getReviews(),
             })
         } else {
-            const reviews = await Database.getInstance().models.Review.findAll()
+            let search = new SearchRequest(
+                this.req,
+                ['rate', 'approved', 'productId', 'userId'],
+                ['content'],
+            )
+            let model = Database.getInstance().models.Review
+
+            const scopes = []
+            if (this.req.query.has('withProduct')) {
+                scopes.push('withProduct')
+            }
+            if (this.req.query.has('withUser')) {
+                scopes.push('withUser')
+            }
+
+            if (scopes.length > 0) {
+                model = model.scope(scopes)
+            }
+            const total = await model.count(search.queryWithoutPagination)
+            let query = { ...search.query }
+            const data = await model.findAll(query)
             this.res.status(200).json({
-                reviews: reviews,
+                data: data,
+                total: total,
             })
         }
     }

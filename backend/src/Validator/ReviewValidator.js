@@ -10,6 +10,7 @@ const reviewSchema = z.object({
     }),
     productId: z.number(),
     userId: z.number(),
+    approved: z.boolean(),
 })
 
 export class ReviewValidator extends Validator {
