@@ -10,13 +10,12 @@ const { toast } = useToast()
 
 <template>
     <HeaderComponent></HeaderComponent >
-        <div class="relative">
-            <div class="sticky top-0 z-10 bg-black">
-                <img src="/src/assets/images/notFound.webp" 
-                class="w-full h-[110vw] sm:h-[50vw] md:h-[60vw] lg:h-[40vw] object-top object-cover"
-                >
-                
-            </div>
+      <div class="relative">
+        <div class="sticky top-0 z-10 bg-black">
+            <img src="/src/assets/images/notFound.webp"
+            class="w-full h-[110vw] sm:h-[50vw] md:h-[60vw] lg:h-[40vw] object-top object-cover"
+            >
+        </div>
         <main class="bg-white relative mb-20 z-20">
         
             <div class="text-center  flex flex-col items-center justify-center  gap-y-3 md:gap-y-5 pt-8">
@@ -34,6 +33,5 @@ const { toast } = useToast()
 
         </main>
     </div>
-
     <FooterComponent></FooterComponent>
 </template>
