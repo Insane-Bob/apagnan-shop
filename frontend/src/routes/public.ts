@@ -1,7 +1,7 @@
 import ProductsPage from '@components/views/ProductsPage.vue'
 import HeaderLayout from '@/layout/HeaderLayout.vue'
 import ProductView from '@/components/views/ProductView.vue'
-import ResetPasswordView from '@/components/views/auth/ResetPasswordView.vue'
+import ResetPasswordView from '@components/views/auth/ResetPasswordView.vue'
 
 export const publicRoutes = [
     {
