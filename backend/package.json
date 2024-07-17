@@ -8,7 +8,13 @@
     "babel-node": "babel-node --inspect=0.0.0.0 --presets='@babel/preset-env'",
     "dev": "nodemon --exec npm run babel-node -- src/server.js",
     "build" : "babel src --out-dir dist --copy-files",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+
+    "migrate": "sequelize-cli db:migrate",
+    "migrate:undo": "sequelize-cli db:migrate:undo",
+    "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
+    "seed": "node scripts/seed.js",
+    "seed:fresh": "npm run migrate:undo:all && npm run migrate && npm run seed"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
