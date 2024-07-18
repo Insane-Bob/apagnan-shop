@@ -9,6 +9,7 @@ import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
 import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
 import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 import AdminOrderTable from '@components/views/admin/orders/AdminOrderTable.vue'
+import AdminPromos from '@components/views/admin/promos/AdminPromos.vue'
 
 export const adminRoutes = [
     {
@@ -81,6 +82,12 @@ export const adminRoutes = [
                 component: AdminRefundsTable,
                 name: 'Demandes de remboursement',
                 meta: { label: 'Remboursement', icon: 'wallet' },
+            },
+            {
+                path: 'promos',
+                component: AdminPromos,
+                name: 'Promotions',
+                meta: { label: 'Promo', icon: 'pricetag' },
             },
         ],
     },

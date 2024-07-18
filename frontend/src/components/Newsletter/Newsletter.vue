@@ -1,0 +1,62 @@
+<script setup lang="ts">
+
+import Input from "@components/ui/input/Input.vue";
+import FormInput from "@components/Inputs/FormInput.vue";
+import {computed, ref} from "vue";
+import OutlinedInput from "@components/ui/input/OutlinedInput.vue";
+import Button from "@components/ui/button/Button.vue";
+import {useForm} from "@/composables/useForm";
+
+const email = ref('');
+
+const payload = computed(() => {
+  return {
+    email: email.value
+  }
+})
+const {submit, errors} = useForm('/newsletter/subscribe',payload)
+
+</script>
+
+<template>
+  <div class="border-0 shadow-lg  bg-primary/5 rounded overflow-hidden">
+<!--  newletter in to column one image and the form  -->
+    <div class="grid grid-cols-3 items-center">
+      <div class="col-span-3 md:col-span-1 max-h-[250px] md:max-h-[300px] overflow-hidden">
+        <img src="/images/newsletter.png" alt="newsletter" class="w-full h-full object-cover object-top" />
+      </div>
+      <div class="col-span-3 md:col-span-2  p-6">
+        <h1 class="text-2xl font-bold text-gray-800">Subscribe to our newsletter</h1>
+        <p class="text-gray-600 mt-2">Subscribe to our newsletter and get updates on our latest recipes and offers.</p>
+        <form class="mt-4" @submit.prevent="submit">
+            <FormInput :errors="errors"
+                       v-model="email"
+                       name="email"
+                       class="w-full">
+              <template #label>Adresse e-mail</template>
+              <template #input="inputProps">
+                <div>
+
+                </div>
+                <Input
+                    placeholder="Enter your email address"
+                    type="email"
+                    v-model="email"
+                    v-bind="inputProps"
+                />
+
+              </template>
+            </FormInput>
+            <Button class="flex items-center gap-3 mt-3" >
+              <ion-icon name="send" class="-rotate-45"></ion-icon>
+              S'abbonner
+            </Button>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+
+</style>

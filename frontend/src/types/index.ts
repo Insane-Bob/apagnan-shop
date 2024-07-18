@@ -8,6 +8,7 @@ import type { Address } from './Address'
 import type { Order } from './Order'
 import type { OrderDetails } from './OrderDetails'
 import type { Upload } from './Upload'
+import type { Promo } from './Promo'
 
 // DATA TABLE TYPES
 import type { Page } from './Page'
@@ -16,6 +17,9 @@ import type { TableActions } from './TableActions'
 
 // BASKET TYPES
 import type { BasketItem } from './BasketItem'
+
+// STRIPE TYPES
+import type {PromotionCodeStripe} from './PromotionCodeStripe'
 
 export type {
     Collection,
@@ -31,4 +35,6 @@ export type {
     Order,
     OrderDetails,
     Upload,
+    Promo,
+    PromotionCodeStripe,
 }

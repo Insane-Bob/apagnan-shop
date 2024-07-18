@@ -6,6 +6,7 @@ import { AccessLinkServices } from './AccessLinkServices.js'
 import { PaymentStatus } from '../Models/SQL/payment.js'
 import { BadRequestException } from '../Exceptions/HTTPException.js'
 import { OrderStatus } from '../Enums/OrderStatus.js'
+import ISOCountry from 'i18n-iso-countries'
 const stripe = new Stripe(process.env.STRIPE_KEY)
 
 /**
@@ -13,15 +14,36 @@ const stripe = new Stripe(process.env.STRIPE_KEY)
  * Related to the payment process and stripe API
  */
 export class PaymentServices {
+    static async upsertBillingAddress(customerStripeId, billingAddress) {
+        let country = billingAddress.country
+        let countryCode = ISOCountry.getAlpha2Code(country, 'en')
+
+        const customer = await stripe.customers.update(customerStripeId, {
+            address: {
+                city: billingAddress.city,
+                country: countryCode,
+                line1: billingAddress.street,
+                postal_code: billingAddress.postalCode,
+                state: billingAddress.region,
+            },
+        })
+        return customer
+    }
     /**
      * create a stripe checkout session
      * @param {Order} order
      * @returns {Promise<void>}
      */
-    static async createCheckoutSession(order, user) {
+    static async createCheckoutSession(order, user, discounts = []) {
         const orderService = new OrderServices(order)
         const lineItems = await orderService.getStripeLineItems()
         const customer = await orderService.getCustomer()
+
+        const billingAddress = await order.getBilling_address()
+        await PaymentServices.upsertBillingAddress(
+            customer.stripeId,
+            billingAddress,
+        )
 
         const accessLink = await AccessLinkServices.createAccessLink(
             user.id,
@@ -30,11 +52,18 @@ export class PaymentServices {
             100, // Replace to 1
         )
 
+
         const session = await stripe.checkout.sessions.create({
             customer: customer.stripeId,
             payment_method_types: ['card'],
             line_items: lineItems,
+            currency: 'eur',
+            discounts: discounts,
             mode: 'payment',
+            currency: 'eur',
+            automatic_tax: {
+                enabled: true,
+            },
             success_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/success?orderId=${order.id}&a=${accessLink.identifier}`,
             cancel_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/cancel?orderId=${order.id}&a=${accessLink.identifier}`,
         })

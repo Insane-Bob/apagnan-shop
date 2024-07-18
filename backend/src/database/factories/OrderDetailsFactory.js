@@ -7,7 +7,10 @@ export class OrderDetailsFactory extends Factory {
         return {
             productId: faker.number.int(),
             quantity: faker.number.int(),
-            unitPrice: faker.number.float(1, 1000),
+            unitPrice: faker.number.float({
+                min: 100,
+                max: 600,
+            }),
         }
     }
 }

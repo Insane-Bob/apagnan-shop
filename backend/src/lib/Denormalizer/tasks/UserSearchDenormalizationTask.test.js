@@ -58,6 +58,19 @@ describe('UserSearchDenormalizationTask', () => {
         expect(updatedMUser).toBeTruthy()
     })
 
+    test('User deletion', async () => {
+        let user = await UserFactory.count(1).withCustomer().create()
+        let mUser = await Users.findOne({
+            id: user.id,
+        })
+        expect(mUser).toBeTruthy()
+        await user.destroy()
+        const deletedMUser = await Users.findOne({
+            id: user.id,
+        })
+        expect(deletedMUser).toBeFalsy()
+    })
+
     test('Billing Address create / update', async () => {
         let randomUserIndex = Math.floor(Math.random() * users.length)
         let user = users[randomUserIndex]
@@ -110,5 +123,50 @@ describe('UserSearchDenormalizationTask', () => {
             },
         ])
         expect(updatedMAddress).toHaveLength(1)
+    })
+
+    test('Billing Address deletion', async () => {
+        let randomUserIndex = Math.floor(Math.random() * users.length)
+        let user = users[randomUserIndex]
+
+        const mAddress = await Users.aggregate([
+            {
+                $match: {
+                    id: user.id,
+                },
+            },
+            {
+                $unwind: '$Customer.Addresses',
+            },
+            {
+                $replaceRoot: { newRoot: '$Customer.Addresses' },
+            },
+        ])
+
+        expect(mAddress).toHaveLength(2)
+
+        /**
+         * Delete
+         */
+
+        let randomIndex = Math.floor(Math.random() * mAddress.length)
+        let addresses = user.customer._addresses[randomIndex]
+
+        await addresses.destroy()
+        const deletedMAddress = await Users.aggregate([
+            {
+                $match: {
+                    id: user.id,
+                },
+            },
+            {
+                $unwind: '$Customer.Addresses',
+            },
+            {
+                $replaceRoot: { newRoot: '$Customer.Addresses' },
+            },
+        ])
+
+        expect(deletedMAddress).toHaveLength(1)
     })
 })

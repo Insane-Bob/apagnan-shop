@@ -6,19 +6,21 @@ import {
     SelectItem,
     SelectLabel,
     SelectTrigger,
+    
     SelectValue,
 } from '@/components/ui/select'
+import FormInput from '@/components/Inputs/FormInput.vue';
 import Button from '@/components/ui/button/Button.vue'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { apiClient } from '@/lib/apiClient'
 import { useUserStore } from '@/stores/user'
-import { onBeforeMount, onUnmounted, ref } from 'vue'
+import { onBeforeMount, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SummaryCard from '@components/Cards/SummaryCard.vue'
 
 import AddressForm from '@/components/views/order/AddressForm.vue'
-import type { BasketItem } from '@/types'
+import type { BasketItem, Promo, PromotionCodeStripe } from '@/types'
 import {backofficeRoutesName} from "@/routes/backoffice";
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
 import CardHeader from "@components/ui/card/CardHeader.vue";
@@ -30,6 +32,7 @@ import AvatarFallback from "@components/ui/avatar/AvatarFallback.vue";
 import Badge from "@components/ui/badge/Badge.vue";
 import CardTitle from "@components/ui/card/CardTitle.vue";
 import CardFooter from "@components/ui/card/CardFooter.vue";
+import FormGrid from '@/components/Forms/FormGrid.vue'
 
 const user = useUserStore()
 const router = useRouter()
@@ -61,6 +64,12 @@ const billingStreet = ref('')
 
 const waitingPaymentModal = ref(false)
 
+// VAR FOR PROMO CODE
+
+const promoCode = ref('')
+const promoError = ref('')
+const promo = reactive<Promo>({} as Promo)
+
 usePaymentBroadcastChannel()
 
 onBeforeMount(() => {
@@ -84,7 +93,7 @@ const onSelectAddressOption = () => {
 }
 
 const goToPayment = async () => {
-    waitingPaymentModal.value = true
+    
 
     let shippingAdresseId
     let billingAdresseId
@@ -124,7 +133,11 @@ const goToPayment = async () => {
 
     const orderId = await createOrder(shippingAdresseId, billingAdresseId)
 
-    const response = await apiClient.post(`/orders/${orderId}/pay`)
+    waitingPaymentModal.value = true
+
+    const response = await apiClient.post(`/orders/${orderId}/pay`, {
+        discounts: promo.stripeId?[{promotion_code: promo.stripeId}]:[]
+    })
 
     if (response.data.url && orderId !== 0) {
         window.open(response.data.url, '_blank')
@@ -188,6 +201,7 @@ const createOrder = async (
         customerId: user.getCustomerId,
         shippingAddressId: shippingAddressId,
         billingAddressId: billingAddressId,
+        promoId: promo.id || null,
         products: user.getCart.map((item: BasketItem) => {
             return {
                 productId: item.product.id,
@@ -212,6 +226,37 @@ const createOrder = async (
 
 const goBack = () => {
     router.back()
+}
+
+
+
+const searchPromoCode = async () => {
+  try {
+    const response = await apiClient.get(`/promo-codes/${promoCode.value.trim().toUpperCase()}`)
+
+   promo.code = response.data.promo.code
+   promo.id = response.data.promo.id
+   promo.type = response.data.promo.type
+   promo.stripeId = response.data.promo.stripeId
+   promo.value = response.data.promo.value
+
+   promoError.value = ''
+
+  } catch (e: any) {
+    if(e.response.status === 404){
+      promo.code = ''
+      promo.stripeId = ''
+      promoError.value = 'Code promo invalide'
+      return 
+    }
+  }
+    
+}
+
+const removePromo = () => {
+  promo.code = ''
+  promo.stripeId = ''
+  
 }
 </script>
 
@@ -361,6 +406,14 @@ const goBack = () => {
                 <p>€ 0 (offerte)</p>
               </div>
 
+              <div v-if="promo.code" class="flex justify-between items-center relative">
+                Code promo
+                <p @click="removePromo()" class="peer hover:line-through cursor-pointer">-{{ promo.type === 'percent'? promo.value + '%': promo.value + '€' }} (<span class="tracking-wider">{{ promo.code }}</span>)</p>
+                <span
+                  class="peer-hover:block hidden text-white bg-black duration-100 absolute top-0 right-0 -translate-y-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
+                  >Supprimer le code promo</span>
+              </div>
+
               <div class="flex justify-between items-center font-medium text-sm uppercase">
                 Total
                 <p>
@@ -370,7 +423,11 @@ const goBack = () => {
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
-                    )
+                    ) - (promo.value? (promo.type === 'amount'? promo.value : (user.getCart.reduce(
+                        (acc: number, item: BasketItem) =>
+                            acc + item.product.price * item.quantity,
+                        0,
+                    ) * promo.value / 100)) : 0)
                   }}
                 </p>
               </div>
@@ -392,6 +449,20 @@ const goBack = () => {
               </div>
 
 
+            </div>
+
+            <div>
+              <form @submit.prevent="searchPromoCode()">
+                <FormGrid>
+                  <FormInput class="col-span-6">
+                      <template #input="inputProps">
+                          <input type="text" v-model="promoCode" v-bind="inputProps" placeholder="Code Promo" />
+                      </template>
+                  </FormInput>
+                  <Button variant="accent" class="col-span-6 self-center">Appliquer</Button>
+                  <small v-if="promoError" class="text-red-500 text-sm col-span-12">{{ promoError }}</small>
+                </FormGrid>
+              </form>
             </div>
           </CardContent>
           <CardFooter>

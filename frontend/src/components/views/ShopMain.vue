@@ -10,10 +10,12 @@
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
 
-            <div v-else class="absolute top-0 h-screen w-full bg-primary-accent/90 -z-10"></div>
-
+            <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
+            
+            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
             <header
-                class="main-header fixed top-0 h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
+                class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
+                :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
             >
                 <RouterLink to="/">
                     <div
@@ -115,7 +117,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-12 md:mt-5 lg:mt-0  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
+                class="main-title uppercase mt-16 md:mt-12 lg:mt-8  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
@@ -143,7 +145,7 @@
               id="promoted"
               class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-20"
           >
-            <ProductCard2 :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
+            <ProductCard2 :key="product.id" :id="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
           </div>
           <div
               v-else
@@ -165,8 +167,9 @@
           >
             <ProductCard2
                 height="300px"
-                :key="collection.id"
                 v-for="collection in collections"
+                :id="collection.id"
+                :key="collection.id"
                 :name="collection.name"
                 :slug="collection.slug"
                 :shortDescription="collection.description" :image="collection?.image">
@@ -184,6 +187,7 @@
           <h1 class="text-md uppercase font-medium text-center">
             Notre newsletter
           </h1>
+          <Newsletter/>
         </Section>
     </div>
   <FooterComponent />
@@ -192,6 +196,7 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
+import PromoBanner from '@components/promo/PromoBanner.vue'
 import { apiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
@@ -213,12 +218,15 @@ import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useToast } from '@components/ui/toast'
 import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
+import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 
 
 const user = useUserStore()
 const { toast } = useToast()
 const isLogged = computed(() => user.isAuthenticated)
+
+const promoPromoted = ref(false)
 
 const loading = ref(true)
 
