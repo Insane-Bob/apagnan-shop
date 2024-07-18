@@ -4,15 +4,8 @@ import { Model } from 'sequelize'
 
 class Promo extends Model {
     static associate(models) {
-        Promo.belongsToMany(models.Product, {
-            through: 'PromoProducts',
+        Promo.hasMany(models.Order, {
             foreignKey: 'promoId',
-            otherKey: 'productId',
-        })
-        Promo.belongsToMany(models.Customer, {
-            through: 'PromoCustomers',
-            foreignKey: 'promoId',
-            otherKey: 'customerId',
         })
     }
 }
