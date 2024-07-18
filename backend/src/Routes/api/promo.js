@@ -20,7 +20,9 @@ export default function (router) {
         })
         .provide(PromoProvider)
 
-    router.group('/api/promo-codes', function () {
-        this.get('/:code', PromoController, 'show')
-    })
+    router
+        .group('/api/promo-codes', function () {
+            this.get('/:code', PromoController, 'show')
+        })
+        .provide(PromoCodeProvider)
 }

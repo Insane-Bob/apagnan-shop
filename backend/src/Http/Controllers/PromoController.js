@@ -33,17 +33,10 @@ export class PromoController extends Controller {
     }
 
     async show() {
-        const code = await Database.getInstance().models.Promo.findOne({
-            where: {
-                available: true,
-                code: this.req.params.get('code'),
-            },
-        })
-
-        NotFoundException.abortIf(!code)
+        NotFoundException.abortIf(!this.code)
 
         this.res.json({
-            promo: code,
+            promo: this.code,
         })
     }
 
