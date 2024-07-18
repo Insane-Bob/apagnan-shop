@@ -27,6 +27,7 @@ import ProductCard2 from "@components/Cards/ProductCard2.vue";
 import {useSuggestion} from "@/composables/useSuggestion";
 import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
 import Loader from "@components/ui/loader/Loader.vue";
+import NotificationMenu from "@components/Menus/NotificationMenu.vue";
 
 const user = useUserStore()
 const router = useRouter()
@@ -184,21 +185,31 @@ watch(() => route.params.pslug, async () => {
                 class="w-full h-full object-cover"
             />
         </div>
-        <div class="w-full h-14 mb-10">
-            <MyBreadcrumbComponent :links="breadcrumbLinks" />
-        </div>
+      <div class="w-full h-14 mb-10">
+        <MyBreadcrumbComponent :links="breadcrumbLinks" />
+      </div>
         <div v-if="!loading && product" class="flex justify-center">
             <div class="w-4/5 flex flex-col md:flex-row justify-center gap-16 mb-16">
                 <ProductPictureCarousel :imageUrls="carouselImages" />
                 <div class="w-full md:w-1/2 flex flex-col  gap-10">
-                    <div>
+                    <div class="flex justify-between">
+                      <div>
                         <h1 class="text-3xl font-bold font-title">
-                            {{ product?.name }}
+                          {{ product?.name }}
                         </h1>
                         <ReviewNoteComponent
                             :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
                             :NbReviews="reviews.length"
                         />
+                      </div>
+                      <div>
+                        <NotificationMenu :id="product.id" model-type="product" >
+                         <div class="flex items-center">
+                           <ion-icon name="notifications-outline" class="text-lg mr-3" />
+                           Gestion des alertes
+                         </div>
+                        </NotificationMenu>
+                      </div>
                     </div>
                     <div>
                         <p class="text-2xl font-semibold">

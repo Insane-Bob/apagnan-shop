@@ -11,6 +11,7 @@ import ProductCard2 from "@components/Cards/ProductCard2.vue";
 import {useSuggestion} from "@/composables/useSuggestion";
 import MyBreadcrumbComponent from "@components/breadcrumb/MyBreadcrumbComponent.vue";
 import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
+import NotificationMenu from "@components/Menus/NotificationMenu.vue";
 
 
 const route = useRoute()
@@ -46,8 +47,21 @@ const breadcrumbLinks = computed(()=>[
       <MyBreadcrumbComponent :links="breadcrumbLinks" />
       </div>
 
-      <Section class="">
-        <h1 class="text-md uppercase font-medium text-center">{{collection.name}}</h1>
+      <Section class="relative">
+        <div class="flex flex-wrap items-center justify-between">
+        <div class="w-[100%] md:w-[25%]"></div>
+        <h1 class="grow text-md uppercase font-medium text-center">{{collection.name}}</h1>
+         <div class="w-[100%] md:w-[25%] flex justify-center md:justify-end">
+           <NotificationMenu :id="collection.id" model-type="collection">
+             <div class="flex items-center">
+               <ion-icon name="notifications-outline" class="text-lg mr-3" />
+               Gestion des alertes
+             </div>
+           </NotificationMenu>
+           </div>
+        </div>
+
+
         <div
             class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
         >

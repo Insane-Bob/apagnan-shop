@@ -29,7 +29,8 @@ export class UserNotificationServices {
             const filtered = notificationSubscriptions.filter(
                 (n) => n.type === type,
             )
-            const activatedCount = filtered.filter((n) => n.activated).length
+            const activated = filtered.filter((n) => n.activated)
+            const activatedCount = activated.length
             const deactivatedCount = filtered.filter((n) => !n.activated).length
             /**
              * @type {UserNotificationPreference}
@@ -38,6 +39,7 @@ export class UserNotificationServices {
                 active: activatedCount > 0,
                 activatedCount,
                 deactivatedCount,
+                ids: activated.map((n) => n.modelId),
             }
         })
         return userNotificationPreferences
