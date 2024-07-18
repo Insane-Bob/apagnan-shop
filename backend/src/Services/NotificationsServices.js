@@ -126,6 +126,14 @@ export class NotificationsServices {
     }
 
     /**
+     * Newsletter
+     */
+
+    static async notifyNewsletterSubscribe(email) {}
+
+    static async notifyNewsletterUnsubscribe(email) {}
+
+    /**
      * USER NOTIFICATIONS
      */
 

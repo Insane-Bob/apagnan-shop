@@ -48,7 +48,7 @@ export class RequestHandler {
         }
     }
 
-    validate(validatorClass, schema = null) {
+    validate(validatorClass, schema = undefined) {
         const validatorInstance = new validatorClass(schema)
         validatorInstance.beforeValidation(this.req)
         return validatorInstance.validate({
