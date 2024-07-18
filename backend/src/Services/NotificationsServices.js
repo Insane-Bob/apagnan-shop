@@ -2,11 +2,12 @@ import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
 import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
-import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { EmailSender } from '../lib/EmailSender.js'
 import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
+import { UserNotificationServices } from './UserNotificationServices.js'
+import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -122,5 +123,62 @@ export class NotificationsServices {
 
     static async notifyOrderStatusUpdate(order, status) {
         //@TODO : send email to the customer to notify him that his order status has changed
+    }
+
+    /**
+     * USER NOTIFICATIONS
+     */
+
+    static async notifyProductRestock(product) {
+        const users =
+            await UserNotificationServices.getUserThatAreSubscribeForProduct(
+                product.id,
+                {
+                    type: NotificationSubscriptionType.PRODUCT_RESTOCK,
+                },
+            )
+
+        return Promise.all(
+            users.map(async (user) => {
+                console.log(
+                    `Sending product restock notification to ${user.email}`,
+                )
+            }),
+        )
+    }
+    static async notifyProductPriceUpdate(product) {
+        const users =
+            await UserNotificationServices.getUserThatAreSubscribeForProduct(
+                product.id,
+                {
+                    type: NotificationSubscriptionType.PRODUCT_PRICE_CHANGE,
+                },
+            )
+
+        return Promise.all(
+            users.map(async (user) => {
+                console.log(
+                    `Sending product price update notification to ${user.email}`,
+                )
+            }),
+        )
+    }
+
+    static async notifyNewProductInCollection(product) {
+        const users =
+            await UserNotificationServices.getUserThatAreSubscribeForCollection(
+                product.collectionId,
+                {
+                    type: NotificationSubscriptionType.NEW_PRODUCT,
+                },
+            )
+
+        return Promise.all(
+            users.map(async (user) => {
+                console.log(
+                    `Sending new product in collection notification to ${user.email}`,
+                )
+            }),
+        )
     }
 }
