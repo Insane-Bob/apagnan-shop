@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { defineProps, onMounted, reactive, ref } from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
-import DataTable from '@/components/tables/DataTable.vue'
-import SpecificFormItem from '@/components/views/admin/specifics/SpecificForm.vue'
-import { Product, Collection, Specific } from '@types'
+import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { apiClient } from '@/lib/apiClient'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useRouter } from 'vue-router'
 import { Textarea } from '@/components/ui/textarea'
-import { useTable } from '@/composables/useTable'
 import Button from '@/components/ui/button/Button.vue'
+import SpecificTable from '@/components/views/admin/specifics/SpecificTable.vue'
 import {
     Select,
     SelectContent,
@@ -22,7 +20,6 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import StockForm from '../stocks/StockForm.vue'
-import { useFilters } from '@/composables/useFilters'
 
 const router = useRouter()
 const props = defineProps<{
@@ -42,50 +39,7 @@ const product = reactive<{ product: Product }>({
     },
 })
 
-const { filters, query } = useFilters({
-    productId: 1,
-})
-
-const { fetch, rows, pagination, sorting } = useTable('/specifics', query)
-
 const collections = reactive<Collection[]>([])
-
-const SpecificForm = reactive<{ specific: Specific | null }>({
-    specific: null,
-})
-
-const columns = [
-    {
-        label: 'Nom',
-        key: 'name',
-        sorting: true,
-    },
-    {
-        label: 'Contenu',
-        key: 'content',
-        sorting: true,
-    },
-]
-
-const actions = [
-    {
-        label: 'Modifier',
-        icon: 'pencil-outline',
-        class: 'text-blue-500',
-        trigger: true,
-        action: (specific: Specific) => {
-            SpecificForm.specific = specific
-        },
-    },
-    {
-        label: 'Supprimer',
-        icon: 'trash-outline',
-        class: 'text-red-500',
-        action: (specific: Specific) => {
-            console.log('delete', specific)
-        },
-    },
-]
 
 interface Image {
     id: number
@@ -96,6 +50,7 @@ interface Image {
 const images = ref<Image[]>([])
 
 const fetchProductData = async () => {
+    images.value = []
     const response = await apiClient.get('products/' + slug.value)
     const data = await response.data
     product.product = data.product
@@ -135,10 +90,6 @@ const onSubmit = () => {
     } else {
         updateProduct()
     }
-}
-
-const fetchSpecifics = async () => {
-    await fetch()
 }
 
 onMounted(() => {
@@ -255,40 +206,10 @@ onMounted(() => {
             </div>
         </form>
 
-        <div class="mt-16">
-            <h3 class="text-lg font-semibold mb-4">Spécifiques</h3>
-            <Dialog>
-                <div class="flex flex-col mx-6">
-                    <DialogTrigger>
-                        <Button
-                            @click="SpecificForm.specific = null"
-                            class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
-                        >
-                            <span>Ajouter une specificité</span>
-                            <ion-icon
-                                class="text-lg"
-                                name="add-circle-outline"
-                            ></ion-icon>
-                        </Button>
-                    </DialogTrigger>
-                    <DataTable
-                        :columns="columns"
-                        :rows="rows"
-                        :pagination="pagination"
-                        :actions="actions"
-                        :sorting="sorting"
-                    ></DataTable>
-                </div>
-
-                <DialogContent>
-                    <SpecificFormItem
-                        :specific="SpecificForm.specific"
-                        :productId="product.product.id"
-                        @specificSaved="fetchSpecifics"
-                    ></SpecificFormItem>
-                </DialogContent>
-            </Dialog>
-        </div>
+        <SpecificTable
+            v-if="product.product.id"
+            :productId="product.product.id"
+        ></SpecificTable>
 
         <div class="mt-4">
             <h3 class="text-lg font-semibold">Images</h3>
