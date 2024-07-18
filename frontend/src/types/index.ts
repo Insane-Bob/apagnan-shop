@@ -17,6 +17,9 @@ import type { TableActions } from './TableActions'
 // BASKET TYPES
 import type { BasketItem } from './BasketItem'
 
+// STRIPE TYPES
+import type {PromotionCodeStripe} from './PromotionCodeStripe'
+
 export type {
     Collection,
     Page,
@@ -31,4 +34,5 @@ export type {
     OrderDetails,
     Upload,
     Promo,
+    PromotionCodeStripe,
 }

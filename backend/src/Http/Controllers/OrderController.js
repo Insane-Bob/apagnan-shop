@@ -201,6 +201,7 @@ export class OrderController extends Controller {
         const session = await PaymentServices.createCheckoutSession(
             this.order,
             this.req.getUser(),
+            this.req.body.get('discounts'),
         )
         this.res.json(session)
     }
