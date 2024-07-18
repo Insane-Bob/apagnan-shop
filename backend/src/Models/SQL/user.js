@@ -70,7 +70,10 @@ function model(sequelize, DataTypes) {
 
     User.registerDenormalizerTask(
         new ProductDenormalizationTask()
-            .when([DenormalizerTask.EVENT.UPDATED])
+            .when([
+                DenormalizerTask.EVENT.UPDATED,
+                DenormalizerTask.EVENT.DELETED,
+            ])
             .on(['firstName', 'lastName'])
             .from(async (user) => {
                 let reviews = await user.getReviews()
@@ -82,7 +85,10 @@ function model(sequelize, DataTypes) {
 
     User.registerDenormalizerTask(
         new OrderRefundRequestDenormalizationTask()
-            .when([DenormalizerTask.EVENT.UPDATED])
+            .when([
+                DenormalizerTask.EVENT.UPDATED,
+                DenormalizerTask.EVENT.DELETED,
+            ])
             .on(['firstName', 'lastName', 'email', 'phone'])
             .from(async (user) => {
                 let customer = await user.getCustomer()
@@ -100,7 +106,10 @@ function model(sequelize, DataTypes) {
 
     User.registerDenormalizerTask(
         new OrderDenormalizationTask()
-            .when([DenormalizerTask.EVENT.UPDATED])
+            .when([
+                DenormalizerTask.EVENT.UPDATED,
+                DenormalizerTask.EVENT.DELETED,
+            ])
             .on(['firstName', 'lastName', 'email', 'phone'])
             .from(async (user) => {
                 let customer = await user.getCustomer()
