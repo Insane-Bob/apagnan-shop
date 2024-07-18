@@ -99,7 +99,6 @@ const updatePromo = async (row: any) => {
 }
 
 const fetchPromo = () => {
-    console.log('there')
     fetch()
 }
 
