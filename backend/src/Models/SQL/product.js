@@ -3,6 +3,7 @@ import { QueryTypes } from 'sequelize'
 import slugify from 'slugify'
 import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
 import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
+import { NotificationsServices } from '../../Services/NotificationsServices.js'
 
 function model(sequelize, DataTypes) {
     class Product extends DenormalizableModel {
@@ -15,11 +16,6 @@ function model(sequelize, DataTypes) {
             })
             Product.hasMany(models.Review, {
                 foreignKey: 'productId',
-            })
-            Product.belongsToMany(models.Promo, {
-                through: 'PromoProducts',
-                foreignKey: 'productId',
-                otherKey: 'promoId',
             })
             Product.hasMany(models.Upload, {
                 foreignKey: 'modelId',
@@ -34,6 +30,20 @@ function model(sequelize, DataTypes) {
             })
             Product.hasMany(models.StockTransaction, {
                 foreignKey: 'productId',
+            })
+        }
+
+        static hooks(models) {
+            models.Product.addHook('afterCreate', (product) => {
+                if (product.published)
+                    NotificationsServices.notifyNewProductInCollection(product)
+            })
+
+            models.Product.addHook('afterUpdate', (product) => {
+                if (product.changed('published') && product.published)
+                    NotificationsServices.notifyNewProductInCollection(product)
+                if (product.changed('price'))
+                    NotificationsServices.notifyProductPriceUpdate(product)
             })
         }
 

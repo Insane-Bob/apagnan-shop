@@ -145,7 +145,7 @@
               id="promoted"
               class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-20"
           >
-            <ProductCard2 :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
+            <ProductCard2 :key="product.id" :id="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
           </div>
           <div
               v-else
@@ -168,6 +168,7 @@
             <ProductCard2
                 height="300px"
                 v-for="collection in collections"
+                :id="collection.id"
                 :key="collection.id"
                 :name="collection.name"
                 :slug="collection.slug"
@@ -186,6 +187,7 @@
           <h1 class="text-md uppercase font-medium text-center">
             Notre newsletter
           </h1>
+          <Newsletter/>
         </Section>
     </div>
   <FooterComponent />
@@ -216,6 +218,7 @@ import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useToast } from '@components/ui/toast'
 import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
+import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 
 

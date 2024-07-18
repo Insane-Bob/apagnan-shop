@@ -52,7 +52,6 @@ export class PaymentServices {
             100, // Replace to 1
         )
 
-        console.log('discountss', discounts)
 
         const session = await stripe.checkout.sessions.create({
             customer: customer.stripeId,

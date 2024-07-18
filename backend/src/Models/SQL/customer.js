@@ -8,11 +8,6 @@ function model(sequelize, DataTypes) {
             models.Customer.hasMany(models.Address, {
                 foreignKey: 'customerId',
             })
-            models.Customer.belongsToMany(models.Promo, {
-                through: 'PromoCustomers',
-                foreignKey: 'customerId',
-                otherKey: 'promoId',
-            })
             models.Customer.hasMany(models.Order, { foreignKey: 'customerId' })
         }
     }

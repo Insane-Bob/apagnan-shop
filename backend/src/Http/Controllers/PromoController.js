@@ -56,6 +56,7 @@ export class PromoController extends Controller {
         })
         this.res.json({
             data,
+            total:data.length
         })
     }
 
@@ -86,9 +87,6 @@ export class PromoController extends Controller {
         const promotionCode =
             await PromoServices.createpromotionCodes(promotionCodeProps)
 
-        if (props.endDate) {
-            props.endDate = new Date(props.endDate)
-        }
 
         props.stripeId = promotionCode.id
 
