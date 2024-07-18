@@ -77,6 +77,33 @@ export class PaymentServices {
     }
 
     /**
+     * Create an invoice after checkout session is completed
+     * @param session
+     */
+    static async createInvoice(session) {
+        const invoice = await stripe.invoices.create({
+            customer: session.customer,
+            auto_advance: true,
+            collection_method: 'charge_automatically',
+        })
+        await stripe.invoices.finalizeInvoice(invoice.id)
+    }
+
+    /**
+     * Handle the checkout session completed event
+     * @param session
+     */
+    static async handleCheckoutSessionCompleted(session) {
+        const session = await PaymentServices.retrieveSession(session.id)
+
+        await PaymentServices.createInvoice(session)
+
+        await PaymentServices.updatePayment(session.id, {
+            status: PaymentStatus.SUCCESS,
+        })
+    }
+
+    /**
      * store a refund request
      * @param order
      * @param reason
