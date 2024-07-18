@@ -5,9 +5,14 @@ export { default as AvatarImage } from './AvatarImage.vue'
 export { default as AvatarFallback } from './AvatarFallback.vue'
 
 export const avatarVariant = cva(
-  'inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 bg-secondary overflow-hidden',
+  'inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 overflow-hidden',
   {
     variants: {
+      color:{
+        default: 'bg-secondary',
+        white: 'bg-white',
+        primary: 'bg-gradient-to-b from-primary/70 to-primary text-white font-medium',
+      },
       size: {
         sm: 'h-10 w-10 text-xs',
         base: 'h-16 w-16 text-2xl',

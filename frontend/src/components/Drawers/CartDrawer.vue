@@ -6,7 +6,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet'
 import type { BasketItem } from '@/types'
-import CartCard from '@components/cards/CartCard.vue'
+import CartCard from '@components/Cards/CartCard.vue'
 import Button from '@components/ui/button/Button.vue'
 import { useUserStore } from '@store/user'
 import { RouterLink } from 'vue-router'

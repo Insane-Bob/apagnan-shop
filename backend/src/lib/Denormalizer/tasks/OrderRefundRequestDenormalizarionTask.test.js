@@ -84,6 +84,32 @@ describe('OrderRefundRequestDenormalizarionTask', () => {
         spy.mockRestore()
     })
 
+    test('Refund delete', async () => {
+        const newRefund =
+            await Database.getInstance().models.RefundRequestOrder.create({
+                sessionId: 'session_id',
+                orderId: order.id,
+                amount: 100,
+                reason: 'reason',
+                approved: false,
+            })
+
+        let mNewRefund = await Refunds.findOne({ id: newRefund.id })
+        expect(mNewRefund).toBeTruthy()
+
+        let spy = jest.spyOn(
+            OrderRefundRequestDenormalizationTask.prototype,
+            'execute',
+        )
+        await newRefund.destroy()
+        expect(spy).toHaveBeenCalled()
+
+        mNewRefund = await Refunds.findOne({ id: newRefund.id })
+        expect(mNewRefund).toBeFalsy()
+
+        spy.mockRestore()
+    })
+
     test('Order edit => check that not start task', async () => {
         const spy = jest.spyOn(
             OrderRefundRequestDenormalizationTask.prototype,
