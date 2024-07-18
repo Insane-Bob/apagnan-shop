@@ -23,6 +23,7 @@ export class AuthController extends Controller {
             !(await user.canConnect()),
             'Too many attempts',
         )
+        UnprocessableEntity.abortIf(!user.isEmailVerified, 'Email not verified')
 
         const database = Database.getInstance()
 

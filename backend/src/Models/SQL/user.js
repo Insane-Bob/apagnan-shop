@@ -56,6 +56,10 @@ export class User extends DenormalizableModel {
         )
         return hasSuccessIn3LastAttempt
     }
+
+    static isEmailVerified() {
+        return this.emailVerifiedAt !== null
+    }
 }
 
 function model(sequelize, DataTypes) {
