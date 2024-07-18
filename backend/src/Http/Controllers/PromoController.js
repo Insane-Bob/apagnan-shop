@@ -95,15 +95,9 @@ export class PromoController extends Controller {
     async update() {
         this.can(PromoPolicy.update)
 
-        this.validate(PromoValidator, PromoValidator.update())
+        const payload = this.validate(PromoValidator, PromoValidator.update())
 
-        const props = this.req.body.all()
-
-        if (props.endDate) {
-            props.endDate = new Date(props.endDate)
-        }
-
-        const rowsEdited = await this.promo.update(props)
+        const rowsEdited = await this.promo.update(payload)
 
         if (rowsEdited === 0) {
             NotFoundException.abort()
