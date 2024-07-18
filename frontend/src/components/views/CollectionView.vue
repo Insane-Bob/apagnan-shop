@@ -12,6 +12,7 @@ import {useSuggestion} from "@/composables/useSuggestion";
 import MyBreadcrumbComponent from "@components/breadcrumb/MyBreadcrumbComponent.vue";
 import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
 import NotificationMenu from "@components/Menus/NotificationMenu.vue";
+import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 
 const route = useRoute()
@@ -114,6 +115,7 @@ const breadcrumbLinks = computed(()=>[
         <h1 class="text-md uppercase font-medium text-center">
           Notre newsletter
         </h1>
+        <Newsletter/>
       </Section>
 
     </main>

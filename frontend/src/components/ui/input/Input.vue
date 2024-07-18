@@ -33,6 +33,7 @@ const modelValue = useVModel(props, 'modelValue', emits, {
                     { 'border-error': props.error },
                 )
             "
+            v-bind="$attrs"
         />
 
         <p v-if="props.error" class="text-red-500 text-xs mt-1">

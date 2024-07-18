@@ -25,6 +25,7 @@
                 <slot name="before-input" />
             </div>
             <slot
+                dataInput="true"
                 name="input"
                 :id="id"
                 :ref="setRef"
@@ -104,3 +105,8 @@ function focusInput() {
     inputRef.value?.focus?.()
 }
 </script>
+<style>
+[datainput]{
+  width: 100%;
+}
+</style>

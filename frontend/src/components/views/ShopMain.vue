@@ -185,6 +185,7 @@
           <h1 class="text-md uppercase font-medium text-center">
             Notre newsletter
           </h1>
+          <Newsletter/>
         </Section>
     </div>
   <FooterComponent />
@@ -214,6 +215,7 @@ import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useToast } from '@components/ui/toast'
 import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
+import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 
 
