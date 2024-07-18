@@ -23,7 +23,7 @@ async function setUpApp() {
         .init(app)
 
     app.all('*', (req, res) => {
-        res.status(405).json({ code: 405, message: 'not implemented' })
+        res.status(405).json({ code: 405, message: 'method not allowed' })
     })
 
     console.timeEnd('Server started in')

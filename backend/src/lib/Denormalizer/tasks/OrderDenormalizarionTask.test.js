@@ -16,6 +16,8 @@ import { OrderDenormalizationTask } from './OrderDenormalizationTask.js'
 import { OrderStatus } from '../../../Enums/OrderStatus.js'
 import { AddressFactory } from '../../../database/factories/AddressFactory.js'
 import { OrderServices } from '../../../Services/OrderServices.js'
+import { DenormalizerTask } from '../DenormalizerTask.js'
+import { DenormalizerExecption } from '../DenormalizerExecption.js'
 
 let order
 let user
@@ -127,5 +129,35 @@ describe('OrderDenormalizationTask', () => {
         )
         expect(spy).not.toHaveBeenCalled()
         spy.mockRestore()
+    })
+
+    test('Order delete => throw error', async () => {
+        //create and order
+        let address = await AddressFactory.create({
+            customerId: user.customer.id,
+        })
+        let _order = await OrderFactory.create({
+            customerId: user.customer.id,
+            billingAddressId: address.id,
+            shippingAddressId: address.id,
+        })
+
+        let task = new OrderDenormalizationTask().setEventType(
+            DenormalizerTask.EVENT.CREATED,
+        )
+        await task.execute(_order) // save the order in the denormalized collection
+
+        let spy = jest.spyOn(OrderDenormalizationTask.prototype, 'execute')
+        await _order.destroy()
+        expect(spy).not.toHaveBeenCalled()
+        spy.mockRestore()
+
+        task = new OrderDenormalizationTask().setEventType(
+            DenormalizerTask.EVENT.DELETED,
+        )
+
+        await expect(task.execute(_order)).rejects.toThrow(
+            DenormalizerExecption,
+        )
     })
 })

@@ -62,7 +62,11 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
-                this.res.redirect(process.env.FRONT_END_URL + '/order/success?orderId=' + this.order.id)
+                this.res.redirect(
+                    process.env.FRONT_END_URL +
+                        '/order/success?orderId=' +
+                        this.order.id,
+                )
             }
         } catch (e) {
             console.error(e)
@@ -93,7 +97,9 @@ export class PaymentController extends Controller {
             this.order.Customer.User,
         )
 
-        this.res.redirect(process.env.FRONT_END_URL + '/order/fail?orderId=' + this.order.id)
+        this.res.redirect(
+            process.env.FRONT_END_URL + '/order/fail?orderId=' + this.order.id,
+        )
     }
 
     async webhook() {
@@ -172,15 +178,15 @@ export class PaymentController extends Controller {
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
 
-        let order = await payment.getOrder()
-        let service = new OrderServices(order)
-        await service.setStatus(OrderStatus.PAID, undefined, false)
-        await service.setStatus(OrderStatus.PROCESSING)
-
         await PaymentServices.updatePayment(checkoutSession.id, {
             paymentIntentId: paymentIntent.id,
             status: PaymentStatus.SUCCEEDED,
         })
+
+        let order = await payment.getOrder()
+        let service = new OrderServices(order)
+        await service.setStatus(OrderStatus.PAID, undefined, false)
+        await service.setStatus(OrderStatus.PROCESSING) //start a denormalization task
 
         await NotificationsServices.notifySuccessPaymentCustomer(
             payment.Order.Customer.User,

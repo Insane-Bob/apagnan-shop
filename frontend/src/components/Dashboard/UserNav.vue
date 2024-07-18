@@ -20,7 +20,7 @@ const userStore = useUserStore()
     <DropdownMenu>
         <DropdownMenuTrigger as-child>
             <Button variant="ghost" class="relative h-8 w-8 rounded-full">
-                <Avatar class="h-8 w-8">
+                <Avatar class="h-8 w-8" color="primary">
                     <AvatarFallback
                         >{{ userStore.get.firstName[0]
                         }}{{ userStore.get.lastName[0] }}</AvatarFallback

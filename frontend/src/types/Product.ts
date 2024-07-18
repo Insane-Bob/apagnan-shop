@@ -1,11 +1,10 @@
 import type { Review } from './Review'
 import type { Upload } from './Upload'
-export interface Product {
+import type {Suggestion} from "@/types/Suggestion";
+import type {Collection} from "@/types/Collection";
+export interface Product extends Suggestion{
     id: number
-    name: string
-    slug: string
     modele: string
-    description: string
     price: number
     image: string
     category: string
@@ -17,4 +16,5 @@ export interface Product {
     stock: number
     images: Upload[]
     reviews: Review[]
+    Collection? : Collection
 }

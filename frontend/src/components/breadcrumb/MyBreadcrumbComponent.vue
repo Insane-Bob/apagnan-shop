@@ -19,15 +19,6 @@ const props = defineProps({
   }
 })
 
-/* 
-// Usage of the component
-const breadcrumbLinks = [
-  ['Accueil', '#'],
-  ['Collections', '#'],
-  ['Summer 2024', '#'],
-  ['Nainguigui', '#']
-]
-<MyBreadcrumbComponent :links="breadcrumbLinks" /> */
 </script>
 
 <template>
@@ -40,7 +31,9 @@ const breadcrumbLinks = [
             'text-green-900': index !== links.length - 1
           }"
         >
-          <BreadcrumbLink :href="link[1]">{{ link[0] }}</BreadcrumbLink>
+          <RouterLink :to="link[1]" @click.stop>
+            <BreadcrumbLink as="span">{{ link[0] }}</BreadcrumbLink>
+          </RouterLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator v-if="index < links.length - 1"> / </BreadcrumbSeparator>
       </template>

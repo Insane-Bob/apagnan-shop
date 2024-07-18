@@ -1,7 +1,7 @@
 <template>
     <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
     <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
-        <div 
+        <div
             class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20"
         >
             <img v-if="collection.image"
@@ -44,7 +44,7 @@
                     <Sheet v-if="isLogged">
                         <SheetTrigger>
                             <div class="relative group">
-                                <ion-icon 
+                                <ion-icon
                                     name="cart-outline"
                                     class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                                 ></ion-icon>
@@ -130,29 +130,65 @@
                     {{ collection.name }}
                 </p>
                 <RouterLink to="#promoted">
-                    <Button variant="secondary" class="uppercase" 
+                    <Button variant="secondary" class="uppercase"
                         >Découvrir la collection</Button
                     >
                 </RouterLink>
             </div>
         </div>
-
-        <div
-            v-if="!loading"
-            id="promoted"
-            class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
-        >
-            <ProductCard2 :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description.slice(0,25)" :price="product.price" :image="product.images[0]" />
-        </div>
-
-        <div
-            v-if="loading"
-            id="shop"
-            class="w-screen h-screen bg-white py-14 px-24 justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
-        >
+        <Section class="max-w-[1000px] mx-auto">
+          <h1 class="text-md uppercase font-medium text-center">
+            Collection à la une
+          </h1>
+          <div
+              v-if="!loading"
+              id="promoted"
+              class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-20"
+          >
+            <ProductCard2 :key="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
+          </div>
+          <div
+              v-else
+              id="shop"
+              class="w-screen bg-white justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
+          >
             <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
-        </div>
+          </div>
+        </Section>
+
+        <Section class="bg-slate-100">
+          <h1 class="text-md uppercase font-medium text-center">
+            Nos collections
+          </h1>
+          <div
+              v-if="!loading"
+              id="collections"
+              class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
+          >
+            <ProductCard2
+                height="300px"
+                v-for="collection in collections"
+                :key="collection.id"
+                :name="collection.name"
+                :slug="collection.slug"
+                :shortDescription="collection.description" :image="collection?.image">
+              <template #action>
+                <Button class="hover:text-primary transition uppercase" variant="ghost">
+                  Découvrir la collection
+                  <ion-icon name="chevron-forward-outline" class="text-lg ml-4"/>
+                </Button>
+              </template>
+
+            </ProductCard2>
+          </div>
+        </Section>
+        <Section class="max-w-[1000px] mx-auto">
+          <h1 class="text-md uppercase font-medium text-center">
+            Notre newsletter
+          </h1>
+        </Section>
     </div>
+  <FooterComponent />
 </template>
 
 <script setup lang="ts">
@@ -178,6 +214,8 @@ import {
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useToast } from '@components/ui/toast'
+import FooterComponent from "@components/footer/FooterComponent.vue";
+import Section from "@/layout/Section.vue";
 
 
 
@@ -286,12 +324,19 @@ onUnmounted(() => {
 
 onMounted(async () => {
     await fetchPromotedCollection()
+  await fetchCollections()
     loading.value = false
 
     setTimeout(() => {
         showCookiesModal.value = false
     }, 500)
 })
+
+const collections = ref(null)
+async function fetchCollections() {
+  const response = await apiClient.get('collections?withImage&limit=6')
+  collections.value = response.data.data
+}
 
 
 const fetchPromotedCollection = async () => {
