@@ -16,11 +16,6 @@ function model(sequelize, DataTypes) {
             Product.hasMany(models.Review, {
                 foreignKey: 'productId',
             })
-            Product.belongsToMany(models.Promo, {
-                through: 'PromoProducts',
-                foreignKey: 'productId',
-                otherKey: 'promoId',
-            })
             Product.hasMany(models.Upload, {
                 foreignKey: 'modelId',
                 constraints: false,
