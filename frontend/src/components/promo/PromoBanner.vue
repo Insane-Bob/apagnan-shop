@@ -58,7 +58,7 @@ const copyToClipBoard = () => {
 </script>
 
 <template>
-    <div v-if="promos.length>0" class="h-8 min-w-[100vw] bg-primary flex justify-center items-center overflow-x-hidden z-50">
+    <div v-if="promos.length>0" class="h-8 min-w-[100vw] bg-gradient-to-r from-green-700 via-green-500 to-green-300 flex justify-center items-center overflow-x-hidden z-50">
         <span id="promotedBanner" class="text-white w-screen text-center duration-300">-{{ promos[0].value }}{{ promos[0].type === 'amount'? '€' : '%' }} sur votre commande avec le code: <span @click="copyToClipBoard()" class="cursor-pointer tracking-wider">{{ promos[0].code }}</span></span>
     </div>
 </template>

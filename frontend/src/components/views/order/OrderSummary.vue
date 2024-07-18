@@ -68,7 +68,7 @@ const waitingPaymentModal = ref(false)
 
 const promoCode = ref('')
 const promoError = ref('')
-const promo = reactive<PromotionCodeStripe>({} as PromotionCodeStripe)
+const promo = reactive<Promo>({} as Promo)
 
 usePaymentBroadcastChannel()
 
@@ -93,7 +93,7 @@ const onSelectAddressOption = () => {
 }
 
 const goToPayment = async () => {
-    waitingPaymentModal.value = true
+    
 
     let shippingAdresseId
     let billingAdresseId
@@ -133,8 +133,10 @@ const goToPayment = async () => {
 
     const orderId = await createOrder(shippingAdresseId, billingAdresseId)
 
+    waitingPaymentModal.value = true
+
     const response = await apiClient.post(`/orders/${orderId}/pay`, {
-        discounts: [{promotion_code: promo.id}],
+        discounts: promo.stripeId?[{promotion_code: promo.stripeId}]:[]
     })
 
     if (response.data.url && orderId !== 0) {
@@ -199,6 +201,7 @@ const createOrder = async (
         customerId: user.getCustomerId,
         shippingAddressId: shippingAddressId,
         billingAddressId: billingAddressId,
+        promoId: promo.id || null,
         products: user.getCart.map((item: BasketItem) => {
             return {
                 productId: item.product.id,
@@ -233,18 +236,26 @@ const searchPromoCode = async () => {
 
    promo.code = response.data.promo.code
    promo.id = response.data.promo.id
-   promo.coupon = response.data.promo.coupon
+   promo.type = response.data.promo.type
+   promo.stripeId = response.data.promo.stripeId
+   promo.value = response.data.promo.value
+
+   promoError.value = ''
 
   } catch (e: any) {
-    if(e.response.status === 404)
-    promoError.value = 'Code promo invalide'
-    return 
+    if(e.response.status === 404){
+      promo.code = ''
+      promo.stripeId = ''
+      promoError.value = 'Code promo invalide'
+      return 
+    }
   }
     
 }
 
 const removePromo = () => {
   promo.code = ''
+  promo.stripeId = ''
   
 }
 </script>
@@ -397,7 +408,7 @@ const removePromo = () => {
 
               <div v-if="promo.code" class="flex justify-between items-center relative">
                 Code promo
-                <p @click="removePromo()" class="peer hover:line-through cursor-pointer">-{{ promo.coupon.percent_off? promo.coupon.percent_off: promo.coupon.amount_off + '€' }} (<span class="tracking-wider">{{ promo.code }}</span>)</p>
+                <p @click="removePromo()" class="peer hover:line-through cursor-pointer">-{{ promo.type === 'percent'? promo.value + '%': promo.value + '€' }} (<span class="tracking-wider">{{ promo.code }}</span>)</p>
                 <span
                   class="peer-hover:block hidden text-white bg-black duration-100 absolute top-0 right-0 -translate-y-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
                   >Supprimer le code promo</span>

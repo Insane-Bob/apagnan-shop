@@ -3,7 +3,7 @@ export interface Promo {
     value: number
     type: string
     code: string
-    endDate: string
+    stripeId: string
     promoted: boolean
     available: boolean
 }

@@ -12,7 +12,7 @@ export class OrderValidator extends Validator {
             customerId: z.number().int().positive(),
             shippingAddressId: z.number().int().positive(),
             billingAddressId: z.number().int().positive(),
-            promoCode: z.string().optional(),
+            promoId: z.number().int().optional(),
             products: z.array(
                 z.object({
                     productId: z.number().int().positive(),

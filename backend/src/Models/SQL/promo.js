@@ -30,9 +30,9 @@ function model(sequelize, DataTypes) {
             type: DataTypes.ENUM('percent', 'amount'),
             code: DataTypes.STRING(50),
             promoted: DataTypes.BOOLEAN,
+            stripeId: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
-            endDate: DataTypes.DATE,
             stock: {
                 type: DataTypes.VIRTUAL,
             },

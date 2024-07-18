@@ -10,7 +10,11 @@ export class PromoServices {
         return await stripe.promotionCodes.create(props)
     }
 
-    static async listPromotionCodes() {
-        return await stripe.promotionCodes.list()
+    static async listPromotionCodes(props = {}) {
+        return await stripe.promotionCodes.list(props)
+    }
+
+    static async deletePromotionCode(promotionCodeId) {
+        return await stripe.promotionCodes.del(promotionCodeId)
     }
 }

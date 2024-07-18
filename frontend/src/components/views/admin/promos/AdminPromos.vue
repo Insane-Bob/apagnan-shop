@@ -50,19 +50,6 @@ const columns: TableColumns[] = [
         key: 'available',
         toDisplay: (value: boolean) => (value ? 'Oui' : 'Non'),
     },
-    {
-        label: 'Date de fin',
-        key: 'endDate',
-        toDisplay: (value: string) => {
-            if(!value) return 'Non défini'
-
-            const text = new Date(value.slice(0, value.indexOf('T'))).toLocaleDateString(
-                'fr-FR',
-                { year: 'numeric', month: 'long', day: 'numeric' },
-            )
-            return text
-        }
-    },
 ]
 
 const actions: TableActions[] = [
@@ -102,23 +89,6 @@ const actions: TableActions[] = [
             updatePromo({id: row.id, available: true})
         },
     },
-    {
-        label: 'Modifier',
-        icon: 'pencil-outline',
-        class: 'text-blue-500',
-        trigger: true,
-        action: (row: Promo) => {
-            form.promo = row
-        },
-    },
-    {
-        label: 'Supprimer',
-        icon: 'trash-outline',
-        class: 'text-red-500',
-        action: (row: Promo) => {
-            deletePromo(row)
-        },
-    },
 ]
 
 const updatePromo = async (row: any) => {
@@ -128,8 +98,8 @@ const updatePromo = async (row: any) => {
     fetch()
 }
 
-const deletePromo = async (row: any) => {
-    await apiClient.delete('promos/' + row.id)
+const fetchPromo = () => {
+    console.log('there')
     fetch()
 }
 
@@ -174,7 +144,7 @@ const deletePromo = async (row: any) => {
         </div>
 
         <DialogContent>
-            <PromoForm :promo="form.promo" @reloadPromo="fetch" />
+            <PromoForm :promo="form.promo" @reload-promo="fetch" />
         </DialogContent>
     </Dialog>
 </template>

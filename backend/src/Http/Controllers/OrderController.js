@@ -78,6 +78,16 @@ export class OrderController extends Controller {
         const payload = this.validate(OrderValidator, OrderValidator.create())
         this.can(OrderPolicy.store, payload.customerId)
 
+        let promo = null
+        if (!payload.promoId) {
+            promo = await Database.getInstance().models.Promo.findOne({
+                where: {
+                    id: payload.promoId,
+                },
+            })
+            NotFoundException.abortIf(!promo, 'Promo not found')
+        }
+
         const billingAddress =
             await Database.getInstance().models.Address.findOne({
                 where: {
@@ -103,6 +113,7 @@ export class OrderController extends Controller {
             customerId: payload.customerId,
             shippingAddressId: payload.shippingAddressId,
             billingAddressId: payload.billingAddressId,
+            promoId: payload.promoId,
         }
 
         const transaction = await Database.transaction()

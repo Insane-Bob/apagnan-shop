@@ -14,14 +14,12 @@ export class PromoValidator extends Validator {
             code: z.string(),
             available: z.boolean().optional(),
             promoted: z.boolean().optional(),
+            stripeId: z.string().optional(),
         })
     }
 
     static update() {
         return z.object({
-            type: z.string().optional(),
-            value: z.number().optional(),
-            code: z.string().optional(),
             available: z.boolean().optional(),
             promoted: z.boolean().optional(),
         })

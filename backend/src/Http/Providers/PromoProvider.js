@@ -15,7 +15,6 @@ export class PromoCodeProvider extends Provider {
             where: {
                 code: paramValue,
                 available: true,
-                endDate: { [Op.gt]: new Date() },
             },
         })
     }

@@ -29,14 +29,14 @@ module.exports = {
                 type: Sequelize.STRING(50),
                 allowNull: false,
             },
-            endDate: {
-                type: Sequelize.DATE,
-                allowNull: true,
-            },
             promoted: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
                 defaultValue: 'false',
+            },
+            stripeId: {
+                type: Sequelize.STRING,
+                allowNull: true,
             },
             createdAt: {
                 type: Sequelize.DATE,

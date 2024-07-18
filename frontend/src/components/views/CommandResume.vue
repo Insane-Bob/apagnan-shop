@@ -20,16 +20,20 @@ import ProfileLayout from "@/layout/ProfileLayout.vue";
 import Badge from "@components/ui/badge/Badge.vue";
 import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
+import {useUserStore} from "@/stores/user";
 
 const isRefundDialogOpen = ref(false)
 
 const options = { year: 'numeric', month: 'long', day: 'numeric' }
 
+const user = useUserStore()
 const route = useRoute()
 const router = useRouter()
 usePaymentBroadcastChannel(()=>{
     fetch()
 })
+
+
 
 const stapes = ref<{ status: string; date: Date; description: string }[]>([])
 
@@ -91,6 +95,9 @@ async function fetch() {
 }
 onMounted(() => {
     fetch()
+    if(route.query.payment === 'success') {
+        user.clearCart()
+    }
 })
 
 async function reorder() {
