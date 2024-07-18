@@ -62,6 +62,20 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
+                const product =
+                    await Database.getInstance().models.Product.findByPk(
+                        orderDetail.productId,
+                    )
+
+                if (product.stock == 0) {
+                    await NotificationsServices.notifNotifOutOfStockProduct(
+                        product,
+                    )
+                }
+                if (product.stock < 5) {
+                    await NotificationsServices.notifLowStockProduct(product)
+                }
+
                 this.res.redirect(
                     process.env.FRONT_END_URL +
                         '/order/success?orderId=' +
