@@ -38,6 +38,13 @@ const routes = computed(()=>{
         name: backofficeRoutesName.COMMANDS
       },
       active: route.name === backofficeRoutesName.COMMANDS
+    },
+    {
+      name: 'Mes Notifications',
+      route:{
+        name: backofficeRoutesName.NOTIFICATIONS
+      },
+      active: route.name === backofficeRoutesName.NOTIFICATIONS
     }
   ]
 })
