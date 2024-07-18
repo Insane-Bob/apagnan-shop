@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import CardHeader from '@components/ui/card/CardHeader.vue'
-import Card from '@components/ui/card/Card.vue'
-import Avatar from '@components/ui/avatar/Avatar.vue'
-import { AvatarFallback } from '@components/ui/avatar'
+import { backofficeRoutesName } from '@/routes/backoffice'
 import { useUserStore } from '@/stores/user'
-import CardTitle from '@components/ui/card/CardTitle.vue'
-import CardDescription from '@components/ui/card/CardDescription.vue'
-import Separator from '@components/ui/separator/Separator.vue'
+import { AvatarFallback } from '@components/ui/avatar'
+import Avatar from '@components/ui/avatar/Avatar.vue'
+import Button from '@components/ui/button/Button.vue'
+import Card from '@components/ui/card/Card.vue'
 import CardContent from '@components/ui/card/CardContent.vue'
+import CardDescription from '@components/ui/card/CardDescription.vue'
+import CardFooter from '@components/ui/card/CardFooter.vue'
+import CardHeader from '@components/ui/card/CardHeader.vue'
+import CardTitle from '@components/ui/card/CardTitle.vue'
+import Separator from '@components/ui/separator/Separator.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { backofficeRoutesName } from '@/routes/backoffice'
-import CardFooter from '@components/ui/card/CardFooter.vue'
-import Button from '@components/ui/button/Button.vue'
 
 const userStore = useUserStore()
 const route = useRoute()

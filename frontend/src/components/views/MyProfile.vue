@@ -1,19 +1,20 @@
 <template>
     <div class="relative">
         <main class="bg-white">
-            <div class="flex flex-col justify-center items-center gap-2 mt-5">
-                <h1>
-                    Bienvenue sur votre espace personnel {{ user.user?.firstName }}
-                    {{ user.user?.lastName }} !
+            <div class="flex flex-col justify-center items-center gap-4 mt-10">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    Bienvenue sur votre espace personnel,
+                    <span class="text-primary">
+                        {{ user.user?.firstName }} {{ user.user?.lastName }}
+                    </span>
+                    !
                 </h1>
-                <h2 class="text-sm text-primary">
-                    Vous pouvez ici
-                    consulter vos informations personnelles et votre historique
-                    de commandes.
-                </h2>
+                <p class="text-lg text-gray-600">
+                    Nous sommes ravis de vous revoir.
+                </p>
             </div>
             <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center p-8"
+                class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center p-8 mt-8"
             >
                 <LinkCard
                     to="/profile/informations"
@@ -21,7 +22,6 @@
                     shortDescription="Modifiez vos informations personnelles"
                     image="/src/assets/images/profileMe.webp"
                 />
-
                 <LinkCard
                     to="/profile/commands"
                     name="Mes commandes"
@@ -40,3 +40,20 @@ import { useUserStore } from '@store/user'
 
 const user = useUserStore()
 </script>
+
+<style scoped>
+h1 {
+    animation: fadeInDown 1s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
