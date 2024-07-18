@@ -2,19 +2,22 @@
 import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import ProductForm from '@/components/views/admin/products/ProductForm.vue'
-import { onMounted, reactive } from 'vue'
-import { Product, Page, TableColumns, TableActions } from '@types'
+import { TableColumns, TableActions } from '@types'
 import { useRouter } from 'vue-router'
 import { apiClient } from '@/lib/apiClient'
+import { useFilters } from '@/composables/useFilters'
+import { useTable } from '@/composables/useTable'
+import Filter from '@components/tables/Filter.vue'
+import FilterItem from '@components/tables/FilterItem.vue'
+import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 
 const router = useRouter()
-const products = reactive<Product[]>([])
-
-const page = reactive<Page>({
-    current: 1,
-    total: products.length,
-    perPage: 10,
+const { filters, query, resetFilters } = useFilters({
+    published: [],
+    search: '',
 })
+
+const { fetch, rows, pagination, sorting } = useTable('/products', query)
 
 const columns: TableColumns[] = [
     {
@@ -60,62 +63,56 @@ const actions: TableActions[] = [
         label: 'Modifier',
         icon: 'document-text-outline',
         class: 'text-blue-500',
-        action: (product: Product) => {
-            router.push('/admin/products/' + product.slug)
+        action: (row: any) => {
+            router.push('/admin/products/' + row.slug)
         },
     },
     {
         label: 'Supprimer',
         icon: 'trash-outline',
         class: 'text-red-500',
-        action: (product: Product) => {
-            deleteProduct(product)
+        action: (row: any) => {
+            deleteProduct({ ...row, deletedAt: new Date(), published: false })
         },
     },
 ]
 
-function onNextPage() {
-    page.current++
-}
-
-function onPreviousPage() {
-    page.current--
-}
-
-onMounted(() => {
-    fetchProducts()
-})
-
-const deleteProduct = async (product: Product) => {
-    // TODO : Replace delete with soft delete (update product to set deletedAt)
-    const response = await apiClient.delete('products/' + product.slug)
-}
-
-const fetchProducts = async () => {
-    const response = await apiClient.get('products')
-    const data = await response.data
-    products.push(...data.products)
-    page.total = data.length
+const deleteProduct = async (row: any) => {
+    await apiClient.patch('/products/' + row.slug, row)
+    fetch()
 }
 </script>
 
 <template>
     <div v-if="!$route.params.slug" class="flex flex-col mx-6">
-        <Button
-            @click="router.push('/admin/products/new')"
-            class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
-        >
-            <span>Créer un nouveau produit</span>
-            <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
-        </Button>
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex gap-4 items-center">
+                <OutlinedInput
+                    class="max-w-[200px]"
+                    placeholder="Recherche"
+                    v-model="filters.search"
+                >
+                </OutlinedInput>
+
+                <Filter label="Status" v-model="filters.published">
+                    <FilterItem value="true" label="Publié" />
+                    <FilterItem value="false" label="Non publié" />
+                </Filter>
+            </div>
+            <Button
+                @click="router.push('/admin/products/new')"
+                class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+            >
+                <span>Créer un nouveau produit</span>
+                <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
+            </Button>
+        </div>
         <DataTable
-            v-if="products.length > 0"
             :columns="columns"
-            :rows="products"
+            :rows="rows"
+            :pagination="pagination"
+            :sorting="sorting"
             :actions="actions"
-            :page="page"
-            @emit-next-page="onNextPage"
-            @emit-previous-page="onPreviousPage"
         ></DataTable>
     </div>
     <ProductForm :cslug="$route.params.slug" v-else></ProductForm>

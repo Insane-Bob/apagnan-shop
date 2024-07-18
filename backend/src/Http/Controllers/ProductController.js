@@ -11,15 +11,15 @@ export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
     async getProducts() {
         let products
-
+        let total
         if (this.collection) {
             products = await this.collection.getProducts()
+            total = products.length
         } else {
-            // @CONFLICT - doit etre récuperer pour le systeme de suggestion
             let search = new SearchRequest(this.req, ['published'], ['name'])
 
             let model = Database.getInstance().models.Product
-            let total = await model.count(search.queryWithoutPagination)
+            total = await model.count(search.queryWithoutPagination)
 
             if (this.req.query.has('withCollection'))
                 model = model.scope('withCollection')
@@ -31,7 +31,6 @@ export class ProductController extends Controller {
                     Math.random() * (total - search.query.limit),
                 )
             }
-            // @CONFLICT_END ---
 
             products = await model.findAll(query)
         }
@@ -47,6 +46,7 @@ export class ProductController extends Controller {
 
         this.res.status(200).json({
             data: products,
+            total: total,
             images,
         })
     }

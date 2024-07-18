@@ -3,13 +3,14 @@ import { defineProps, onMounted, reactive, ref } from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import DataTable from '@/components/tables/DataTable.vue'
 import SpecificFormItem from '@/components/views/admin/specifics/SpecificForm.vue'
-import { Product, Collection, Specific, Page } from '@types'
+import { Product, Collection, Specific } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { apiClient } from '@/lib/apiClient'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useRouter } from 'vue-router'
 import { Textarea } from '@/components/ui/textarea'
+import { useTable } from '@/composables/useTable'
 import Button from '@/components/ui/button/Button.vue'
 import {
     Select,
@@ -21,6 +22,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import StockForm from '../stocks/StockForm.vue'
+import { useFilters } from '@/composables/useFilters'
 
 const router = useRouter()
 const props = defineProps<{
@@ -40,17 +42,16 @@ const product = reactive<{ product: Product }>({
     },
 })
 
-const collections = reactive<Collection[]>([])
-
-const specifics = reactive<Specific[]>([])
-const SpecificForm = reactive<{ specific: Specific | null }>({
-    specific: null,
+const { filters, query } = useFilters({
+    productId: 1,
 })
 
-const page = reactive<Page>({
-    current: 1,
-    total: specifics.length,
-    perPage: 10,
+const { fetch, rows, pagination, sorting } = useTable('/specifics', query)
+
+const collections = reactive<Collection[]>([])
+
+const SpecificForm = reactive<{ specific: Specific | null }>({
+    specific: null,
 })
 
 const columns = [
@@ -86,14 +87,6 @@ const actions = [
     },
 ]
 
-function onNextPage() {
-    page.current++
-}
-
-function onPreviousPage() {
-    page.current--
-}
-
 interface Image {
     id: number
     modelId: number
@@ -107,13 +100,12 @@ const fetchProductData = async () => {
     const data = await response.data
     product.product = data.product
     images.value.push(...data.images)
-    console.log('product selected', data)
 }
 
 const fetchCollections = async () => {
     const response = await apiClient.get('collections')
     const data = await response.data
-    collections.push(...data.collections)
+    collections.push(...data.data)
 }
 
 const createProduct = async () => {
@@ -145,22 +137,16 @@ const onSubmit = () => {
     }
 }
 
+const fetchSpecifics = async () => {
+    await fetch()
+}
+
 onMounted(() => {
     if (slug.value !== 'new') {
         fetchProductData()
     }
     fetchCollections()
-    fetchSpecifics()
 })
-
-const fetchSpecifics = async () => {
-    const response = await apiClient.get(
-        'products/' + slug.value + '/specifics',
-    )
-    const data = await response.data
-    specifics.push(...data.specifics)
-    page.total = specifics.length
-}
 </script>
 
 <template>
@@ -260,7 +246,10 @@ const fetchSpecifics = async () => {
                         <Button type="button">Gestion du stock</Button>
                     </DialogTrigger>
                     <DialogContent>
-                        <StockForm :productId="product.product.id"></StockForm>
+                        <StockForm
+                            :productId="product.product.id"
+                            @stockUpdated="fetchProductData"
+                        ></StockForm>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -283,13 +272,11 @@ const fetchSpecifics = async () => {
                         </Button>
                     </DialogTrigger>
                     <DataTable
-                        v-if="specifics.length > 0"
                         :columns="columns"
-                        :rows="specifics"
-                        :page="page"
+                        :rows="rows"
+                        :pagination="pagination"
                         :actions="actions"
-                        @emit-next-page="onNextPage"
-                        @emit-previous-page="onPreviousPage"
+                        :sorting="sorting"
                     ></DataTable>
                 </div>
 
@@ -297,6 +284,7 @@ const fetchSpecifics = async () => {
                     <SpecificFormItem
                         :specific="SpecificForm.specific"
                         :productId="product.product.id"
+                        @specificSaved="fetchSpecifics"
                     ></SpecificFormItem>
                 </DialogContent>
             </Dialog>

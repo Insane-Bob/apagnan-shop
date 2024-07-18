@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { defineProps, ref } from 'vue'
+import { defineProps, ref, defineEmits } from 'vue'
 import { apiClient } from '@/lib/apiClient'
 import { Specific } from '@types'
 
@@ -19,6 +19,8 @@ const props = defineProps<{
     specific?: Specific
     productId?: number
 }>()
+
+const emit = defineEmits(['specificSaved'])
 
 const name = ref(props.specific?.name || '')
 const content = ref(props.specific?.content || '')
@@ -40,7 +42,7 @@ const updateSpecific = async () => {
     })
 
     if (response.status === 200) {
-        const data = await response.data
+        emit('specificSaved')
     }
 }
 
@@ -52,7 +54,7 @@ const createSpecific = async () => {
     })
 
     if (response.status === 201) {
-        const data = await response.data
+        emit('specificSaved')
     }
 }
 </script>

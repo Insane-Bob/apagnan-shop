@@ -9,9 +9,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 import { apiClient } from '@/lib/apiClient'
 
+const emit = defineEmits(['stockUpdated'])
 const props = defineProps<{
     productId: number
 }>()
@@ -23,6 +24,10 @@ const addStock = async () => {
         quantity: quantity.value,
         productId: props.productId,
     })
+
+    if (response.status === 200) {
+        emit('stockUpdated')
+    }
 }
 
 const removeStock = async () => {
@@ -30,6 +35,9 @@ const removeStock = async () => {
         quantity: quantity.value,
         productId: props.productId,
     })
+    if (response.status === 200) {
+        emit('stockUpdated')
+    }
 }
 </script>
 
