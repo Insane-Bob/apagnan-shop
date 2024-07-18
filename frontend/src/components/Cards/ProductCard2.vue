@@ -4,7 +4,12 @@ import Button from '@/components/ui/button/Button.vue'
 import type { Upload, Collection } from '@types';
 import {computed} from "vue";
 
+import NotificationMenu from "@components/Menus/NotificationMenu.vue";
+
+
+
 const props = defineProps<{
+    id: number,
     name: string,
     shortDescription?: string,
     price?: number,
@@ -21,8 +26,12 @@ const _slug = computed(()=>{
 </script>
 
 <template>
-    <article class="flex-col w-full ">
-        <div class="w-full bg-primary overflow-hidden" :style="{
+    <article class="flex-col w-full relative">
+      <div class="absolute z-20 right-0 top-0">
+        <NotificationMenu :id="props.id" :model-type="collection ? 'product': 'collection'" />
+      </div>
+
+        <div class="w-full bg-transparent overflow-hidden" :style="{
             height: props.height ?? '470px'
         }">
             <img v-if="props.image"
@@ -30,6 +39,7 @@ const _slug = computed(()=>{
                 alt="product image"
                 class="w-full h-full object-cover"
             />
+
             <div v-else class="relative h-full w-full">
                 <img 
                     src="/src/assets/images/noPhotoAvailable.webp"

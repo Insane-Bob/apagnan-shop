@@ -5,12 +5,14 @@ import MyCommands from '@components/views/MyCommands.vue'
 import { useToast } from '@/components/ui/toast/use-toast'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useUserStore } from '@store/user'
+import NotificationManagementView from "@components/views/NotificationManagementView.vue";
 
 
 export const backofficeRoutesName = {
     PROFILE: 'MyProfile',
     COMMANDS: 'MyCommands',
     COMMAND_RESUME: 'CommandResume',
+    NOTIFICATIONS: 'Notifications'
 }
 
 export const backofficeRoutes = [
@@ -47,6 +49,11 @@ export const backofficeRoutes = [
                 path: 'command/:id',
                 component: CommandResume,
                 name: backofficeRoutesName.COMMAND_RESUME,
+            },
+            {
+                path: 'notifications',
+                component: NotificationManagementView,
+                name : backofficeRoutesName.NOTIFICATIONS
             }
         ],
     },

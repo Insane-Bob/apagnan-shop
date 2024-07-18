@@ -12,9 +12,6 @@ export class StockService {
             },
             ...args,
         )
-        ProductStockObserver.getInstance().broadcast({
-            productId: productId,
-        })
         await this.broadcastStock(productId)
         return res
     }
