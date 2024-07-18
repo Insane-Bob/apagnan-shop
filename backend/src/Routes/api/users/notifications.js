@@ -1,8 +1,8 @@
 import { UserNotificationController } from '../../../Http/Controllers/UserNotificationController.js'
 
-export function widgetRoute(userRouteGroup) {
+export function notificationsRoutes(userRouteGroup) {
     userRouteGroup.group('/notifications', function () {
-        this.get('/', UserNotificationController, 'show')
+        this.get('/', UserNotificationController, 'index')
         this.post('/:type', UserNotificationController, 'toggle')
     })
 }

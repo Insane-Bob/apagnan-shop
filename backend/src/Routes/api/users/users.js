@@ -6,6 +6,7 @@ import { UserProvider } from '../../../Http/Providers/UserProvider.js'
 import { basketRoute } from './basket.js'
 import { AddressController } from '../../../Http/Controllers/AddressController.js'
 import { widgetRoute } from './widget.js'
+import { notificationsRoutes } from './notifications.js'
 
 /**
  * Auth routes
@@ -43,6 +44,7 @@ export default function (router) {
             )
 
             this.group('/:user_resource', function () {
+                notificationsRoutes(this)
                 widgetRoute(this)
                 basketRoute(this)
             })

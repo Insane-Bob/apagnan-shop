@@ -27,6 +27,7 @@ export class UserNotificationValidator extends Validator {
                     if (data.modelType) {
                         return Boolean(data.modelId)
                     }
+                    return true
                 },
                 {
                     message:

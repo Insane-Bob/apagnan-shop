@@ -32,7 +32,7 @@ function model(sequelize, DataTypes) {
             modelId: DataTypes.INTEGER,
             modelType: DataTypes.STRING,
             type: DataTypes.STRING,
-            activate: DataTypes.BOOLEAN,
+            activated: DataTypes.BOOLEAN,
             createdAt: {
                 type: DataTypes.DATE,
                 allowNull: false,

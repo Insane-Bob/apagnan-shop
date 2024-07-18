@@ -5,14 +5,14 @@ import { Database } from '../../Models/index.js'
 import { UserNotificationValidator } from '../../Validator/UserNotificationValidator.js'
 
 export class UserNotificationController extends Controller {
-    user_ressource // @provided by UserProvider
+    user_resource // @provided by UserProvider
     async index() {
-        this.can(UserNotificationPolicy.index, this.user_ressource)
+        this.can(UserNotificationPolicy.index, this.user_resource)
         const subscriptions =
             await Database.getInstance().models.UserNotificationSubscription.findAll(
                 {
                     where: {
-                        userId: this.user_ressource.id,
+                        userId: this.user_resource.id,
                     },
                 },
             )
@@ -24,41 +24,51 @@ export class UserNotificationController extends Controller {
         this.res.json(preferences)
     }
     async toggle() {
-        this.can(UserNotificationPolicy.index, this.user_ressource)
+        this.can(UserNotificationPolicy.index, this.user_resource)
         const payload = this.validate(UserNotificationValidator)
         if (payload.modelId) {
-            const [instance, created] =
-                await Database.getInstance().models.UserNotificationSubscription.upsert(
+            let exists =
+                await Database.getInstance().models.UserNotificationSubscription.findOne(
                     {
-                        userId: this.user_ressource.id,
-                        modelId: payload.modelId,
-                        modelType: payload.modelType,
-                        type: payload.type,
-                        activate: payload.activate,
-                    },
-                    {
+                        attributes: ['id'],
                         where: {
-                            userId: this.user_ressource.id,
+                            userId: this.user_resource.id,
                             modelId: payload.modelId,
                             modelType: payload.modelType,
                             type: payload.type,
                         },
                     },
                 )
-            return this.res.status(created ? 201 : 200).json(instance)
+            if (exists) {
+                exists.activated = payload.activated
+                await exists.save()
+                this.res.status(200).json(exists)
+            } else {
+                const instance =
+                    await Database.getInstance().models.UserNotificationSubscription.create(
+                        {
+                            userId: this.user_resource.id,
+                            modelId: payload.modelId,
+                            modelType: payload.modelType,
+                            type: payload.type,
+                            activated: payload.activated,
+                        },
+                    )
+                this.res.status(201).json(instance)
+            }
         } else {
             await Database.getInstance().models.UserNotificationSubscription.update(
                 {
-                    activate: payload.activate,
+                    activated: payload.activated,
                 },
                 {
                     where: {
-                        userId: this.user_ressource.id,
+                        userId: this.user_resource.id,
                         type: payload.type,
                     },
                 },
             )
-            return this.res.status(200)
+            return this.res.sendStatus(200)
         }
     }
 }
