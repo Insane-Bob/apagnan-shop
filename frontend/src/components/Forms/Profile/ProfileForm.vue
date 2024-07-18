@@ -1,5 +1,4 @@
 <template>
-    <!-- PERSONAL INFORMATION -->
     <PersonalInformationForm :user="user" />
 </template>
 

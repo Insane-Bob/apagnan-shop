@@ -23,7 +23,6 @@ export class AuthController extends Controller {
             !(await user.canConnect()),
             'Too many attempts',
         )
-        UnprocessableEntity.abortIf(!user.isEmailVerified, 'Email not verified')
 
         const database = Database.getInstance()
 
@@ -51,6 +50,8 @@ export class AuthController extends Controller {
                 success: true,
             })
         }
+
+        UnprocessableEntity.abortIf(!user.isEmailVerified(), 'You must verify your email')
 
         const token = await TokenServices.createToken(user.id)
         const accessToken = TokenServices.generateAccessToken(token)

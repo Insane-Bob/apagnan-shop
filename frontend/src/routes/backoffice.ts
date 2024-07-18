@@ -18,6 +18,7 @@ export const backofficeRoutesName = {
     NOTIFICATIONS: 'Notifications'
 }
 
+
 export const backofficeRoutes = [
     {
         path: '/profile',
@@ -86,7 +87,7 @@ export const backofficeRoutes = [
             })
 
             router.push({ name: 'Home' }).then(() => {
-                window.location.reload()
+                user.clearUser()
             })
         },
     },

@@ -14,13 +14,15 @@
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
 
-            <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
-            
-            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
-                class="absolute top-0 h-screen w-full bg-primary-accent/90 -z-10"
+            <div
+                v-else
+                class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"
+            ></div>
+
+            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
             <header
                 class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
-                :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
+                :class="{ 'top-0': !promoPromoted, 'top-8': promoPromoted }"
             >
                 <RouterLink to="/">
                     <div
@@ -95,7 +97,7 @@
                     </RouterLink>
 
                     <!-- SEARCH -->
-                    <!-- <form
+                    <form
                         @submit.prevent="onSearch()"
                         class="flex justify-center items-center -ml-6 gap-x-2"
                     >
@@ -116,7 +118,7 @@
                                 class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100"
                             ></ion-icon>
                         </button>
-                    </form> -->
+                    </form>
 
                     <!-- MOBILE MENU -->
                     <div
@@ -136,7 +138,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-16 md:mt-12 lg:mt-8  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
+                class="main-title uppercase mt-16 md:mt-12 lg:mt-8 text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
@@ -158,57 +160,74 @@
             </div>
         </div>
         <Section class="max-w-[1000px] mx-auto">
-          <h1 class="text-md uppercase font-medium text-center">
-            Collection à la une
-          </h1>
-          <div
-              v-if="!loading"
-              id="promoted"
-              class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-20"
-          >
-            <ProductCard2 :key="product.id" :id="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
-          </div>
-          <div
-              v-else
-              id="shop"
-              class="w-screen bg-white justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
-          >
-            <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
-          </div>
+            <h1 class="text-md uppercase font-medium text-center">
+                Collection à la une
+            </h1>
+            <div
+                v-if="!loading"
+                id="promoted"
+                class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-20"
+            >
+                <ProductCard2
+                    :key="product.id"
+                    :id="product.id"
+                    v-for="product in collection.Products"
+                    :collection="collection"
+                    :name="product.name"
+                    :slug="product.slug"
+                    :shortDescription="product.description"
+                    :price="product.price"
+                    :image="product.images[0]"
+                />
+            </div>
+            <div
+                v-else
+                id="shop"
+                class="w-screen bg-white justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
+            >
+                <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
+            </div>
         </Section>
 
         <Section class="bg-slate-100">
-          <h1 class="text-md uppercase font-medium text-center">
-            Nos collections
-          </h1>
-          <div
-              v-if="!loading"
-              id="collections"
-              class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
-          >
-            <ProductCard2
-                height="300px"
-                v-for="collection in collections"
-                :id="collection.id"
-                :key="collection.id"
-                :name="collection.name"
-                :slug="collection.slug"
-                :shortDescription="collection.description" :image="collection?.image">
-              <template #action>
-                <Button class="hover:text-primary transition uppercase" variant="ghost">
-                  Découvrir la collection
-                  <ion-icon name="chevron-forward-outline" class="text-lg ml-4"/>
-                </Button>
-              </template>
-
-            </ProductCard2>
-          </div>
+            <h1 class="text-md uppercase font-medium text-center">
+                Nos collections
+            </h1>
+            <div
+                v-if="!loading"
+                id="collections"
+                class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
+            >
+                <ProductCard2
+                    height="300px"
+                    v-for="collection in collections"
+                    :id="collection.id"
+                    :key="collection.id"
+                    :name="collection.name"
+                    :slug="collection.slug"
+                    :shortDescription="collection.description"
+                    :image="collection?.image"
+                >
+                    <template #action>
+                        <Button
+                            class="hover:text-primary transition uppercase"
+                            variant="ghost"
+                        >
+                            Découvrir la collection
+                            <ion-icon
+                                name="chevron-forward-outline"
+                                class="text-lg ml-4"
+                            />
+                        </Button>
+                    </template>
+                </ProductCard2>
+            </div>
         </Section>
         <Section class="max-w-[1000px] mx-auto">
-          <h1 class="text-md uppercase font-medium text-center">
-            Notre newsletter
-          </h1>
-          <Newsletter/>
+            <h1 class="text-md uppercase font-medium text-center">
+                Notre newsletter
+            </h1>
+            <Newsletter />
         </Section>
     </div>
     <FooterComponent />
@@ -232,8 +251,8 @@ import { useUserStore } from '@store/user'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import Section from "@/layout/Section.vue";
-import Newsletter from "@components/Newsletter/Newsletter.vue";
+import Section from '@/layout/Section.vue'
+import Newsletter from '@components/Newsletter/Newsletter.vue'
 
 const user = useUserStore()
 const { toast } = useToast()

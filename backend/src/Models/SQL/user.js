@@ -57,7 +57,7 @@ export class User extends DenormalizableModel {
         return hasSuccessIn3LastAttempt
     }
 
-    static isEmailVerified() {
+    isEmailVerified() {
         return this.emailVerifiedAt !== null
     }
 }

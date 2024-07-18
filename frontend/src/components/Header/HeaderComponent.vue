@@ -1,48 +1,11 @@
-<script setup lang="ts">
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import PromoBanner from '@components/promo/PromoBanner.vue'
-import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import { computed, reactive, ref } from 'vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
-
-import { useUserStore } from '@store/user'
-
-const user = useUserStore()
-
-const promoPromoted = ref(false)
-
-const isLogged = computed(() => user.isAuthenticated)
-
-const search = reactive({
-    query: '',
-    show: false,
-})
-
-const menuMobileOpen = ref(false)
-
-const onOpenBurgerMenu = () => {
-    menuMobileOpen.value = !menuMobileOpen.value
-}
-
-const onSearch = () => {
-    if (!search.show) {
-        search.show = true
-        return
-    }
-
-    alert(`searching for ${search.query}`)
-}
-</script>
-
 <template>
     <div>
         <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
         <div class="taker w-full h-[96px]"></div>
-        <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
+        <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
         <header
             class="main-header fixed h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20"
-            :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
+            :class="{ 'top-0': !promoPromoted, 'top-8': promoPromoted }"
         >
             <RouterLink to="/">
                 <img
@@ -123,7 +86,7 @@ const onSearch = () => {
                 </RouterLink>
 
                 <!-- SEARCH -->
-                <!-- <form
+                <form
                     @submit.prevent="onSearch()"
                     class="flex justify-center items-center -ml-6 gap-2"
                 >
@@ -143,7 +106,7 @@ const onSearch = () => {
                             class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
                         ></ion-icon>
                     </button>
-                </form> -->
+                </form>
 
                 <!-- MOBILE MENU -->
                 <div
@@ -167,13 +130,24 @@ const onSearch = () => {
 
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import PromoBanner from '@components/promo/PromoBanner.vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import { computed, reactive, ref } from 'vue'
 import MobileMenu from '@components/mobile/MobileMenu.vue'
+
 import { useUserStore } from '@store/user'
+
 const user = useUserStore()
+
+const promoPromoted = ref(false)
+
 const isLogged = computed(() => user.isAuthenticated)
+
+const search = reactive({
+    query: '',
+    show: false,
+})
 
 const menuMobileOpen = ref(false)
 
@@ -181,17 +155,12 @@ const onOpenBurgerMenu = () => {
     menuMobileOpen.value = !menuMobileOpen.value
 }
 
-// const search = reactive({
-//     query: '',
-//     show: false,
-// })
+const onSearch = () => {
+    if (!search.show) {
+        search.show = true
+        return
+    }
 
-// const onSearch = () => {
-//     if (!search.show) {
-//         search.show = true
-//         return
-//     }
-
-//     alert(`searching for ${search.query}`)
-// }
+    alert(`searching for ${search.query}`)
+}
 </script>
