@@ -56,6 +56,7 @@ export class PromoController extends Controller {
         })
         this.res.json({
             data,
+            total:data.length
         })
     }
 
