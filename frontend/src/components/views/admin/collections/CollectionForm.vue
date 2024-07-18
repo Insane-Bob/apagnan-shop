@@ -67,7 +67,6 @@ const createCollection = async () => {
 </script>
 
 <template>
-    <DialogContent>
       <form @submit.prevent="onSubmit">
         <DialogHeader>
           <DialogTitle>{{ props.collection? 'Modifier la collection': 'Créer une collection'}}</DialogTitle>
@@ -110,5 +109,4 @@ const createCollection = async () => {
           </DialogClose>
         </DialogFooter>
       </form>
-    </DialogContent>
 </template>

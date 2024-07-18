@@ -31,10 +31,6 @@ const removeFromCart = async () => {
     if (user.isAuthenticated && props.product) {
         const reponse = await  apiClient.delete('users/' + user.getId + '/basket/' + props.product.id)
         user.addItem(reponse.data.items)
-
-        toast({
-            title: 'Article supprimé du panier',
-        })
         
     }
 }
@@ -46,9 +42,6 @@ const onQuantityUpdated = async () => {
 
             user.addItem(response.data.items)
             oldQuantity.value = quantity.value
-            toast({
-                title: 'Quantité mise à jour',
-            })
         }catch(e){
             quantity.value = oldQuantity.value
             await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
@@ -64,13 +57,13 @@ const onQuantityUpdated = async () => {
 }
 </script>
 <template>
-        <div v-if="quantity" class="flex items-center gap-x-4 my-4">
+        <div v-if="quantity" class="flex items-center gap-x-4 my-4 ">
             <img v-if="product.images && product.images.length > 0"
-                class="w-20 h-20"
+                class="min-w-20 w-20 h-20"
                 :src="'/src/' + product.images[0].path"
                 :alt="product.name"
             />
-            <div v-else class="relative group">
+            <div v-else class="relative group min-w-20 h-20">
                 <img 
                     class="w-20 h-20 relative"
                     src="/src/assets/images/noPhotoAvailable.webp"

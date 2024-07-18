@@ -10,10 +10,12 @@
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
 
-            <div v-else class="absolute top-0 h-screen w-full bg-primary-accent/90 -z-10"></div>
-
+            <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
+            
+            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
             <header
-                class="main-header fixed top-0 h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
+                class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
+                :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
             >
                 <RouterLink to="/">
                     <div
@@ -115,7 +117,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-12 md:mt-5 lg:mt-0  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
+                class="main-title uppercase mt-16 md:mt-12 lg:mt-8  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
@@ -165,9 +167,9 @@
           >
             <ProductCard2
                 height="300px"
+                v-for="collection in collections"
                 :id="collection.id"
                 :key="collection.id"
-                v-for="collection in collections"
                 :name="collection.name"
                 :slug="collection.slug"
                 :shortDescription="collection.description" :image="collection?.image">
@@ -194,6 +196,7 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
+import PromoBanner from '@components/promo/PromoBanner.vue'
 import { apiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
@@ -222,6 +225,8 @@ import Newsletter from "@components/Newsletter/Newsletter.vue";
 const user = useUserStore()
 const { toast } = useToast()
 const isLogged = computed(() => user.isAuthenticated)
+
+const promoPromoted = ref(false)
 
 const loading = ref(true)
 

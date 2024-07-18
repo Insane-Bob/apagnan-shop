@@ -28,6 +28,9 @@ export class Order extends Model {
             foreignKey: 'orderId',
             as: 'statusHistory',
         })
+        models.Order.belongsTo(models.Promo, {
+            foreignKey: 'promoId',
+        })
     }
 
     static addScopes(models) {

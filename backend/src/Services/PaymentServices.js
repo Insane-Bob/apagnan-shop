@@ -34,7 +34,7 @@ export class PaymentServices {
      * @param {Order} order
      * @returns {Promise<void>}
      */
-    static async createCheckoutSession(order, user) {
+    static async createCheckoutSession(order, user, discounts = []) {
         const orderService = new OrderServices(order)
         const lineItems = await orderService.getStripeLineItems()
         const customer = await orderService.getCustomer()
@@ -52,10 +52,13 @@ export class PaymentServices {
             100, // Replace to 1
         )
 
+
         const session = await stripe.checkout.sessions.create({
             customer: customer.stripeId,
             payment_method_types: ['card'],
             line_items: lineItems,
+            currency: 'eur',
+            discounts: discounts,
             mode: 'payment',
             currency: 'eur',
             automatic_tax: {

@@ -11,9 +11,15 @@ import Button from '@components/ui/button/Button.vue'
 import { useUserStore } from '@store/user'
 import { RouterLink } from 'vue-router'
 import { orderRoutesName } from '@/routes/order'
+import { useToast } from '@components/ui/toast'
 
 const user = useUserStore()
 user.cartViewed()
+
+const { dismiss } = useToast()
+
+dismiss()
+
 </script>
 
 <template>
