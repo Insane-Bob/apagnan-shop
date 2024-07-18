@@ -37,6 +37,7 @@ const onSearch = () => {
 
 <template>
     <div>
+        <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
         <div class="taker w-full h-[96px]"></div>
         <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
         <header
@@ -51,6 +52,7 @@ const onSearch = () => {
                 />
             </RouterLink>
             <nav class="flex justy-center gap-x-6 items-center">
+                <!-- LOGIN -->
                 <Sheet v-if="!isLogged">
                     <SheetTrigger as-child>
                         <ion-icon
@@ -61,6 +63,7 @@ const onSearch = () => {
                     <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
                 </Sheet>
 
+                <!-- CART -->
                 <Sheet v-if="isLogged">
                     <SheetTrigger>
                         <div class="relative group">
@@ -86,24 +89,41 @@ const onSearch = () => {
                     </SheetTrigger>
                     <SheetContent><CartDrawer></CartDrawer></SheetContent>
                 </Sheet>
-                
-                <RouterLink to="/admin" class="relative group" v-if="isLogged && user.isAdmin">
-                  <ion-icon 
-                      name="laptop-outline"
-                      class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
-                  ></ion-icon>
+
+                <!-- ADMIN -->
+                <RouterLink
+                    to="/admin"
+                    class="relative group"
+                    v-if="isLogged && user.isAdmin"
+                >
+                    <ion-icon
+                        name="laptop-outline"
+                        class="header-icon text-black text-2xl groupcursor-pointer-hover:scale-105 duration-100 hidden md:block"
+                    ></ion-icon>
                 </RouterLink>
 
+                <!-- PROFIlE -->
                 <RouterLink to="/profile" v-if="isLogged">
                     <button class="flex items-center">
                         <ion-icon
                             name="person-outline"
-                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
+                            class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
                         ></ion-icon>
                     </button>
                 </RouterLink>
 
-                <form
+                <!-- LOGOUT -->
+                <RouterLink to="/logout" v-if="isLogged">
+                    <button class="flex items-center">
+                        <ion-icon
+                            name="log-out-outline"
+                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                    </button>
+                </RouterLink>
+
+                <!-- SEARCH -->
+                <!-- <form
                     @submit.prevent="onSearch()"
                     class="flex justify-center items-center -ml-6 gap-2"
                 >
@@ -123,24 +143,55 @@ const onSearch = () => {
                             class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
                         ></ion-icon>
                     </button>
-                </form>
+                </form> -->
+
+                <!-- MOBILE MENU -->
                 <div
                     @click="onOpenBurgerMenu()"
-                    class="header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-black"
+                    class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-black"
                 >
                     <ion-icon
                         name="menu-outline"
                         class="text-2xl group-hover:scale-105 duration-100"
                     ></ion-icon>
                     <p
-                        class="group-hover:scale-105 duration-100 hidden md:block"
+                        class="group-hover:scale-105 hidden md:block duration-100"
                     >
                         Menu
                     </p>
                 </div>
             </nav>
         </header>
-        <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
     </div>
 </template>
-<style></style>
+
+<script setup lang="ts">
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import AuthDrawer from '../Drawers/AuthDrawer.vue'
+import CartDrawer from '@components/Drawers/CartDrawer.vue'
+import { computed, reactive, ref } from 'vue'
+import MobileMenu from '@components/mobile/MobileMenu.vue'
+import { useUserStore } from '@store/user'
+const user = useUserStore()
+const isLogged = computed(() => user.isAuthenticated)
+
+const menuMobileOpen = ref(false)
+
+const onOpenBurgerMenu = () => {
+    menuMobileOpen.value = !menuMobileOpen.value
+}
+
+// const search = reactive({
+//     query: '',
+//     show: false,
+// })
+
+// const onSearch = () => {
+//     if (!search.show) {
+//         search.show = true
+//         return
+//     }
+
+//     alert(`searching for ${search.query}`)
+// }
+</script>

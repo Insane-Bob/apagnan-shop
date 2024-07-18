@@ -1,11 +1,15 @@
 <template>
     <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
-    <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
+    <div
+        v-on:scroll="scrollFunction"
+        class="flex flex-col h-full overflow-x-hidden"
+    >
         <div
-            class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20"
+            class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20 overflow-x-hidden"
         >
-            <img v-if="collection.image"
-                :src="'/src/'+ collection.image.path "
+            <img
+                v-if="collection.image"
+                :src="'/src/' + collection.image.path"
                 alt="Main Gnome"
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
@@ -13,6 +17,7 @@
             <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
             
             <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
+                class="absolute top-0 h-screen w-full bg-primary-accent/90 -z-10"
             <header
                 class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
                 :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
@@ -48,9 +53,20 @@
                                     name="cart-outline"
                                     class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                                 ></ion-icon>
-                                <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
-                                    <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
-                                    <span class="text-white">{{ user.countCartItem }}</span>
+                                <div
+                                    v-if="user.countCartItem > 0"
+                                    class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4"
+                                >
+                                    <div
+                                        :class="{
+                                            'animate-ping':
+                                                user.cartHasNewItems,
+                                            'bg-red-500/20 rounded-full w-4 h-4 absolute': true,
+                                        }"
+                                    ></div>
+                                    <span class="text-white">{{
+                                        user.countCartItem
+                                    }}</span>
                                 </div>
                             </div>
                         </SheetTrigger>
@@ -78,7 +94,8 @@
                         ></ion-icon>
                     </RouterLink>
 
-                    <form
+                    <!-- SEARCH -->
+                    <!-- <form
                         @submit.prevent="onSearch()"
                         class="flex justify-center items-center -ml-6 gap-x-2"
                     >
@@ -99,7 +116,9 @@
                                 class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100"
                             ></ion-icon>
                         </button>
-                    </form>
+                    </form> -->
+
+                    <!-- MOBILE MENU -->
                     <div
                         @click="onOpenBurgerMenu()"
                         class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white"
@@ -126,7 +145,9 @@
             <CookiesModal :open="showCookiesModal" />
 
             <div class="flex flex-col justify-center items-center gap-y-3">
-                <p class="text-white text-lg md:text-[20px] uppercase tracking-wider">
+                <p
+                    class="text-white text-lg md:text-[20px] uppercase tracking-wider"
+                >
                     {{ collection.name }}
                 </p>
                 <RouterLink to="#promoted">
@@ -190,7 +211,7 @@
           <Newsletter/>
         </Section>
     </div>
-  <FooterComponent />
+    <FooterComponent />
 </template>
 
 <script setup lang="ts">
@@ -202,25 +223,17 @@ import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
+import FooterComponent from '@components/footer/FooterComponent.vue'
+import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
+import { useToast } from '@components/ui/toast'
 import { useUserStore } from '@store/user'
-import {
-    computed,
-    onMounted,
-    onUnmounted,
-    reactive,
-    ref
-} from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import { useToast } from '@components/ui/toast'
-import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
-
-
 
 const user = useUserStore()
 const { toast } = useToast()
@@ -263,19 +276,18 @@ function changeBrightness() {
     const headerTitle = document.querySelector('.header-title')
 
     if (mainShopPage) {
-        if(isOnTop.value){
+        if (isOnTop.value) {
             mainShopPage.classList.add('brightness-50')
-        }else{
+        } else {
             mainShopPage.classList.remove('brightness-50')
         }
     }
 
     if (mainTitle) {
-        if(isOnTop.value){
+        if (isOnTop.value) {
             mainTitle.classList.add('opacity-75')
             mainTitle.classList.remove('opacity-0')
-
-        }else{
+        } else {
             mainTitle.classList.remove('opacity-75')
             mainTitle.classList.add('opacity-0')
         }
@@ -283,20 +295,19 @@ function changeBrightness() {
 
     if (mainHeader) {
         mainHeader.classList.toggle('bg-white')
-        mainHeader.classList.toggle('bg-transparant')
+        mainHeader.classList.toggle('bg-transparent')
     }
 
     if (HeaderIcons) {
         HeaderIcons.forEach((icon) => {
-            if(isOnTop.value){
+            if (isOnTop.value) {
                 icon.classList.add('text-white')
                 icon.classList.remove('text-black')
                 return
-            }else{
+            } else {
                 icon.classList.remove('text-white')
                 icon.classList.add('text-black')
             }
-            
         })
     }
 
@@ -327,7 +338,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
     await fetchPromotedCollection()
-  await fetchCollections()
+    await fetchCollections()
     loading.value = false
 
     setTimeout(() => {
@@ -337,23 +348,21 @@ onMounted(async () => {
 
 const collections = ref(null)
 async function fetchCollections() {
-  const response = await apiClient.get('collections?withImage&limit=6')
-  collections.value = response.data.data
+    const response = await apiClient.get('collections?withImage&limit=6')
+    collections.value = response.data.data
 }
 
-
 const fetchPromotedCollection = async () => {
-    try{
-    const response = await  apiClient.get('collections/promoted')
+    try {
+        const response = await apiClient.get('collections/promoted')
 
-    collection.value = response.data.collection
-    }catch(e){
+        collection.value = response.data.collection
+    } catch (e) {
         toast({
             title: 'Une Erreur est survenue',
-            variant: 'destructive'
+            variant: 'destructive',
         })
     }
-
 }
 </script>
 
@@ -378,6 +387,10 @@ const fetchPromotedCollection = async () => {
 
 .header-title {
     transition: all 1s;
+}
+
+body {
+    overflow-x: hidden;
 }
 
 @keyframes spaceLetters {
