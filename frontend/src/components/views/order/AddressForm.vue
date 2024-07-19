@@ -19,6 +19,8 @@ const city = defineModel('city', { type: String, required: true })
 const postalCode = defineModel('postalCode', { type: String, required: true })
 const street = defineModel('street', { type: String, required: true })
 
+defineProps<{ errors: { city: string, postalCode: string, street: string } }>()
+
 
 const countriesList = regions.map((country: {countryName: string}) => country.countryName)
 const regionsList = computed(() => {
@@ -52,25 +54,35 @@ const regionsList = computed(() => {
             </SelectContent>
         </Select>
 
-        <FormInput class="col-span-8">
-            <template #label>Ville</template>
-            <template #input="inputProps">
-                <input type="text" v-model="city" v-bind="inputProps" />
-            </template>
-        </FormInput>
+        <div class="col-span-8">
+            <FormInput >
+                <template #label>Ville</template>
+                <template #input="inputProps">
+                    <input type="text" v-model="city" v-bind="inputProps" />
+                </template>
+            </FormInput>
+            <small v-if="errors.city" class="text-red-500 text-sm">{{ errors.city }}</small>
+        </div>
 
-        <FormInput class="col-span-4">
-            <template #label>Code Postal</template>
-            <template #input="inputProps">
-                <input type="text" v-model="postalCode" v-bind="inputProps" />
-            </template>
-        </FormInput>
+        <div class="col-span-4">
+            <FormInput >
+                <template #label>Code Postal</template>
+                <template #input="inputProps">
+                    <input type="text" v-model="postalCode" v-bind="inputProps" />
+                </template>
+            </FormInput>
+            <small v-if="errors.postalCode" class="text-red-500 text-sm">{{ errors.postalCode }}</small>
+        </div>
 
-        <FormInput class="col-span-full">
-            <template #label>Rue</template>
-            <template #input="inputProps">
-                <input type="text" v-model="street" v-bind="inputProps" placeholder="N° Rue, Boulevard, Avenue..." />
-            </template>
-        </FormInput>
+        <div class="col-span-full">
+            <FormInput >
+                <template #label>Rue</template>
+                <template #input="inputProps">
+                    <input type="text" v-model="street" v-bind="inputProps" placeholder="N° Rue, Boulevard, Avenue..." />
+                </template>
+                
+            </FormInput>
+            <small class="text-red-500 text-sm">{{ errors.street }}</small>
+        </div>
     </FormGrid>
 </template>
