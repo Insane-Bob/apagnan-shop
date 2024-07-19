@@ -10,6 +10,7 @@ import { LowStockProduct } from '../Emails/LowStockProduct.js'
 import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { UserNotificationServices } from './UserNotificationServices.js'
 import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
+import { UserServices } from './UserServices.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -128,22 +129,25 @@ export class NotificationsServices {
     }
 
     static async notifLowStockProduct(product) {
-        // change email TO -> admin email
-        const lowStockProductEmail = new LowStockProduct()
-            .setParams({
-                name: product.name,
-            })
-            .addTo('robin.fauchery.rf@gmail.com', 'Admin')
+        const lowStockProductEmail = new LowStockProduct().setParams({
+            name: product.name,
+        })
+        const adminMails = await UserServices.retrieveAdminUsersMail()
+        adminMails.forEach((mail) => {
+            lowStockProductEmail.addTo(mail.email, 'Admin')
+        })
         await EmailSender.send(lowStockProductEmail)
     }
 
     static async notifNotifOutOfStockProduct(product) {
-        // change email TO -> admin email
-        const outOfStockProductEmail = new OutOfStockProduct()
-            .setParams({
-                name: product.name,
-            })
-            .addTo('robin.fauchery.rf@gmail.com', 'Admin')
+        const outOfStockProductEmail = new OutOfStockProduct().setParams({
+            name: product.name,
+        })
+
+        const adminMails = await UserServices.retrieveAdminUsersMail()
+        adminMails.forEach((mail) => {
+            outOfStockProductEmail.addTo(mail.email, 'Admin')
+        })
         await EmailSender.send(outOfStockProductEmail)
     }
     /**
