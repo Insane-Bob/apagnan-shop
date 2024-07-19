@@ -16,8 +16,7 @@ export class SpecificController extends Controller {
             let search = new SearchRequest(this.req, ['productId'], [])
             let model = Database.getInstance().models.Specific
             const total = await model.count(search.queryWithoutPagination)
-            let query = { ...search.query }
-            const data = await model.findAll(query)
+            const data = await model.findAll(search.query)
             this.res.status(200).json({
                 data: data,
                 total: total,
