@@ -2,6 +2,7 @@
 import DataTable from '@components/tables/DataTable.vue'
 import { Dialog } from '@components/ui/dialog'
 import { type TableColumns, type User } from '@types'
+import { useToast } from '@components/ui/toast'
 import { useTable } from '@/composables/useTable'
 import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
@@ -90,6 +91,8 @@ const columns: TableColumns[] = [
                     <FilterItem value="delivered" label="Livré" />
                     <FilterItem value="cancelled" label="Annulé" />
                     <FilterItem value="refunded" label="Remboursé" />
+                    <FilterItem value="paid" label="Payé" />
+                    <FilterItem value="payment_failed" label="Paiement échoué" />
                 </Filter>
                 <Filter label="Client" v-model="filters.customerId">
                     <FilterItem
