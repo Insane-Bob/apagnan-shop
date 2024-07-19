@@ -72,6 +72,9 @@ export class SearchController extends Controller {
                 $sort: { score: -1 },
             },
             {
+                $limit: 10,
+            },
+            {
                 $project: {
                     concatenatedFields: 0,
                 },

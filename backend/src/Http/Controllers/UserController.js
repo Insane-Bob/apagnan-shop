@@ -9,6 +9,7 @@ import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValid
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
+import { UserPersonalInformationService } from '../../Services/UserPersonalInformationService.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -75,8 +76,9 @@ export class UserController extends Controller {
 
     async delete() {
         this.can(UserPolicy.delete, this.user_resource)
-        const rowsDeleted = await this.user_resource.destroy()
-        NotFoundException.abortIf(rowsDeleted === 0)
+        await UserPersonalInformationService.anonymizeUserPersonalInformation(
+            this.user_resource,
+        )
         this.res.json({
             message: 'User deleted',
             success: true,

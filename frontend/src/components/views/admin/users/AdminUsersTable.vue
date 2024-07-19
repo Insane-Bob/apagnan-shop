@@ -32,18 +32,6 @@ const columns: TableColumns[] = [
         key: 'firstName',
         sorting: true,
     },
-
-    {
-        label: 'email',
-        key: 'email',
-        sorting: true,
-        toDisplay: (value: string) => {
-            // anonymize email
-            const [name, domain] = value.split('@')
-            return `${name.slice(0, 2)}...@${domain}`
-        },
-    },
-
     {
         label: 'Role',
         key: 'role',
@@ -78,8 +66,8 @@ const actions: TableActions[] = [
         label: 'Bannir',
         icon: 'ban-outline',
         class: 'text-red-500',
-        action: (row: any) => {
-            console.log('Supprimer', row)
+        action: async (row: any) => {
+         await  apiClient.delete('users/' + row.id)
         },
     },
 ]

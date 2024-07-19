@@ -7,6 +7,7 @@ import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/Product
 import { OrderRefundRequestDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderRefundRequestDenormalizationTask.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { DenormalizerTask } from '../../lib/Denormalizer/DenormalizerTask.js'
+import { Op } from 'sequelize'
 
 export const USER_ROLES = {
     USER: 'user',
@@ -24,6 +25,26 @@ export class User extends DenormalizableModel {
         models.User.hasMany(models.Review, { foreignKey: 'userId' })
     }
 
+    static addScopes(models) {
+        //default scope
+        models.User.addScope('defaultScope', {
+            attributes: { exclude: ['password', 'email'] },
+            where: {
+                role: {
+                    [Op.not]: null,
+                },
+            },
+        })
+
+        models.User.addScope('notDeleted', {
+            where: {
+                role: {
+                    [Op.not]: null,
+                },
+            },
+        })
+    }
+
     static hooks(models) {
         models.User.beforeCreate(User.handlePasswordChanged)
         models.User.beforeUpdate((user) => User.handlePasswordChanged(user))
@@ -31,7 +52,7 @@ export class User extends DenormalizableModel {
     }
 
     static handlePasswordChanged(user) {
-        if (user.changed('password')) {
+        if (user.changed('password') && user.password) {
             user.password = UserServices.hashPassword(user.password)
         }
     }
@@ -126,7 +147,10 @@ function model(sequelize, DataTypes) {
             email: DataTypes.STRING,
             emailVerifiedAt: DataTypes.DATE,
             password: DataTypes.STRING,
-            role: DataTypes.STRING,
+            role: {
+                type: DataTypes.STRING,
+                defaultValue: USER_ROLES.USER,
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
