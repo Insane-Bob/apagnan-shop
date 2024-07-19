@@ -8,4 +8,6 @@ export class EmailTemplate {
     static DELIVERY_INCOMING = 7
     static ACCOUNT_ACTIVATED = 8
     static CONFIRM_RESET_PASSWORD = 9
+    //static LOW_STOCK = 'mettre le bon id brevo'
+    // static OUT_OF_STOCK = 'mettre le bon id brevo'
 }

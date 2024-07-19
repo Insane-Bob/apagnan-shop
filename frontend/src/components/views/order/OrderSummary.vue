@@ -20,7 +20,7 @@ import { useRouter } from 'vue-router'
 import SummaryCard from '@components/Cards/SummaryCard.vue'
 
 import AddressForm from '@/components/views/order/AddressForm.vue'
-import type { BasketItem, Promo, PromotionCodeStripe } from '@/types'
+import type { BasketItem, Order, Promo, PromotionCodeStripe } from '@/types'
 import {backofficeRoutesName} from "@/routes/backoffice";
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
 import CardHeader from "@components/ui/card/CardHeader.vue";
@@ -52,6 +52,13 @@ const shippingRegion = ref('')
 const shippingCity = ref('')
 const shippingPostalCode = ref('')
 const shippingStreet = ref('')
+const shippingErrors = reactive({
+    country: '',
+    region: '',
+    city: '',
+    postalCode: '',
+    street: '',
+})
 
 // VAR FOR BILLING FORM
 const billingCountry = ref('')
@@ -59,6 +66,13 @@ const billingRegion = ref('')
 const billingCity = ref('')
 const billingPostalCode = ref('')
 const billingStreet = ref('')
+const billingErrors = reactive({
+    country: '',
+    region: '',
+    city: '',
+    postalCode: '',
+    street: '',
+})
 
 // VAR FOR STYLE
 
@@ -115,6 +129,8 @@ const goToPayment = async () => {
             })
             return
         }
+        addressOption.value = shippingAdresseId.toString()
+        customAddress.value = false
     } else {
         shippingAdresseId = parseInt(addressOption.value)
     }
@@ -151,6 +167,12 @@ const goToPayment = async () => {
 }
 
 const createShippingAddress = async (): Promise<number> => {
+    shippingErrors.city = ''
+    shippingErrors.country = ''
+    shippingErrors.region = ''
+    shippingErrors.postalCode = ''
+    shippingErrors.street = ''
+
     if (
         shippingCountry.value !== '' &&
         shippingRegion.value !== '' &&
@@ -158,6 +180,7 @@ const createShippingAddress = async (): Promise<number> => {
         shippingPostalCode.value !== '' &&
         shippingStreet.value !== ''
     ) {
+      try{
         const response = await apiClient.post('addresses', {
             country: shippingCountry.value,
             region: shippingRegion.value,
@@ -166,12 +189,36 @@ const createShippingAddress = async (): Promise<number> => {
             street: shippingStreet.value,
             customerId: user.getCustomerId,
         })
+
+        const addresses = user.getAddresses
+        addresses.push(response.data)
+
+        user.setAddresses(addresses)
+
         return response.data.id
+
+      }catch(e: any){
+         if(e.response.status === 422){
+          for (const error of e.response.data.errors) {
+            // @ts-ignore
+            shippingErrors[error.path] = error.message
+          }
+          return 0
+        }
+      }
+
     }
     return 0
 }
 
 const createBillingAddress = async (): Promise<number> => {
+
+    billingErrors.city = ''
+    billingErrors.country = ''
+    billingErrors.region = ''
+    billingErrors.postalCode = ''
+    billingErrors.street = ''
+
     if (
         billingCountry.value !== '' &&
         billingRegion.value !== '' &&
@@ -179,6 +226,7 @@ const createBillingAddress = async (): Promise<number> => {
         billingPostalCode.value !== '' &&
         billingStreet.value !== ''
     ) {
+      try{
         const response = await apiClient.post('addresses', {
             country: billingCountry.value,
             region: billingRegion.value,
@@ -188,7 +236,21 @@ const createBillingAddress = async (): Promise<number> => {
             customerId: user.getCustomerId,
         })
 
+        const addresses = user.getAddresses
+        addresses.push(response.data)
+
+        user.setAddresses(addresses)
+
         return response.data.id
+      }catch(e: any){
+        if(e.response.status === 422){
+          for (const error of e.response.data.errors) {
+            // @ts-ignore
+            billingErrors[error.path] = error.message
+          }
+          return 0
+        }
+      }
     }
     return 0
 }
@@ -197,18 +259,24 @@ const createOrder = async (
     shippingAddressId: number,
     billingAddressId: number,
 ) => {
-    const response = await apiClient.post('orders', {
+
+  const props: any = {
         customerId: user.getCustomerId,
         shippingAddressId: shippingAddressId,
         billingAddressId: billingAddressId,
-        promoId: promo.id || null,
         products: user.getCart.map((item: BasketItem) => {
             return {
                 productId: item.product.id,
                 quantity: item.quantity,
             }
         }),
-    })
+    }
+
+    if(promo.id){
+      props.promoId = promo.id
+    }
+
+    const response = await apiClient.post('orders', props)
     if (response.status === 201) {
         toast({
             title: 'Votre commande a été enregistrée',
@@ -336,6 +404,7 @@ const removePromo = () => {
               </Select>
               <form v-if="customAddress">
                 <AddressForm
+                    :errors="shippingErrors"
                     v-model:city="shippingCity"
                     v-model:region="shippingRegion"
                     v-model:country="shippingCountry"
@@ -360,6 +429,7 @@ const removePromo = () => {
               </div>
               <form v-if="!sameAddress">
                 <AddressForm
+                    :errors="billingErrors"
                     v-model:city="billingCity"
                     v-model:region="billingRegion"
                     v-model:country="billingCountry"

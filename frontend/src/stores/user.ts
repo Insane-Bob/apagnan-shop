@@ -53,6 +53,13 @@ export const useUserStore = defineStore('user', {
         setLoggedAs(value: boolean) {
             this.loggedAs = value
         },
+
+        logout(){
+            this.clearUser()
+            this.clearCart()
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
+        }
     },
     getters: {
         isAuthenticated: (state: any): boolean => !!state.user,

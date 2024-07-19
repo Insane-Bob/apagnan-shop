@@ -93,6 +93,7 @@ describe('UserController test routes', () => {
                 return req.send({
                     name: 'Test',
                     description: 'Test description',
+                    published: true,
                 })
             },
             (response) => {
@@ -114,11 +115,13 @@ describe('UserController test routes', () => {
             200,
             (req) => {
                 return req.send({
-                    name: 'Test',
+                    name: 'TestModified',
+                    description: 'Test description modified',
+                    published: true,
                 })
             },
             (response) => {
-                expect(response.body.collection.name).toBe('Test')
+                expect(response.body.collection.name).toBe('TestModified')
             },
         )
     })

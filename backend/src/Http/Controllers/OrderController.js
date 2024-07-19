@@ -79,7 +79,7 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.store, payload.customerId)
 
         let promo = null
-        if (!payload.promoId) {
+        if (payload.promoId) {
             promo = await Database.getInstance().models.Promo.findOne({
                 where: {
                     id: payload.promoId,

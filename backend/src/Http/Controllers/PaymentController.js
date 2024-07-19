@@ -62,6 +62,10 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
+                await StockService.checkStockForAdminNotif(
+                    orderDetail.productId,
+                )
+
                 this.res.redirect(
                     process.env.FRONT_END_URL +
                         '/order/success?orderId=' +

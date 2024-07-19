@@ -57,7 +57,7 @@ export class Order extends Model {
                         model: models.Customer,
                         include: [
                             {
-                                model: models.User,
+                                model: models.User.unscoped(),
                             },
                         ],
                     },
