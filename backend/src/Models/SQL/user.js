@@ -26,7 +26,6 @@ export class User extends DenormalizableModel {
     }
 
     static addScopes(models) {
-        //default scope
         models.User.addScope('defaultScope', {
             attributes: { exclude: ['password', 'email'] },
             where: {
