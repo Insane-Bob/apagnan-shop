@@ -12,9 +12,11 @@ export default async function () {
             .get('addresses')
             .get(user.customer.id)
 
-        let daysAdd = Math.floor(Math.random() * 15) + 1 - 15
+        let monthRemove = -Math.floor(Math.random() * 5) + 1
         let date = new Date()
-        date.setDate(date.getDate() + daysAdd)
+        let dayOfMonth = Math.floor(Math.random() * 28) + 1
+        date.setDate(dayOfMonth)
+        date.setMonth(date.getMonth() + monthRemove)
 
         let order = await OrderFactory.count(1)
             .withDetails([

@@ -43,11 +43,14 @@ export class UserServices {
     }
 
     static retrieveUserByEmail(email) {
-        return Database.getInstance().models.User.findOne({
-            where: {
-                email,
-            },
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .scope('notDeleted')
+            .findOne({
+                where: {
+                    email,
+                },
+            })
     }
 
     static activateUserAccount(user) {

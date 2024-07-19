@@ -14,6 +14,7 @@ import {useRoute} from "vue-router";
 import {backofficeRoutesName} from "@/routes/backoffice";
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import Button from "@components/ui/button/Button.vue";
+import DeleteAccount from "@components/Modals/DeleteAccount.vue";
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -82,8 +83,9 @@ const routes = computed(()=>{
             </RouterLink>
         </CardContent>
         <Separator></Separator>
-        <CardFooter class="pt-6">
-          <Button class="text-red-500" variant="ghost" > Se déconnecter </Button>
+        <CardFooter class="pt-6 flex flex-col justify-start">
+          <Button class="text-black" variant="ghost" > Se déconnecter </Button>
+          <DeleteAccount/>
         </CardFooter>
       </Card>
     </aside>

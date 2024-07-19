@@ -189,4 +189,16 @@ export class NotificationsServices {
             }),
         )
     }
+
+    /**
+     * RGPD
+     */
+
+    static async notifyUserPersonalDataDeleted(user) {}
+
+    static async notifyUserPersonalDataJobEnd(user, url) {
+        console.log(
+            `Sending personal data job end notification to ${user.email} => url : ${url}`,
+        )
+    }
 }
