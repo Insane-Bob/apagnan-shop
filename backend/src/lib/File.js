@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
-import { fileTypeFromBuffer } from 'file-type'
+
 export class FileEncryptedException extends Error {}
 
 export class File {
@@ -11,7 +11,8 @@ export class File {
     }
 
     async getMimeType() {
-        let type = await fileTypeFromBuffer(this.buffer)
+        let fileType = await import('file-type')
+        let type = await fileType.fileTypeFromBuffer(this.buffer)
         return type?.mime || 'text/plain; charset=utf-8'
     }
 
