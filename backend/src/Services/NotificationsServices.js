@@ -6,8 +6,11 @@ import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { EmailSender } from '../lib/EmailSender.js'
 import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
+import { LowStockProduct } from '../Emails/LowStockProduct.js'
+import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { UserNotificationServices } from './UserNotificationServices.js'
 import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
+import { UserServices } from './UserServices.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -125,6 +128,28 @@ export class NotificationsServices {
         //@TODO : send email to the customer to notify him that his order status has changed
     }
 
+    static async notifLowStockProduct(product) {
+        const lowStockProductEmail = new LowStockProduct().setParams({
+            name: product.name,
+        })
+        const adminMails = await UserServices.retrieveAdminUsersMail()
+        adminMails.forEach((mail) => {
+            lowStockProductEmail.addTo(mail.email, 'Admin')
+        })
+        await EmailSender.send(lowStockProductEmail)
+    }
+
+    static async notifNotifOutOfStockProduct(product) {
+        const outOfStockProductEmail = new OutOfStockProduct().setParams({
+            name: product.name,
+        })
+
+        const adminMails = await UserServices.retrieveAdminUsersMail()
+        adminMails.forEach((mail) => {
+            outOfStockProductEmail.addTo(mail.email, 'Admin')
+        })
+        await EmailSender.send(outOfStockProductEmail)
+    }
     /**
      * Newsletter
      */

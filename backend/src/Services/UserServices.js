@@ -58,4 +58,13 @@ export class UserServices {
             emailVerifiedAt: new Date(),
         })
     }
+
+    static async retrieveAdminUsersMail() {
+        return Database.getInstance().models.User.findAll({
+            where: {
+                role: USER_ROLES.ADMIN,
+            },
+            attributes: ['email'],
+        })
+    }
 }
