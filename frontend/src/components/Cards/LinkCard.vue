@@ -13,7 +13,7 @@ const props = defineProps<{
 
 <template>
     <RouterLink :to="to || '#'">
-        <section class="max-w-[350px] flex flex-col justify-center items-center cursor-pointer group">
+        <section class="max-w-[300px] flex flex-col justify-center items-center cursor-pointer group">
             <div class="w-full overflow-hidden rounded-full mb-4">
                 <img class="rounded-full aspect-square object-cover group-hover:scale-105 duration-300" :src="props.image" />
             </div>
