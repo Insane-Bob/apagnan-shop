@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, onMounted, reactive, ref } from 'vue'
+import {computed, defineProps, onMounted, reactive, ref} from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
@@ -20,6 +20,9 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import StockForm from '../stocks/StockForm.vue'
+import Card from "@components/ui/card/Card.vue";
+import CardDescription from "@components/ui/card/CardDescription.vue";
+import Loader from "@components/ui/loader/Loader.vue";
 
 const router = useRouter()
 const props = defineProps<{
@@ -98,130 +101,150 @@ onMounted(() => {
     }
     fetchCollections()
 })
+
+const loading = computed(()=>{
+  if(slug.value === 'new'){
+    return {}
+  }
+  else {
+    return product.product.id
+  }
+})
 </script>
 
 <template>
-    <div class="max-w-4xl mx-auto p-6">
-        <form @submit.prevent="onSubmit" class="space-y-6">
-            <FormInput :errors="errors" name="name" class="w-full sm:w-1/2">
-                <template #label>Nom</template>
-                <template #input="inputProps">
-                    <input
-                        type="text"
-                        v-model="product.product.name"
-                        v-bind="inputProps"
-                    />
-                </template>
-            </FormInput>
-            <FormInput :errors="errors" name="price" class="w-full sm:w-1/2">
-                <template #label>Prix</template>
-                <template #input="inputProps">
-                    <input
-                        type="number"
-                        v-model="product.product.price"
-                        v-bind="inputProps"
-                    />
-                </template>
-            </FormInput>
-            <FormInput class="w-full sm:w-1/2">
-                <template #label>Stock</template>
-                <template #input="inputProps">
-                    <input
-                        type="number"
-                        v-model="product.product.stock"
-                        v-bind="inputProps"
-                        disabled
-                    />
-                </template>
-            </FormInput>
-            <FormInput :errors="errors" name="description" class="w-full">
-                <template #label>Description</template>
-                <template #input="inputProps">
-                    <textarea
-                        v-model="product.product.description"
-                        v-bind="inputProps"
-                    ></textarea>
-                </template>
-            </FormInput>
-            <FormInput
-                :errors="errors"
-                name="collectionId"
-                class="w-full sm:w-1/2"
-            >
+  <loader :wait-for="loading"></loader>
+    <div class="max-w-4xl mx-auto p-6 flex flex-col gap-6">
+        <Card class="p-6">
+          <CardDescription class="mb-6">Fiche produit</CardDescription>
+
+          <form @submit.prevent="onSubmit" class="grid grid-cols-4 gap-6">
+
+              <FormInput :errors="errors" name="name" class="col-span-2">
+                  <template #label>Nom</template>
+                  <template #input="inputProps">
+                      <input
+                          type="text"
+                          v-model="product.product.name"
+                          v-bind="inputProps"
+                      />
+                  </template>
+              </FormInput>
+              <FormInput
+                  :errors="errors"
+                  name="collectionId"
+                  class="col-span-2"
+              >
                 <template #label>Collection</template>
                 <template #input="inputProps">
-                    <Select v-model="product.product.collectionId">
-                        <SelectTrigger class="w-full">
-                            <SelectValue placeholder="Select a collection" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>Collections</SelectLabel>
-                                <SelectItem
-                                    v-for="collection in collections"
-                                    :key="collection.id"
-                                    :value="collection.id"
-                                >
-                                    {{ collection.name }}
-                                </SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                  <Select v-model="product.product.collectionId">
+                    <SelectTrigger class="w-full">
+                      <SelectValue placeholder="Select a collection" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Collections</SelectLabel>
+                        <SelectItem
+                            v-for="collection in collections"
+                            :key="collection.id"
+                            :value="collection.id"
+                        >
+                          {{ collection.name }}
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </template>
-            </FormInput>
-            <div class="flex items-center gap-x-4">
-                <Label
-                    @click="
-                        product.product.published = !product.product.published
-                    "
-                    for="published"
-                    class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
-                >
-                    Publié
-                </Label>
-                <Switch
-                    name="published"
-                    :checked="product.product.published"
-                    @click="
-                        product.product.published = !product.product.published
-                    "
-                    class=""
-                />
-            </div>
-            <div class="flex gap-4">
-                <Button type="submit">
-                    {{ slug === 'new' ? 'Créer' : 'Modifier' }}
-                </Button>
-                <Dialog>
-                    <DialogTrigger>
-                        <Button type="button">Gestion du stock</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <StockForm
-                            :productId="product.product.id"
-                            @stockUpdated="fetchProductData"
-                        ></StockForm>
-                    </DialogContent>
-                </Dialog>
-            </div>
-        </form>
+              </FormInput>
+              <FormInput :errors="errors" name="price" class="col-span-2">
+                  <template #label>Prix</template>
+                  <template #input="inputProps">
+                      <input
+                          type="number"
+                          v-model="product.product.price"
+                          v-bind="inputProps"
+                      />
+                  </template>
+              </FormInput>
+              <FormInput class="col-span-2">
+                  <template #label>Stock</template>
+                  <template #input="inputProps">
+                      <input
+                          type="number"
+                          v-model="product.product.stock"
+                          v-bind="inputProps"
+                          disabled
+                      />
+                  </template>
+              </FormInput>
+
+              <FormInput :errors="errors" name="description" class="col-span-4">
+                  <template #label>Description</template>
+                  <template #input="inputProps">
+                      <textarea
+                          class="min-h-[150px]"
+                          v-model="product.product.description"
+                          v-bind="inputProps"
+                      ></textarea>
+                  </template>
+              </FormInput>
+
+              <div class="flex items-center gap-x-4">
+                  <Label
+                      @click="
+                          product.product.published = !product.product.published
+                      "
+                      for="published"
+                      class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                  >
+                      Publié
+                  </Label>
+                  <Switch
+                      name="published"
+                      :checked="product.product.published"
+                      @click="
+                          product.product.published = !product.product.published
+                      "
+                      class=""
+                  />
+              </div>
+              <div class="flex gap-4 col-span-4">
+                  <Button type="submit">
+                      {{ slug === 'new' ? 'Créer' : 'Modifier' }}
+                  </Button>
+                  <Dialog>
+                      <DialogTrigger>
+                          <Button variant="outlineDashboard">Gestion du stock</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                          <StockForm
+                              :productId="product.product.id"
+                              @stockUpdated="fetchProductData"
+                          ></StockForm>
+                      </DialogContent>
+                  </Dialog>
+              </div>
+          </form>
+        </Card>
 
         <SpecificTable
             v-if="product.product.id"
             :productId="product.product.id"
         ></SpecificTable>
 
-        <div class="mt-4">
-            <h3 class="text-lg font-semibold">Images</h3>
-            <div class="flex flex-wrap gap-4 mt-2">
-                <div v-for="image in images" :key="image.id" class="w-32 h-32">
-                    <img
-                        :src="`/src/${image.path}`"
-                        :alt="`Image ${image.id}`"
-                        class="w-full h-full object-cover"
-                    />
-                </div>
-            </div>
+      <Card class="p-6">
+        <CardDescription>
+          Images
+        </CardDescription>
+        <div class="flex flex-wrap gap-4 mt-2">
+          <div v-for="image in images" :key="image.id" class="w-32 h-32">
+            <img
+                :src="`/src/${image.path}`"
+                :alt="`Image ${image.id}`"
+                class="w-full h-full object-cover"
+            />
+          </div>
         </div>
+      </Card>
     </div>
 </template>

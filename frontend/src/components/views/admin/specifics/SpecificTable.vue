@@ -61,14 +61,14 @@ const fetchSpecifics = async () => {
 </script>
 
 <template>
-    <div class="mt-16">
+    <div>
         <h3 class="text-lg font-semibold mb-4">Spécifiques</h3>
         <Dialog>
-            <div class="flex flex-col mx-6">
+            <div class="flex flex-col">
                 <DialogTrigger>
                     <Button
                         @click="SpecificForm.specific = null"
-                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2 mb-4"
                     >
                         <span>Ajouter une specificité</span>
                         <ion-icon
