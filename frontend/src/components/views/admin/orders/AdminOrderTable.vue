@@ -1,21 +1,36 @@
 <script setup lang="ts">
 import DataTable from '@components/tables/DataTable.vue'
 import { Dialog } from '@components/ui/dialog'
-import { TableColumns, User } from '@types'
+import { type TableColumns, type User } from '@types'
 import { useToast } from '@components/ui/toast'
 import { useTable } from '@/composables/useTable'
 import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
 import { useFilters } from '@/composables/useFilters'
-import { computed } from 'vue'
-
-const { toast } = useToast()
+import {computed, onMounted, ref} from 'vue'
+import {useFetch} from "@/composables/useFetch";
 
 const { filters, query } = useFilters({
     status: [],
     customerId: [],
 })
-const { fetch, rows, pagination, sorting } = useTable('/orders', query)
+const {  rows, pagination, sorting } = useTable('/orders', query)
+
+const customers = ref<{
+    value: number
+    label: string
+}>([])
+
+
+const fetchCustomers = useFetch(computed(() => '/users'), null, (data)=>{
+    customers.value = data.data.map((user : User)=>({
+        value: user.id,
+        label: `${user.firstName} ${user.lastName}`
+
+    }))
+})
+
+onMounted(fetchCustomers.get)
 
 const columns: TableColumns[] = [
     {
@@ -64,17 +79,7 @@ const columns: TableColumns[] = [
     },
 ]
 
-const customers = computed(() => {
-    let customers = rows.value.map((row: any) => {
-        return {
-            value: row.Customer.id,
-            label: `${row.Customer.User.firstName} ${row.Customer.User.lastName}`,
-        }
-    })
-    return customers.filter(
-        (v, i, a) => a.findIndex((t) => t.value === v.value) === i,
-    )
-})
+
 </script>
 <template>
     <Dialog>

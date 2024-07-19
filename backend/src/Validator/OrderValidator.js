@@ -45,6 +45,12 @@ export class OrderValidator extends Validator {
                 'withProducts',
                 req.query.get('withProducts') === 'true',
             )
+
+        if (req.query.has('customerId')) {
+            req.query.set(
+                'customerId',
+                req.query.get('customerId').split(',').map(Number),
+            )
         }
     }
 
@@ -65,7 +71,7 @@ export class OrderValidator extends Validator {
                 )
                 .optional(),
             withProducts: z.boolean().optional(),
-            customerId: z.number().optional(),
+            customerId: z.array(z.number().int().positive()).optional(),
         })
     }
 }
