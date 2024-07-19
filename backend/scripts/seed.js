@@ -1,9 +1,21 @@
 import path from 'path'
 import fs from 'fs'
 import { Database } from '../src/Models/index.js'
-import { DenormalizerModelListener } from '../src/lib/Denormalizer/DenormalizerModelListener.js'
 import { DenormalizerQueue } from '../src/lib/Denormalizer/DenormalizerQueue.js'
+
+function parseArgs() {
+    const args = process.argv.slice(2)
+    const parsedArgs = {}
+    args.forEach((arg) => {
+        const [key, value] = arg.split('=')
+        parsedArgs[key] = value
+    })
+    return parsedArgs
+}
 export async function seed() {
+    // the --f flag is used to force the seed to run
+    let parsedArgs = parseArgs()
+    let factor = parsedArgs['--factor'] || 1
     let seederInstance = {
         references: new Map(),
         random: (a, b) => {
@@ -13,6 +25,7 @@ export async function seed() {
             return array[this.random(0, array.length - 1)]
         },
         db: null,
+        factor,
     }
 
     DenormalizerQueue.prototype.enqueue = async function (task) {

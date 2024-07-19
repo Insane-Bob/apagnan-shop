@@ -13,7 +13,7 @@
         "migrate:undo": "npx sequelize-cli db:migrate:undo",
         "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
         "seed": "node scripts/seed.js",
-        "seed:fresh": "npm run migrate:undo:all && npm run migrate && npm run seed"
+        "seed:fresh": "npm run migrate:undo:all && npm run migrate && npm run seed --"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
