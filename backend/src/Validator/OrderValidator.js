@@ -25,13 +25,13 @@ export class OrderValidator extends Validator {
         return z.object({
             status: z.enum([
                 OrderStatus.PENDING,
-                OrderStatus.PAID,
                 OrderStatus.PROCESSING,
                 OrderStatus.SHIPPED,
                 OrderStatus.DELIVERED,
                 OrderStatus.REFUNDED,
                 OrderStatus.CANCELLED,
             ]),
+            reason: z.string().optional(),
         })
     }
 
@@ -40,8 +40,11 @@ export class OrderValidator extends Validator {
             req.query.set('status', req.query.get('status').split(','))
         }
 
-        if(req.query.has('withProducts')) {
-            req.query.set('withProducts', req.query.get('withProducts') === 'true')
+        if (req.query.has('withProducts')) {
+            req.query.set(
+                'withProducts',
+                req.query.get('withProducts') === 'true',
+            )
         }
     }
 
@@ -51,10 +54,13 @@ export class OrderValidator extends Validator {
                 .array(
                     z.enum([
                         OrderStatus.PENDING,
+                        OrderStatus.PROCESSING,
+                        OrderStatus.SHIPPED,
                         OrderStatus.DELIVERED,
                         OrderStatus.REFUNDED,
-                        OrderStatus.SHIPPED,
                         OrderStatus.CANCELLED,
+                        OrderStatus.PAYMENT_FAILED,
+                        OrderStatus.PAID,
                     ]),
                 )
                 .optional(),

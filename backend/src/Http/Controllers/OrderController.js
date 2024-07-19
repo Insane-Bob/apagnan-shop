@@ -216,10 +216,6 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.show, this.order)
         const payload = this.validate(AskForRefundValidator)
         BadRequestException.abortIf(
-            this.order.status != OrderStatus.DELIVERED,
-            'Cannot refund an order that is not delivered',
-        )
-        BadRequestException.abortIf(
             this.order.status == OrderStatus.REFUNDED,
             'Cannot refund an order that is already refunded',
         )
