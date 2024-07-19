@@ -64,9 +64,11 @@ import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { ref } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+
+const apiClient = new ApiClient()
 
 const email = ref('')
 const { toast } = useToast()

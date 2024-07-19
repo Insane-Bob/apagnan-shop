@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import DataTable from '@components/tables/DataTable.vue'
-import { Dialog } from '@components/ui/dialog'
-import { TableActions, TableColumns, User } from '@types'
-import { apiClient } from '@/lib/apiClient'
-import { useToast } from '@components/ui/toast'
-import { useTable } from '@/composables/useTable'
-import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import FilterItem from '@components/tables/FilterItem.vue'
-import Filter from '@components/tables/Filter.vue'
 import { useFilters } from '@/composables/useFilters'
+import { useTable } from '@/composables/useTable'
+import DataTable from '@components/tables/DataTable.vue'
+import Filter from '@components/tables/Filter.vue'
+import FilterItem from '@components/tables/FilterItem.vue'
+import { Dialog } from '@components/ui/dialog'
+import { useToast } from '@components/ui/toast'
+import { TableColumns, User } from '@types'
 import { computed } from 'vue'
+
 
 const { toast } = useToast()
 

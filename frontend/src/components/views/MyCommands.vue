@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DataTable from '@/components/tables/DataTable.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import type { Order, TableColumns } from '@/types'
 import type { OrderStatus } from '@/types/OrderStatus'
 import { useUserStore } from '@store/user'
@@ -18,6 +18,8 @@ import Separator from "@components/ui/separator/Separator.vue";
 import CardContent from "@components/ui/card/CardContent.vue";
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
+
+const apiClient = new ApiClient()
 
 const router = useRouter()
 const user = useUserStore()

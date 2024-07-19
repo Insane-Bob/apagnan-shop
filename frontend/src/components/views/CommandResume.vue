@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import CardDescription from '../ui/card/CardDescription.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Order } from '@/types'
@@ -21,6 +21,8 @@ import Badge from "@components/ui/badge/Badge.vue";
 import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
 import {useUserStore} from "@/stores/user";
+
+const apiClient = new ApiClient()
 
 const isRefundDialogOpen = ref(false)
 

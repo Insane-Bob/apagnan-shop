@@ -98,10 +98,12 @@ import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUserStore } from '@store/user'
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 
@@ -132,6 +134,9 @@ async function submit() {
             // Store tokens in local storage
             localStorage.setItem('accessToken', response.data.accessToken)
             localStorage.setItem('refreshToken', response.data.refreshToken)
+
+
+
 
             user.setUser(response.data.user)
 

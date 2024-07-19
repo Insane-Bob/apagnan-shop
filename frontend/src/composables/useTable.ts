@@ -1,9 +1,10 @@
 import { onMounted, ref, watch } from 'vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useSort } from '@/composables/useSort'
 import { usePagination } from '@/composables/usePagination'
 
 export function useTable(url: string, query = null, ...options) {
+    const apiClient = new ApiClient()
     const collection = ref<Object[]>([])
     const collectionLength = ref<number>(0)
 

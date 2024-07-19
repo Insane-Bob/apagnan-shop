@@ -14,7 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import type { Collection, Product, Review } from '@/types'
 import { useUserStore } from '@store/user'
 import {computed, onMounted, reactive, ref, watch} from 'vue'
@@ -27,6 +27,8 @@ import {useSuggestion} from "@/composables/useSuggestion";
 import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
 import Loader from "@components/ui/loader/Loader.vue";
 import NotificationMenu from "@components/Menus/NotificationMenu.vue";
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const router = useRouter()

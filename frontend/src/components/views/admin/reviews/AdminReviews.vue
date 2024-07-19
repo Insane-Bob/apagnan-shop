@@ -2,12 +2,13 @@
 import DataTable from '@/components/tables/DataTable.vue'
 import { useFilters } from '@/composables/useFilters'
 import { TableActions, TableColumns } from '@types'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useTable } from '@/composables/useTable'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import { ref, watch } from 'vue'
+
+const apiClient = new ApiClient()
 
 const { filters, query, resetFilters } = useFilters({
     rate: [],

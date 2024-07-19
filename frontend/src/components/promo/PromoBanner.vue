@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import  { apiClient} from '@/lib/apiClient'
+import  { ApiClient} from '@/lib/apiClient'
 import type { Promo } from '@/types';
 import { onMounted, ref } from 'vue';
 import { useToast } from '@components/ui/toast';
+
+const apiClient = new ApiClient()
 
 
 const { toast } = useToast()

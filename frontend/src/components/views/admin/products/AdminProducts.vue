@@ -4,12 +4,14 @@ import Button from '@/components/ui/button/Button.vue'
 import ProductForm from '@/components/views/admin/products/ProductForm.vue'
 import { TableColumns, TableActions } from '@types'
 import { useRouter } from 'vue-router'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
+
+const apiClient = new ApiClient()
 
 const router = useRouter()
 const { filters, query, resetFilters } = useFilters({

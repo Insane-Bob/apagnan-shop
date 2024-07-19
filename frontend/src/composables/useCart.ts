@@ -1,6 +1,6 @@
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { ref } from 'vue'
 import type { Product } from '@/types'
 
@@ -8,6 +8,7 @@ export function useCart(product: ref<Product | null>): {
     quantitySelected: Ref<number>
     addToCart: () => void
 } {
+    const apiClient = new ApiClient()
     const quantitySelected = ref(1)
     const user = useUserStore()
     const { toast } = useToast()
