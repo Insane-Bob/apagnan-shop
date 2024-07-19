@@ -13,7 +13,6 @@ function parseArgs() {
     return parsedArgs
 }
 export async function seed() {
-    // the --f flag is used to force the seed to run
     let parsedArgs = parseArgs()
     let factor = parsedArgs['--factor'] || 1
     let seederInstance = {
