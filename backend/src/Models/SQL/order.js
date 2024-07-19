@@ -2,6 +2,7 @@
 
 import { Model } from 'sequelize'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
+import { PaymentStatus } from './payment.js'
 
 export class Order extends Model {
     static associate(models) {
@@ -26,6 +27,9 @@ export class Order extends Model {
         models.Order.hasMany(models.OrderStatus, {
             foreignKey: 'orderId',
             as: 'statusHistory',
+        })
+        models.Order.belongsTo(models.Promo, {
+            foreignKey: 'promoId',
         })
     }
 
@@ -61,6 +65,44 @@ export class Order extends Model {
             },
             { override: true },
         )
+
+        models.Order.addScope('withProducts', {
+            include: [
+                {
+                    model: models.OrderStatus,
+                    as: 'statusHistory',
+                },
+                {
+                    model: models.OrderDetail,
+                    include: [
+                        {
+                            model: models.Product,
+                            include: [
+                                {
+                                    association: 'images',
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    model: models.Address,
+                    as: 'billing_address',
+                },
+                {
+                    model: models.Address,
+                    as: 'shipping_address',
+                },
+                {
+                    model: models.Customer,
+                    include: [
+                        {
+                            model: models.User,
+                        },
+                    ],
+                },
+            ],
+        })
     }
 
     static hooks(models) {
@@ -110,6 +152,16 @@ function model(sequelize, DataTypes) {
                     return this.getTotal()
                 },
             },
+            nbProducts: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return (
+                        this.OrderDetails?.reduce((acc, orderDetail) => {
+                            return acc + orderDetail.quantity
+                        }, 0) || null
+                    )
+                },
+            },
             status: {
                 type: DataTypes.VIRTUAL,
                 get() {
@@ -120,6 +172,19 @@ function model(sequelize, DataTypes) {
                                 ? status
                                 : acc
                         }, this.statusHistory[0])?.status ?? null
+                    )
+                },
+            },
+            paid: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (!this.Payments) return null
+                    return (
+                        this.Payments.reduce((acc, payment) => {
+                            return payment.createdAt > acc.createdAt
+                                ? payment
+                                : acc
+                        }, this.Payments[0])?.status == PaymentStatus.SUCCEEDED
                     )
                 },
             },

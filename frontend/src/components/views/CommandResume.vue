@@ -16,13 +16,24 @@ import { useCart } from '@/composables/useCart'
 import { orderRoutesName } from '@/routes/order'
 import CardFooter from '@components/ui/card/CardFooter.vue'
 import Button from '@components/ui/button/Button.vue'
+import ProfileLayout from "@/layout/ProfileLayout.vue";
+import Badge from "@components/ui/badge/Badge.vue";
+import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
+import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
+import {useUserStore} from "@/stores/user";
 
 const isRefundDialogOpen = ref(false)
 
 const options = { year: 'numeric', month: 'long', day: 'numeric' }
 
+const user = useUserStore()
 const route = useRoute()
 const router = useRouter()
+usePaymentBroadcastChannel(()=>{
+    fetch()
+})
+
+
 
 const stapes = ref<{ status: string; date: Date; description: string }[]>([])
 
@@ -72,7 +83,7 @@ const orderStatusHistoryParsed = computed(() => {
 })
 
 async function fetch() {
-    const response = await apiClient.get('/orders/' + route.params.id)
+    const response = await apiClient.get('/orders/' + route.params.id + "?withProducts")
     order.value = response.data
 
     shippingAddress.value =
@@ -84,6 +95,9 @@ async function fetch() {
 }
 onMounted(() => {
     fetch()
+    if(route.query.payment === 'success') {
+        user.clearCart()
+    }
 })
 
 async function reorder() {
@@ -108,161 +122,174 @@ async function handlePay() {
 </script>
 
 <template>
-    <loader :wait-for="order">
-        <div class="px-4 sm:px-16 lg:px-24 flex flex-col gap-8 my-8">
-            <div class="flex">
-                <div class="">
-                    <CardTitle>
-                        Suivi de la commande <b>n°{{ order?.id }}</b></CardTitle
-                    >
-                    <CardDescription
-                        >Votre commande est
-                        {{ statusTranslate[order?.status] }}</CardDescription
-                    >
-                </div>
+    <ProfileLayout>
+      <loader :wait-for="order">
+        <div class="flex flex-col gap-6">
+          <div class="flex">
+            <div class="">
+              <CardTitle>
+                Suivi de la commande <b>n°{{ order?.id }}</b></CardTitle
+              >
+              <CardDescription
+              >Votre commande est
+                {{ statusTranslate[order?.status] }}</CardDescription
+              >
+            </div>
 
-                <div class="flex gap-x-2 ml-auto items-center">
-                    <Button
-                        class="bg-primary"
-                        v-if="order.status === 'shipped'"
-                    >
-                        Suivre ma commande
-                    </Button>
-                    <Dialog v-model:open="isRefundDialogOpen">
-                        <DialogTrigger
-                            v-if="
+            <div class="flex gap-x-2 ml-auto items-center">
+              <Button
+                  variant="ghost"
+                  class="text-primary"
+                  v-if="order.status === 'shipped'"
+              >
+                Suivre ma commande
+              </Button>
+              <Dialog v-model:open="isRefundDialogOpen">
+                <DialogTrigger
+                    v-if="
                                 order.RefundRequestOrders.filter(
                                     (r) => !r.approved,
                                 ).length === 0
                             "
-                        >
-                            <Button
-                                class="bg-primary"
-                                v-if="order.status === 'delivered'"
-                            >
-                                Demander un remboursement
-                            </Button>
-                        </DialogTrigger>
-                        <div v-else class="flex flex-col w-[250px]">
-                            <Button class="bg-gray-400" :disabled="true">
-                                Demander un remboursement
-                            </Button>
-                            <small class="italic opacity-50">
-                                Une demande de remboursement est en cours de
-                                validation
-                            </small>
-                        </div>
+                >
+                  <Button
+                      class="bg-primary"
+                      v-if="order.status === 'delivered'"
+                  >
+                    Demander un remboursement
+                  </Button>
+                </DialogTrigger>
+                <div v-else class="flex flex-col w-[250px]">
+                  <Button class="bg-gray-400" :disabled="true">
+                    Demander un remboursement
+                  </Button>
+                  <small class="italic opacity-50">
+                    Une demande de remboursement est en cours de
+                    validation
+                  </small>
+                </div>
 
-                        <Button class="bg-primary" @click="reorder()">
-                            Commander a nouveau
-                        </Button>
+                <Button  variant="ghost"
+                         class="text-primary" @click="reorder()">
+                  Commander a nouveau
+                </Button>
 
-                        <DialogContent>
-                            <RefundRequestForm
-                                @close="
+                <DialogContent>
+                  <RefundRequestForm
+                      @close="
                                     () => {
                                         isRefundDialogOpen = false
                                         fetch()
                                     }
                                 "
-                                :order="order"
-                            ></RefundRequestForm>
-                        </DialogContent>
-                    </Dialog>
-                </div>
+                      :order="order"
+                  ></RefundRequestForm>
+                </DialogContent>
+              </Dialog>
             </div>
+          </div>
 
-            <div class="flex gap-6">
-                <Card class="px-4 py-3">
-                    <CardDescription>
-                        Où votre nain doit aller
-                    </CardDescription>
-                    <CardTitle>{{ shippingAddress }}</CardTitle>
-                </Card>
-                <Card class="px-4 py-3">
-                    <CardDescription> Date d'achat </CardDescription>
-                    <CardTitle>
-                        {{
-                            new Date(
-                                order?.createdAt as string,
-                            ).toLocaleDateString(options) +
-                            ' - ' +
-                            new Date(
-                                order?.createdAt as string,
-                            ).toLocaleTimeString()
-                        }}
-                    </CardTitle>
-                </Card>
-                <Card class="px-4 py-3">
-                    <CardDescription> Date de livraison prévue</CardDescription>
-                    <CardTitle> A DEFINIR </CardTitle>
-                </Card>
-            </div>
+          <div class="flex gap-6">
+            <Card class="px-4 py-3">
+              <CardDescription class="flex items-center gap-2 pb-2">
+                <ion-icon  class="text-md" name="location"></ion-icon>
+                Où votre nain doit aller
+              </CardDescription>
+              <CardTitle class="text-md">{{ shippingAddress }}</CardTitle>
+            </Card>
+            <Card class="px-4 py-3">
+              <CardDescription class="flex items-center gap-2 pb-2">
+                <ion-icon class="text-md" name="calendar"></ion-icon>
+                Date d'achat </CardDescription>
+              <CardTitle class="text-md">
+                {{
+                  new Date(
+                      order?.createdAt as string,
+                  ).toLocaleDateString(options) +
+                  ' - ' +
+                  new Date(
+                      order?.createdAt as string,
+                  ).toLocaleTimeString()
+                }}
+              </CardTitle>
+            </Card>
+          </div>
 
-            <Separator />
-            <div
-                class="flex flex-col-reverse lg:flex-row flex-nowrap h-full gap-x-4"
-            >
-                <menu class="flex-1 flex flex-col gap-y-3">
-                    <Card
-                        v-for="(history, index) in orderStatusHistoryParsed"
-                        :key="index"
-                        class="border rounded-sm w-full border-primary-accent p-0 border-l-4 shadow"
-                        :class="['border-' + history.color]"
+          <Separator />
+
+          <Card>
+            <CardHeader>
+              <CardDescription>
+                Status de votre commande
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div class="relative flex flex-col gap-2">
+                <div class="absolute left-[6px] top-[7px] bottom-[7px] w-[2px] border-l-2 border-dashed"></div>
+                <div class="relative z-10 flex gap-4 items-center" v-for="(history,index) in orderStatusHistoryParsed" :key="index">
+                    <div class="w-[14px] h-[14px] rounded-xl border-2 border-accent"
+                         :class="['bg-' + history.color]"
+                    ></div>
+                    <Badge :class="['bg-' + history.color]">
+                      {{ history.status }}
+                    </Badge>
+                    <span class="text-sm">le {{ history.date.toLocaleDateString(options) + ' - ' + history.date.toLocaleTimeString() }}</span>
+                    <Button
+                        v-if="history.value == 'payment_failed' && history.isLast"
+                        @click="handlePay"
+                        variant="outline"
+                        class="text-red-500 border-red-500"
+                        size="sm"
                     >
-                        <CardHeader class="pb-1 py-3">
-                            <CardTitle class="text-lg">{{
-                                history.status
-                            }}</CardTitle>
-                            <CardDescription>
-                                Le
-                                {{
-                                    history.date.toLocaleDateString(options) +
-                                    ' - ' +
-                                    history.date.toLocaleTimeString()
-                                }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="italic">{{
-                            history.description
-                        }}</CardContent>
-                        <CardFooter
-                            v-if="
-                                history.value == 'payment_failed' &&
-                                history.isLast
-                            "
-                            class="pb-3"
-                        >
-                            <button
-                                @click="handlePay"
-                                class="bg-red-500 text-white px-4 py-2 rounded-sm"
-                            >
-                                Réessayer le paiement
-                            </button>
-                        </CardFooter>
-                    </Card>
-                </menu>
-
-                <div class="flex-shrink-0 flex-grow-0 w-[500px] rounded-sm">
-                    <div
-                        style="width: 100%"
-                        class="rounded-sm border border-primary overflow-hidden"
-                    >
-                        <iframe
-                            width="500"
-                            height="600"
-                            frameborder="0"
-                            scrolling="no"
-                            marginheight="0"
-                            marginwidth="0"
-                            src="https://maps.google.com/maps?width=720&amp;height=600&amp;hl=en&amp;q=242%20Rue%20du%20Faubourg%20Saint-Antoine,%2075012%20Paris+()&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
-                            ><a href="https://www.gps.ie/"
-                                >gps systems</a
-                            ></iframe
-                        >
-                    </div>
+                      Réessayer le paiement <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </Button>
                 </div>
-            </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardDescription>
+                Contenu de votre commande
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OrderDetailsProductList :order-details="order.OrderDetails"/>
+            </CardContent>
+            <Separator/>
+            <CardFooter class="pt-4">
+              <div class="flex flex-1 flex-row justify-end">
+                <div>
+                  <CardDescription>Total</CardDescription>
+                  <CardTitle>{{ order.total}} €</CardTitle>
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>
+                Documents
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+
+            </CardContent>
+          </Card>
+<!--                          <iframe-->
+<!--                              width="500"-->
+<!--                              height="600"-->
+<!--                              frameborder="0"-->
+<!--                              scrolling="no"-->
+<!--                              marginheight="0"-->
+<!--                              marginwidth="0"-->
+<!--                              src="https://maps.google.com/maps?width=720&amp;height=600&amp;hl=en&amp;q=242%20Rue%20du%20Faubourg%20Saint-Antoine,%2075012%20Paris+()&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"-->
+<!--                          ><a href="https://www.gps.ie/"-->
+<!--                          >gps systems</a-->
+<!--                          ></iframe>-->
         </div>
-    </loader>
+      </loader>
+    </ProfileLayout>
+
 </template>

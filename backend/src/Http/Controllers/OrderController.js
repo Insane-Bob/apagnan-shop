@@ -19,6 +19,7 @@ import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
+import Sequelize, { Op } from 'sequelize'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -32,16 +33,38 @@ export class OrderController extends Controller {
 
     async index() {
         this.can(UserPolicy.show, this.userContext)
-
         if (this.customer) this.req.query.set('customerId', this.customer.id)
         if (!this.req.getUser().hasRole(USER_ROLES.ADMIN))
             this.req.query.set('customerId', this.req.getUser().customer.id)
+        const filters = this.validate(OrderValidator, OrderValidator.index())
 
         const search = new SearchRequest(this.req, ['customerId'])
-        const orders = await Database.getInstance().models.Order.findAll(
-            search.query,
-        )
-        this.res.json(orders)
+        if (filters.status) {
+            const sql = Sequelize.literal(
+                '(SELECT "OrderStatuses"."orderId" FROM "OrderStatuses" WHERE  "OrderStatuses".status IN (:status) AND  "OrderStatuses"."createdAt" = (SELECT MAX(o."createdAt") FROM "OrderStatuses" as o WHERE "OrderStatuses"."orderId" = o."orderId"))',
+            )
+            search.addWhere({
+                id: {
+                    [Op.in]: sql,
+                },
+            })
+            search.addReplacement('status', filters.status)
+        }
+
+        let model = Database.getInstance().models.Order
+
+        if (filters.withProducts) {
+            model = model.unscoped().scope('withProducts')
+        }
+
+        const orders = await model.findAll(search.query)
+
+        const total = await model.count(search.queryWithoutPagination)
+
+        this.res.json({
+            data: orders,
+            total,
+        })
     }
     async show() {
         this.can(OrderPolicy.show, this.order)
@@ -54,6 +77,16 @@ export class OrderController extends Controller {
     async store() {
         const payload = this.validate(OrderValidator, OrderValidator.create())
         this.can(OrderPolicy.store, payload.customerId)
+
+        let promo = null
+        if (payload.promoId) {
+            promo = await Database.getInstance().models.Promo.findOne({
+                where: {
+                    id: payload.promoId,
+                },
+            })
+            NotFoundException.abortIf(!promo, 'Promo not found')
+        }
 
         const billingAddress =
             await Database.getInstance().models.Address.findOne({
@@ -80,6 +113,7 @@ export class OrderController extends Controller {
             customerId: payload.customerId,
             shippingAddressId: payload.shippingAddressId,
             billingAddressId: payload.billingAddressId,
+            promoId: payload.promoId,
         }
 
         const transaction = await Database.transaction()
@@ -173,6 +207,7 @@ export class OrderController extends Controller {
         const session = await PaymentServices.createCheckoutSession(
             this.order,
             this.req.getUser(),
+            this.req.body.get('discounts'),
         )
         this.res.json(session)
     }

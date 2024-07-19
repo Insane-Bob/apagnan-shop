@@ -1,14 +1,29 @@
 import { Controller } from '../../Core/Controller.js'
 import { Database } from '../../Models/index.js'
 import { CollectionPolicy } from '../Policies/CollectionPolicy.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class CollectionController extends Controller {
     async getCollections() {
-        const collections =
-            await Database.getInstance().models.Collection.findAll()
+        let search = new SearchRequest(this.req, ['published'], ['name'])
+
+        const model = Database.getInstance().models.Collection
+        if (this.req.query.has('withImage')) model.scope('withImage')
+        const total = await model.count(search.queryWithoutPagination)
+
+        let query = { ...search.query }
+        if (this.req.query.has('random')) {
+            query.limit = search.query.limit || 1
+            query.offset = Math.floor(
+                Math.random() * (total - search.query.limit),
+            )
+        }
+
+        const data = await model.findAll(query)
 
         this.res.json({
-            collections: collections,
+            data: data,
+            total: total,
         })
     }
 
@@ -23,6 +38,34 @@ export class CollectionController extends Controller {
         this.res.json({
             collection: collection,
             image: image,
+        })
+    }
+
+    async getPromotedCollection() {
+        const collection =
+            await Database.getInstance().models.Collection.findOne({
+                where: {
+                    promoted: true,
+                },
+                include: [
+                    {
+                        model: Database.getInstance().models.Product,
+                        include: [
+                            {
+                                model: Database.getInstance().models.Upload,
+                                as: 'images',
+                            },
+                        ],
+                    },
+                    {
+                        model: Database.getInstance().models.Upload,
+                        as: 'image',
+                    },
+                ],
+            })
+
+        this.res.json({
+            collection: collection,
         })
     }
 

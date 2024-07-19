@@ -15,14 +15,14 @@ export class UserFactory extends Factory {
     }
 
     static _withCustomer = false
-    static withCustomer() {
-        this._withCustomer = true
+    static withCustomer(value = true) {
+        this._withCustomer = value
         return this
     }
 
     static _withWidget = false
-    static withWidget() {
-        this._withWidget = true
+    static withWidget(value = true) {
+        this._withWidget = value
         return this
     }
 

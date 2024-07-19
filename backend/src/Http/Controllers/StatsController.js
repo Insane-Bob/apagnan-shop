@@ -28,6 +28,7 @@ export class StatsController extends Controller {
                     $group: {
                         _id: {
                             status: '$status',
+                            paid: '$paid',
                         },
                         total: { $sum: '$total' },
                         count: { $sum: 1 },
@@ -76,9 +77,7 @@ export class StatsController extends Controller {
             await Database.getInstance().mongoModels.Orders.aggregate([
                 {
                     $match: {
-                        status: {
-                            $in: ['shipping', 'delivered'],
-                        },
+                        paid: true,
                     },
                 },
                 {

@@ -11,9 +11,15 @@ import Button from '@components/ui/button/Button.vue'
 import { useUserStore } from '@store/user'
 import { RouterLink } from 'vue-router'
 import { orderRoutesName } from '@/routes/order'
+import { useToast } from '@components/ui/toast'
 
 const user = useUserStore()
 user.cartViewed()
+
+const { dismiss } = useToast()
+
+dismiss()
+
 </script>
 
 <template>
@@ -24,7 +30,7 @@ user.cartViewed()
             >
         </SheetHeader>
         <div
-            class="w-full max-h-[80vh] overflow-y-scroll grow flex flex-col justify-start divide-y divide-primary"
+            class="w-full overflow-y-auto grow flex flex-col justify-start divide-y divide-primary"
         >
             <div
                 v-if="user.countCartItem > 0"

@@ -21,41 +21,49 @@ const props = defineProps<{
     product: Product
 }>()
 
+const oldQuantity = ref(props.quantity.toString())
+
 const quantity = ref(props.quantity.toString())
 
+console.log(props.product)
 
 const removeFromCart = async () => {
     if (user.isAuthenticated && props.product) {
         const reponse = await  apiClient.delete('users/' + user.getId + '/basket/' + props.product.id)
         user.addItem(reponse.data.items)
-
-        toast({
-            title: 'Article supprimé du panier',
-        })
         
     }
 }
 
 const onQuantityUpdated = async () => {
     if (user.isAuthenticated && props.product) {
-        const reponse = await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
-        user.addItem(reponse.data.items)
+        try{
+            const response = await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
 
-        toast({
-            title: 'Quantité mise à jour',
-        })
+            user.addItem(response.data.items)
+            oldQuantity.value = quantity.value
+        }catch(e){
+            quantity.value = oldQuantity.value
+            await  apiClient.put('users/' + user.getId + '/basket/' + props.product.id, {quantity: quantity.value} )
+            toast({
+                title: 'Erreur lors de la mise à jour de la quantité',
+                description: 'Il n\'y a pas assez de stock pour cette quantité',
+                variant: 'destructive'
+            })
+        }
+
         
     }
 }
 </script>
 <template>
-        <div v-if="quantity" class="flex items-center gap-x-4 my-4">
+        <div v-if="quantity" class="flex items-center gap-x-4 my-4 ">
             <img v-if="product.images && product.images.length > 0"
-                class="w-20 h-20"
+                class="min-w-20 w-20 h-20"
                 :src="'/src/' + product.images[0].path"
                 :alt="product.name"
             />
-            <div v-else class="relative group">
+            <div v-else class="relative group min-w-20 h-20">
                 <img 
                     class="w-20 h-20 relative"
                     src="/src/assets/images/noPhotoAvailable.webp"
@@ -78,7 +86,7 @@ const onQuantityUpdated = async () => {
                             <SelectValue  placeholder="Quantité" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="(value,index) in 100" :value="value.toFixed()" :key="index">
+                                <SelectItem v-for="(value,index) in (product.stock +  parseInt(quantity))" :value="value.toFixed()" :key="index">
                                     {{ value.toFixed() }}
                                 </SelectItem>
                             </SelectContent>

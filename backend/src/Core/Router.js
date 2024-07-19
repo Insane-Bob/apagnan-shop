@@ -3,7 +3,7 @@ import path from 'path'
 import { Request } from './Request.js'
 import { Middleware } from './Middleware.js'
 import { Provider } from './Provider.js'
-import process from "process";
+import process from 'process'
 
 export class RouteGroup {
     constructor(path, callback, middlewares = [], providers = []) {
@@ -54,8 +54,8 @@ export class RouteGroup {
         const group = new RouteGroup(
             path,
             callback,
-            this.middlewares,
-            this.providers,
+            [...this.middlewares],
+            [...this.providers],
         )
         this.routes.push(group)
         return group
@@ -126,8 +126,8 @@ export class Router extends RouteGroup {
                     app,
                     this.path + route.path,
                     route.callback,
-                    route.middlewares,
-                    route.providers,
+                    [...route.middlewares],
+                    [...route.providers],
                 )
                 router.loadRoutes()
                 router.registerRoutes(app)
@@ -139,10 +139,10 @@ export class Router extends RouteGroup {
         /**read all files and sub files in routes */
         // eslint-disable-next-line no-undef
         const command = process.env.npm_lifecycle_event
-        let pathDir;
-        if(command == 'start'){
+        let pathDir
+        if (command == 'start') {
             pathDir = 'dist/Routes'
-        }else{
+        } else {
             pathDir = 'src/Routes'
         }
 

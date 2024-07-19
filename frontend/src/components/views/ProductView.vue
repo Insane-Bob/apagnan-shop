@@ -16,12 +16,18 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { apiClient } from '@/lib/apiClient'
-import type { Product, Review } from '@/types'
+import type { Collection, Product, Review } from '@/types'
 import { useUserStore } from '@store/user'
-import { onMounted, reactive, ref } from 'vue'
+import {computed, onMounted, reactive, ref, watch} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormGrid from '../Forms/FormGrid.vue'
 import { useCart } from '@/composables/useCart'
+import Section from "@/layout/Section.vue";
+import ProductCard2 from "@components/Cards/ProductCard2.vue";
+import {useSuggestion} from "@/composables/useSuggestion";
+import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
+import Loader from "@components/ui/loader/Loader.vue";
+import NotificationMenu from "@components/Menus/NotificationMenu.vue";
 
 const user = useUserStore()
 const router = useRouter()
@@ -34,18 +40,21 @@ const showMore = ref(false)
 
 const product = ref<Product | null>(null)
 const cart = useCart(product)
-const otherProducts = ref<Product[]>([])
 const specifics = ref([])
 const reviews = reactive<Review[]>([])
-const collection = ref({})
+const collection = ref<Collection>({} as Collection)
 const collectionImage = ref('')
 const carouselImages = ref<string[]>([])
-const breadcrumbLinks = ref([
-    ['Accueil', '/'],
-    ['Collections', '/collections'],
-    ['', '#'],
-    ['', '#'],
+const breadcrumbLinks = computed(()=>[
+  ['Accueil', '/'],
+  ['Collections', '/collections/'+ collection.value?.slug],
+  [collection.value?.name, '/collections/' + collection.value?.slug],
+  [product.value?.name, "#"],
 ])
+
+const {items:suggestions,fetch:fetchSuggestions} = useSuggestion<Product>([route?.params?.pslug],5, 'products')
+watch(() => route.params.pslug,fetchSuggestions)
+
 
 const reviewForm = reactive<{ rate: number; content: string }>({
     rate: 0,
@@ -58,13 +67,7 @@ const fetchProduct = async () => {
         const data = response.data
 
         product.value = data.product
-        breadcrumbLinks.value[3] = [
-            data.product.name,
-            '/collections/' +
-                route.params.cslug +
-                '/products/' +
-                route.params.pslug,
-        ]
+
         if (data.images.length > 0) {
             carouselImages.value = data.images.map(
                 (image: { path: string }) => '/src/' + image.path,
@@ -102,10 +105,6 @@ const fetchCollection = async () => {
         } else {
             collectionImage.value = '/src/assets/images/noPhotoAvailable.webp'
         }
-        breadcrumbLinks.value[2] = [
-            data.collection.name,
-            '/collections/' + route.params.collectionSlug,
-        ]
     } catch (e) {
         toast({
             title: "La collection n'existe pas",
@@ -113,30 +112,6 @@ const fetchCollection = async () => {
         })
         router.push('/notFound')
     }
-}
-
-const fetchCollectionProducts = async () => {
-    const response = await apiClient.get(
-        'collections/' + route.params.cslug + '/products',
-    )
-    const data = response.data
-
-    const images = data.images
-
-    otherProducts.value = data.products
-
-    otherProducts.value.forEach((product: Product) => {
-        product.images = images.filter(
-            (image: { modelId: number; modelName: string }) =>
-                image.modelId === product.id && image.modelName == 'product',
-        )
-    })
-
-    otherProducts.value = otherProducts.value.filter(
-        (p: Product) => p.id !== product.value?.id,
-    )
-
-    otherProducts.value = otherProducts.value.slice(0, 5)
 }
 
 const fetchProductReviews = async () => {
@@ -163,7 +138,6 @@ onMounted(async () => {
     await fetchCollection()
     await fetchProductReviews()
     await fetchProductSpecifics()
-    await fetchCollectionProducts()
 
     loading.value = false
 })
@@ -184,9 +158,26 @@ const sendReview = async () => {
         reviewForm.content = ''
     }
 }
+
+
+watch(() => route.params.pslug, async () => {
+    loading.value = true
+
+    reviews.splice(0, reviews.length)
+    specifics.value = []
+
+
+    await fetchProduct()
+    await fetchCollection()
+    await fetchProductReviews()
+    await fetchProductSpecifics()
+    loading.value = false
+})
+
 </script>
 
 <template>
+  <loader :wait-for="product">
     <div>
         <div class="h-80 flex items-center justify-center">
             <img
@@ -194,25 +185,32 @@ const sendReview = async () => {
                 class="w-full h-full object-cover"
             />
         </div>
-        <div class="w-full h-14 mb-10">
-            <MyBreadcrumbComponent :links="breadcrumbLinks" />
-        </div>
+      <div class="w-full h-14 mb-10">
+        <MyBreadcrumbComponent :links="breadcrumbLinks" />
+      </div>
         <div v-if="!loading && product" class="flex justify-center">
-            <div class="w-4/5 flex justify-center gap-16 mb-16">
+            <div class="w-4/5 flex flex-col md:flex-row justify-center gap-16 mb-16">
                 <ProductPictureCarousel :imageUrls="carouselImages" />
-                <div class="w-1/2 flex flex-col gap-10">
-                    <h1 class="text-3xl font-bold font-title">
-                        {{ product?.name }}
-                    </h1>
-                    <ReviewNoteComponent
-                        :note="
-                            reviews.reduce(
-                                (acc, review) => acc + review.rate,
-                                0,
-                            ) / reviews.length
-                        "
-                        :NbReviews="reviews.length"
-                    />
+                <div class="w-full md:w-1/2 flex flex-col  gap-10">
+                    <div class="flex justify-between">
+                      <div>
+                        <h1 class="text-3xl font-bold font-title">
+                          {{ product?.name }}
+                        </h1>
+                        <ReviewNoteComponent
+                            :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
+                            :NbReviews="reviews.length"
+                        />
+                      </div>
+                      <div>
+                        <NotificationMenu :id="product.id" model-type="product" >
+                         <div class="flex items-center">
+                           <ion-icon name="notifications-outline" class="text-lg mr-3" />
+                           Gestion des alertes
+                         </div>
+                        </NotificationMenu>
+                      </div>
+                    </div>
                     <div>
                         <p class="text-2xl font-semibold">
                             € {{ product.price }}
@@ -234,13 +232,7 @@ const sendReview = async () => {
                             }}
                         </p>
                     </div>
-                    <div class="flex flex-col gap-3">
-                        <h2 class="font-semibold text-xl">Détail du produit</h2>
-                        <p class="text-slate-400" v-if="product.modele">
-                            Modèle {{ product.modele }}
-                        </p>
-                        <p>{{ product.description }}</p>
-                    </div>
+                    
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex items-center gap-x-2 max-w-72">
                             <p>Quantité</p>
@@ -274,19 +266,17 @@ const sendReview = async () => {
                             </Button>
                         </div>
                     </div>
-                    <div
-                        @click="showMore = !showMore"
-                        class="text-slate-400 flex items-center gap-2 cursor-pointer"
-                    >
-                        {{ showMore ? 'Voir moins' : 'En savoir plus' }}
-                        <ion-icon
-                            v-show="!showMore"
-                            name="arrow-down-outline"
-                        ></ion-icon>
-                        <ion-icon
-                            v-show="showMore"
-                            name="arrow-up-outline"
-                        ></ion-icon>
+                    <div class="flex flex-col gap-3">
+                        <h2 class="font-semibold text-xl">Détail du produit</h2>
+                        <p class="text-slate-400" v-if="product.modele">
+                            Modèle {{ product.modele }}
+                        </p>
+                        <p>{{ product.description }}</p>
+                    </div>
+                    <div @click="showMore = !showMore" class="text-slate-400 flex items-center gap-2 cursor-pointer">
+                        {{showMore?'Voir moins':'En savoir plus'}}
+                        <ion-icon v-show="!showMore" name="arrow-down-outline"></ion-icon>
+                        <ion-icon v-show="showMore" name="arrow-up-outline"></ion-icon>
                     </div>
                 </div>
             </div>
@@ -298,19 +288,11 @@ const sendReview = async () => {
                 <SpecificsListComponent :specifics="specifics" />
             </div>
         </div>
-        <div v-if="otherProducts.length > 0" class="flex justify-center mb-7">
-            <div class="w-4/5 flex gap-16 flex-col items-center">
-                <h2 class="text-2xl font-semibold uppercase">
-                    Vous aimerez aussi
-                </h2>
-                <FeaturedProductsCarousel :products="otherProducts" />
-            </div>
+        <div class="w-full flex justify-center my-4">
+            <hr class="border-b border-primary/40 w-2/5" />
         </div>
 
-        <div
-            v-if="reviews"
-            class="flex flex-col items-center justify-center mb-7"
-        >
+        <div v-if="reviews" class="flex flex-col items-center justify-center mb-7">
             <div class="w-3/5 flex flex-col items-center">
                 <h2 class="text-2xl font-semibold uppercase">
                     Avis des clients
@@ -349,7 +331,7 @@ const sendReview = async () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>       
 
             <div
                 class="w-2/5 flex flex-col items-center mt-4"
@@ -395,4 +377,33 @@ const sendReview = async () => {
             </div>
         </div>
     </div>
+  </loader>
+  <Section class="bg-slate-100">
+    <h1 class="text-md uppercase font-medium text-center">
+      Vous aimerez aussi
+    </h1>
+    <div
+        class="justify-items-center max-w-[1000px] mx-auto"
+    >
+      <SuggestionCarousel :suggestions="suggestions.map((p : Product)=>({...p,url:`/collections/${p?.Collection?.slug}/products/${p.slug}`}))" >
+        <template #item="{suggestion}">
+          <ProductCard2
+              height="300px"
+              :key="suggestion.id"
+              :name="suggestion.name"
+              :slug="suggestion.slug"
+              :collection="suggestion?.Collection"
+              :shortDescription="suggestion.description" :image="suggestion?.image">
+            <template #action>
+              <Button class="hover:text-primary transition uppercase" variant="ghost">
+                Decouvrir ce nain
+                <ion-icon name="chevron-forward-outline" class="text-lg ml-4"/>
+              </Button>
+            </template>
+          </ProductCard2>
+        </template>
+      </SuggestionCarousel>
+    </div>
+  </Section>
+
 </template>

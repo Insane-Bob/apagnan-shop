@@ -19,6 +19,10 @@ export class OrderDenormalizationTask extends DenormalizerTask {
         )
     }
 
+    async persitDelete(model, ids) {
+        throw new Error('You cannot delete an order')
+    }
+
     async fetch(ordersIds) {
         let orders = await Database.getInstance()
             .models.Order.unscoped()
@@ -26,10 +30,13 @@ export class OrderDenormalizationTask extends DenormalizerTask {
                 where: {
                     id: ordersIds,
                 },
-                attributes: ['id', 'status', 'createdAt'],
+                attributes: ['id', 'status', 'paid', 'createdAt'],
                 include: [
                     {
                         association: 'statusHistory',
+                    },
+                    {
+                        model: Database.getInstance().models.Payment,
                     },
                     {
                         model: Database.getInstance().models.OrderDetail,

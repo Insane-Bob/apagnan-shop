@@ -1,11 +1,25 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
+import {useRoute} from "vue-router";
+import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
+import { useUserStore } from '@/stores/user';
+import { onMounted } from 'vue';
+
+const user = useUserStore()
+
+onMounted(() => {
+  user.clearCart
+})
 
 if (window.opener) {
-    let channel = new BroadcastChannel('payment')
-    channel.postMessage('success')
-    channel.close()
-    window.close()
+  const route = useRoute()
+  const {send} = usePaymentBroadcastChannel()
+  send({
+    type: 'payment',
+    status: 'success',
+    orderId: route.query.orderId
+  })
+  window.close()
 }
 </script>
 

@@ -68,6 +68,16 @@ describe('UserController test routes', () => {
         await testRequest('/api/collections/1', 'get', 200)
     })
 
+    test('GET /api/collection/promoted - user can access one collection', async () => {
+        loginAsUser()
+        await testRequest('/api/collections/promoted', 'get', 200)
+    })
+
+    test('GET /api/collection/promoted - admin can access one collection', async () => {
+        loginAsAdmin()
+        await testRequest('/api/collections/promoted', 'get', 200)
+    })
+
     test('POST /api/collections/:id - no creation from user', async () => {
         loginAsUser()
         await testRequest('/api/collections', 'post', 403)

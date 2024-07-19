@@ -1,10 +1,9 @@
 import { Schema } from 'mongoose'
-import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
-import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 
 export const schema = new Schema({
     id: Number,
     status: String,
+    paid: Boolean,
     total: Number,
     createdAt: Date,
     Customer: {
@@ -15,7 +14,6 @@ export const schema = new Schema({
             lastName: String,
         },
     },
-
     OrderDetails: [
         {
             product: String,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-
+import PromoBanner from '@components/promo/PromoBanner.vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import { computed, reactive, ref } from 'vue'
@@ -9,6 +9,8 @@ import MobileMenu from '@components/mobile/MobileMenu.vue'
 import { useUserStore } from '@store/user'
 
 const user = useUserStore()
+
+const promoPromoted = ref(false)
 
 const isLogged = computed(() => user.isAuthenticated)
 
@@ -36,8 +38,10 @@ const onSearch = () => {
 <template>
     <div>
         <div class="taker w-full h-[96px]"></div>
+        <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
         <header
-            class="main-header fixed top-0 h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20"
+            class="main-header fixed h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20"
+            :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
         >
             <RouterLink to="/">
                 <img
@@ -88,10 +92,6 @@ const onSearch = () => {
                       name="laptop-outline"
                       class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
                   ></ion-icon>
-                  <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
-                      <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
-                      <span class="text-white">{{ user.countCartItem }}</span>
-                  </div>
                 </RouterLink>
 
                 <RouterLink to="/profile" v-if="isLogged">

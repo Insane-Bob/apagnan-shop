@@ -4,7 +4,9 @@ import { apiClient } from '@/lib/apiClient';
 import { onMounted, ref } from 'vue';
 
 import { useUserStore } from '@store/user';
+import { useToast } from '@components/ui/toast';
 
+const { toast } = useToast()
 const user = useUserStore()
 const loaded = ref(false)
 
@@ -39,7 +41,14 @@ onMounted( async () => {
         loaded.value = true
       }
     }
-  }catch(e){
+  }catch(e:any){
+    if(e.code === "ERR_NETWORK") {
+      toast({
+        title: 'Erreur Backend',
+        variant: 'destructive'
+      })
+      return
+    }
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     user.setUser(null)

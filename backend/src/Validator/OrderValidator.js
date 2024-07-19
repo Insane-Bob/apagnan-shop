@@ -12,6 +12,7 @@ export class OrderValidator extends Validator {
             customerId: z.number().int().positive(),
             shippingAddressId: z.number().int().positive(),
             billingAddressId: z.number().int().positive(),
+            promoId: z.number().int().optional(),
             products: z.array(
                 z.object({
                     productId: z.number().int().positive(),
@@ -31,6 +32,34 @@ export class OrderValidator extends Validator {
                 OrderStatus.REFUNDED,
                 OrderStatus.CANCELLED,
             ]),
+        })
+    }
+
+    beforeValidation(req) {
+        if (req.query.has('status')) {
+            req.query.set('status', req.query.get('status').split(','))
+        }
+
+        if(req.query.has('withProducts')) {
+            req.query.set('withProducts', req.query.get('withProducts') === 'true')
+        }
+    }
+
+    static index() {
+        return z.object({
+            status: z
+                .array(
+                    z.enum([
+                        OrderStatus.PENDING,
+                        OrderStatus.DELIVERED,
+                        OrderStatus.REFUNDED,
+                        OrderStatus.SHIPPED,
+                        OrderStatus.CANCELLED,
+                    ]),
+                )
+                .optional(),
+            withProducts: z.boolean().optional(),
+            customerId: z.number().optional(),
         })
     }
 }
