@@ -18,7 +18,7 @@ const { filters, query, resetFilters } = useFilters({
     role: [],
     search: '',
 })
-const { rows, pagination, sorting } = useTable('/users', query)
+const { rows, pagination, sorting,fetch } = useTable('/users', query)
 
 const columns: TableColumns[] = [
     {
@@ -67,7 +67,11 @@ const actions: TableActions[] = [
         icon: 'ban-outline',
         class: 'text-red-500',
         action: async (row: any) => {
-         await  apiClient.delete('users/' + row.id)
+            await  apiClient.delete('users/' + row.id)
+            toast({
+                title: 'Utilisateur banni',
+            })
+            await fetch()
         },
     },
 ]

@@ -24,6 +24,12 @@ export default function (router) {
             )
 
             this.post(
+                '/:user_resource/ask-personal-data',
+                UserController,
+                'askPersonalData',
+            )
+
+            this.post(
                 '/:user_resource/reset-password',
                 UserController,
                 'resetPassword',
