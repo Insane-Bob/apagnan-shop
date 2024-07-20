@@ -73,7 +73,7 @@ const routes = computed(() => {
                     </CardHeader>
                     <Separator></Separator>
                     <CardContent class="pt-6 flex flex-col gap-2">
-                        <RouterLink :to="_route.route" v-for="_route in routes">
+                        <RouterLink :to="_route.route" v-for="(_route, index) in routes" :key="index">
                             <Button
                                 variant="ghost"
                                 class="flex gap-4"
@@ -100,6 +100,7 @@ const routes = computed(() => {
                                 class="mr-2"
                             ></ion-icon>
                             Se déconnecter
+                          </Button>
                         </RouterLink>
                             <DeleteAccount/>
                     </CardFooter>
