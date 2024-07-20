@@ -1,36 +1,33 @@
 <template>
     <div class="relative">
-        <div class="sticky top-0 z-10">
-            <img
-                src="/src/assets/images/myProfileMenu.webp"
-                class="w-full md:h-[60vw] lg:h-[20vw] object-cover object-center"
-            />
-            <h1
-                class="text-center text-xl sm:text-xl md:text-5xl w-full tracking-widest text-white uppercase absolute z-10 bottom-1/4 -y-translate-1/2 block"
-            >
-                Bienvenue, {{ user.get.firstName + ' ' + user.get.lastName }}
-            </h1>
-        </div>
-        <main class="bg-white w-screen relative mb-10 z-20">
+        <main class="bg-white">
+            <div class="flex flex-col justify-center items-center gap-4 mt-10">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    Bienvenue sur votre espace personnel,
+                    <span class="text-primary">
+                        {{ user.user?.firstName }} {{ user.user?.lastName }}
+                    </span>
+                    !
+                </h1>
+                <p class="text-lg text-gray-600">
+                    Nous sommes ravis de vous revoir.
+                </p>
+            </div>
             <div
-                class="rotate-45 h-8 w-8 relative top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-black"
-            ></div>
-
-            <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center p-8"
+                class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center p-8 mt-8"
             >
                 <LinkCard
+                    to="/profile/informations"
                     name="Mes informations"
                     shortDescription="Modifiez vos informations personnelles"
                     image="/src/assets/images/profileMe.webp"
-                ></LinkCard>
-
+                />
                 <LinkCard
                     to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
                     image="/src/assets/images/commandesListe.webp"
-                ></LinkCard>
+                />
             </div>
         </main>
     </div>
@@ -43,3 +40,20 @@ import { useUserStore } from '@store/user'
 
 const user = useUserStore()
 </script>
+
+<style scoped>
+h1 {
+    animation: fadeInDown 1s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>

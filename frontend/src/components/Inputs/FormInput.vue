@@ -31,7 +31,7 @@
                 :ref="setRef"
                 :required="required"
                 :disabled="disabled"
-                class="h-10 w-full bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-within:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+                class="h-10 w-full bg-background px-3 py-2 text-xs ring-offset-background file:border-0 file:bg-transparent  placeholder:text-muted-foreground focus-visible:outline-none focus-within:border-primary disabled:cursor-not-allowed disabled:opacity-50 text-primary font-semibold"
             />
             <div
                 v-if="$slots['after-input']"

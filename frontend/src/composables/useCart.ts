@@ -1,3 +1,4 @@
+import { ref, type Ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
 import { apiClient } from '@/lib/apiClient'
@@ -16,6 +17,7 @@ export function useCart(product: Ref<Product | null>, stock : Ref<number> | null
     const quantitySelected = ref(1)
     const user = useUserStore()
     const { toast } = useToast()
+
     async function addToCart() {
         if (user.isAuthenticated && product.value) {
             const myQuantity = user.getItem(product.value.id) || { quantity: 0 }
@@ -28,11 +30,11 @@ export function useCart(product: Ref<Product | null>, stock : Ref<number> | null
                 return
             }
             try {
-                const reponse = await apiClient.put(
-                    'users/' + user.getId + '/basket/' + product.value.id,
+                const response = await apiClient.put(
+                    `users/${user.getId}/basket/${product.value.id}`,
                     { quantity: quantitySelected.value },
                 )
-                user.addItem(reponse.data.items)
+                user.addItem(response.data.items)
                 toast({
                     title: 'Le produit a été ajouté à votre panier',
                 })

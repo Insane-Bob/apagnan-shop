@@ -18,6 +18,11 @@ export interface Order {
             createdAt: string
         },
     ]
+    RefundRequestOrders:[
+        {
+            approved: boolean
+        }
+    ]
     status: OrderStatus
     updatedAt: string
     orderDetails: OrderDetails[]
