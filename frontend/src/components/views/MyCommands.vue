@@ -211,7 +211,7 @@ const fetchOrders = async () => {
                         </div>
                     </CardFooter>
                 </Card>
-                <div v-else class="h-[80vh]">
+                <div v-else>
                     <h2 class="text-primary text-sm">Vous n'avez pas encore passé de commande</h2>
                     <div
                         class="flex flex-col gap-y-7 justify-center items-center mt-6"

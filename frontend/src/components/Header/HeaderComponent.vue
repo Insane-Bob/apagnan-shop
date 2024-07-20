@@ -1,6 +1,5 @@
 <template>
     <div>
-        <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
         <div class="taker w-full h-[96px]"></div>
         <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
         <header
@@ -15,6 +14,30 @@
                 />
             </RouterLink>
             <nav class="flex justy-center gap-x-6 items-center">
+
+
+                <form
+                    @submit.prevent="onSearch()"
+                    class="flex justify-center items-center -ml-6 gap-2"
+                >
+                    <input
+                        v-model="search.query"
+                        type="text"
+                        class="rounded-sm duration-300 px-2 py-1 max-w-44"
+                        :class="{
+                            'w-0 border-0': !search.show,
+                            'w-[30vw] border ml-2': search.show,
+                        }"
+                        placeholder="Search..."
+                    />
+                    <button class="flex items-center">
+                        <ion-icon
+                            name="search-outline"
+                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
+                        ></ion-icon>
+                    </button>
+                </form>
+
                 <!-- LOGIN -->
                 <Sheet v-if="!isLogged">
                     <SheetTrigger as-child>
@@ -85,44 +108,6 @@
                     </button>
                 </RouterLink>
 
-                <!-- SEARCH -->
-                <form
-                    @submit.prevent="onSearch()"
-                    class="flex justify-center items-center -ml-6 gap-2"
-                >
-                    <input
-                        v-model="search.query"
-                        type="text"
-                        class="rounded-sm duration-300 px-2 py-1 max-w-44"
-                        :class="{
-                            'w-0 border-0': !search.show,
-                            'w-[30vw] border ml-2': search.show,
-                        }"
-                        placeholder="Search..."
-                    />
-                    <button class="flex items-center">
-                        <ion-icon
-                            name="search-outline"
-                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
-                        ></ion-icon>
-                    </button>
-                </form>
-
-                <!-- MOBILE MENU -->
-                <div
-                    @click="onOpenBurgerMenu()"
-                    class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-black"
-                >
-                    <ion-icon
-                        name="menu-outline"
-                        class="text-2xl group-hover:scale-105 duration-100"
-                    ></ion-icon>
-                    <p
-                        class="group-hover:scale-105 hidden md:block duration-100"
-                    >
-                        Menu
-                    </p>
-                </div>
             </nav>
         </header>
     </div>
@@ -134,7 +119,6 @@ import PromoBanner from '@components/promo/PromoBanner.vue'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import { computed, reactive, ref } from 'vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
 
 import { useUserStore } from '@store/user'
 
@@ -148,12 +132,6 @@ const search = reactive({
     query: '',
     show: false,
 })
-
-const menuMobileOpen = ref(false)
-
-const onOpenBurgerMenu = () => {
-    menuMobileOpen.value = !menuMobileOpen.value
-}
 
 const onSearch = () => {
     if (!search.show) {
