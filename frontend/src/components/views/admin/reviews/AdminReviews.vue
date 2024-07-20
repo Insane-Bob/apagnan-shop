@@ -1,13 +1,23 @@
 <script setup lang="ts">
+import StarComponent from '@/components/product/StarComponent.vue'
 import DataTable from '@/components/tables/DataTable.vue'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle
+} from '@/components/ui/card'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useFilters } from '@/composables/useFilters'
-import { TableActions, TableColumns } from '@types'
-import { apiClient } from '@/lib/apiClient'
 import { useTable } from '@/composables/useTable'
+import { apiClient } from '@/lib/apiClient'
+import type { Review } from '@/types'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import { ref, watch } from 'vue'
+import { TableActions, TableColumns } from '@types'
+import { ref } from 'vue'
 
 const { filters, query, resetFilters } = useFilters({
     rate: [],
@@ -17,6 +27,8 @@ const { filters, query, resetFilters } = useFilters({
     search: '',
 })
 
+const focusReview = ref<Review | null>(null)
+
 const { fetch, rows, pagination, sorting } = useTable('/reviews', query)
 
 const columns: TableColumns[] = [
@@ -24,23 +36,30 @@ const columns: TableColumns[] = [
         label: 'Note',
         key: 'rate',
         sorting: true,
+        // toDisplay: (value: number) => {
+
+        //     const stars = new Array(value).fill(0).map((_, index) => index + 1).map((index) => 
+        //         `<ion-icon name="${index <= value ? 'star' : 'star-outline'}" class="text-primary"></ion-icon>`
+        //     ).join('')
+
+        //     return String.raw`${stars}`
+        // }
     },
     {
         label: 'Contenu',
         key: 'content',
+        maxWidth: '20vw',
         sorting: true,
     },
     {
         label: 'Auteur',
         key: 'User',
         toDisplay: (value: any) => value.email,
-        sorting: true,
     },
     {
         label: 'Produit',
         key: 'Product',
         toDisplay: (value: any) => value.name,
-        sorting: true,
     },
     {
         label: 'Date de création',
@@ -55,6 +74,7 @@ const columns: TableColumns[] = [
     {
         label: 'Approuvé',
         key: 'approved',
+        position: 'right',
         sorting: true,
         toDisplay: (value: boolean) => (value ? 'Oui' : 'Non'),
     },
@@ -62,8 +82,17 @@ const columns: TableColumns[] = [
 
 const actions: TableActions[] = [
     {
+      label: 'Voir le commentaire',
+        icon: 'eye-outline',
+        class: 'text-blue-500',
+        trigger: true,
+        action: (row: any) => {
+            focusReview.value = row
+        },
+    },
+    {
         label: 'Approuver',
-        icon: 'checkmark-outline',
+        icon: 'thumbs-up-sharp',
         class: 'text-green-500',
         condition: (row: any) => !row.approved,
         action: (row: any) => {
@@ -72,7 +101,7 @@ const actions: TableActions[] = [
     },
     {
         label: 'Désapprouver',
-        icon: 'ban',
+        icon: 'thumbs-down-sharp',
         class: 'text-red-500',
         condition: (row: any) => row.approved,
         action: (row: any) => {
@@ -88,6 +117,7 @@ const updateReview = async (review: any) => {
 </script>
 
 <template>
+    <Dialog>
     <div class="flex flex-col mx-6">
         <div class="flex justify-between items-center mb-3">
             <div class="flex gap-4 items-center">
@@ -118,4 +148,45 @@ const updateReview = async (review: any) => {
             :actions="actions"
         ></DataTable>
     </div>
+
+    <DialogContent>
+        <div v-if="focusReview" class="flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Commentaire</h2>
+                <DialogClose />
+            </div>
+            <div class="flex flex-col gap-4">
+
+                <div>
+                    <h3 class="text-lg font-semibold">Produit</h3>
+                    <p>{{ focusReview.Product.name }}</p>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                    <CardTitle>
+                        <div class="text-lg font-medium mb-0 flex justify-start items-center gap-x-2">
+                            <StarComponent :value="focusReview.rate" />
+                            <span> - {{  focusReview.User.firstName + ' ' +  focusReview.User.lastName}}</span>
+                        </div>
+                    </CardTitle>
+                    <CardDescription>
+                        {{
+                            new Date(
+                                focusReview.createdAt,
+                            ).toLocaleDateString()
+                        }}
+                    </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {{ focusReview.content }}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+        <div v-else>
+            Il n'y a pas de commentaire sélectionné
+        </div>
+    </DialogContent>
+</Dialog>
 </template>

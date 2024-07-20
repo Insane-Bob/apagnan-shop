@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent.vue'
 import ProductPictureCarousel from '@/components/product/ProductPictureCarousel.vue'
+import ReviewDetailComponent from '@/components/product/ReviewDetailComponent.vue'
 import ReviewNoteComponent from '@/components/product/ReviewNoteComponent.vue'
 import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
+import StarComponent from '@/components/product/StarComponent.vue'
 import Button from '@/components/ui/button/Button.vue'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle
+} from '@/components/ui/card'
 import Input from '@/components/ui/input/Input.vue'
 import {
     Select,
@@ -14,19 +23,19 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { useCart } from '@/composables/useCart'
+import { useSuggestion } from "@/composables/useSuggestion"
+import Section from "@/layout/Section.vue"
 import { apiClient } from '@/lib/apiClient'
 import type { Collection, Product, Review } from '@/types'
+import ProductCard2 from "@components/Cards/ProductCard2.vue"
+import NotificationMenu from "@components/Menus/NotificationMenu.vue"
+import SuggestionCarousel from "@components/product/SuggestionCarousel.vue"
+import Loader from "@components/ui/loader/Loader.vue"
 import { useUserStore } from '@store/user'
-import {computed, onMounted, reactive, ref, watch} from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormGrid from '../Forms/FormGrid.vue'
-import { useCart } from '@/composables/useCart'
-import Section from "@/layout/Section.vue";
-import ProductCard2 from "@components/Cards/ProductCard2.vue";
-import {useSuggestion} from "@/composables/useSuggestion";
-import SuggestionCarousel from "@components/product/SuggestionCarousel.vue";
-import Loader from "@components/ui/loader/Loader.vue";
-import NotificationMenu from "@components/Menus/NotificationMenu.vue";
 
 const user = useUserStore()
 const router = useRouter()
@@ -164,6 +173,7 @@ const sendReview = async () => {
     if (user.isAuthenticated && product.value) {
         const data = {
             ...reviewForm,
+            rate: parseInt(reviewForm.rate.toString()),
             productId: product.value.id,
             userId: user.getId,
         }
@@ -171,6 +181,7 @@ const sendReview = async () => {
         reviews.push(response.data.review)
         toast({
             title: 'Votre avis a été ajouté',
+            description: 'Il sera visible après validation',
         })
         reviewForm.rate = 0
         reviewForm.content = ''
@@ -228,9 +239,14 @@ watch(() => product.value, () => {
                           {{ product?.name }}
                         </h1>
                         <ReviewNoteComponent
-                            :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
-                            :NbReviews="reviews.length"
-                        />
+                        :note="
+                            reviews.reduce(
+                                (acc, review) => acc + review.rate,
+                                0,
+                            ) / reviews.length
+                        "
+                        :NbReviews="reviews.length"
+                    />
                       </div>
                       <div>
                         <NotificationMenu :id="product.id" model-type="product" >
@@ -327,41 +343,40 @@ watch(() => product.value, () => {
 
         <div v-if="reviews" class="flex flex-col items-center justify-center mb-7">
             <div class="w-3/5 flex flex-col items-center">
-                <h2 class="text-2xl font-semibold uppercase">
+                <h2 class="text-2xl font-semibold uppercase mb-4">
                     Avis des clients
                 </h2>
                 <div class="flex flex-col gap-4 text-left">
-                    <ReviewNoteComponent
-                        :note="
-                            reviews.reduce(
-                                (acc, review) => acc + review.rate,
-                                0,
-                            ) / reviews.length
-                        "
-                        :NbReviews="reviews.length"
-                    />
+                    <ReviewDetailComponent
+                            :reviews="reviews"
+                        />
                     <div
                         v-for="review in reviews
                             .sort((r1, r2) => r2.rate - r1.rate)
                             .slice(0, 7)"
                         :key="review.id"
-                        class="flex flex-col gap-2"
+                        class="flex flex-col gap-2 mt-4"
                     >
-                        <div class="flex flex-col gap-4">
-                            <div>
-                                <p class="text-lg font-semibold mb-0">
-                                    {{ review.rate }}/5
-                                </p>
-                                <p class="text-sm font-light">
-                                    {{
-                                        new Date(
-                                            review.createdAt,
-                                        ).toLocaleDateString()
-                                    }}
-                                </p>
+                    <Card>
+                        <CardHeader>
+                        <CardTitle>
+                            <div class="text-lg font-medium mb-0 flex justify-start items-center gap-x-2">
+                                <StarComponent :value="review.rate" />
+                                <span> - {{  review.User.firstName + ' ' +  review.User.lastName}}</span>
                             </div>
-                            <p>{{ review.content }}</p>
-                        </div>
+                        </CardTitle>
+                        <CardDescription>
+                            {{
+                                new Date(
+                                    review.createdAt,
+                                ).toLocaleDateString()
+                            }}
+                        </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {{ review.content }}
+                        </CardContent>
+                    </Card>
                     </div>
                 </div>
             </div>       
@@ -388,8 +403,9 @@ watch(() => product.value, () => {
                                             v-for="value in 5"
                                             :value="value.toString()"
                                             :key="value"
+                                            
                                         >
-                                            {{ value }}
+                                            <div class="flex justify-start items-center gap-x-3"><span>{{ value }}. </span><StarComponent :value="value" /></div>
                                         </SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
@@ -398,7 +414,7 @@ watch(() => product.value, () => {
                             <textarea
                                 v-model="reviewForm.content"
                                 rows="3"
-                                class="col-span-full border border-[hsl(0 0% 89.8%)]"
+                                class="col-span-full border border-[hsl(0 0% 89.8%)] p-2"
                             ></textarea>
                             <Button
                                 class="uppercase tracking-wider col-start-7 col-span-6"

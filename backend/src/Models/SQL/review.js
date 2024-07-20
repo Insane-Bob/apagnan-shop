@@ -26,7 +26,7 @@ function model(sequelize, DataTypes) {
                 include: [
                     {
                         model: models.User,
-                        attributes: ['id', 'email'],
+                        attributes: ['id', 'email', 'firstName', 'lastName'],
                     },
                 ],
             })

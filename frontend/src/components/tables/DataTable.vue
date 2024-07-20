@@ -147,7 +147,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                             ></ion-icon>
                             <ion-icon
                                 v-else-if="column.sorting"
-                                class="cursor-pointer text-sm opacity-0 hover:opacity-100"
+                                class="cursor-pointer text-sm opacity-50 hover:opacity-100"
                                 name="chevron-expand"
                             />
                         </HeaderTable>
