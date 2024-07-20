@@ -2,6 +2,7 @@
 import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent.vue'
 import ProductPictureCarousel from '@/components/product/ProductPictureCarousel.vue'
 import ReviewNoteComponent from '@/components/product/ReviewNoteComponent.vue'
+import ReviewDetailComponent from '@/components/product/ReviewDetailComponent.vue'
 import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
@@ -145,6 +146,7 @@ const sendReview = async () => {
     if (user.isAuthenticated && product.value) {
         const data = {
             ...reviewForm,
+            rate: parseInt(reviewForm.rate.toString()),
             productId: product.value.id,
             userId: user.getId,
         }
@@ -197,9 +199,14 @@ watch(() => route.params.pslug, async () => {
                           {{ product?.name }}
                         </h1>
                         <ReviewNoteComponent
-                            :note="reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length"
-                            :NbReviews="reviews.length"
-                        />
+                        :note="
+                            reviews.reduce(
+                                (acc, review) => acc + review.rate,
+                                0,
+                            ) / reviews.length
+                        "
+                        :NbReviews="reviews.length"
+                    />
                       </div>
                       <div>
                         <NotificationMenu :id="product.id" model-type="product" >
@@ -297,15 +304,9 @@ watch(() => route.params.pslug, async () => {
                     Avis des clients
                 </h2>
                 <div class="flex flex-col gap-4 text-left">
-                    <ReviewNoteComponent
-                        :note="
-                            reviews.reduce(
-                                (acc, review) => acc + review.rate,
-                                0,
-                            ) / reviews.length
-                        "
-                        :NbReviews="reviews.length"
-                    />
+                    <ReviewDetailComponent
+                            :reviews="reviews"
+                        />
                     <div
                         v-for="review in reviews
                             .sort((r1, r2) => r2.rate - r1.rate)

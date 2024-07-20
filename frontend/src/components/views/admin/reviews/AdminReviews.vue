@@ -29,6 +29,7 @@ const columns: TableColumns[] = [
         label: 'Contenu',
         key: 'content',
         sorting: true,
+        toDisplay: (value: string) => value.slice(0, 25) + '...',
     },
     {
         label: 'Auteur',
