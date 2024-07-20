@@ -16,6 +16,7 @@ import CardFooter from "@components/ui/card/CardFooter.vue";
 import Button from "@components/ui/button/Button.vue";
 import DeleteAccount from "@components/Modals/DeleteAccount.vue";
 
+
 const userStore = useUserStore()
 const route = useRoute()
 
@@ -99,7 +100,6 @@ const routes = computed(() => {
                                 class="mr-2"
                             ></ion-icon>
                             Se déconnecter
-                          </Button>
                         </RouterLink>
                             <DeleteAccount/>
                     </CardFooter>

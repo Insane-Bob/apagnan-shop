@@ -22,6 +22,7 @@ export function usePagination(collectionLength: any) {
         nextPage: next,
         prevPage: prev,
         goToPage: goTo,
+        total: total.value,
         currentPage: currentPage.value,
         limit: pagination.limit,
     }))

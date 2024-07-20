@@ -8,10 +8,7 @@ import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
 import {computed, onMounted, ref} from 'vue'
 import {useFetch} from "@/composables/useFetch";
-import OutlinedInput from "@components/ui/input/OutlinedInput.vue";
-import {OrderFormat} from "@/utils/orderFormat";
 import type {Order, TableActions} from "@/types";
-import OrderUpdateForm from "@components/views/admin/orders/orderUpdateForm.vue";
 
 
 const { filters, query } = useFilters({
