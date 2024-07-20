@@ -4,29 +4,37 @@ import { ProductServices } from './ProductServices.js'
 import { NotificationsServices } from './NotificationsServices.js'
 
 export class StockService {
-    static async addStock(productId, quantity, ...args) {
+    static async addStock(productId, quantity, options) {
         let res = await Database.getInstance().models.StockTransaction.create(
             {
                 productId: productId,
                 quantity: quantity,
                 createdAt: new Date(),
             },
-            ...args,
+            options,
         )
-        await this.broadcastStock(productId)
+        if (options?.transaction) {
+            options.transaction.afterCommit(async () => {
+                await this.broadcastStock(productId)
+            })
+        } else await this.broadcastStock(productId)
         return res
     }
 
-    static async removeStock(productId, quantity, ...args) {
+    static async removeStock(productId, quantity, options) {
         let res = await Database.getInstance().models.StockTransaction.create(
             {
                 productId: productId,
                 quantity: -quantity,
                 createdAt: new Date(),
             },
-            ...args,
+            options,
         )
-        await this.broadcastStock(productId)
+        if (options?.transaction) {
+            options.transaction.afterCommit(async () => {
+                await this.broadcastStock(productId)
+            })
+        } else await this.broadcastStock(productId)
         return res
     }
 

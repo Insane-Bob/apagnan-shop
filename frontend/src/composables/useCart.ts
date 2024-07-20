@@ -1,20 +1,29 @@
+import { ref, type Ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
 import { ApiClient } from '@/lib/apiClient'
-import { ref } from 'vue'
+import {computed, ref, type Ref} from 'vue'
 import type { Product } from '@/types'
 
-export function useCart(product: ref<Product | null>): {
+export function useCart(product: Ref<Product | null>, stock : Ref<number> | null): {
     quantitySelected: Ref<number>
     addToCart: () => void
 } {
     const apiClient = new ApiClient()
+
+    const stockComputed = computed(()=>{
+        return stock?.value || product.value?.stock || 0
+
+    })
     const quantitySelected = ref(1)
     const user = useUserStore()
     const { toast } = useToast()
+
     async function addToCart() {
         if (user.isAuthenticated && product.value) {
-            if (quantitySelected.value > product.value.stock) {
+            const myQuantity = user.getItem(product.value.id) || { quantity: 0 }
+            const availableStock = stockComputed.value + myQuantity?.quantity
+            if (quantitySelected.value > availableStock) {
                 toast({
                     title: "Il n'y a pas assez de stock",
                     variant: 'destructive',
@@ -22,11 +31,11 @@ export function useCart(product: ref<Product | null>): {
                 return
             }
             try {
-                const reponse = await apiClient.put(
-                    'users/' + user.getId + '/basket/' + product.value.id,
+                const response = await apiClient.put(
+                    `users/${user.getId}/basket/${product.value.id}`,
                     { quantity: quantitySelected.value },
                 )
-                user.addItem(reponse.data.items)
+                user.addItem(response.data.items)
                 toast({
                     title: 'Le produit a été ajouté à votre panier',
                 })

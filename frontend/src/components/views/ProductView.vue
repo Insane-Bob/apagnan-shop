@@ -40,7 +40,10 @@ const loading = ref(false)
 const showMore = ref(false)
 
 const product = ref<Product | null>(null)
-const cart = useCart(product)
+const stock = ref(0)
+
+
+const cart = useCart(product,stock)
 const specifics = ref([])
 const reviews = reactive<Review[]>([])
 const collection = ref<Collection>({} as Collection)
@@ -52,6 +55,22 @@ const breadcrumbLinks = computed(()=>[
   [collection.value?.name, '/collections/' + collection.value?.slug],
   [product.value?.name, "#"],
 ])
+
+let stockSource : EventSource | null = null
+function streamStock(){
+  if(stockSource){
+    stockSource.close()
+  }
+
+  stockSource = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/products/${product.value?.slug}/stock`)
+  stockSource.onmessage = (event) => {
+    stock.value = JSON.parse(event.data).stock
+  }
+  stockSource.onerror = (error) => {
+    console.error('EventSource failed:', error)
+    stockSource.close()
+  }
+}
 
 const {items:suggestions,fetch:fetchSuggestions} = useSuggestion<Product>([route?.params?.pslug],5, 'products')
 watch(() => route.params.pslug,fetchSuggestions)
@@ -172,8 +191,20 @@ watch(() => route.params.pslug, async () => {
     await fetchCollection()
     await fetchProductReviews()
     await fetchProductSpecifics()
+
     loading.value = false
 })
+
+
+
+watch(() => product.value, () => {
+    if (product.value?.id) {
+        streamStock()
+    }
+})
+
+
+
 
 </script>
 
@@ -219,18 +250,21 @@ watch(() => route.params.pslug, async () => {
                         <p
                             class="text-sm"
                             :class="{
-                                'text-red-400': !(product.stock > 0),
-                                'text-orange-400': product.stock > 0,
+                                'text-red-400': !(stock > 0),
+                                'text-orange-400': stock > 0,
                             }"
-                            v-if="product.stock < 10"
+                            v-if="stock < 10"
                         >
                             {{
-                                product.stock > 0
+                                stock > 0
                                     ? 'Il reste ' +
-                                      product.stock +
+                                      stock +
                                       ' article(s)'
                                     : "Il n'y a plus de stock, revenez plus tard"
                             }}
+                        </p>
+                        <p v-else class="text-green-700">
+                          En stock
                         </p>
                     </div>
                     
