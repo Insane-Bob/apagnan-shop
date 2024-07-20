@@ -237,7 +237,7 @@
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import PromoBanner from '@components/promo/PromoBanner.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
@@ -251,8 +251,12 @@ import { useUserStore } from '@store/user'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import Section from '@/layout/Section.vue'
-import Newsletter from '@components/Newsletter/Newsletter.vue'
+import { useToast } from '@components/ui/toast'
+import FooterComponent from "@components/footer/FooterComponent.vue";
+import Section from "@/layout/Section.vue";
+import Newsletter from "@components/Newsletter/Newsletter.vue";
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()

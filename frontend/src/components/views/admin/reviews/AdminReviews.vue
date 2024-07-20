@@ -10,14 +10,17 @@ import {
 } from '@/components/ui/card'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useFilters } from '@/composables/useFilters'
+import { TableActions, TableColumns } from '@types'
+import { ApiClient } from '@/lib/apiClient'
 import { useTable } from '@/composables/useTable'
-import { apiClient } from '@/lib/apiClient'
 import type { Review } from '@/types'
+import { ref } from 'vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import { TableActions, TableColumns } from '@types'
-import { ref } from 'vue'
+
+const apiClient = new ApiClient()
+
 
 const { filters, query, resetFilters } = useFilters({
     rate: [],

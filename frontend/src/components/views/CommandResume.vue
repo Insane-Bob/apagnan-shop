@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import CardDescription from '../ui/card/CardDescription.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCart } from '../../composables/useCart';
@@ -23,6 +23,10 @@ import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChann
 import {useUserStore} from "@/stores/user";
 import CommandManageMenu from "@components/Menus/CommandManageMenu.vue";
 
+
+const apiClient = new ApiClient()
+
+const isRefundDialogOpen = ref(false)
 
 const options = { year: 'numeric', month: 'long', day: 'numeric' }
 

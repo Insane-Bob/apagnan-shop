@@ -23,10 +23,10 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { ApiClient } from '@/lib/apiClient'
 import { useCart } from '@/composables/useCart'
 import { useSuggestion } from "@/composables/useSuggestion"
 import Section from "@/layout/Section.vue"
-import { apiClient } from '@/lib/apiClient'
 import type { Collection, Product, Review } from '@/types'
 import ProductCard2 from "@components/Cards/ProductCard2.vue"
 import NotificationMenu from "@components/Menus/NotificationMenu.vue"
@@ -36,6 +36,8 @@ import { useUserStore } from '@store/user'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormGrid from '../Forms/FormGrid.vue'
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const router = useRouter()
