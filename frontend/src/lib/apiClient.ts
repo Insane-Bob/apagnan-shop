@@ -29,6 +29,12 @@ class ApiClient {
         })
     }
 
+    async patch(path: string, data: any) {
+        return axios.patch(this.baseUrl + this.formatedPath(path), data, {
+            headers: this.headers,
+        })
+    }
+
     async put(path: string, data: any) {
         return axios.put(this.baseUrl + this.formatedPath(path), data, {
             headers: this.headers,

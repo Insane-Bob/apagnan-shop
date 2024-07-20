@@ -1,19 +1,20 @@
-import { ref, type Ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
 import { ApiClient } from '@/lib/apiClient'
-import {computed, ref, type Ref} from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import type { Product } from '@/types'
 
-export function useCart(product: Ref<Product | null>, stock : Ref<number> | null): {
+export function useCart(
+    product: Ref<Product | null>,
+    stock: Ref<number> | null,
+): {
     quantitySelected: Ref<number>
     addToCart: () => void
 } {
     const apiClient = new ApiClient()
 
-    const stockComputed = computed(()=>{
+    const stockComputed = computed(() => {
         return stock?.value || product.value?.stock || 0
-
     })
     const quantitySelected = ref(1)
     const user = useUserStore()
