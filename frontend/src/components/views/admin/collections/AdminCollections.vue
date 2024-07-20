@@ -78,8 +78,7 @@ const actions: TableActions[] = [
         class: 'text-yellow-500',
         condition: (row: any) => !row.promoted,
         action: (row: any) => {
-            removeOldPromoted()
-            updateCollection({ ...row, promoted: true })
+            promoteCollection(row)
         },
     },
     {
@@ -123,14 +122,11 @@ const actions: TableActions[] = [
 const updateCollection = async (row: any) => {
     await apiClient.patch('collections/' + row.slug, row)
     fetch()
-
 }
 
-const removeOldPromoted = () => {
-    const oldPromoted = rows.value.find((c: any) => c.promoted)
-    if (oldPromoted) {
-        updateCollection({ ...oldPromoted, promoted: false })
-    }
+const promoteCollection = async (row: any) => {
+    await apiClient.patch('collections/'+ row.slug + '/promote')
+    fetch()
 }
 
 const deleteCollection = async (row: any) => {

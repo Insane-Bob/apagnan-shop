@@ -5,6 +5,7 @@ import { CollectionValidator } from '../../Validator/CollectionValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class CollectionController extends Controller {
+    collection
     async getCollections() {
         let search = new SearchRequest(this.req, ['published'], ['name'])
 
@@ -109,6 +110,31 @@ export class CollectionController extends Controller {
         await collection.update(payload)
 
         await collection.save()
+        this.res.json({
+            collection: collection,
+        })
+    }
+
+    async promoteCollection() {
+        await Database.getInstance().models.Collection.update(
+            {
+                promoted: false,
+            },
+            {
+                where: { promoted: true },
+            },
+        )
+
+        const collection =
+            await Database.getInstance().models.Collection.update(
+                {
+                    promoted: true,
+                },
+                {
+                    where: { id: this.collection.id },
+                },
+            )
+
         this.res.json({
             collection: collection,
         })
