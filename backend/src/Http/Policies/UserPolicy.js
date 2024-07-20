@@ -18,4 +18,8 @@ export class UserPolicy {
             return false
         return UserPolicy.show(user, resource)
     }
+
+    static I(user, ressource) {
+        return Number(user.id) === Number(ressource.id)
+    }
 }

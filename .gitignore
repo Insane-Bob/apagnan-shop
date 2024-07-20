@@ -30,3 +30,5 @@ coverage
 *.tsbuildinfo
 .env
 *.key
+
+backend/uploads

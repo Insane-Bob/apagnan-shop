@@ -15,7 +15,8 @@ export function useForm(url, payload , method = 'post') {
             onSuccess(data)
         } catch (e) {
             if (e.response.status === 422) errors.value = e.response.data.errors
-            else onError(errors)
+            if(onError) onError(e)
+            else throw e
         } finally {
             loading.value = false
         }

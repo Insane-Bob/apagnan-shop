@@ -13,7 +13,7 @@
         "migrate:undo": "npx sequelize-cli db:migrate:undo",
         "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
         "seed": "node scripts/seed.js",
-        "seed:fresh": "npm run migrate:undo:all && npm run migrate && npm run seed"
+        "seed:fresh": "npm run migrate:undo:all && npm run migrate && npm run seed --"
     },
     "dependencies": {
         "@faker-js/faker": "^8.4.1",
@@ -23,6 +23,7 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
+        "file-type": "^19.2.0",
         "i18n-iso-countries": "^7.11.3",
         "jsonwebtoken": "^9.0.2",
         "moment": "^2.30.1",

@@ -79,7 +79,7 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.store, payload.customerId)
 
         let promo = null
-        if (!payload.promoId) {
+        if (payload.promoId) {
             promo = await Database.getInstance().models.Promo.findOne({
                 where: {
                     id: payload.promoId,
@@ -215,10 +215,6 @@ export class OrderController extends Controller {
     async askForRefund() {
         this.can(OrderPolicy.show, this.order)
         const payload = this.validate(AskForRefundValidator)
-        BadRequestException.abortIf(
-            this.order.status != OrderStatus.DELIVERED,
-            'Cannot refund an order that is not delivered',
-        )
         BadRequestException.abortIf(
             this.order.status == OrderStatus.REFUNDED,
             'Cannot refund an order that is already refunded',

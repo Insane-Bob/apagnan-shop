@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import MyBreadcrumbComponent from '@/components/breadcrumb/MyBreadcrumbComponent.vue'
-import FeaturedProductsCarousel from '@/components/product/FeaturedProductsCarousel.vue'
 import ProductPictureCarousel from '@/components/product/ProductPictureCarousel.vue'
 import ReviewNoteComponent from '@/components/product/ReviewNoteComponent.vue'
 import SpecificsListComponent from '@/components/product/SpecificsListComponent.vue'
