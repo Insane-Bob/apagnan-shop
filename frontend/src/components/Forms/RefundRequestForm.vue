@@ -53,7 +53,7 @@ async function handleSubmit() {
     <form @submit.prevent="handleSubmit">
         <CardHeader class="p-0">
             <CardTitle>Demande de remboursement</CardTitle>
-            <CardDescription>
+            <CardDescription class="mt-2">
                 Nous sommes navrés d'apprendre que nos nains ne font pas
                 l'unanimité. Merci de remplir le formulaire ci-dessous.
             </CardDescription>
