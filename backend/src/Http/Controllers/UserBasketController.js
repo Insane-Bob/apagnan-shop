@@ -9,6 +9,7 @@ import { UserBasketPolicy } from '../Policies/UserBasketPolicy.js'
 import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { Database } from '../../Models/index.js'
 import { ProductServices } from '../../Services/ProductServices.js'
+import { StockService } from '../../Services/StockService.js'
 
 export class UserBasketController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -42,6 +43,7 @@ export class UserBasketController extends Controller {
                 productId,
             )
             await ProductServices.loadRemainingStock(product)
+            await StockService.checkStockForAdminNotif(productId)
             ForbiddenException.abortIf(
                 product.stock < quantity,
                 'Not enough stock',
@@ -55,6 +57,9 @@ export class UserBasketController extends Controller {
 
             this.res.json({
                 message: 'Product added to basket',
+                items: await UserBasketServices.getUserBasket(
+                    this.user_resource.id,
+                ),
             })
         } catch (e) {
             if (e instanceof HTTPException) throw e
@@ -76,6 +81,9 @@ export class UserBasketController extends Controller {
 
             this.res.json({
                 message: 'Product removed from basket',
+                items: await UserBasketServices.getUserBasket(
+                    this.user_resource.id,
+                ),
             })
         } catch (e) {
             console.error(e)

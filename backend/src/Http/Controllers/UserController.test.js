@@ -2,7 +2,8 @@ import request from 'supertest'
 import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
+import { UserPersonalInformationService } from '../../Services/UserPersonalInformationService.js'
 
 let app = null
 describe('UserController test routes', () => {
@@ -64,12 +65,12 @@ describe('UserController test routes', () => {
         await testRequest('/api/users/1', 'get', 200)
     })
 
-    test('PUT /api/users/:id - no update user', async () => {
+    test('PATCH /api/users/:id - no update user', async () => {
         loginAsUser()
-        await testRequest('/api/users/2', 'put', 403)
+        await testRequest('/api/users/2', 'patch', 403)
         await testRequest(
             '/api/users/1',
-            'put',
+            'patch',
             200,
             (req) => {
                 return req.send({
@@ -85,9 +86,23 @@ describe('UserController test routes', () => {
     })
 
     test('DELETE /api/users/:id - no delete user', async () => {
+        let commit = jest.fn()
+        let rollback = jest.fn()
+        Database.transaction = jest.fn(() => ({
+            commit,
+            rollback,
+        }))
+        UserPersonalInformationService.anonymizeUserPersonalInformation =
+            jest.fn()
         loginAsUser()
         await testRequest('/api/users/2', 'delete', 403)
         await testRequest('/api/users/1', 'delete', 200)
+        expect(
+            UserPersonalInformationService.anonymizeUserPersonalInformation,
+        ).toHaveBeenCalled()
+        expect(Database.transaction).toHaveBeenCalled()
+        expect(commit).toHaveBeenCalled()
+        expect(rollback).not.toHaveBeenCalled()
     })
 
     test('GET /api/users/:id - admin access user', async () => {
@@ -95,11 +110,11 @@ describe('UserController test routes', () => {
         await testRequest('/api/users/2', 'get', 200)
     })
 
-    test('PUT /api/users/:id - admin update user', async () => {
+    test('PATCH /api/users/:id - admin update user', async () => {
         loginAsAdmin()
         await testRequest(
             '/api/users/2',
-            'put',
+            'patch',
             200,
             (req) => {
                 return req.send({
@@ -117,5 +132,15 @@ describe('UserController test routes', () => {
     test('DELETE /api/users/:id - admin delete user', async () => {
         loginAsAdmin()
         await testRequest('/api/users/2', 'delete', 200)
+    })
+
+    test("POST /ask-login-as/:user_resource - user can't access ", async () => {
+        loginAsUser()
+        await testRequest('/api/users/ask-login-as/1', 'post', 403)
+    })
+
+    test('POST /ask-login-as/:user_resource - admin can access ', async () => {
+        loginAsAdmin()
+        await testRequest('/api/users/ask-login-as/1', 'post', 200)
     })
 })

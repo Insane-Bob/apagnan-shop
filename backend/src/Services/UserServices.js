@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { Database } from '../Models/index.js'
 import { PaymentServices } from './PaymentServices.js'
-import { USER_ROLES } from '../Models/user.js'
+import { USER_ROLES } from '../Models/SQL/user.js'
 export class UserServices {
     static hashPassword(plainPassword) {
         return bcrypt.hashSync(plainPassword, 8)
@@ -31,7 +31,7 @@ export class UserServices {
                 firstName,
                 lastName,
                 email,
-                password,
+                password: password,
                 role: USER_ROLES.USER,
             },
             options,
@@ -43,16 +43,28 @@ export class UserServices {
     }
 
     static retrieveUserByEmail(email) {
-        return Database.getInstance().models.User.findOne({
-            where: {
-                email,
-            },
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .scope('notDeleted')
+            .findOne({
+                where: {
+                    email,
+                },
+            })
     }
 
     static activateUserAccount(user) {
         return user.update({
             emailVerifiedAt: new Date(),
+        })
+    }
+
+    static async retrieveAdminUsersMail() {
+        return Database.getInstance().models.User.findAll({
+            where: {
+                role: USER_ROLES.ADMIN,
+            },
+            attributes: ['email'],
         })
     }
 }

@@ -7,6 +7,8 @@ export class Validator {
         this.schema = schema
     }
 
+    beforeValidation(data) {}
+
     validate(data) {
         try {
             return this.schema.parse(data)

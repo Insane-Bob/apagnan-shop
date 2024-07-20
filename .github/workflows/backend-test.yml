@@ -1,0 +1,33 @@
+name: Run Jest Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: sudo apt-get install docker-compose -y
+
+      - name: Create .env from .env.testing
+        run: cp backend/.env.testing backend/.env
+
+      - name: Build and start containers
+        run: docker-compose up -d --build
+
+      - name : Create keys for JWT
+        run: docker-compose exec -T backend npm run key:generate
+
+      - name: Run tests in backend container
+        run: docker-compose exec -T backend npm run test:server
+
+      - name: Stop and remove containers
+        run: docker-compose down

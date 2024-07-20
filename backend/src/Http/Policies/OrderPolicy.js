@@ -1,4 +1,5 @@
-import { USER_ROLES } from '../../Models/user.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
+import { OrderStatus } from '../../Enums/OrderStatus.js'
 
 export class OrderPolicy {
     static show(user, order) {
@@ -10,10 +11,11 @@ export class OrderPolicy {
         return user.hasRole(USER_ROLES.ADMIN) || user.customer.id === customerId
     }
 
-    static update(user) {
+    static update(user, customerId, status) {
         return (
             user.hasRole(USER_ROLES.ADMIN) ||
-            user.hasRole(USER_ROLES.STORE_KEEPER)
+            user.hasRole(USER_ROLES.STORE_KEEPER) ||
+            (status == OrderStatus.CANCELLED && customerId == user.customer.id)
         )
     }
 }

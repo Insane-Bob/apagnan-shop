@@ -1,33 +1,51 @@
 import { Controller } from '../../Core/Controller.js'
+import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
 import { Database } from '../../Models/index.js'
-import { UserPolicy } from '../Policies/UserPolicy.js'
-import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
-import { UserServices } from '../../Services/UserServices.js'
-import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import { USER_ROLES } from '../../Models/user.js'
-import { NotFoundException } from '../../Exceptions/HTTPException.js'
+import { UserServices } from '../../Services/UserServices.js'
+import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
+import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
+import { UserPolicy } from '../Policies/UserPolicy.js'
+import { UserPersonalInformationService } from '../../Services/UserPersonalInformationService.js'
+import { UserInformationDownloadJob } from '../../Jobs/UserInformationDownloadJob.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
     async index() {
-        // this.can(UserPolicy.index)
-        const users = await Database.getInstance().models.User.findAll()
+        this.can(UserPolicy.index)
+        let search = new SearchRequest(
+            this.req,
+            ['role'],
+            ['email', 'firstName', 'lastName'],
+        )
+
+        const data = await Database.getInstance().models.User.findAll(
+            search.query,
+        )
+        const total = await Database.getInstance().models.User.count(
+            search.queryWithoutPagination,
+        )
+
         this.res.json({
-            users,
+            data,
+            total,
         })
     }
+
     async show() {
         this.can(UserPolicy.show, this.user_resource)
         this.res.json(this.user_resource)
     }
+
     async update() {
         this.can(UserPolicy.update, this.user_resource)
 
         const payload = this.validate(
             UserUpdateValidator,
-            this.req.user.hasRole(USER_ROLES.ADMIN)
+            this.req.getUser().hasRole(USER_ROLES.ADMIN)
                 ? UserUpdateValidator.updateAdmin()
                 : UserUpdateValidator.update(),
         )
@@ -46,7 +64,9 @@ export class UserController extends Controller {
                     },
                 },
             )
-            await NotificationsServices.notifyResetPassword(this.user_resource)
+            await NotificationsServices.notifyConfirmResetPassword(
+                this.user_resource,
+            )
         }
 
         if (payload.email != this.user_resource.email)
@@ -57,8 +77,21 @@ export class UserController extends Controller {
 
     async delete() {
         this.can(UserPolicy.delete, this.user_resource)
-        const rowsDeleted = await this.user_resource.destroy()
-        NotFoundException.abortIf(rowsDeleted === 0)
+
+        const transaction = await Database.transaction()
+        try {
+            await UserPersonalInformationService.anonymizeUserPersonalInformation(
+                this.user_resource,
+            )
+            await NotificationsServices.notifyUserPersonalDataDeleted(
+                this.user_resource,
+            )
+            await transaction.commit()
+        } catch (e) {
+            await transaction.rollback()
+            throw e
+        }
+
         this.res.json({
             message: 'User deleted',
             success: true,
@@ -77,10 +110,7 @@ export class UserController extends Controller {
                 1,
             )
 
-            await NotificationsServices.notifyResetPassword(
-                user,
-                accessLink.identifier,
-            )
+            await NotificationsServices.notifyResetPassword(user, accessLink)
         } else {
             await new Promise((resolve) => setTimeout(resolve, 10)) // simulate a slow response
         }
@@ -92,14 +122,34 @@ export class UserController extends Controller {
         })
     }
 
+    async askLoginAs() {
+        this.can(UserPolicy.index)
+        this.user_resource
+        const accessLink = await AccessLinkServices.createAccessLink(
+            this.user_resource.id,
+            AccessLinkServices.getDate(),
+            AccessLinkServices.getDate(5),
+            1,
+        )
+        this.res.json({ a: accessLink.identifier })
+    }
+
     async activateAccount() {
         const user = this.req.getUser()
         NotFoundException.abortIf(user.isActive, 'Account already activated')
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)
 
-        this.res.json({
-            message: 'Account activated',
+        this.res.redirect(`${process.env.FRONT_END_URL}/home`)
+    }
+
+    async askPersonalData() {
+        this.can(UserPolicy.I, this.user_resource)
+        const user = this.req.getUser()
+        UserInformationDownloadJob.start(user.id).then((r) => console.log(r))
+        this.res.status(202).json({
+            message: 'User informations requested',
+            success: true,
         })
     }
 }

@@ -1,6 +1,8 @@
-import { Order } from '../Models/order.js'
+import { Order } from '../Models/SQL/order.js'
 import { Database } from '../Models/index.js'
-import { PaymentStatus } from '../Models/payment.js'
+import { PaymentStatus } from '../Models/SQL/payment.js'
+import { OrderStatus } from '../Enums/OrderStatus.js'
+import { OrderDenormalizationTask } from '../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 export class OrderServices {
     constructor(order) {
         if (!order || !(order instanceof Order))
@@ -52,7 +54,7 @@ export class OrderServices {
                     )
                 return {
                     price_data: {
-                        currency: 'usd',
+                        currency: 'eur',
                         product_data: {
                             name: productName.name,
                         },
@@ -66,5 +68,21 @@ export class OrderServices {
 
     static retrieveOrderById(orderId) {
         return Database.getInstance().models.Order.findByPk(orderId)
+    }
+
+    async setStatus(status, options, denormalize = true) {
+        if (!OrderStatus.isValid(status)) return
+        let s = await Database.getInstance().models.OrderStatus.create(
+            {
+                createdAt: new Date(),
+                status,
+                orderId: this.order.id,
+            },
+            options,
+        )
+        this.order.statusHistory.push(s)
+        if (denormalize)
+            await new OrderDenormalizationTask().execute(this.order)
+        return s
     }
 }

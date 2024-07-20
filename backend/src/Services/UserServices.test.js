@@ -1,9 +1,17 @@
 import {useFreshDatabase} from "../tests/databaseUtils.js";
 import {UserServices} from "./UserServices.js";
 import {TokenServices} from "./TokenServices.js";
+import { PaymentServices } from './PaymentServices.js'
 
 describe("UserServices", () => {
     useFreshDatabase()
+
+    beforeEach(() => {
+        PaymentServices.createCustomer = jest.fn()
+    })
+    afterEach(()=>{
+        PaymentServices.createCustomer.mockRestore()
+    })
 
     test("registerUser", async () => {
         let user = await UserServices.registerUser(
@@ -12,6 +20,8 @@ describe("UserServices", () => {
             "UserServices2@email.com",
             "password"
         )
+
+        expect(PaymentServices.createCustomer.mock.calls.length).toBe(1)
         expect(user).toBeDefined()
         expect(user.firstName).toBe("Test")
         expect(user.lastName).toBe("User")

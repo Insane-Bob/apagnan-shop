@@ -5,12 +5,15 @@ import fs from 'fs'
 import path from 'path'
 export class TokenServices {
     static retrieveUserFromToken(token, options) {
-        return Database.getInstance().models.User.findOne({
-            where: {
-                id: token.userId,
-            },
-            ...options,
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .findOne({
+                attributes: { exclude: ['password'] },
+                where: {
+                    id: token.userId,
+                },
+                ...options,
+            })
     }
 
     static retrieveTokenFromIdentifier(tokenIdentifier) {
@@ -59,7 +62,6 @@ export class TokenServices {
         do {
             const identifier = crypto.randomBytes(32).toString('hex')
             const token = await this.retrieveTokenFromIdentifier(identifier)
-            console.log(token)
             if (!token) {
                 return identifier
             }

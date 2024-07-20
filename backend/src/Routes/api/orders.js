@@ -10,6 +10,7 @@ export default function (router) {
             this.patch('/:order', OrderController, 'update')
             this.post('/:order/pay', OrderController, 'pay')
             this.post('/:order/ask-for-refund', OrderController, 'askForRefund')
+            this.get('/:order/products', OrderController, 'getProducts')
         })
         .provide(OrderProvider)
 }

@@ -1,32 +1,130 @@
-import {Database} from "../../Models/index.js";
+import { Database } from '../../Models/index.js'
+import { DenormalizerExecption } from './DenormalizerExecption.js'
 
-export class DenormalizerTask{
-    constructor(collection, documentStructure, fetchingMethod = null)
-    {
-        this.collectionString = collection;
-        this.documentStructureClass = documentStructure;
-        this.fetchingMethod = fetchingMethod;
-        this.targetedInstance = null;
+export class DenormalizerTask {
+    static EVENT = {
+        CREATED: 'created',
+        UPDATED: 'updated',
+        DELETED: 'deleted',
+    }
+    constructor() {
+        this.collectionString = null
+        this.fethingFrom = null
+        this.onChanges = []
+        this._when = [
+            DenormalizerTask.EVENT.CREATED,
+            DenormalizerTask.EVENT.UPDATED,
+            DenormalizerTask.EVENT.DELETED,
+        ]
+        this.event = DenormalizerTask.EVENT.CREATED
     }
 
-    async fetch(fromInstance){
-        this.targetedInstance = this.fetchingMethod ? await this.fetchingMethod(fromInstance) : fromInstance
+    on(changes) {
+        this.onChanges = changes
+        return this
     }
 
-    async execute(instance){
-        console.time("DenormalizerTask executed in : ")
-        await this.fetch(instance)
+    when(events) {
+        this.when = events
+        return this
+    }
 
-        if(!this.targetedInstance) throw new Error("Targeted instance is not defined")
-        if(!this.collectionString) throw new Error("Collection is not defined")
+    checkChanges(instance, event) {
+        if (this._when.indexOf(event) === -1) return false
+        if (this.event == DenormalizerTask.EVENT.DELETED) return true
+        if (!this.onChanges.length) return true
+        const checks = this.onChanges.map((c) => instance.changed(c))
+        return checks.some((c) => c === true)
+    }
+    setEventType(event) {
+        this.event = event
+        return this
+    }
 
-        let mongoCollection = Database.getInstance().mongoDB.collection(this.collectionString)
-        const document = await this.documentStructureClass.loadFromInstance(this.targetedInstance)
+    in(collection) {
+        this.collectionString = collection
+        return this
+    }
 
-        const exist = await mongoCollection.findOne({id: document.id})
-        if(exist) await mongoCollection.replaceOne({id: document.id}, await document.format());
-        else await mongoCollection.insertOne(await document.format())
+    from(callable) {
+        this.fethingFrom = callable
+        return this
+    }
 
-        console.timeEnd("DenormalizerTask executed in : ")
+    async fetch(ids) {
+        throw new Error('Not implemented')
+    }
+    _instanceToIds(instance) {
+        if (instance instanceof Array) {
+            let array = instance.map((i) => i.id)
+            return [...new Set(array)]
+        }
+        return [instance.id]
+    }
+
+    async getInstances(instance) {
+        if (this.fethingFrom) {
+            instance = await this.fethingFrom(instance)
+        }
+        return await this.fetch(this._instanceToIds(instance))
+    }
+
+    async execute(instance) {
+        const msg =
+            'Denormalized ' +
+            this.constructor.model +
+            ' from ' +
+            instance.constructor.name +
+            ', done in'
+        console.time(msg)
+        try {
+            let ids = this._instanceToIds(instance)
+            const instances = await this.getInstances(instance)
+            let foundedIds = this._instanceToIds(instances)
+            if (!this.constructor.model)
+                throw new Error('Mongo Model is not defined')
+
+            let model =
+                Database.getInstance().mongoModels[this.constructor.model]
+
+            for (let instance of instances) {
+                await this.persist(model, instance)
+            }
+
+            if (this.event === DenormalizerTask.EVENT.DELETED) {
+                let toDelete = ids.filter((id) => !foundedIds.includes(id))
+                if (toDelete.length) {
+                    await this.persitDelete(model, toDelete)
+                }
+            }
+        } catch (e) {
+            this.onError(new DenormalizerExecption(this, instance, e))
+        } finally {
+            console.timeEnd(msg)
+        }
+    }
+
+    onError(e) {
+        if (process.env.NODE_ENV === 'test') throw e
+    }
+
+    async persist(model, instance) {
+        await model.findOneAndReplace(
+            {
+                id: instance.id,
+            },
+            instance.toJSON(),
+            {
+                upsert: true,
+            },
+        )
+    }
+
+    async persitDelete(model, ids) {
+        await model.deleteMany({
+            id: {
+                $in: ids,
+            },
+        })
     }
 }

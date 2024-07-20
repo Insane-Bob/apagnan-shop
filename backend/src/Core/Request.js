@@ -5,8 +5,11 @@ export class Request {
         this._req = req
         this.query = new ParametersBag(req.query)
         this.headers = new ParametersBag(req.headers)
-        if (this.headers.get('content-type') === 'application/json') {
-            this.body = new ParametersBag(req.body)
+        if (
+            this.headers.has('content-type') &&
+            this.headers.get('content-type').indexOf('application/json') > -1
+        ) {
+            this.body = new ParametersBag(JSON.parse(req.body.toString()))
         } else {
             this.body = new ParametersBag({})
         }

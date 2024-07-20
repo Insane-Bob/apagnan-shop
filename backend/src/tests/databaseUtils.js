@@ -1,31 +1,88 @@
 import { Database } from '../Models/index.js'
 import { spawnSync } from 'child_process'
+import crypto from 'crypto'
+import mongoose from 'mongoose'
+
+const isGithubAction = process.env.CI === 'true'
+
+function databseLog(...args) {
+    if (isGithubAction) return
+    console.log(...args)
+}
+
+export function useFreshMongoDatabase(deleteAfter = true) {
+    const uniqueId = crypto.randomBytes(4).toString('hex')
+    process.env.MONGO_URI = process.env.MONGO_URI.replace(
+        /\/mongo$/,
+        '/test_' + uniqueId,
+    )
+
+    databseLog('Using mongo test database (' + process.env.MONGO_URI + ')')
+    afterAll(async () => {
+        if (!deleteAfter) return
+        databseLog('Delete mongo test database (' + process.env.MONGO_URI + ')')
+        await mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        })
+        await mongoose.connection.dropDatabase()
+        await mongoose.connection.close()
+    })
+}
 
 export function useFreshDatabase(
     beforeAllCallback = async () => null,
     afterAllCallback = async () => null,
 ) {
+    const uniqueId = crypto.randomBytes(4).toString('hex')
+    const url = 'postgres://postgres:postgres@db:5432/test_postgres_' + uniqueId
     beforeAll(async () => {
-        await runMigration()
-        await Database.initialize()
-        await beforeAllCallback()
+        await createTestDatabase(url)
+        await Database.initialize(url)
+        try {
+            await beforeAllCallback()
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
     }, 30000)
 
     afterAll(async () => {
-        await afterAllCallback()
+        try {
+            await afterAllCallback()
+        } catch (e) {
+            console.error(e)
+            throw e
+        }
         await Database.close()
-        await undoAllMigration()
+        await deleteTestDatabase(url)
     }, 30000)
 }
-export function runMigration() {
-    console.log('Running database migration')
-    spawnSync('npx', ['sequelize-cli', 'db:migrate'])
-}
-export function undoAllMigration() {
-    console.log('Undoing all database migration')
-    spawnSync('npx', ['sequelize-cli', 'db:migrate:undo:all'])
-}
 
+export function createTestDatabase(url) {
+    databseLog('Creating test database (' + url + ')')
+    let response
+
+    response = spawnSync('npx', ['sequelize-cli', 'db:create', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to create test database')
+    }
+
+    response = spawnSync('npx', ['sequelize-cli', 'db:migrate', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to migrate test database')
+    }
+}
+function deleteTestDatabase(url) {
+    databseLog('delete test database (' + url + ')')
+    let response = spawnSync('npx', ['sequelize-cli', 'db:drop', '--url', url])
+    if (response.status !== 0) {
+        console.error(response.stderr.toString())
+        throw new Error('Failed to drop test database')
+    }
+}
 export function getModelMock() {
     class MockedModel {
         constructor(obj) {
@@ -41,12 +98,16 @@ export function getModelMock() {
                 .map((_, i) => new MockedModel({ id: i })),
         )
         static findByPk = jest.fn((id) => new MockedModel({ id }))
+        static count = jest.fn(() => 4)
 
         destroy() {
             return true
         }
         update(obj) {
             Object.assign(this, obj)
+            return this
+        }
+        save() {
             return this
         }
     }
@@ -65,6 +126,10 @@ export function mockDatabase(databaseClass) {
             Order: getModelMock(),
             OrderItem: getModelMock(),
             UserBasket: getModelMock(),
+            Collection: getModelMock(),
+            Upload: getModelMock(),
+            Address: getModelMock(),
+            AccessLink: getModelMock(),
         },
     }))
 }

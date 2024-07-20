@@ -1,0 +1,112 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+      - 99-créer-une-action-de-déploiement
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Load .env.production
+        run : |
+          cp frontend/.env.production frontend/.env
+
+      - name: Install and Build project
+        run: |
+          cd frontend
+          npm install
+          npm run build-only
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name : Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install and Build project
+        run: |
+          cd backend
+          npm install
+          npm run build
+          cd dist
+          npm init -y
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-dist
+          path: backend/dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    needs:
+        - build-frontend
+        - build-backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install and decode base64 SSH private key
+        env :
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo $SSH_PRIVATE_KEY | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Download frontend build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Download backend build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-dist
+          path: backend/dist
+
+      - name: Upload build artifacts on server
+        env:
+          SERVER_DEPLOY_HOST: ${{ secrets.SERVER_DEPLOY_HOST }}
+          SERVER_DEPLOY_USER: ${{ secrets.SERVER_DEPLOY_USER }}
+        run: | 
+          scp -r frontend/dist $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST:/root/apagnan-shop/frontend/
+          scp -r backend/dist $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST:/root/apagnan-shop/backend/
+
+      - name: Deploy the application on the server
+        env:
+          SERVER_DEPLOY_HOST: ${{ secrets.SERVER_DEPLOY_HOST }}
+          SERVER_DEPLOY_USER: ${{ secrets.SERVER_DEPLOY_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_DEPLOY_USER@$SERVER_DEPLOY_HOST << 'EOF'
+            cd /root/apagnan-shop
+            docker compose down
+            git pull
+            docker compose up -d --build nginx
+            docker compose exec backend npx sequelize-cli db:migrate
+            docker compose restart backend
+          EOF

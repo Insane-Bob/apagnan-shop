@@ -1,19 +1,9 @@
-<script lang="ts" setup>
-import LinkCard from '@components/cards/LinkCard.vue';
-
-import { useUserStore } from '@store/user';
-
-
-const user = useUserStore()
-
-</script>
-
 <template>
     <div class="relative">
         <div class="sticky top-0 z-10">
             <img
                 src="/src/assets/images/myProfileMenu.webp"
-                class="w-full md:h-[60vw] lg:h-[30vw] object-cover"
+                class="w-full md:h-[60vw] lg:h-[20vw] object-cover object-center"
             />
             <h1
                 class="text-center text-xl sm:text-xl md:text-5xl w-full tracking-widest text-white uppercase absolute z-10 bottom-1/4 -y-translate-1/2 block"
@@ -36,6 +26,7 @@ const user = useUserStore()
                 ></LinkCard>
 
                 <LinkCard
+                    to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
                     image="/src/assets/images/commandesListe.webp"
@@ -44,3 +35,11 @@ const user = useUserStore()
         </main>
     </div>
 </template>
+
+<script lang="ts" setup>
+import LinkCard from '@components/Cards/LinkCard.vue'
+
+import { useUserStore } from '@store/user'
+
+const user = useUserStore()
+</script>

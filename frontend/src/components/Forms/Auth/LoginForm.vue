@@ -4,10 +4,9 @@
             <h1 class="text-md text-primary-accent font-medium">
                 Déjà l'un de nous ?
             </h1>
-            <small class="text-sm text-gray-500"
-                >Connecte-toi pour retrouver ta tribu de nains de jardin
-                !</small
-            >
+            <small class="text-sm text-gray-500">
+                Connecte-toi pour retrouver ta tribu de nains de jardin !
+            </small>
         </FormHeader>
         <FormGrid>
             <div class="flex flex-col col-span-full gap-3">
@@ -59,8 +58,9 @@
                 <small
                     @click="$emit('switch-to-forgot-password')"
                     class="text-xs text-primary-accent/60 hover:underline hover:cursor-pointer"
-                    >Mot de passe oublié ?</small
                 >
+                    Mot de passe oublié ?
+                </small>
                 <!-- SUBMIT -->
                 <Button type="submit">Se connecter</Button>
             </div>
@@ -74,17 +74,18 @@
         <h2 class="text-sm text-primary-accent font-medium">
             Nouveau chez nous ?
         </h2>
-        <small class="text-sm text-gray-500"
-            >Rejoins notre joyeuse bande de nains de jardin et découvre un monde
-            magiquee !</small
-        >
+        <small class="text-sm text-gray-500">
+            Rejoins notre joyeuse bande de nains de jardin et découvre un monde
+            magique !
+        </small>
         <div class="flex justify-center w-full">
             <Button
                 @click="$emit('switch-to-register')"
                 variant="outline"
                 class="w-full"
-                >S'inscrire</Button
             >
+                S'inscrire
+            </Button>
         </div>
     </div>
 </template>
@@ -111,54 +112,53 @@ const errors = ref(null)
 
 // Password Input Behavior
 const passwordManager = reactive({
-    isShown: ref(false),
-    inputType: computed(() => {
-        return passwordManager.isShown ? 'text' : 'password'
-    }),
-    show: () => {
-        passwordManager.isShown = true
-    },
-    hide: () => {
-        passwordManager.isShown = false
-    },
-    toggle: (value = passwordManager.isShown) => {
-        if (value) {
-            passwordManager.hide()
-        } else {
-            passwordManager.show()
-        }
+    isShown: false,
+    inputType: computed(() => (passwordManager.isShown ? 'text' : 'password')),
+    toggle() {
+        this.isShown = !this.isShown
     },
 })
+
 const router = useRouter()
-const {toast} = useToast() 
+const { toast } = useToast()
 
 // Submit function
 async function submit() {
     try {
-        const data = {
-            email: email.value,
-            password: password.value,
-        }
-
+        const data = { email: email.value, password: password.value }
         const response = await apiClient.post('/login', data)
 
-        // Store tokens in local storage
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('refreshToken', response.data.refreshToken)
+        if (response.status === 200) {
+            // Store tokens in local storage
+            localStorage.setItem('accessToken', response.data.accessToken)
+            localStorage.setItem('refreshToken', response.data.refreshToken)
 
-        user.setUser(response.data.user)
+            user.setUser(response.data.user)
 
-        toast({
+            toast({
                 title: 'Succès',
                 description:
                     'Connexion réussie, bienvenue dans votre espace personnel !',
                 status: 'success',
             })
 
-
-
+            // Redirect to profile page
+            router.push('/profile')
+        } else {
+            handleError(new Error('Login failed'))
+        }
     } catch (error) {
-        console.error('Login failed', error)
+        handleError(error)
+    }
+}
+
+function handleError(error) {
+    toast({
+        title: 'Erreur',
+        description: 'La connexion a échoué, veuillez réessayer.',
+        status: 'error',
+    })
+    if (error.response && error.response.data && error.response.data.errors) {
         errors.value = error.response.data.errors
     }
 }

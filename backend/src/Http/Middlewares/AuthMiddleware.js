@@ -32,8 +32,8 @@ export class AuthMiddleware extends Middleware {
         const user = await TokenServices.retrieveUserFromToken(token, {
             include: 'Customer',
         })
-        user.customer = user.Customer
         UnauthorizedException.abortIf(!user)
+        user.customer = user?.Customer
         req.setUser(user)
 
         next()

@@ -9,16 +9,13 @@ import { EmailSender } from '../../lib/EmailSender.js'
 
 let app = null
 describe('AuthController test routes', () => {
-    // Settings up fresh database to test
-    useFreshDatabase(
-        () => {
-            EmailSender.send = jest.fn()
-        },
-        () => {
-            EmailSender.send.mockRestore()
-        },
-    )
+    useFreshDatabase(()=>{
+      EmailSender.send = jest.fn()
+    },()=>{
+      EmailSender.send.mockRestore()
+    })
     beforeEach(async () => {
+        await emptyTables()
         app = await setUpApp()
     })
 
@@ -124,8 +121,8 @@ describe('AuthController test routes', () => {
         const response = await request(app)
             .post('/api/login')
             .send({
-                email: 'AuthController@email.com',
-                password: 'password',
+                email: userInstance.email,
+                password: 'BonjourJeSuisUnPassword75@!',
             })
             .set('Accept', 'application/json')
 
@@ -136,7 +133,7 @@ describe('AuthController test routes', () => {
         const { accessToken, refreshToken, user } = response.body
         expect(accessToken).toBeDefined()
         expect(refreshToken).toBeDefined()
-        expect(user).toBeDefined()
+        expect(user?.email).toBe(userInstance.email)
     })
 
     // Valid User Access Token
@@ -157,13 +154,10 @@ describe('AuthController test routes', () => {
             .set('Accept', 'application/json')
             .set('Authorization', `Bearer ${accessToken}`)
 
-        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(
-            token.identifier,
-        )
+        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(token.identifier)
         expect(TokenServices.retrieveUserFromToken.mock.calls[0][0]).toBe(token)
         expect(response.statusCode).toBe(200)
-        expect(response.body?.user?.id).toBe(userId)
-    })
+        expect(response.body?.user?.id).toBe(userInstance.id)
 
     // Revoked User Access Token
     test('POST /api/me - Revoked Token', async () => {

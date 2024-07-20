@@ -28,5 +28,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+.env
 *.key
-*.env
+
+backend/uploads

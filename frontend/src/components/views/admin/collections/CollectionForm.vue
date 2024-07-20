@@ -1,24 +1,21 @@
 <script setup lang="ts">
+import FormGrid from '@/components/Forms/FormGrid.vue'
+import FormInput from '@/components/Inputs/FormInput.vue'
+import Button from '@/components/ui/button/Button.vue'
 import {
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogClose
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import FormGrid from '@/components/Forms/FormGrid.vue'
-import Button from '@/components/ui/button/Button.vue'
-import { ref, defineProps } from 'vue'
-import FormInput from '@/components/Inputs/FormInput.vue'
+import { Textarea } from '@/components/ui/textarea'
+import { defineProps, ref } from 'vue'
 
+import { apiClient } from '@/lib/apiClient'
 import { Collection } from '@types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const CollectionUrl = API_BASE_URL + '/collections/'
 
 const emit = defineEmits(['reloadCollection'])
 
@@ -39,40 +36,30 @@ const onSubmit = () => {
 }
 
 const updateCollection = async () => {
-    const response = await fetch(CollectionUrl + props.collection.slug, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    const response = await apiClient.patch('collections/' + props.collection.slug, 
+        {
             ...props.collection,
             name: name.value,
             description: description.value,
             published: published.value
-        })
-    })
+        }
+    )
 
     if (response.status === 200) {
-        const data = await response.json()
+        const data = await response.data
         emit('reloadCollection', data.collection)
     }
 }
 
 const createCollection = async () => {
-    const response = await fetch(CollectionUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+    const response = await apiClient.post('collections/' ,{
             name: name.value,
             description: description.value,
             published: published.value
         })
-    })
 
     if (response.status === 200) {
-        const data = await response.json()
+        const data = await response.data
         emit('reloadCollection', data.collection)
     }
 }
@@ -80,7 +67,6 @@ const createCollection = async () => {
 </script>
 
 <template>
-    <DialogContent>
       <form @submit.prevent="onSubmit">
         <DialogHeader>
           <DialogTitle>{{ props.collection? 'Modifier la collection': 'Créer une collection'}}</DialogTitle>
@@ -123,5 +109,4 @@ const createCollection = async () => {
           </DialogClose>
         </DialogFooter>
       </form>
-    </DialogContent>
 </template>
