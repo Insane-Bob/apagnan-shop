@@ -219,7 +219,6 @@
 
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-
 import PromoBanner from '@components/promo/PromoBanner.vue'
 import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
@@ -229,13 +228,12 @@ import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
 import FooterComponent from '@components/footer/FooterComponent.vue'
 import Button from '@components/ui/button/Button.vue'
-import { useToast } from '@components/ui/toast'
-import { useUserStore } from '@store/user'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
+import {useUserStore} from "@/stores/user";
 
 const apiClient = new ApiClient()
 
