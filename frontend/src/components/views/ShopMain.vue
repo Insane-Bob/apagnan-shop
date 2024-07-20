@@ -251,8 +251,6 @@ import { useUserStore } from '@store/user'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import { useToast } from '@components/ui/toast'
-import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
 

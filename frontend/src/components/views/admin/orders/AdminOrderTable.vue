@@ -7,10 +7,6 @@ import FilterItem from '@components/tables/FilterItem.vue'
 import { Dialog } from '@components/ui/dialog'
 import { type TableColumns, type User } from '@types'
 import { useToast } from '@components/ui/toast'
-import { useTable } from '@/composables/useTable'
-import FilterItem from '@components/tables/FilterItem.vue'
-import Filter from '@components/tables/Filter.vue'
-import { useFilters } from '@/composables/useFilters'
 import {computed, onMounted, ref} from 'vue'
 import {useFetch} from "@/composables/useFetch";
 

@@ -1,4 +1,3 @@
-import { ref, type Ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
 import { ApiClient } from '@/lib/apiClient'
