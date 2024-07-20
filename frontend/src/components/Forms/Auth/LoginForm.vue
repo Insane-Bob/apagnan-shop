@@ -128,25 +128,23 @@ async function submit() {
         const data = { email: email.value, password: password.value }
         const response = await apiClient.post('/login', data)
 
-        if (response.status === 200) {
-            // Store tokens in local storage
-            localStorage.setItem('accessToken', response.data.accessToken)
-            localStorage.setItem('refreshToken', response.data.refreshToken)
+        const userData = response.data.user
 
-            user.setUser(response.data.user)
+        // Store tokens in local storage
+        localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('refreshToken', response.data.refreshToken)
 
-            toast({
-                title: 'Succès',
-                description:
-                    'Connexion réussie, bienvenue dans votre espace personnel !',
-                status: 'success',
-            })
+        user.setUser(userData)
 
-            // Redirect to profile page
-            router.push('/profile')
-        } else {
-            handleError(new Error('Login failed'))
-        }
+        toast({
+            title: 'Succès',
+            description:
+                'Connexion réussie, bienvenue dans votre espace personnel !',
+            status: 'success',
+        })
+
+        // Redirect to profile page
+        router.push('/profile')
     } catch (error) {
         handleError(error)
     }

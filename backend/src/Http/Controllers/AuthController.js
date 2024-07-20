@@ -51,6 +51,8 @@ export class AuthController extends Controller {
             })
         }
 
+        UnprocessableEntity.abortIf(!user.isEmailVerified(), 'You must verify your email')
+
         const token = await TokenServices.createToken(user.id)
         const accessToken = TokenServices.generateAccessToken(token)
 

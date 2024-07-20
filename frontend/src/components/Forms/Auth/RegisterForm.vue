@@ -194,7 +194,7 @@ const password = ref('')
 const passwordConfirmation = ref('')
 const errors = ref(null)
 const isSubmitted = ref(false)
-const isSubmitting = ref(false) // Added state for submission
+const isSubmitting = ref(false)
 
 // Password validation logic
 const passwordRules = computed(() => [
