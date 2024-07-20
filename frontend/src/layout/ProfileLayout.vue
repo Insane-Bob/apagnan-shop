@@ -37,7 +37,7 @@ const routes = computed(() => {
             active: route.name === backofficeRoutesName.INFORMATIONS,
         },
         {
-            name: 'Mon Commandes',
+            name: 'Mes Commandes',
             route: {
                 name: backofficeRoutesName.COMMANDS,
             },

@@ -94,7 +94,7 @@ async function fetch() {
 }
 onMounted(() => {
     fetch()
-    if(route.query.payment === 'success') {
+    if(route.query.status === 'success') {
         user.clearCart()
     }
 })
@@ -199,10 +199,19 @@ async function handlePay() {
             </CardContent>
             <Separator/>
             <CardFooter class="pt-4">
-              <div class="flex flex-1 flex-row justify-end">
+              <div class="flex flex-1 flex-row justify-between" :class="{'justify-between': order?.Promo, 'justify-end': !order?.Promo}">
+                <div :hidden="!order?.Promo">
+                  <span>Promo</span>
+                    <div class="flex gap-x-2 items-center">
+                      <span class="px-2 text-lg bg-slate-100 py-1 rounded-md">
+                        {{ order?.Promo?.code }}
+                      </span>
+                    <span class="text-">{{ order?.Promo?.value }} {{ order?.Promo?.type === 'percent' ?'%': '€' }}</span>
+                  </div>
+                </div>
                 <div>
                   <CardDescription>Total</CardDescription>
-                  <CardTitle>{{ order.total}} €</CardTitle>
+                  <CardTitle>{{ order?.total - (order?.Promo?(order?.Promo?.type === 'percent' ? order?.Promo?.value/100 * order?.total :order?.Promo?.value ): 0) }} €</CardTitle>
                 </div>
               </div>
             </CardFooter>

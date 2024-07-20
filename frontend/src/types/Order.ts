@@ -2,6 +2,7 @@ import type { Address } from './Address'
 import type { Customer } from './Customer'
 import type { OrderDetails } from './OrderDetails'
 import type { OrderStatus } from './OrderStatus'
+import type { Promo } from './Promo'
 
 export interface Order {
     total: number
@@ -18,10 +19,10 @@ export interface Order {
             createdAt: string
         },
     ]
-    RefundRequestOrders:[
+    RefundRequestOrders: [
         {
             approved: boolean
-        }
+        },
     ]
     status: OrderStatus
     updatedAt: string
@@ -29,4 +30,5 @@ export interface Order {
     billing_address: Address
     shipping_address: Address
     customer: Customer
+    Promo?: Promo
 }
