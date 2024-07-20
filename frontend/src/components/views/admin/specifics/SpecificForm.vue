@@ -12,8 +12,10 @@ import {
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { defineProps, ref, defineEmits } from 'vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { Specific } from '@types'
+
+const apiClient = new ApiClient()
 
 const props = defineProps<{
     specific?: Specific

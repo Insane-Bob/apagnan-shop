@@ -1,21 +1,28 @@
 <template>
     <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
-    <div v-on:scroll="scrollFunction" class="flex flex-col h-full">
+    <div
+        v-on:scroll="scrollFunction"
+        class="flex flex-col h-full overflow-x-hidden"
+    >
         <div
-            class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20"
+            class="h-screen flex flex-col justify-between items-center pt-[10%] pb-20 overflow-x-hidden"
         >
-            <img v-if="collection.image"
-                :src="'/src/'+ collection.image.path "
+            <img
+                v-if="collection.image"
+                :src="'/src/' + collection.image.path"
                 alt="Main Gnome"
                 class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
             />
 
-            <div v-else class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"></div>
-            
-            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
+            <div
+                v-else
+                class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"
+            ></div>
+
+            <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
             <header
                 class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
-                :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
+                :class="{ 'top-0': !promoPromoted, 'top-8': promoPromoted }"
             >
                 <RouterLink to="/">
                     <div
@@ -48,9 +55,20 @@
                                     name="cart-outline"
                                     class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
                                 ></ion-icon>
-                                <div v-if="user.countCartItem > 0"  class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4">
-                                    <div :class="{'animate-ping': user.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true}"></div>
-                                    <span class="text-white">{{ user.countCartItem }}</span>
+                                <div
+                                    v-if="user.countCartItem > 0"
+                                    class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4"
+                                >
+                                    <div
+                                        :class="{
+                                            'animate-ping':
+                                                user.cartHasNewItems,
+                                            'bg-red-500/20 rounded-full w-4 h-4 absolute': true,
+                                        }"
+                                    ></div>
+                                    <span class="text-white">{{
+                                        user.countCartItem
+                                    }}</span>
                                 </div>
                             </div>
                         </SheetTrigger>
@@ -78,6 +96,7 @@
                         ></ion-icon>
                     </RouterLink>
 
+                    <!-- SEARCH -->
                     <form
                         @submit.prevent="onSearch()"
                         class="flex justify-center items-center -ml-6 gap-x-2"
@@ -100,6 +119,8 @@
                             ></ion-icon>
                         </button>
                     </form>
+
+                    <!-- MOBILE MENU -->
                     <div
                         @click="onOpenBurgerMenu()"
                         class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white"
@@ -117,7 +138,7 @@
                 </nav>
             </header>
             <h1
-                class="main-title uppercase mt-16 md:mt-12 lg:mt-8  text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
+                class="main-title uppercase mt-16 md:mt-12 lg:mt-8 text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
@@ -126,7 +147,9 @@
             <CookiesModal :open="showCookiesModal" />
 
             <div class="flex flex-col justify-center items-center gap-y-3">
-                <p class="text-white text-lg md:text-[20px] uppercase tracking-wider">
+                <p
+                    class="text-white text-lg md:text-[20px] uppercase tracking-wider"
+                >
                     {{ collection.name }}
                 </p>
                 <RouterLink to="#promoted">
@@ -137,82 +160,95 @@
             </div>
         </div>
         <Section class="max-w-[1000px] mx-auto">
-          <h1 class="text-md uppercase font-medium text-center">
-            Collection à la une
-          </h1>
-          <div
-              v-if="!loading"
-              id="promoted"
-              class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-20"
-          >
-            <ProductCard2 :key="product.id" :id="product.id" v-for="product in collection.Products" :collection="collection" :name="product.name" :slug="product.slug" :shortDescription="product.description" :price="product.price" :image="product.images[0]" />
-          </div>
-          <div
-              v-else
-              id="shop"
-              class="w-screen bg-white justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
-          >
-            <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
-          </div>
+            <h1 class="text-md uppercase font-medium text-center">
+                Collection à la une
+            </h1>
+            <div
+                v-if="!loading"
+                id="promoted"
+                class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-20"
+            >
+                <ProductCard2
+                    :key="product.id"
+                    :id="product.id"
+                    v-for="product in collection.Products"
+                    :collection="collection"
+                    :name="product.name"
+                    :slug="product.slug"
+                    :shortDescription="product.description"
+                    :price="product.price"
+                    :image="product.images[0]"
+                />
+            </div>
+            <div
+                v-else
+                id="shop"
+                class="w-screen bg-white justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-20"
+            >
+                <ProductCardSkeleton v-for="index in 6" v-bind:key="index" />
+            </div>
         </Section>
 
         <Section class="bg-slate-100">
-          <h1 class="text-md uppercase font-medium text-center">
-            Nos collections
-          </h1>
-          <div
-              v-if="!loading"
-              id="collections"
-              class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
-          >
-            <ProductCard2
-                height="300px"
-                v-for="collection in collections"
-                :id="collection.id"
-                :key="collection.id"
-                :name="collection.name"
-                :slug="collection.slug"
-                :shortDescription="collection.description" :image="collection?.image">
-              <template #action>
-                <Button class="hover:text-primary transition uppercase" variant="ghost">
-                  Découvrir la collection
-                  <ion-icon name="chevron-forward-outline" class="text-lg ml-4"/>
-                </Button>
-              </template>
-
-            </ProductCard2>
-          </div>
+            <h1 class="text-md uppercase font-medium text-center">
+                Nos collections
+            </h1>
+            <div
+                v-if="!loading"
+                id="collections"
+                class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
+            >
+                <ProductCard2
+                    height="300px"
+                    v-for="collection in collections"
+                    :id="collection.id"
+                    :key="collection.id"
+                    :name="collection.name"
+                    :slug="collection.slug"
+                    :shortDescription="collection.description"
+                    :image="collection?.image"
+                >
+                    <template #action>
+                        <Button
+                            class="hover:text-primary transition uppercase"
+                            variant="ghost"
+                        >
+                            Découvrir la collection
+                            <ion-icon
+                                name="chevron-forward-outline"
+                                class="text-lg ml-4"
+                            />
+                        </Button>
+                    </template>
+                </ProductCard2>
+            </div>
         </Section>
         <Section class="max-w-[1000px] mx-auto">
-          <h1 class="text-md uppercase font-medium text-center">
-            Notre newsletter
-          </h1>
-          <Newsletter/>
+            <h1 class="text-md uppercase font-medium text-center">
+                Notre newsletter
+            </h1>
+            <Newsletter />
         </Section>
     </div>
-  <FooterComponent />
+    <FooterComponent />
 </template>
 
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 import PromoBanner from '@components/promo/PromoBanner.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
+import FooterComponent from '@components/footer/FooterComponent.vue'
+import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
+import { useToast } from '@components/ui/toast'
 import { useUserStore } from '@store/user'
-import {
-    computed,
-    onMounted,
-    onUnmounted,
-    reactive,
-    ref
-} from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import { useToast } from '@components/ui/toast'
@@ -220,7 +256,7 @@ import FooterComponent from "@components/footer/FooterComponent.vue";
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
 
-
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
@@ -263,19 +299,18 @@ function changeBrightness() {
     const headerTitle = document.querySelector('.header-title')
 
     if (mainShopPage) {
-        if(isOnTop.value){
+        if (isOnTop.value) {
             mainShopPage.classList.add('brightness-50')
-        }else{
+        } else {
             mainShopPage.classList.remove('brightness-50')
         }
     }
 
     if (mainTitle) {
-        if(isOnTop.value){
+        if (isOnTop.value) {
             mainTitle.classList.add('opacity-75')
             mainTitle.classList.remove('opacity-0')
-
-        }else{
+        } else {
             mainTitle.classList.remove('opacity-75')
             mainTitle.classList.add('opacity-0')
         }
@@ -283,20 +318,19 @@ function changeBrightness() {
 
     if (mainHeader) {
         mainHeader.classList.toggle('bg-white')
-        mainHeader.classList.toggle('bg-transparant')
+        mainHeader.classList.toggle('bg-transparent')
     }
 
     if (HeaderIcons) {
         HeaderIcons.forEach((icon) => {
-            if(isOnTop.value){
+            if (isOnTop.value) {
                 icon.classList.add('text-white')
                 icon.classList.remove('text-black')
                 return
-            }else{
+            } else {
                 icon.classList.remove('text-white')
                 icon.classList.add('text-black')
             }
-            
         })
     }
 
@@ -327,7 +361,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
     await fetchPromotedCollection()
-  await fetchCollections()
+    await fetchCollections()
     loading.value = false
 
     setTimeout(() => {
@@ -337,23 +371,21 @@ onMounted(async () => {
 
 const collections = ref(null)
 async function fetchCollections() {
-  const response = await apiClient.get('collections?withImage&limit=6')
-  collections.value = response.data.data
+    const response = await apiClient.get('collections?withImage&limit=6')
+    collections.value = response.data.data
 }
 
-
 const fetchPromotedCollection = async () => {
-    try{
-    const response = await  apiClient.get('collections/promoted')
+    try {
+        const response = await apiClient.get('collections/promoted')
 
-    collection.value = response.data.collection
-    }catch(e){
+        collection.value = response.data.collection
+    } catch (e) {
         toast({
             title: 'Une Erreur est survenue',
-            variant: 'destructive'
+            variant: 'destructive',
         })
     }
-
 }
 </script>
 
@@ -378,6 +410,10 @@ const fetchPromotedCollection = async () => {
 
 .header-title {
     transition: all 1s;
+}
+
+body {
+    overflow-x: hidden;
 }
 
 @keyframes spaceLetters {

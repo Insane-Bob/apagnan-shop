@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import DataTable from '@components/tables/DataTable.vue'
 import { TableActions, TableColumns, User } from '@types'
 import { useToast } from '@/components/ui/toast'
@@ -9,6 +9,8 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import { useFilters } from '@/composables/useFilters'
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()

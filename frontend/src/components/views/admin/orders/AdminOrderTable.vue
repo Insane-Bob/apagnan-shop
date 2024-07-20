@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useFilters } from '@/composables/useFilters'
+import { useTable } from '@/composables/useTable'
 import DataTable from '@components/tables/DataTable.vue'
+import Filter from '@components/tables/Filter.vue'
+import FilterItem from '@components/tables/FilterItem.vue'
 import { Dialog } from '@components/ui/dialog'
 import { type TableColumns, type User } from '@types'
 import { useToast } from '@components/ui/toast'
@@ -9,6 +13,8 @@ import Filter from '@components/tables/Filter.vue'
 import { useFilters } from '@/composables/useFilters'
 import {computed, onMounted, ref} from 'vue'
 import {useFetch} from "@/composables/useFetch";
+
+const { toast } = useToast()
 
 const { filters, query } = useFilters({
     status: [],

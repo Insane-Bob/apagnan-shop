@@ -15,7 +15,9 @@ import {
     CommandShortcut,
 } from '@components/ui/command'
 import { computed, ref, watch } from 'vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
+
+const apiClient = new ApiClient()
 
 const isOpen = ref(false)
 const search = ref('')

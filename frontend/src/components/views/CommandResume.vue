@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import CardDescription from '../ui/card/CardDescription.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useCart } from '../../composables/useCart';
 import { Order } from '@/types'
 import CardTitle from '@components/ui/card/CardTitle.vue'
 import Separator from '@components/ui/separator/Separator.vue'
 import Loader from '@components/ui/loader/Loader.vue'
+import Dialog from '@components/ui/dialog/Dialog.vue'
+import DialogTrigger from '@components/ui/dialog/DialogTrigger.vue'
+import DialogContent from '@components/ui/dialog/DialogContent.vue'
+import RefundRequestForm from '@components/Forms/RefundRequestForm.vue'
+import { orderRoutesName } from '@/routes/order'
 import CardFooter from '@components/ui/card/CardFooter.vue'
 import Button from '@components/ui/button/Button.vue'
 import ProfileLayout from "@/layout/ProfileLayout.vue";
@@ -17,6 +23,10 @@ import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChann
 import {useUserStore} from "@/stores/user";
 import CommandManageMenu from "@components/Menus/CommandManageMenu.vue";
 
+
+const apiClient = new ApiClient()
+
+const isRefundDialogOpen = ref(false)
 
 const options = { year: 'numeric', month: 'long', day: 'numeric' }
 

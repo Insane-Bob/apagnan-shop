@@ -13,7 +13,7 @@ import FormInput from '@/components/Inputs/FormInput.vue';
 import Button from '@/components/ui/button/Button.vue'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useUserStore } from '@/stores/user'
 import { onBeforeMount, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -33,6 +33,8 @@ import Badge from "@components/ui/badge/Badge.vue";
 import CardTitle from "@components/ui/card/CardTitle.vue";
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import FormGrid from '@/components/Forms/FormGrid.vue'
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const router = useRouter()

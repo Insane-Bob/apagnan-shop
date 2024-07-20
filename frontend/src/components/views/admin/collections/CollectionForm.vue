@@ -14,8 +14,10 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { defineProps, ref } from 'vue'
 
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { Collection } from '@types'
+
+const apiClient = new ApiClient()
 
 const emit = defineEmits(['reloadCollection'])
 

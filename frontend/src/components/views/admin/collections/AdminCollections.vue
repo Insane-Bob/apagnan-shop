@@ -5,12 +5,14 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import CollectionForm from '@/components/views/admin/collections/CollectionForm.vue'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import { Collection, TableActions, TableColumns } from '@types'
 import { reactive } from 'vue'
+
+const apiClient = new ApiClient()
 
 const { filters, query, resetFilters } = useFilters({
     published: [],

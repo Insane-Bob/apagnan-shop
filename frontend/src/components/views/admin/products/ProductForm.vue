@@ -3,7 +3,7 @@ import {computed, defineProps, onMounted, reactive, ref} from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useRouter } from 'vue-router'
@@ -23,6 +23,8 @@ import StockForm from '../stocks/StockForm.vue'
 import Card from "@components/ui/card/Card.vue";
 import CardDescription from "@components/ui/card/CardDescription.vue";
 import Loader from "@components/ui/loader/Loader.vue";
+
+const apiClient = new ApiClient()
 
 const router = useRouter()
 const props = defineProps<{

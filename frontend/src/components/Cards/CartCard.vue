@@ -7,10 +7,12 @@ SelectTrigger,
 SelectValue
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { apiClient } from '@/lib/apiClient';
+import { ApiClient } from '@/lib/apiClient';
 import type { Product } from '@/types';
 import { useUserStore } from '@store/user';
 import { ref } from 'vue';
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()

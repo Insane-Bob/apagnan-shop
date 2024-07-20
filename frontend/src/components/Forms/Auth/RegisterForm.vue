@@ -183,8 +183,10 @@ import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
-import { apiClient } from '@/lib/apiClient.js'
+import { ApiClient } from '@/lib/apiClient.js'
 import { computed, reactive, ref } from 'vue'
+
+const apiClient = new ApiClient()
 
 // Reactive variables
 const lastName = ref('')
@@ -194,7 +196,7 @@ const password = ref('')
 const passwordConfirmation = ref('')
 const errors = ref(null)
 const isSubmitted = ref(false)
-const isSubmitting = ref(false) // Added state for submission
+const isSubmitting = ref(false)
 
 // Password validation logic
 const passwordRules = computed(() => [

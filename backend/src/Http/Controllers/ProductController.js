@@ -125,12 +125,16 @@ export class ProductController extends Controller {
         const observer = ProductStockObserver.getInstance()
         const callback = (product) => {
             if (Number(product.id) != Number(this.product.id)) return
-            this.res.write(product.stock.toString() + '\n')
+            this.res.write(
+                `data: ${JSON.stringify({ stock: product.stock })}\n\n`,
+            )
         }
 
         observer.subscribe(callback)
 
-        this.res.write(this.product.stock.toString() + '\n')
+        this.res.write(
+            `data: ${JSON.stringify({ stock: this.product.stock })}\n\n`,
+        )
         this.res.on('close', () => {
             observer.unsubscribe(callback)
             this.res.end()
