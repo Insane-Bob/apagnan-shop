@@ -2,30 +2,16 @@
 import { backofficeRoutesName } from '@/routes/backoffice'
 import { useUserStore } from '@/stores/user'
 import { AvatarFallback } from '@components/ui/avatar'
-import Avatar from '@components/ui/avatar/Avatar.vue'
-import Button from '@components/ui/button/Button.vue'
-import Card from '@components/ui/card/Card.vue'
-import CardContent from '@components/ui/card/CardContent.vue'
-import CardDescription from '@components/ui/card/CardDescription.vue'
-import CardFooter from '@components/ui/card/CardFooter.vue'
-import CardHeader from '@components/ui/card/CardHeader.vue'
-import CardTitle from '@components/ui/card/CardTitle.vue'
-import Separator from '@components/ui/separator/Separator.vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-
 import CardHeader from "@components/ui/card/CardHeader.vue";
 import Card from "@components/ui/card/Card.vue";
 import Avatar from "@components/ui/avatar/Avatar.vue";
-import {AvatarFallback} from "@components/ui/avatar";
-import {useUserStore} from "@/stores/user";
 import CardTitle from "@components/ui/card/CardTitle.vue";
 import CardDescription from "@components/ui/card/CardDescription.vue";
 import Separator from "@components/ui/separator/Separator.vue";
 import CardContent from "@components/ui/card/CardContent.vue";
-import {computed} from "vue";
-import {useRoute} from "vue-router";
-import {backofficeRoutesName} from "@/routes/backoffice";
+
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import Button from "@components/ui/button/Button.vue";
 import DeleteAccount from "@components/Modals/DeleteAccount.vue";
@@ -101,18 +87,21 @@ const routes = computed(() => {
                         </RouterLink>
                     </CardContent>
                     <Separator></Separator>
-                    <CardFooter class="flex pt-6">
+                    <CardFooter class="pt-6 flex flex-col justify-start">
                         <RouterLink
                             to="/logout"
-                            class="flex items-center text-sm text-red-500 hover:text-red-600 transition-all"
+                            class="flex items-center text-sm transition-all"
                             variant="ghost"
                         >
+                          <Button class="text-black" variant="ghost" >
                             <ion-icon
                                 name="log-out-outline"
                                 class="mr-2"
                             ></ion-icon>
                             Se déconnecter
+                          </Button>
                         </RouterLink>
+                            <DeleteAccount/>
                     </CardFooter>
                 </Card>
             </aside>

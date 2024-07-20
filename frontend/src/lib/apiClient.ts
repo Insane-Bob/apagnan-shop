@@ -17,28 +17,33 @@ class ApiClient {
         }
     }
 
-    async get(path: string) {
-        return axios.get(this.baseUrl + this.formatedPath(path), {
+    make(method : string ,path : string, options : object = {}){
+        return axios({
+            method: method,
+            url: this.baseUrl + this.formatedPath(path),
             headers: this.headers,
+            ...options
         })
     }
 
-    async post(path: string, data: any) {
-        return axios.post(this.baseUrl + this.formatedPath(path), data, {
-            headers: this.headers,
-        })
+    get(path: string) {
+        return this.make('get',path)
     }
 
-    async put(path: string, data: any) {
-        return axios.put(this.baseUrl + this.formatedPath(path), data, {
-            headers: this.headers,
-        })
+    post(path: string, data: any) {
+        return this.make('post',path,{data:data})
     }
 
-    async delete(path: string) {
-        return axios.delete(this.baseUrl + this.formatedPath(path), {
-            headers: this.headers,
-        })
+    put(path: string, data: any) {
+        return this.make('put',path,{data:data})
+    }
+
+    patch(path: string, data: any) {
+        return this.make('patch',path,{data:data})
+    }
+
+    delete(path: string) {
+        return this.make('delete',path)
     }
     private formatedPath(path: string) {
         return path.startsWith('/') ? path : `/${path}`
