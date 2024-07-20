@@ -29,12 +29,20 @@ export const schema = new Schema({
         published: Boolean,
         promoted: Boolean,
     },
+    Specifics: [
+        {
+            id: Number,
+            name: String,
+            content: String,
+        },
+    ],
 })
 schema.index({
     name: 'text',
     description: 'text',
     'Collection.name': 'text',
     'Collection.description': 'text',
+    'Specifics.content': 'text',
 })
 /**
  *
