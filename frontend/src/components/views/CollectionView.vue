@@ -63,12 +63,13 @@ const breadcrumbLinks = computed(()=>[
         </div>
 
 
-        <div
+        <div v-if="collection && collection?.Products.length > 0"
             class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
         >
           <ProductCard2
               height="300px"
               :key="product.id"
+              :id="product.id"
               v-for="product in collection.Products"
               :name="product.name"
               :slug="product.slug"
@@ -82,6 +83,11 @@ const breadcrumbLinks = computed(()=>[
             </template>
 
           </ProductCard2>
+        </div>
+
+        <div v-else class="text-center flex flex-col justify-center items-center gap-y-4 uppercase">
+          <h1 class="text-2xl">Il semblerait qu'il n'y ai rien ici...</h1>
+          <img src="/src/assets/images/nothing.webp" class="w-96 aspect-square">
         </div>
       </Section>
 
