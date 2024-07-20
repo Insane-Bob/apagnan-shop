@@ -38,7 +38,7 @@ export class OrderController extends Controller {
             this.req.query.set('customerId', this.req.getUser().customer.id)
         const filters = this.validate(OrderValidator, OrderValidator.index())
 
-        const search = new SearchRequest(this.req, ['customerId'])
+        const search = new SearchRequest(this.req, ['customerId', 'id'])
         if (filters.status) {
             const sql = Sequelize.literal(
                 '(SELECT "OrderStatuses"."orderId" FROM "OrderStatuses" WHERE  "OrderStatuses".status IN (:status) AND  "OrderStatuses"."createdAt" = (SELECT MAX(o."createdAt") FROM "OrderStatuses" as o WHERE "OrderStatuses"."orderId" = o."orderId"))',
