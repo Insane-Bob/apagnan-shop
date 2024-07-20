@@ -56,13 +56,11 @@ const columns: TableColumns[] = [
         label: 'Auteur',
         key: 'User',
         toDisplay: (value: any) => value.email,
-        sorting: true,
     },
     {
         label: 'Produit',
         key: 'Product',
         toDisplay: (value: any) => value.name,
-        sorting: true,
     },
     {
         label: 'Date de création',
