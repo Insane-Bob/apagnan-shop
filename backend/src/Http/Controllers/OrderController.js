@@ -19,7 +19,7 @@ import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
-import Sequelize, { Op } from 'sequelize'
+import Sequelize, { Op, where } from 'sequelize'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -251,5 +251,50 @@ export class OrderController extends Controller {
             data: products,
             total: products.length,
         })
+    }
+
+    async getInvoices() {
+        this.can(OrderPolicy.show, this.order)
+
+        const services = new OrderServices(this.order)
+        const payment = await services.getLastSuccessPayment()
+        NotFoundException.abortIf(!payment, 'No payment found')
+
+        const session = await PaymentServices.retrieveSession(payment.sessionId)
+        NotFoundException.abortIf(!session, 'No session found')
+
+        const invoice = await PaymentServices.retrieveInvoice(session.invoice)
+        NotFoundException.abortIf(!invoice, 'No invoice found')
+
+        const requestOrders = await Database.getInstance().models.RefundRequestOrder.findAll(
+            {
+                where: {
+                    orderId: this.order.id,
+                    approved: true,
+                },
+                attributes: ['id'],
+                include: {
+                    model: Database.getInstance().models.OrderRefund,
+                    attributes: ['creditNoteId'],
+                }
+            },
+        )
+        const creditNotes = await Promise.all(
+            requestOrders.map((requestOrder) =>
+                PaymentServices.retrieveCreditNote(requestOrder.OrderRefund.creditNoteId),
+            ),
+        )
+        NotFoundException.abortIf(!creditNotes, 'No credit note found')
+
+        return this.res.json([
+            {
+                file: invoice.invoice_pdf,
+                type: 'invoice',
+            },
+            ...creditNotes.map((creditNote) => ({
+                file: creditNote.pdf,
+                type: 'creditNote',
+            })),
+        ])
     }
 }
