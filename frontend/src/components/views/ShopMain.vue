@@ -1,5 +1,4 @@
 <template>
-    <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
     <div
         v-on:scroll="scrollFunction"
         class="flex flex-col h-full overflow-x-hidden"
@@ -36,6 +35,29 @@
                     </div>
                 </RouterLink>
                 <nav class="flex justy-center items-center gap-x-6">
+                    <!-- SEARCH -->
+                    <form
+                        @submit.prevent="onSearch()"
+                        class="flex justify-center items-center -ml-6 gap-x-2"
+                    >
+                        <input
+                            v-model="search.query"
+                            name="search"
+                            type="text"
+                            class="rounded-sm duration-500 px-2 py-1 max-w-44 text-current"
+                            :class="{
+                                'w-0 border-0 bg-transparent': !search.show,
+                                'w-[30vw] border ml-2': search.show,
+                            }"
+                            placeholder="Search..."
+                        />
+                        <button class="flex justify-center items-center">
+                            <ion-icon
+                                name="search-outline"
+                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100"
+                            ></ion-icon>
+                        </button>
+                    </form>
                     <Sheet v-if="!isLogged">
                         <SheetTrigger as-child>
                             <ion-icon
@@ -74,6 +96,14 @@
                         </SheetTrigger>
                         <SheetContent><CartDrawer /></SheetContent>
                     </Sheet>
+                    
+
+                    <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
+                        <ion-icon
+                            name="laptop-outline"
+                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
+                        ></ion-icon>
+                    </RouterLink>
 
                     <RouterLink to="/profile" v-if="isLogged">
                         <ion-icon
@@ -89,52 +119,6 @@
                         ></ion-icon>
                     </RouterLink>
 
-                    <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
-                        <ion-icon
-                            name="laptop-outline"
-                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
-                    </RouterLink>
-
-                    <!-- SEARCH -->
-                    <form
-                        @submit.prevent="onSearch()"
-                        class="flex justify-center items-center -ml-6 gap-x-2"
-                    >
-                        <input
-                            v-model="search.query"
-                            name="search"
-                            type="text"
-                            class="rounded-sm duration-500 px-2 py-1 max-w-44 text-current"
-                            :class="{
-                                'w-0 border-0 bg-transparent': !search.show,
-                                'w-[30vw] border ml-2': search.show,
-                            }"
-                            placeholder="Search..."
-                        />
-                        <button class="flex justify-center items-center">
-                            <ion-icon
-                                name="search-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100"
-                            ></ion-icon>
-                        </button>
-                    </form>
-
-                    <!-- MOBILE MENU -->
-                    <div
-                        @click="onOpenBurgerMenu()"
-                        class="md:hidden header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-white"
-                    >
-                        <ion-icon
-                            name="menu-outline"
-                            class="text-2xl group-hover:scale-105 duration-100"
-                        ></ion-icon>
-                        <p
-                            class="group-hover:scale-105 hidden md:block duration-100"
-                        >
-                            Menu
-                        </p>
-                    </div>
                 </nav>
             </header>
             <h1
@@ -235,7 +219,6 @@
 
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-
 import PromoBanner from '@components/promo/PromoBanner.vue'
 import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
@@ -244,15 +227,13 @@ import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import CartDrawer from '@components/Drawers/CartDrawer.vue'
 import CookiesModal from '@components/Modals/CookiesModal.vue'
 import FooterComponent from '@components/footer/FooterComponent.vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
 import Button from '@components/ui/button/Button.vue'
-import { useToast } from '@components/ui/toast'
-import { useUserStore } from '@store/user'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
+import {useUserStore} from "@/stores/user";
 
 const apiClient = new ApiClient()
 
@@ -270,12 +251,6 @@ const search = reactive({
 })
 
 const collection = ref<Collection>({} as Collection)
-
-const menuMobileOpen = ref(false)
-
-const onOpenBurgerMenu = () => {
-    menuMobileOpen.value = !menuMobileOpen.value
-}
 
 const onSearch = () => {
     if (!search.show) {

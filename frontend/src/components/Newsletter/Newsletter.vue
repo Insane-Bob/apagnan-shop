@@ -26,8 +26,8 @@ const {submit, errors} = useForm('/newsletter/subscribe',payload)
         <img src="/images/newsletter.png" alt="newsletter" class="w-full h-full object-cover object-top" />
       </div>
       <div class="col-span-3 md:col-span-2  p-6">
-        <h1 class="text-2xl font-bold text-gray-800">Subscribe to our newsletter</h1>
-        <p class="text-gray-600 mt-2">Subscribe to our newsletter and get updates on our latest recipes and offers.</p>
+        <h1 class="text-2xl font-bold text-gray-800">S'abonner à notre Newsletter.</h1>
+        <p class="text-gray-600 mt-2">S'abonner à notre newsletter, afin d'être au courant des dernier produits, et remise en stock.</p>
         <form class="mt-4" @submit.prevent="submit">
             <FormInput :errors="errors"
                        v-model="email"
@@ -39,7 +39,7 @@ const {submit, errors} = useForm('/newsletter/subscribe',payload)
 
                 </div>
                 <Input
-                    placeholder="Enter your email address"
+                    placeholder="Entrer votre adresse e-mail"
                     type="email"
                     v-model="email"
                     v-bind="inputProps"
@@ -47,9 +47,9 @@ const {submit, errors} = useForm('/newsletter/subscribe',payload)
 
               </template>
             </FormInput>
-            <Button class="flex items-center gap-3 mt-3" >
+            <Button class="flex items-center gap-3 mt-3 uppercase" >
               <ion-icon name="send" class="-rotate-45"></ion-icon>
-              S'abbonner
+              <span>S'abonner</span>
             </Button>
         </form>
       </div>
