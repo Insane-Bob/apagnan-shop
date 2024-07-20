@@ -234,6 +234,7 @@ import AuthDrawer from '../Drawers/AuthDrawer.vue'
 import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
 import {useUserStore} from "@/stores/user";
+import {useToast} from "@/stores/toast";
 
 const apiClient = new ApiClient()
 
