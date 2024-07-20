@@ -135,9 +135,6 @@ async function submit() {
             localStorage.setItem('accessToken', response.data.accessToken)
             localStorage.setItem('refreshToken', response.data.refreshToken)
 
-
-
-
             user.setUser(response.data.user)
 
             toast({
