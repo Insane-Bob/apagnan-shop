@@ -7,4 +7,6 @@ export interface Review {
     userId: number
     updatedAt: string
     createdAt: string
+    Product: { id: number; name: string; slug: string }
+    User: { id: number; email: string; firstName: string; lastName: string }
 }
