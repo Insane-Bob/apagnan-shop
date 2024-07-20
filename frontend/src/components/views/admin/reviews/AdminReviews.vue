@@ -1,24 +1,23 @@
 <script setup lang="ts">
+import StarComponent from '@/components/product/StarComponent.vue'
 import DataTable from '@/components/tables/DataTable.vue'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle
+} from '@/components/ui/card'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useFilters } from '@/composables/useFilters'
-import { TableActions, TableColumns } from '@types'
-import { apiClient } from '@/lib/apiClient'
 import { useTable } from '@/composables/useTable'
+import { apiClient } from '@/lib/apiClient'
+import type { Review } from '@/types'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import { ref, watch } from 'vue'
-import StarComponent from '@/components/product/StarComponent.vue'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import type { Review } from '@/types'
+import { TableActions, TableColumns } from '@types'
+import { ref } from 'vue'
 
 const { filters, query, resetFilters } = useFilters({
     rate: [],

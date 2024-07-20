@@ -13,8 +13,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="flex gap-x-5" v-if="reviews.length > 0">
-    <div class="flex flex-col items-center">
+  <div class="flex w-full gap-x-5" v-if="reviews.length > 0">
+    <div class="flex flex-col justify-center items-center">
         <h1 class="text-4xl font-bold">{{ (props.reviews.reduce((acc, review) => acc + review.rate,
             0,
         ) / reviews.length).toPrecision(2) }}<span class="text-base font-light">/5</span></h1>

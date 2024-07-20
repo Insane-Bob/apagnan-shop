@@ -7,7 +7,6 @@ defineProps<{
 </script>
 
 <template>
-    <div>
         <div class="flex gap-1">
             <ion-icon
                 v-for="index in 5"
@@ -16,5 +15,4 @@ defineProps<{
                 class="text-primary"
             ></ion-icon>
         </div>
-    </div>
 </template>

@@ -14,6 +14,12 @@ export class ReviewController extends Controller {
                     approved: true,
                     productId: this.product.id,
                 },
+                include: [
+                    {
+                        model: Database.getInstance().models.User,
+                        attributes: ['id', 'firstName', 'lastName'],
+                    },
+                ],
             })
 
             this.res.status(200).json({
