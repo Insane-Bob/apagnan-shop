@@ -8,12 +8,17 @@ import { PaymentServices } from '../../Services/PaymentServices.js'
 import { EmailSender } from '../../lib/EmailSender.js'
 
 let app = null
+
 describe('AuthController test routes', () => {
-    useFreshDatabase(()=>{
-      EmailSender.send = jest.fn()
-    },()=>{
-      EmailSender.send.mockRestore()
-    })
+    useFreshDatabase(
+        () => {
+            EmailSender.send = jest.fn()
+        },
+        () => {
+            EmailSender.send.mockRestore()
+        },
+    )
+
     beforeEach(async () => {
         await emptyTables()
         app = await setUpApp()
@@ -34,7 +39,7 @@ describe('AuthController test routes', () => {
         PaymentServices.createCustomer.mockRestore()
     })
 
-    // Invalid Password ConfirmationRegister Credentials
+    // Invalid Password Confirmation Register Credentials
     test('POST /api/register - Invalid Password Confirmation', async () => {
         PaymentServices.createCustomer = jest.fn()
         const response = await request(app)
@@ -50,7 +55,7 @@ describe('AuthController test routes', () => {
     })
 
     // Invalid Email Register Credentials
-    test('POST api/register - Invalid Email', async () => {
+    test('POST /api/register - Invalid Email', async () => {
         PaymentServices.createCustomer = jest.fn()
         const response = await request(app)
             .post('/api/register')
@@ -63,7 +68,7 @@ describe('AuthController test routes', () => {
         PaymentServices.createCustomer.mockRestore()
     })
 
-    // Invalid Email Already Exist
+    // Invalid Email Already Exists
     test('POST /api/register - Email already in use', async () => {
         PaymentServices.createCustomer = jest.fn()
         const existingUser = await UserFactory.create({
@@ -82,7 +87,7 @@ describe('AuthController test routes', () => {
         PaymentServices.createCustomer.mockRestore()
     })
 
-    // Invalid Required Fields Missing
+    // Missing Required Fields
     test('POST /api/register - Missing required fields', async () => {
         const response = await request(app)
             .post('/api/register')
@@ -106,6 +111,7 @@ describe('AuthController test routes', () => {
             })
             .set('Accept', 'application/json')
         expect(response.statusCode).toBe(200)
+        PaymentServices.createCustomer.mockRestore()
     })
 
     // Valid Login Credentials
@@ -154,10 +160,13 @@ describe('AuthController test routes', () => {
             .set('Accept', 'application/json')
             .set('Authorization', `Bearer ${accessToken}`)
 
-        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(token.identifier)
+        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(
+            token.identifier,
+        )
         expect(TokenServices.retrieveUserFromToken.mock.calls[0][0]).toBe(token)
         expect(response.statusCode).toBe(200)
         expect(response.body?.user?.id).toBe(userInstance.id)
+    })
 
     // Revoked User Access Token
     test('POST /api/me - Revoked Token', async () => {
@@ -165,7 +174,7 @@ describe('AuthController test routes', () => {
             password: 'BonjourJeSuisUnPassword75@!',
         })
 
-        const token = await TokenServices.createToken(user.id)
+        const token = await TokenServices.createToken(userInstance.id)
         const accessToken = TokenServices.generateAccessToken(token)
         await TokenServices.revokeToken(token)
 
@@ -182,7 +191,7 @@ describe('AuthController test routes', () => {
             password: 'BonjourJeSuisUnPassword75@!',
         })
 
-        const token = await TokenServices.createToken(user.id)
+        const token = await TokenServices.createToken(userInstance.id)
         token.expireAt = new Date('2021-01-01')
         await token.save()
         const accessToken = TokenServices.generateAccessToken(token)
@@ -193,7 +202,7 @@ describe('AuthController test routes', () => {
         expect(response.statusCode).toBe(401)
     })
 
-    // No Token Provied
+    // No Token Provided
     test('POST /api/me - No token provided', async () => {
         const response = await request(app)
             .get('/api/me')
