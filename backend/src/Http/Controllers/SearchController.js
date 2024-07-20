@@ -12,7 +12,12 @@ export class SearchController extends Controller {
         ]
     }
 
-    async makeQuery(collection, searchString) {
+    async makeQuery(
+        collection,
+        searchString,
+        aggregate = [],
+        matchCustom = [],
+    ) {
         let indexes = await collection.listIndexes()
         let textIndex = indexes.find((index) => index.key._fts === 'text')
         let attributes = Object.keys(textIndex.weights)
@@ -34,7 +39,7 @@ export class SearchController extends Controller {
         return collection.aggregate([
             {
                 $match: {
-                    $or: matchOrClause,
+                    $or: [...matchOrClause, ...matchCustom],
                 },
             },
             {
@@ -108,5 +113,23 @@ export class SearchController extends Controller {
         ].sort((a, b) => b.score - a.score)
 
         this.res.json(contact)
+    }
+
+    async FrontProductSearch() {
+        const { s: searchString } = this.validate(SearchValidator)
+        const results = await this.makeQuery(
+            Database.getInstance().mongoModels.Products,
+            searchString,
+            [],
+            [
+                {
+                    'Specifics.content': {
+                        $regex: searchString,
+                        $options: 'i',
+                    },
+                },
+            ],
+        )
+        this.res.json(results)
     }
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SmallProductCard from '@components/Cards/SmallProductCard.vue'
 import Slider from '@components/ui/slider/Slider.vue'
+import SearchProduct from '@components/product/SearchProduct.vue'
 import { onBeforeMount, onUpdated, reactive, ref } from 'vue'
 
 interface ProductFilter {
@@ -95,6 +96,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
+    <SearchProduct />
     <div
         class="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 px-12 lg:px-32 mt-24 pt-12 justify-items-center"
     >

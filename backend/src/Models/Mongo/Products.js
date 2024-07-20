@@ -42,7 +42,6 @@ schema.index({
     description: 'text',
     'Collection.name': 'text',
     'Collection.description': 'text',
-    'Specifics.content': 'text',
 })
 /**
  *
