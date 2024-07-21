@@ -24,12 +24,6 @@ export const schema = new Schema({
     },
 })
 
-schema.index({
-    firstName: 'text',
-    lastName: 'text',
-    email: 'text',
-    phone: 'text',
-})
 
 /**
  *
@@ -38,6 +32,20 @@ schema.index({
  */
 export default function (mongoose) {
     const model = mongoose.model('Users', schema)
+    model.searchAttributes = [
+        {
+            name: 'firstName',
+        },
+        {
+            name: 'lastName',
+        },
+        {
+            name: 'email',
+        },
+        {
+            name: 'phone',
+        },
+    ]
     model.createIndexes()
     return model
 }

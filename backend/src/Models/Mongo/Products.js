@@ -37,12 +37,6 @@ export const schema = new Schema({
         },
     ],
 })
-schema.index({
-    name: 'text',
-    description: 'text',
-    'Collection.name': 'text',
-    'Collection.description': 'text',
-})
 /**
  *
  * @param mongoose {Mongoose}
@@ -50,6 +44,23 @@ schema.index({
  */
 export default function (mongoose) {
     const model = mongoose.model('Products', schema)
+    model.searchAttributes = [
+        {
+            name: 'name',
+        },
+        {
+            name: 'description',
+        },
+        {
+            name: 'Collection.name',
+        },
+        {
+            name: 'Collection.description',
+        },
+        {
+            name: 'Specifics.content',
+        }
+    ]
     model.createIndexes()
     return model
 }

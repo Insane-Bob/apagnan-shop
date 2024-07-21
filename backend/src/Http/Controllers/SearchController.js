@@ -18,9 +18,7 @@ export class SearchController extends Controller {
         aggregate = [],
         matchCustom = [],
     ) {
-        let indexes = await collection.listIndexes()
-        let textIndex = indexes.find((index) => index.key._fts === 'text')
-        let attributes = Object.keys(textIndex.weights)
+        let attributes = collection.searchAttributes.map((attr) => attr.name)
         function escapeRegExp(string) {
             return string.trim().replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
         }
@@ -46,7 +44,21 @@ export class SearchController extends Controller {
                 $addFields: {
                     concatenatedFields: {
                         $concat: attributes.map((attr) => ({
-                            $ifNull: [`$${attr}`, ''],
+                            $cond : {
+                                if: {
+                                    $isArray: `$${attr}`
+                                },
+                                then:{
+                                    $reduce:{
+                                        input: `$${attr}`,
+                                        initialValue: "",
+                                        in: {
+                                            $concat: ["$$value", " ", "$$this"]
+                                        }
+                                    }
+                                },
+                                else: `$${attr}`
+                            }
                         })),
                     },
                 },
@@ -80,9 +92,9 @@ export class SearchController extends Controller {
                 $limit: 10,
             },
             {
-                $project: {
-                    concatenatedFields: 0,
-                },
+                 $project: {
+                     concatenatedFields: 0,
+                 },
             },
         ])
     }
@@ -121,14 +133,6 @@ export class SearchController extends Controller {
             Database.getInstance().mongoModels.Products,
             searchString,
             [],
-            [
-                {
-                    'Specifics.content': {
-                        $regex: searchString,
-                        $options: 'i',
-                    },
-                },
-            ],
         )
         this.res.json(results)
     }
