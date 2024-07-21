@@ -19,6 +19,11 @@ const props = defineProps<{
     height?: string
 }>()
 
+
+const isProduct = computed(()=>{
+  return props.collection ? true : false
+})
+
 const _slug = computed(()=>{
   return props.collection ? `/collections/${props.collection.slug}/products/${props.slug}` : `/collections/${props.slug}`
 })
@@ -35,9 +40,10 @@ const _slug = computed(()=>{
             height: props.height ?? '470px'
         }">
             <img v-if="props.image"
-                :src="'/src/' + props.image.path"
+                :src="props.image.url"
                 alt="product image"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-contain bg-white"
+                 :class="[isProduct ? 'object-contain' : 'object-cover']"
             />
 
             <div v-else class="relative h-full w-full">

@@ -91,6 +91,16 @@ function model(sequelize, DataTypes) {
             stock: {
                 type: DataTypes.VIRTUAL,
             },
+
+            mainImage:{
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (this.images && this.images.length > 0) {
+                        return this.images[0]
+                    }
+                    return null
+                }
+            }
         },
         {
             sequelize,

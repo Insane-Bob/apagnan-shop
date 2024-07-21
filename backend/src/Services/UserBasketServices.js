@@ -33,6 +33,9 @@ export class UserBasketServices {
                             {
                                 model: Database.getInstance().models.Product,
                                 as: 'Product',
+                                include:{
+                                    association: 'images',
+                                }
                             },
                         ],
                     },

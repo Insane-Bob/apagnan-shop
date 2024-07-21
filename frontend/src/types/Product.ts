@@ -14,7 +14,14 @@ export interface Product extends Suggestion{
     collectionId: number
     published: boolean
     stock: number
+    mainImage: {
+        url: string
+        uploadId : number
+        productId : number
+        file: Upload
+    }
     images?: {
+        url : string
         uploadId : number
         productId : number
         file: Upload
