@@ -515,11 +515,11 @@ const removePromo = () => {
                 <p>
                   €
                   {{
-                    user.getCart.reduce(
+                    (user.getCart.reduce(
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
-                    ) * 0.2
+                    ) * 0.2).toFixed(2)
                   }}
                 </p>
               </div>
