@@ -34,7 +34,7 @@ export class PaymentServices {
      * @param {Order} order
      * @returns {Promise<void>}
      */
-    static async createCheckoutSession(order, user) {
+    static async createCheckoutSession(order, user, discounts = []) {
         const orderService = new OrderServices(order)
         const lineItems = await orderService.getStripeLineItems()
         const customer = await orderService.getCustomer()
