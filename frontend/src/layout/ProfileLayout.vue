@@ -11,7 +11,6 @@ import CardTitle from "@components/ui/card/CardTitle.vue";
 import CardDescription from "@components/ui/card/CardDescription.vue";
 import Separator from "@components/ui/separator/Separator.vue";
 import CardContent from "@components/ui/card/CardContent.vue";
-
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import Button from "@components/ui/button/Button.vue";
 import DeleteAccount from "@components/Modals/DeleteAccount.vue";

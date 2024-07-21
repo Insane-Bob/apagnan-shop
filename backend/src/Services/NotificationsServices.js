@@ -11,6 +11,8 @@ import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { UserNotificationServices } from './UserNotificationServices.js'
 import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
 import { UserServices } from './UserServices.js'
+import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
+import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -21,10 +23,6 @@ export class NotificationsServices {
                 })
                 .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
         await EmailSender.send(connectionAttempt3FailedEmail)
-    }
-
-    static async notifyValidateEmail(user) {
-        console.log(`Sending validate email to ${user.email}`)
     }
 
     static async notifyRegisterUser(user, accessLink) {
@@ -71,14 +69,14 @@ export class NotificationsServices {
     }
 
     static async notifySuccessPaymentCustomer(user, order) {
-        // const successPaymentEmail = new SuccessPaymentEmail()
-        //     .setParams({
-        //         name: user.firstName + ' ' + user.lastName,
-        //         order: order.id,
-        //     })
-        //     .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-        //
-        // await EmailSender.send(successPaymentEmail)
+        const successPaymentEmail = new SuccessPaymentEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+                order_id: order.id,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(successPaymentEmail)
     }
 
     static async notifyFailedPaymentCustomer(user) {
@@ -91,6 +89,16 @@ export class NotificationsServices {
         await EmailSender.send(failedPaymentEmail)
     }
 
+    static async notifyAccountActivated(user) {
+        const activatedAccountEmail = new AccountActivatedEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(activatedAccountEmail)
+    }
+
     static async notifyNewRefundRequest(refundRequest) {
         console.log(`Sending new refund request notification to admins`)
     }
@@ -101,28 +109,35 @@ export class NotificationsServices {
         console.log(`Sending refund approved notification to ${customer.email}`)
     }
 
-    static async notifyDeliveryOrder(user, product, order) {
-        const notifyEmail = new DeliveryEmail()
-            .setParams({
-                user: user.firstName + ' ' + user.lastName,
-                product_name: product.name,
-                quantity: order.quantity,
-                order: order.number,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(notifyEmail)
-    }
-
-    static async notifyAccountActivated(user) {
-        const activatedAccountEmail = new AccountActivatedEmail()
+    static async notifyOrderSupported(user, order) {
+        const orderLink = `${process.env.FRONT_END_URL}/profile/command/${order}`
+        const orderSupportedEmail = new OrderSupportedEmail()
             .setParams({
                 name: user.firstName + ' ' + user.lastName,
+                order_id: orderLink,
             })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+            .addTo(
+                `${user.email}`,
+                `${user.firstName} ${user.lastName}`,
+            )
 
-        await EmailSender.send(activatedAccountEmail)
+        await EmailSender.send(orderSupportedEmail)
     }
+
+    // !!! NOT USED YET !!!
+    // ---------------------
+    // static async notifyDeliveryOrder(user, product, order) {
+    //     const notifyEmail = new DeliveryEmail()
+    //         .setParams({
+    //             user: user.firstName + ' ' + user.lastName,
+    //             product_name: product.name,
+    //             quantity: order.quantity,
+    //             order: order.number,
+    //         })
+    //         .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+    //     await EmailSender.send(notifyEmail)
+    // }
 
     static async notifyOrderStatusUpdate(order, status) {
         //@TODO : send email to the customer to notify him that his order status has changed
@@ -179,6 +194,7 @@ export class NotificationsServices {
             }),
         )
     }
+
     static async notifyProductPriceUpdate(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForProduct(
@@ -218,7 +234,6 @@ export class NotificationsServices {
     /**
      * RGPD
      */
-
     static async notifyUserPersonalDataDeleted(user) {}
 
     static async notifyUserPersonalDataJobEnd(user, url) {

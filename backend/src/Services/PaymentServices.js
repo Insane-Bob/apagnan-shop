@@ -52,16 +52,19 @@ export class PaymentServices {
             100, // Replace to 1
         )
 
-
         const session = await stripe.checkout.sessions.create({
             customer: customer.stripeId,
             payment_method_types: ['card'],
             line_items: lineItems,
             currency: 'eur',
             discounts: discounts,
+
             mode: 'payment',
             currency: 'eur',
             automatic_tax: {
+                enabled: true,
+            },
+            invoice_creation: {
                 enabled: true,
             },
             success_url: `${URLUtils.removeLastSlash(process.env.APP_URL)}/api/payments/success?orderId=${order.id}&a=${accessLink.identifier}`,
@@ -131,6 +134,7 @@ export class PaymentServices {
 
             const session = await PaymentServices.retrieveSession(
                 refundRequest.sessionId,
+                { expand: ['payment_intent'] },
             )
             BadRequestException.abortIf(
                 !session.payment_intent,
@@ -138,14 +142,23 @@ export class PaymentServices {
             )
 
             const refund = await stripe.refunds.create({
-                payment_intent: session.payment_intent,
-                amount: parseInt(refundRequest.amount),
+                payment_intent: session.payment_intent.id,
+                amount: parseInt(refundRequest.amount) * 100,
+            })
+
+            const creditNote = await stripe.creditNotes.create({
+                refund: refund.id,
+                invoice: session.payment_intent.invoice,
+                amount: parseInt(refundRequest.amount) * 100,
+                reason: 'product_unsatisfactory',
+                memo: refundRequest.reason,
             })
 
             await Database.getInstance().models.OrderRefund.create(
                 {
                     refundId: refund.id,
                     requestRefundId: refundRequest.id,
+                    creditNoteId: creditNote.id,
                 },
                 {
                     transaction,
@@ -227,6 +240,14 @@ export class PaymentServices {
         return stripe.checkout.sessions.list({
             payment_intent: paymentIntentId,
         })
+    }
+
+    static retrieveInvoice(invoiceId) {
+        return stripe.invoices.retrieve(invoiceId)
+    }
+
+    static retrieveCreditNote(creditNoteId) {
+        return stripe.creditNotes.retrieve(creditNoteId)
     }
 
     static constructEvent(...args) {
