@@ -222,11 +222,23 @@ function onExecMultiAction(callBack: (item: any) => void) {
                             :multiActionLength="props.multiActions?.length"
                             :columns="column"
                         >
-                            <slot :name="'row:' + column.key" :row="row">{{
-                                column.toDisplay
-                                    ? column.toDisplay(row[column.key])
-                                    : row[column.key]
-                            }}</slot>
+                            <slot :name="'row:' + column.key" :row="row">
+
+                              <RouterLink v-if="column?.to" :to="column.to(row)" class="text-primary hover:text-primary/80">
+                                {{
+                                  column.toDisplay
+                                      ? column.toDisplay(row[column.key])
+                                      : row[column.key]
+                                }}
+                              </RouterLink>
+                              <template v-else>
+                                {{
+                                  column.toDisplay
+                                      ? column.toDisplay(row[column.key])
+                                      : row[column.key]
+                                }}
+                              </template>
+                            </slot>
                         </CellTable>
 
                         <CellTable v-if="props.actions && props.actions.length">

@@ -9,17 +9,27 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import { useFilters } from '@/composables/useFilters'
+import {computed, watch} from "vue";
+import {useRoute} from "vue-router";
 
 const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
 
-const { filters, query, resetFilters } = useFilters({
-    withCustomer: [],
+const route = useRoute()
+const filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     role: [],
     search: '',
+    id: filterId.value
 })
+watch(filterId, () => {
+  filters.id = filterId.value
+})
+
+
+
 const { rows, pagination, sorting,fetch } = useTable('/users', query)
 
 const columns: TableColumns[] = [
@@ -129,11 +139,6 @@ const loginAs = async (id: number) => {
                 v-model="filters.search"
             >
             </OutlinedInput>
-
-            <Filter label="Compte client" v-model="filters.withCustomer">
-                <FilterItem value="true" label="oui" />
-                <FilterItem value="false" label="non" />
-            </Filter>
             <Filter label="Role" v-model="filters.role">
                 <FilterItem value="admin" label="Administrateur" />
                 <FilterItem value="store_keeper" label="Gestion des stock" />

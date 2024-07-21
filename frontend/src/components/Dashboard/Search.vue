@@ -16,6 +16,7 @@ import {
 } from '@components/ui/command'
 import { computed, ref, watch } from 'vue'
 import { ApiClient } from '@/lib/apiClient'
+import {useRouter} from "vue-router";
 
 const apiClient = new ApiClient()
 
@@ -65,6 +66,12 @@ function filterFunction(list, searchTerm) {
 }
 
 watch(search, fetch, { immediate: true })
+
+const router = useRouter()
+function goToPage(route){
+  router.push('/admin'+route)
+  isOpen.value = false
+}
 </script>
 
 <template>
@@ -87,13 +94,13 @@ watch(search, fetch, { immediate: true })
             <CommandList>
                 <CommandEmpty>No results found. {{ search }}</CommandEmpty>
                 <CommandGroup heading="Utilisateurs">
-                    <CommandItem :value="u.id" v-for="u in users">
+                    <CommandItem :value="u.id" v-for="u in users" @click="goToPage('/users?id='+u.id)">
                         <span>{{ u.firstName }} {{ u.lastName }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup heading="Commandes">
-                    <CommandItem :value="o.id" v-for="o in orders">
+                    <CommandItem :value="o.id" v-for="o in orders" @click="goToPage('/orders?id='+o.id)">
                         <span
                             >#{{ o.id }} - {{ o.Customer.User.firstName }}
                             {{ o.Customer.User.lastName }}</span
@@ -101,7 +108,7 @@ watch(search, fetch, { immediate: true })
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Produits">
-                    <CommandItem :value="p.name" v-for="p in products">
+                    <CommandItem :value="p.name" v-for="p in products" @click="goToPage('/products?id='+p.id)">
                         <span>{{ p.name }} - {{ p.Collection.name }}</span>
                     </CommandItem>
                 </CommandGroup>

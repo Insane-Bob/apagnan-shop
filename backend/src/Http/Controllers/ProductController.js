@@ -16,7 +16,7 @@ export class ProductController extends Controller {
             products = await this.collection.getProducts()
             total = products.length
         } else {
-            let search = new SearchRequest(this.req, ['published'], ['name'])
+            let search = new SearchRequest(this.req, ['published','id'], ['name'])
 
             let model = Database.getInstance().models.Product
             total = await model.count(search.queryWithoutPagination)

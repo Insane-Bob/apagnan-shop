@@ -18,7 +18,7 @@ export class UserController extends Controller {
         this.can(UserPolicy.index)
         let search = new SearchRequest(
             this.req,
-            ['role'],
+            ['role','id'],
             ['email', 'firstName', 'lastName'],
         )
 

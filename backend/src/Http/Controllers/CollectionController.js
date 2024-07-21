@@ -7,7 +7,7 @@ import { SearchRequest } from '../../lib/SearchRequest.js'
 export class CollectionController extends Controller {
     collection
     async getCollections() {
-        let search = new SearchRequest(this.req, ['published'], ['name'])
+        let search = new SearchRequest(this.req, ['published','id'], ['name'])
 
         let model = Database.getInstance().models.Collection
         if (this.req.query.has('withImage')) model = model.scope('withImage')
