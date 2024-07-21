@@ -12,10 +12,11 @@ import {
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { defineProps, ref } from 'vue'
+import {computed, defineProps, ref} from 'vue'
 
 import { ApiClient } from '@/lib/apiClient'
 import { Collection } from '@types'
+import ImagePicker from "@components/Inputs/ImagePicker.vue";
 
 const apiClient = new ApiClient()
 
@@ -37,13 +38,16 @@ const onSubmit = () => {
   }
 }
 
+const image = ref(props.collection?.image || null)
+
 const updateCollection = async () => {
     const response = await apiClient.patch('collections/' + props.collection.slug, 
         {
             ...props.collection,
             name: name.value,
             description: description.value,
-            published: published.value
+            published: published.value,
+            imageId: image.value?.id ?? null
         }
     )
 
@@ -57,7 +61,8 @@ const createCollection = async () => {
     const response = await apiClient.post('collections/' ,{
             name: name.value,
             description: description.value,
-            published: published.value
+            published: published.value,
+            imageId: image.value?.id ?? null
         })
 
     if (response.status === 200) {
@@ -65,6 +70,13 @@ const createCollection = async () => {
         emit('reloadCollection', data.collection)
     }
 }
+
+const images = computed({
+  get: () => [image] || [],
+  set: (value) => {
+    image.value = value[0]
+  }
+})
 
 </script>
 
@@ -99,9 +111,8 @@ const createCollection = async () => {
           </Label>
           <Switch name="published" type="text" :checked="published" @click="published = !published" class=""/>
         </div>
-      
         </FormGrid>
-
+        <ImagePicker label="Image" :multiple="false" limit="1" v-model="images"></ImagePicker>
         <DialogFooter class="mt-4">
           <DialogClose>
             <Button variant="destructive">Fermer</Button>

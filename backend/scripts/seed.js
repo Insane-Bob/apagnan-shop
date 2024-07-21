@@ -35,7 +35,7 @@ export async function seed() {
     seederInstance.db.sequelize.options.logging = false
 
     const seedersPath = path.resolve('src/database/seeders')
-    const seeders = fs.readdirSync(seedersPath)
+    const seeders = fs.readdirSync(seedersPath).filter((file) => file.includes('.js'))
 
     for (const seeder of seeders) {
         console.time('== ' + seeder + ': seeded in')

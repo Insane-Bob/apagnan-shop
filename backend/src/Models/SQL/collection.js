@@ -6,12 +6,8 @@ import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/Product
 function model(sequelize, DataTypes) {
     class Collection extends DenormalizableModel {
         static associate(models) {
-            models.Collection.hasOne(models.Upload, {
-                foreignKey: 'modelId',
-                constraints: false,
-                scope: {
-                    modelName: 'collection',
-                },
+            models.Collection.belongsTo(models.Upload, {
+                foreignKey: 'imageId',
                 as: 'image',
             })
             models.Collection.hasMany(models.Product, {
@@ -24,12 +20,16 @@ function model(sequelize, DataTypes) {
                 include: [
                     {
                         model: models.Upload,
+                        as: 'image',
                     },
                 ],
             })
             models.Collection.addScope('withProducts', {
                 include: {
                     model: models.Product,
+                    include:{
+                        association: 'images'
+                    }
                 },
             })
         }
@@ -55,6 +55,7 @@ function model(sequelize, DataTypes) {
             description: DataTypes.STRING,
             published: DataTypes.BOOLEAN,
             promoted: DataTypes.BOOLEAN,
+            imageId: DataTypes.INTEGER,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
         },
