@@ -72,9 +72,8 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('ProductImages');
-    await queryInterface.dropTable('Uploads');
     await queryInterface.removeColumn('Collections', 'imageId');
-
+    await queryInterface.dropTable('Uploads');
     await queryInterface.createTable('Uploads', {
       id: {
         type: Sequelize.INTEGER,
@@ -104,3 +103,4 @@ module.exports = {
     });
   }
 };
+

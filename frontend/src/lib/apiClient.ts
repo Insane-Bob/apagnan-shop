@@ -21,8 +21,11 @@ class ApiClient {
         return axios({
             method: method,
             url: this.baseUrl + this.formatedPath(path),
-            headers: this.headers,
-            ...options
+            ...options,
+            headers:{
+                ...this.headers,
+                ...options?.headers
+            },
         })
     }
 
@@ -30,8 +33,8 @@ class ApiClient {
         return this.make('get',path)
     }
 
-    post(path: string, data: any) {
-        return this.make('post',path,{data:data})
+    post(path: string, data: any,options = {}) {
+        return this.make('post',path,{data:data,...options})
     }
 
     put(path: string, data: any) {

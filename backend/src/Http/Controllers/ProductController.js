@@ -24,6 +24,9 @@ export class ProductController extends Controller {
             if (this.req.query.has('withCollection'))
                 model = model.scope('withCollection')
 
+            if(this.req.query.has('withImages'))
+                model = model.scope('withImages')
+
             let query = { ...search.query }
             if (this.req.query.has('random')) {
                 query.limit = search.query.limit || 1
@@ -37,34 +40,19 @@ export class ProductController extends Controller {
 
         await ProductServices.loadRemainingStock(products)
 
-        const images = await Database.getInstance().models.Upload.findAll({
-            where: {
-                modelId: products.map((product) => product.id),
-                modelName: 'product',
-            },
-        })
-
         this.res.status(200).json({
             data: products,
             total: total,
-            images,
         })
     }
 
     async getProduct() {
         const product = this.product
         await ProductServices.loadRemainingStock(product)
-        const images = await Database.getInstance().models.Upload.findAll({
-            where: {
-                modelId: product.id,
-                modelName: 'product',
-            },
-        })
         NotFoundException.abortIf(!product)
 
         this.res.status(200).json({
             product: product,
-            images: images,
         })
     }
 
@@ -73,14 +61,7 @@ export class ProductController extends Controller {
         const payload = this.validate(ProductValidator)
         const product =
             await Database.getInstance().models.Product.create(payload)
-        /* if (this.req.files && this.req.files.length > 0) {
-            const imagePaths = this.req.files.map((file) => ({
-                modelId: product.id,
-                modelName: 'product',
-                imagePath: file.path,
-            }))
-            await Database.getInstance().models.Upload.bulkCreate(imagePaths)
-        } */
+        await ProductServices.syncImages(product, payload.imagesIds)
         if (product) {
             this.res.status(201).json({
                 product: product,
@@ -91,17 +72,8 @@ export class ProductController extends Controller {
     async updateProduct() {
         this.can(ProductPolicy.update)
         const payload = this.validate(ProductValidator)
-        const rowsEdited = await this.product.update(payload)
-        /* if (this.req.files && this.req.files.length > 0) {
-            const imagePaths = this.req.files.map((file) => ({
-                modelId: product.id,
-                modelName: 'product',
-                imagePath: file.path,
-            }))
-            await Database.getInstance().models.Upload.bulkCreate(imagePaths)
-        } */
-        NotFoundException.abortIf(!rowsEdited)
-
+        await this.product.update(payload)
+        await ProductServices.syncImages(this.product, payload.imagesIds)
         this.res.status(200).json({
             product: this.product,
         })

@@ -8,6 +8,7 @@ function model(sequelize, DataTypes) {
         static associate(models) {
             models.Collection.belongsTo(models.Upload, {
                 foreignKey: 'imageId',
+                as: 'image',
             })
             models.Collection.hasMany(models.Product, {
                 foreignKey: 'collectionId',
@@ -19,6 +20,7 @@ function model(sequelize, DataTypes) {
                 include: [
                     {
                         model: models.Upload,
+                        as: 'image',
                     },
                 ],
             })

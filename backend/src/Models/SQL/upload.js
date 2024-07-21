@@ -31,7 +31,7 @@ function model(sequelize, DataTypes) {
             url:{
                 type: DataTypes.VIRTUAL,
                 get(){
-                    return `${process.env.APP_URL}/uploads/${this.hash}`
+                    return `${process.env.APP_URL}/api/uploads/${this.hash}`
                 }
             }
         },

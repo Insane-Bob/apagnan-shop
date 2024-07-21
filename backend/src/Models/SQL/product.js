@@ -20,6 +20,7 @@ function model(sequelize, DataTypes) {
 
             Product.hasMany(models.ProductImage, {
                 foreignKey: 'productId',
+                as: 'images',
             })
 
             Product.hasMany(models.OrderDetail, {
@@ -48,6 +49,7 @@ function model(sequelize, DataTypes) {
             models.Product.addScope('withImages', {
                 include: {
                     model: models.ProductImage,
+                    as: 'images',
                 },
             })
             models.Product.addScope('withCollection', {

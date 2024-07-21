@@ -17,6 +17,7 @@ const apiClient = new ApiClient()
 const { filters, query, resetFilters } = useFilters({
     published: [],
     search: '',
+    withImage: true
 })
 
 const { fetch, rows, pagination, sorting } = useTable('/collections', query)

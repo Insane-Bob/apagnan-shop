@@ -6,7 +6,8 @@ class ProductImage extends Model{
             foreignKey: 'productId'
         });
         ProductImage.belongsTo(models.Upload,{
-            foreignKey: 'uploadId'
+            foreignKey: 'uploadId',
+            as: 'file'
         });
     }
 
@@ -14,7 +15,8 @@ class ProductImage extends Model{
         models.ProductImage.addScope('defaultScope', {
             include: [
                 {
-                    model: models.Upload
+                    model: models.Upload,
+                    as: 'file'
                 }
             ]
         });
@@ -40,7 +42,7 @@ function model(sequelize,DataTypes){
         url:{
             type: DataTypes.VIRTUAL,
             get(){
-                return this.Upload.url
+                return this.file.url
             }
         }
     },{

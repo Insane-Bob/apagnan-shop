@@ -7,6 +7,8 @@ export class CollectionProvider extends Provider {
     fetch(model, paramValue, request) {
         if (request.query.has('withProducts'))
             model = model.scope('withProducts')
+        if(request.query.has('withImage'))
+            model = model.scope('withImage')
         return model.findOne({
             where: { slug: paramValue },
         })
