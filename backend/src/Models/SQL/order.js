@@ -73,6 +73,9 @@ export class Order extends Model {
                     as: 'statusHistory',
                 },
                 {
+                    model: models.Promo,
+                },
+                {
                     model: models.OrderDetail,
                     include: [
                         {

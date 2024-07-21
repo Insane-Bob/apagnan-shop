@@ -215,7 +215,7 @@ async function handlePay() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card v-if="order">
                     <CardHeader>
                         <CardDescription>
                             Contenu de votre commande
@@ -228,10 +228,18 @@ async function handlePay() {
                     </CardContent>
                     <Separator />
                     <CardFooter class="pt-4">
-                        <div class="flex flex-1 flex-row justify-end">
+                        <div class="flex flex-1 flex-row" 
+                        :class="{'justify-end': !order.Promo, 'justify-between': order.Promo}"
+                        >
+                        <div v-if="order.Promo">
+                            <div>
+                                <CardDescription>Remise</CardDescription>
+                                <CardTitle>{{ order.Promo.value }} {{ order.Promo.type === 'percent' ? '%' : '€' }} <span class="text-base font-light">({{ order.Promo.code }})</span></CardTitle>
+                            </div>
+                        </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ order.total }} €</CardTitle>
+                                <CardTitle>{{ order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0) }} €</CardTitle>
                             </div>
                         </div>
                     </CardFooter>
