@@ -143,6 +143,7 @@ async function submit() {
             description:
                 'Connexion réussie, bienvenue dans votre espace personnel !',
             status: 'success',
+            duration: 2000,
         })
 
         // Redirect to profile page
@@ -157,6 +158,8 @@ function handleError(error) {
         title: 'Erreur',
         description: 'La connexion a échoué, veuillez réessayer.',
         status: 'error',
+        variant: 'destructive',
+        duration: 2000,
     })
     if (error.response && error.response.data && error.response.data.errors) {
         errors.value = error.response.data.errors

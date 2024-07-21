@@ -17,6 +17,7 @@ export default async function () {
         .count(30 * this.factor)
         .create({
             password: 'admin@email.comA2024',
+            emailVerifiedAt: new Date(),
         })
     this.references.set('users', [...users, adminUser])
 }

@@ -140,6 +140,8 @@ async function submit() {
             data,
         )
 
+        toast.success('Votre mot de passe a été réinitialisé avec succès ! 🎉')
+
         isSubmitted.value = true
     } catch (error) {
         errors.value = error.response.data.message
