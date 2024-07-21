@@ -2,11 +2,8 @@
 import { Model } from 'sequelize'
 
 function model(sequelize, DataTypes) {
-    class Upload extends Model {
-        static associate(models) {
-            //
-        }
-    }
+    class Upload extends Model {}
+
     Upload.init(
         {
             id: {
@@ -14,24 +11,35 @@ function model(sequelize, DataTypes) {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            modelId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            modelName: {
+            name: {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            path: {
+            path:{
                 type: DataTypes.STRING,
-                allowNull: false,
+                allowNull: false
+            },
+            hash:{
+                type: DataTypes.STRING,
+                allowNull: false
+            },
+            mime:{
+                type: DataTypes.STRING,
+                allowNull: false
             },
             createdAt: DataTypes.DATE,
-            updatedAt: DataTypes.DATE,
+            url:{
+                type: DataTypes.VIRTUAL,
+                get(){
+                    return `${process.env.APP_URL}/uploads/${this.hash}`
+                }
+            }
         },
         {
             sequelize,
             modelName: 'Upload',
+            updatedAt: false
+
         },
     )
     return Upload

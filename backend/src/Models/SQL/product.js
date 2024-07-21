@@ -17,14 +17,11 @@ function model(sequelize, DataTypes) {
             Product.hasMany(models.Review, {
                 foreignKey: 'productId',
             })
-            Product.hasMany(models.Upload, {
-                foreignKey: 'modelId',
-                constraints: false,
-                scope: {
-                    modelName: 'product',
-                },
-                as: 'images',
+
+            Product.hasMany(models.ProductImage, {
+                foreignKey: 'productId',
             })
+
             Product.hasMany(models.OrderDetail, {
                 foreignKey: 'productId',
             })
@@ -48,6 +45,11 @@ function model(sequelize, DataTypes) {
         }
 
         static addScopes(models) {
+            models.Product.addScope('withImages', {
+                include: {
+                    model: models.ProductImage,
+                },
+            })
             models.Product.addScope('withCollection', {
                 include: {
                     model: models.Collection,
