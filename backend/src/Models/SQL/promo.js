@@ -26,9 +26,6 @@ function model(sequelize, DataTypes) {
             stripeId: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
-            stock: {
-                type: DataTypes.VIRTUAL,
-            },
         },
         {
             sequelize,

@@ -10,6 +10,7 @@ import Filter from '@components/tables/Filter.vue'
 import {computed, onMounted, ref} from 'vue'
 import {useFetch} from "@/composables/useFetch";
 import type {Order, TableActions} from "@/types";
+import {OrderFormat} from "@/utils/orderFormat";
 
 
 const { filters, query } = useFilters({
@@ -66,9 +67,8 @@ const columns: TableColumns[] = [
 
     {
         label: 'Total',
-        key: 'total',
+        key: 'totalFormatted',
         sorting: false,
-        toDisplay: (value: number) => `${value} €`,
     },
 
     {

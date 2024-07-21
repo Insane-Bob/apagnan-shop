@@ -21,6 +21,7 @@ import IncomeEvolutionGraph from '@components/Dashboard/IncomeEvolutionGraph.vue
 import Tabs from '@components/ui/tabs/Tabs.vue'
 import TabsList from '@components/ui/tabs/TabsList.vue'
 import TabsTrigger from '@components/ui/tabs/TabsTrigger.vue'
+import {Money} from "@/utils/money.js";
 
 const widgetAvailable = reactive([
     {
@@ -70,13 +71,13 @@ const widgetAvailable = reactive([
             url: `/stats/orders`,
             description: 'Revenus totaux',
             afterFetch: (data, dataRef) => {
-                dataRef.value =
-                    data
-                        .filter(
-                            (o) =>
-                                o._id.paid
-                        )
-                        .reduce((acc, curr) => acc + curr.total, 0) + '€'
+
+                dataRef.value = Money.format(data
+                    .filter(
+                        (o) =>
+                            o._id.paid
+                    )
+                    .reduce((acc, curr) => acc + curr.total, 0))
             },
         },
     },

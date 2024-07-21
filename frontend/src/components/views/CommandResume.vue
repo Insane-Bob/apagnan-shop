@@ -17,6 +17,8 @@ import { usePaymentBroadcastChannel } from '@/composables/usePaymentBroadcastCha
 import { useUserStore } from '@/stores/user'
 import CommandManageMenu from '@components/Menus/CommandManageMenu.vue'
 import DocumentsList from '@components/views/order/DocumentsList.vue'
+import {OrderFormat} from "../../utils/orderFormat";
+import {Money} from "../../utils/money";
 
 const apiClient = new ApiClient()
 
@@ -113,7 +115,7 @@ async function handlePay() {
                     <div class="">
                         <CardTitle>
                             Suivi de la commande
-                            <b>n°{{ order?.id }}</b></CardTitle
+                            <b>{{OrderFormat.formatOrderNumber(order.id)}}</b></CardTitle
                         >
                         <CardDescription>
                             Votre commande est
@@ -239,7 +241,7 @@ async function handlePay() {
                         </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0) }} €</CardTitle>
+                                <CardTitle>{{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}</CardTitle>
                             </div>
                         </div>
                     </CardFooter>

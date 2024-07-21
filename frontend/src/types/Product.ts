@@ -6,6 +6,7 @@ export interface Product extends Suggestion{
     id: number
     modele: string
     price: number
+    priceFormatted:string,
     image: string
     category: string
     createdAt: string

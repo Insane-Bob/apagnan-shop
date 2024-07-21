@@ -262,7 +262,7 @@ watch(() => product.value, () => {
                     </div>
                     <div>
                         <p class="text-2xl font-semibold">
-                            € {{ product.price }}
+                            {{ product.priceFormatted }}
                         </p>
                         <p
                             class="text-sm"
