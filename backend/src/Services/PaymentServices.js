@@ -56,6 +56,9 @@ export class PaymentServices {
             customer: customer.stripeId,
             payment_method_types: ['card'],
             line_items: lineItems,
+            currency: 'eur',
+            discounts: discounts,
+
             mode: 'payment',
             currency: 'eur',
             automatic_tax: {
