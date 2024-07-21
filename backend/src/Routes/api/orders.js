@@ -11,6 +11,7 @@ export default function (router) {
             this.post('/:order/pay', OrderController, 'pay')
             this.post('/:order/ask-for-refund', OrderController, 'askForRefund')
             this.get('/:order/products', OrderController, 'getProducts')
+            this.get('/:order/invoices', OrderController, 'getInvoices')
         })
         .provide(OrderProvider)
 }

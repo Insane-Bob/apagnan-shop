@@ -15,6 +15,7 @@ import {apiClient} from "@/lib/apiClient";
 import {useCart} from "@/composables/useCart";
 import {orderRoutesName} from "@/routes/order";
 import {useRouter} from "vue-router";
+import RefundRequestForm from "../Forms/RefundRequestForm.vue";
 
 const props = defineProps<{
   order: Order
@@ -61,7 +62,7 @@ const canRefund = computed(()=>{
 const hasRefundWaiting = computed(()=>
     order.value.RefundRequestOrders.filter(
         (r) => !r.approved,
-    ).length === 0)
+    ).length !== 0)
 
 </script>
 
@@ -129,7 +130,3 @@ const hasRefundWaiting = computed(()=>
   </Dialog>
 
 </template>
-
-<style scoped>
-
-</style>

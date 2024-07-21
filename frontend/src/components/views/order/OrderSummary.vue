@@ -118,6 +118,7 @@ const goToPayment = async () => {
         toast({
             title: 'Veuillez choisir une adresse de livraison',
             variant: 'destructive',
+            duration: 2000,
         })
         return
     }
@@ -128,6 +129,7 @@ const goToPayment = async () => {
             toast({
                 title: "Veuillez remplir tous les champs de l'adresse de livraison",
                 variant: 'destructive',
+                duration: 2000,
             })
             return
         }
@@ -282,6 +284,7 @@ const createOrder = async (
     if (response.status === 201) {
         toast({
             title: 'Votre commande a été enregistrée',
+            duration: 1000,
         })
         // user.clearCart()
         return response.data.id
@@ -289,6 +292,7 @@ const createOrder = async (
         toast({
             title: 'Une erreur est survenue lors de la création de votre commande',
             variant: 'destructive',
+            duration: 2000,
         })
         return 0
     }
