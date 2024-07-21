@@ -5,11 +5,12 @@ export class CollectionProvider extends Provider {
     static model = 'Collection'
 
     fetch(model, paramValue, request) {
+        let scopes = []
         if (request.query.has('withProducts'))
-            model = model.scope('withProducts')
+            scopes.push('withProducts')
         if(request.query.has('withImage'))
-            model = model.scope('withImage')
-        return model.findOne({
+            scopes.push('withImage')
+        return model.scope(scopes).findOne({
             where: { slug: paramValue },
         })
     }

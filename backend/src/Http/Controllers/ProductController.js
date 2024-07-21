@@ -21,11 +21,12 @@ export class ProductController extends Controller {
             let model = Database.getInstance().models.Product
             total = await model.count(search.queryWithoutPagination)
 
-            if (this.req.query.has('withCollection'))
-                model = model.scope('withCollection')
+            let scopes= []
 
+            if (this.req.query.has('withCollection'))
+                scopes.push('withCollection')
             if(this.req.query.has('withImages'))
-                model = model.scope('withImages')
+                scopes.push('withImages')
 
             let query = { ...search.query }
             if (this.req.query.has('random')) {
@@ -35,7 +36,7 @@ export class ProductController extends Controller {
                 )
             }
 
-            products = await model.findAll(query)
+            products = await model.scope(scopes).findAll(query)
         }
 
         await ProductServices.loadRemainingStock(products)

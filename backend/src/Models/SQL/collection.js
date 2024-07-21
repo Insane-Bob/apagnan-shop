@@ -27,6 +27,9 @@ function model(sequelize, DataTypes) {
             models.Collection.addScope('withProducts', {
                 include: {
                     model: models.Product,
+                    include:{
+                        association: 'images'
+                    }
                 },
             })
         }

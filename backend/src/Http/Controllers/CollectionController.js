@@ -47,14 +47,12 @@ export class CollectionController extends Controller {
                         model: Database.getInstance().models.Product,
                         include: [
                             {
-                                model: Database.getInstance().models.Upload,
-                                as: 'images',
+                                association: 'images',
                             },
                         ],
                     },
                     {
-                        model: Database.getInstance().models.Upload,
-                        as: 'image',
+                        association: 'image',
                     },
                 ],
             })
