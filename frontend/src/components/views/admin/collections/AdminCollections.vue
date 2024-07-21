@@ -11,14 +11,24 @@ import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import { Collection, TableActions, TableColumns } from '@types'
 import { reactive } from 'vue'
+import {useRoute} from "vue-router";
+import {computed, watch} from "vue";
 
 const apiClient = new ApiClient()
 
-const { filters, query, resetFilters } = useFilters({
+
+const route = useRoute()
+const filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     published: [],
     search: '',
-    withImage: true
+    withImage: true,
+    id: filterId.value,
 })
+watch(filterId, () => {
+  filters.id = filterId.value
+})
+
 
 const { fetch, rows, pagination, sorting } = useTable('/collections', query)
 

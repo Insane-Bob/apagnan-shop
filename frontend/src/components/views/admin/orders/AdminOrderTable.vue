@@ -4,20 +4,29 @@ import { useTable } from '@/composables/useTable'
 import DataTable from '@components/tables/DataTable.vue'
 import { Dialog } from '@components/ui/dialog'
 import { type TableColumns, type User } from '@types'
-import { useToast } from '@components/ui/toast'
 import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
 import {computed, onMounted, ref} from 'vue'
 import {useFetch} from "@/composables/useFetch";
 import type {Order, TableActions} from "@/types";
 import {OrderFormat} from "@/utils/orderFormat";
+import {watch} from "vue";
+import {useRoute} from "vue-router";
+import OrderUpdateForm from "@components/views/admin/orders/orderUpdateForm.vue";
 
 
+const route = useRoute()
+const filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     status: [],
     customerId: [],
-    id: "",
+    id: filterId.value,
 })
+watch(filterId, () => {
+  filters.id = filterId.value
+})
+
+
 const {  rows, pagination, sorting, fetch } = useTable('/orders', query)
 
 const customers = ref<{
@@ -48,6 +57,7 @@ const columns: TableColumns[] = [
         label: 'Client',
         key: 'Customer',
         sorting: false,
+        to: (row) => `/admin/users?id=${row.Customer.User.id}`,
         toDisplay: (customer: { User: User }) => {
             return `${customer.User.firstName} ${customer.User.lastName}`
         },
