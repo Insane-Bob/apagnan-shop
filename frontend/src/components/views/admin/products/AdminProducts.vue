@@ -28,8 +28,8 @@ const columns: TableColumns[] = [
         sorting: true,
     },
     {
-        label: 'Prix (€)',
-        key: 'price',
+        label: 'Prix (TTC)',
+        key: 'priceFormatted',
         sorting: true,
     },
     {

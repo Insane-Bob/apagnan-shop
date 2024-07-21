@@ -78,7 +78,7 @@ const onQuantityUpdated = async () => {
             </div>
             <div class="flex flex-col gap-y-2">
                 <h3 class="text-lg font-semibold">{{ product.name }}</h3>
-                <p class="text-sm">prix: {{ product.price }} €</p>
+                <p class="text-sm">prix: {{ product.priceFormatted }}</p>
                 <p class="text-sm">quantité: x{{ quantity }}</p>
             </div>
             <div class="flex justify-end grow">

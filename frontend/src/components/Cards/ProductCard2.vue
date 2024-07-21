@@ -67,7 +67,7 @@ const _slug = computed(()=>{
 
             <div class="text-lg flex flex-col justify-end font-bold" v-if="props.price">
               <slot name="price">
-                <p>{{ props.price }}€</p>
+                <p>{{ props.price }}</p>
               </slot>
             </div>
         </div>

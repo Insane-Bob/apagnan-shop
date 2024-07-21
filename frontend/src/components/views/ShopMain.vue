@@ -160,7 +160,7 @@
                     :name="product.name"
                     :slug="product.slug"
                     :shortDescription="product.description"
-                    :price="product.price"
+                    :price="product.priceFormatted"
                     :image="product.mainImage"
                     height="300px"
                 />

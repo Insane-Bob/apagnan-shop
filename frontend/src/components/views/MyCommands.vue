@@ -18,6 +18,8 @@ import Separator from '@components/ui/separator/Separator.vue'
 import CardContent from '@components/ui/card/CardContent.vue'
 import CardFooter from '@components/ui/card/CardFooter.vue'
 import OrderDetailsProductList from '@components/product/OrderDetailsProductList.vue'
+import {Money} from "../../utils/money";
+import {OrderFormat} from "../../utils/orderFormat";
 
 const apiClient = new ApiClient()
 
@@ -32,6 +34,7 @@ const statusTranslate = {
     pending: 'En attente',
     processing: 'En cours de traitement',
     paid: 'Payée',
+    payment_failed: 'Paiement échoué',
     cancel: 'Annulée',
     shipped: 'Expédiée',
     delivered: 'Livrée',
@@ -104,7 +107,7 @@ const fetchOrders = async () => {
                     <CardHeader class="flex flex-row justify-between">
                         <div>
                             <CardDescription>
-                                Commande n°{{ order.id }}
+                                Commande {{ OrderFormat.formatOrderNumber(order.id) }}
                             </CardDescription>
                             <CardTitle>
                                 {{ statusTranslate[order.status] }}
@@ -149,7 +152,9 @@ const fetchOrders = async () => {
                             </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0) }} €</CardTitle>
+                                <CardTitle>
+                                  {{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}
+                                </CardTitle>
                             </div>
                         </div>
                     </CardFooter>

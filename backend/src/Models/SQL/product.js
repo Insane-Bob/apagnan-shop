@@ -4,6 +4,7 @@ import slugify from 'slugify'
 import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
 import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import {Money} from "../../utils/money.js";
 
 function model(sequelize, DataTypes) {
     class Product extends DenormalizableModel {
@@ -91,7 +92,6 @@ function model(sequelize, DataTypes) {
             stock: {
                 type: DataTypes.VIRTUAL,
             },
-
             mainImage:{
                 type: DataTypes.VIRTUAL,
                 get() {
@@ -99,6 +99,12 @@ function model(sequelize, DataTypes) {
                         return this.images[0]
                     }
                     return null
+                }
+            },
+            priceFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(Number(this.price))
                 }
             }
         },
