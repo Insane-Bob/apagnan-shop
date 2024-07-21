@@ -92,7 +92,7 @@ const reviewForm = reactive<{ rate: number; content: string }>({
 
 const fetchProduct = async () => {
     try {
-        const response = await apiClient.get('products/' + route.params.pslug + "?withImages=tru")
+        const response = await apiClient.get('products/' + route.params.pslug + "?withImages=true")
         const data = response.data
 
         product.value = data.product
