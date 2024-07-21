@@ -2,6 +2,7 @@ import { Controller } from '../../Core/Controller.js'
 import { SearchValidator } from '../../Validator/SearchValidator.js'
 import { Database } from '../../Models/index.js'
 import { SearchPolicy } from '../Policies/SearchPolicy.js'
+import {ProductServices} from "../../Services/ProductServices.js";
 
 export class SearchController extends Controller {
     get collectionsToSearch() {
@@ -37,7 +38,12 @@ export class SearchController extends Controller {
         return collection.aggregate([
             {
                 $match: {
-                    $or: [...matchOrClause, ...matchCustom],
+                    $or: matchCustom,
+                }
+            },
+            {
+                $match: {
+                    $or: matchOrClause,
                 },
             },
             {
@@ -129,11 +135,15 @@ export class SearchController extends Controller {
 
     async FrontProductSearch() {
         const { s: searchString } = this.validate(SearchValidator)
+
         const results = await this.makeQuery(
             Database.getInstance().mongoModels.Products,
             searchString,
-            [],
+            [
+
+            ],
         )
-        this.res.json(results)
+
+        this.res.json(products)
     }
 }
