@@ -64,7 +64,6 @@ export class ReviewController extends Controller {
     }
 
     async createReview() {
-        this.req.body.userId = this.req.user.id
         const payload = this.validate(ReviewValidator)
         const review =
             await Database.getInstance().models.Review.create(payload)
