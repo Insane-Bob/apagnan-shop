@@ -341,7 +341,6 @@ onMounted(async () => {
         })        
     }
 
-    window.removeEventListener('scroll', scrollFunction)
     await fetchPromotedCollection()
     await fetchCollections()
     loading.value = false
