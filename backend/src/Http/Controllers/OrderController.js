@@ -19,7 +19,7 @@ import { UserBasketServices } from '../../Services/UserBasketServices.js'
 import { OrderDenormalizationTask } from '../../lib/Denormalizer/tasks/OrderDenormalizationTask.js'
 import { OrderServices } from '../../Services/OrderServices.js'
 import { PaymentStatus } from '../../Models/SQL/payment.js'
-import Sequelize, { Op } from 'sequelize'
+import Sequelize, { Op, where } from 'sequelize'
 
 export class OrderController extends Controller {
     user_resource /** @provide by UserProvider if set */
@@ -38,7 +38,7 @@ export class OrderController extends Controller {
             this.req.query.set('customerId', this.req.getUser().customer.id)
         const filters = this.validate(OrderValidator, OrderValidator.index())
 
-        const search = new SearchRequest(this.req, ['customerId'])
+        const search = new SearchRequest(this.req, ['customerId', 'id'])
         if (filters.status) {
             const sql = Sequelize.literal(
                 '(SELECT "OrderStatuses"."orderId" FROM "OrderStatuses" WHERE  "OrderStatuses".status IN (:status) AND  "OrderStatuses"."createdAt" = (SELECT MAX(o."createdAt") FROM "OrderStatuses" as o WHERE "OrderStatuses"."orderId" = o."orderId"))',
@@ -59,7 +59,7 @@ export class OrderController extends Controller {
 
         const orders = await model.findAll(search.query)
 
-        const total = await model.count(search.queryWithoutPagination)
+        const total = await model.unscoped().count(search.queryWithoutPagination)
 
         this.res.json({
             data: orders,
@@ -72,6 +72,7 @@ export class OrderController extends Controller {
         this.res.json({
             ...this.order.toJSON(),
             RefundRequestOrders: refundsRequest,
+            Promo: await this.order.getPromo(),
         })
     }
     async store() {
@@ -216,10 +217,6 @@ export class OrderController extends Controller {
         this.can(OrderPolicy.show, this.order)
         const payload = this.validate(AskForRefundValidator)
         BadRequestException.abortIf(
-            this.order.status != OrderStatus.DELIVERED,
-            'Cannot refund an order that is not delivered',
-        )
-        BadRequestException.abortIf(
             this.order.status == OrderStatus.REFUNDED,
             'Cannot refund an order that is already refunded',
         )
@@ -255,5 +252,50 @@ export class OrderController extends Controller {
             data: products,
             total: products.length,
         })
+    }
+
+    async getInvoices() {
+        this.can(OrderPolicy.show, this.order)
+
+        const services = new OrderServices(this.order)
+        const payment = await services.getLastSuccessPayment()
+        NotFoundException.abortIf(!payment, 'No payment found')
+
+        const session = await PaymentServices.retrieveSession(payment.sessionId)
+        NotFoundException.abortIf(!session, 'No session found')
+
+        const invoice = await PaymentServices.retrieveInvoice(session.invoice)
+        NotFoundException.abortIf(!invoice, 'No invoice found')
+
+        const requestOrders = await Database.getInstance().models.RefundRequestOrder.findAll(
+            {
+                where: {
+                    orderId: this.order.id,
+                    approved: true,
+                },
+                attributes: ['id'],
+                include: {
+                    model: Database.getInstance().models.OrderRefund,
+                    attributes: ['creditNoteId'],
+                }
+            },
+        )
+        const creditNotes = await Promise.all(
+            requestOrders.map((requestOrder) =>
+                PaymentServices.retrieveCreditNote(requestOrder.OrderRefund.creditNoteId),
+            ),
+        )
+        NotFoundException.abortIf(!creditNotes, 'No credit note found')
+
+        return this.res.json([
+            {
+                file: invoice.invoice_pdf,
+                type: 'invoice',
+            },
+            ...creditNotes.map((creditNote) => ({
+                file: creditNote.pdf,
+                type: 'creditNote',
+            })),
+        ])
     }
 }

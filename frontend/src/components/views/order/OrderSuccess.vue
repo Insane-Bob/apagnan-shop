@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
-import {useRoute} from "vue-router";
-import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
-import { useUserStore } from '@/stores/user';
-import { onMounted } from 'vue';
+import { useRoute } from 'vue-router'
+import { usePaymentBroadcastChannel } from '@/composables/usePaymentBroadcastChannel'
+import { useUserStore } from '@/stores/user'
+import { onMounted } from 'vue'
+import { ApiClient } from '@/lib/apiClient'
 
 const user = useUserStore()
+const apiClient = new ApiClient()
+const route = useRoute()
 
 onMounted(() => {
-  user.clearCart
+    apiClient.get(`/emails/order-supported/${route.query.orderId}`)
+    user.clearCart
 })
 
 if (window.opener) {
-  const route = useRoute()
-  const {send} = usePaymentBroadcastChannel()
-  send({
-    type: 'payment',
-    status: 'success',
-    orderId: route.query.orderId
-  })
-  window.close()
+    const { send } = usePaymentBroadcastChannel()
+    send({
+        type: 'payment',
+        status: 'success',
+        orderId: route.query.orderId,
+    })
+    window.close()
 }
 </script>
 

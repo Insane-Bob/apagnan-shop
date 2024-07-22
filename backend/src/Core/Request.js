@@ -17,6 +17,11 @@ export class Request {
         this.user = null
         this.token = null
     }
+
+    get files(){
+        return new ParametersBag(this._req.files)
+    }
+
     loadParams() {
         this.params = new ParametersBag(this._req.params)
     }

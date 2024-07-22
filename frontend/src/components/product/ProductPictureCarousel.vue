@@ -49,7 +49,7 @@ watchOnce(emblaMainApi, (emblaMainApi) => {
           <div class="p-1">
             <Card class="border-0 shadow-none">
               <CardContent class="flex aspect-square items-center justify-center p-3 border-none">
-                <img :src="url" :alt="'Image ' + (index + 1)" class="w-full h-full object-cover" />
+                <img :src="url" :alt="'Image ' + (index + 1)" class="w-full h-full object-contain border rounded" />
               </CardContent>
             </Card>
           </div>

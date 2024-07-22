@@ -1,11 +1,6 @@
 <template>
-    <SheetContent>
-        <SheetHeader class="hidden">
-            <SheetTitle>Authentification</SheetTitle>
-            <SheetDescription>
-                Connecte-toi pour retrouver ta tribu de nains de jardin !
-            </SheetDescription>
-        </SheetHeader>
+    <SheetContent class="overflow-auto w-full max-w-none">
+
         <div v-if="isLoginForm">
             <LoginForm
                 @switch-to-register="switchToRegister"

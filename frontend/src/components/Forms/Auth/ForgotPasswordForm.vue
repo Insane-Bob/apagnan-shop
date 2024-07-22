@@ -64,9 +64,11 @@ import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { ref } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
+
+const apiClient = new ApiClient()
 
 const email = ref('')
 const { toast } = useToast()
@@ -76,17 +78,16 @@ async function submit() {
         const data = {
             email: email.value,
         }
-        const response = await apiClient.post('/users/ask-reset-password', data)
+        await apiClient.post('/users/ask-reset-password', data)
 
-        if (response && response.status === 200) {
-            toast({
-                title: 'Succès',
-                description:
-                    'Si votre adresse e-mail est valide, vous recevrez un e-mail de réinitialisation de mot de passe',
-                status: 'success',
-            })
-            email.value = ''
-        }
+        toast({
+            title: 'Succès',
+            description:
+                'Si votre adresse e-mail est valide, vous recevrez un e-mail de réinitialisation de mot de passe',
+            status: 'success',
+            duration: 2000,
+        })
+        email.value = ''
     } catch (error) {
         email.value = ''
         toast({
@@ -95,6 +96,7 @@ async function submit() {
                 'Une erreur est survenue lors de la réinitialisation de votre mot de passe',
             status: 'error',
             variant: 'destructive',
+            duration: 2000,
         })
     }
 }

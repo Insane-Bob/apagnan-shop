@@ -90,7 +90,7 @@ export default async function () {
 
         let products = await ProductFactory.withSpecifics()
             .withStock(this.random(5, 20))
-            .count(5)
+            .count(8 * this.factor)
             .create({
                 collectionId: dbCollection.id,
             })

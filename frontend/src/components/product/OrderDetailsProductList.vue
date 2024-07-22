@@ -21,15 +21,15 @@ async function reorder(detail : OrderDetailsWithProducts) {
   <div v-for="orderDetail in props.orderDetails">
     <div class="flex flex-row justify-between">
       <div class="flex gap-2">
-        <img src="https://placekitten.com/200/200" alt="product" class="w-16 h-16 object-cover rounded-sm"/>
+        <img :src="orderDetail.Product?.mainImage?.url" alt="product" class="w-16 h-16 object-contain rounded-sm"/>
         <div>
           <p>{{ orderDetail.Product.name }}</p>
-          <p class="text-slate-400">{{ orderDetail.quantity }} x {{ orderDetail.unitPrice }} €</p>
+          <p class="text-slate-400">{{ orderDetail.quantity }} x {{ orderDetail.unitPriceFormatted }}</p>
         </div>
 
       </div>
       <div class="text-right">
-        <p class="text-lg font-medium">{{ orderDetail.total }} €</p>
+        <p class="text-lg font-medium">{{ orderDetail.totalFormatted }}</p>
         <Button variant="ghost" class="text-primary" @click="()=>reorder(orderDetail)">Ajouter au panier</Button>
       </div>
     </div>

@@ -2,21 +2,24 @@ import request from 'supertest'
 import setUpApp from '../../app.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
-import {
-    emptyTables,
-    useFreshDatabase,
-} from '../../tests/databaseUtils.js'
+import { emptyTables, useFreshDatabase } from '../../tests/databaseUtils.js'
 import { UserFactory } from '../../database/factories/UserFactory.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
 import { EmailSender } from '../../lib/EmailSender.js'
+import {CaptchaValidator} from "../../Validator/CaptchaValidator.js";
 
 let app = null
 describe('AuthController test routes', () => {
-    useFreshDatabase(()=>{
-      EmailSender.send = jest.fn()
-    },()=>{
-      EmailSender.send.mockRestore()
-    })
+    let baseCaptchaValidatorAfterValidation = CaptchaValidator.prototype.afterValidation
+    useFreshDatabase(
+        () => {
+            CaptchaValidator.prototype.afterValidation = jest.fn(()=>true)
+            EmailSender.send = jest.fn()
+        },
+        () => {
+            EmailSender.send.mockRestore()
+        },
+    )
     beforeEach(async () => {
         await emptyTables()
         app = await setUpApp()
@@ -28,26 +31,48 @@ describe('AuthController test routes', () => {
             .post('/api/register')
             .send({
                 ...UserFactory.instanciate(),
-                password: "BonjourJeSuisUnPassword75@!",
-                passwordConfirmation: "BonjourJeSuisUnPassword75@!"
+                password: 'BonjourJeSuisUnPassword75@!',
+                passwordConfirmation: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
+                approveCGV_CGU: true,
             })
             .set('Accept', 'application/json')
         expect(response.statusCode).toBe(201)
         PaymentServices.createCustomer.mockRestore()
     })
 
+    test('POST /api/register - without CGV', async () => {
+        PaymentServices.createCustomer = jest.fn()
+        const response = await request(app)
+            .post('/api/register')
+            .send({
+                ...UserFactory.instanciate(),
+                password: 'BonjourJeSuisUnPassword75@!',
+                passwordConfirmation: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
+                approveCGV_CGU: false,
+            })
+            .set('Accept', 'application/json')
+        expect(response.statusCode).toBe(422)
+        PaymentServices.createCustomer.mockRestore()
+    })
+
     test('POST /api/login - valid credentials', async () => {
         UserServices.comparePassword = jest.fn(UserServices.comparePassword)
-        UserServices.retrieveUserByEmail = jest.fn(UserServices.retrieveUserByEmail)
+        UserServices.retrieveUserByEmail = jest.fn(
+            UserServices.retrieveUserByEmail,
+        )
 
         const userInstance = await UserFactory.withCustomer().create({
             password: 'BonjourJeSuisUnPassword75@!',
-        });
+            emailVerifiedAt: new Date(),
+        })
         const response = await request(app)
             .post('/api/login')
             .send({
                 email: userInstance.email,
                 password: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
             })
             .set('Accept', 'application/json')
 
@@ -61,10 +86,52 @@ describe('AuthController test routes', () => {
         expect(user?.email).toBe(userInstance.email)
     })
 
+    test('POST /api/login - invalid captcha', async () => {
+        CaptchaValidator.prototype.afterValidation = baseCaptchaValidatorAfterValidation
+        UserServices.comparePassword = jest.fn(UserServices.comparePassword)
+        UserServices.retrieveUserByEmail = jest.fn(
+            UserServices.retrieveUserByEmail,
+        )
+        const userInstance = await UserFactory.withCustomer().create({
+            password: 'BonjourJeSuisUnPassword75@!',
+            emailVerifiedAt: new Date(),
+        })
+        const response = await request(app)
+            .post('/api/login')
+            .send({
+                email: userInstance.email,
+                password: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'invalid',
+            })
+            .set('Accept', 'application/json')
+        expect(response.statusCode).toBe(422)
+        expect(response.body.errors[0].path).toBe('captcha')
+    })
+
+    test('POST /api/login - not verifed account', async () => {
+        UserServices.comparePassword = jest.fn(UserServices.comparePassword)
+        UserServices.retrieveUserByEmail = jest.fn(
+            UserServices.retrieveUserByEmail,
+        )
+
+        const userInstance = await UserFactory.withCustomer().create({
+            password: 'BonjourJeSuisUnPassword75@!',
+        })
+        const response = await request(app)
+            .post('/api/login')
+            .send({
+                email: userInstance.email,
+                password: 'BonjourJeSuisUnPassword75@!',
+            })
+            .set('Accept', 'application/json')
+
+        expect(response.statusCode).toBe(422)
+    })
+
     test('POST /api/me - valid token', async () => {
         const userInstance = await UserFactory.withCustomer().create({
             password: 'BonjourJeSuisUnPassword75@!',
-        });
+        })
         const token = await TokenServices.createToken(userInstance.id)
         const accessToken = TokenServices.generateAccessToken(token)
 
@@ -78,7 +145,9 @@ describe('AuthController test routes', () => {
             .set('Accept', 'application/json')
             .set('Authorization', `Bearer ${accessToken}`)
 
-        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(token.identifier)
+        expect(TokenServices.retrieveTokenFromIdentifier.mock.calls[0][0]).toBe(
+            token.identifier,
+        )
         expect(TokenServices.retrieveUserFromToken.mock.calls[0][0]).toBe(token)
         expect(response.statusCode).toBe(200)
         expect(response.body?.user?.id).toBe(userInstance.id)
@@ -88,10 +157,9 @@ describe('AuthController test routes', () => {
     })
 
     test('POST /api/me - revoked token', async () => {
-
         const userInstance = await UserFactory.withCustomer().create({
             password: 'BonjourJeSuisUnPassword75@!',
-        });
+        })
 
         const token = await TokenServices.createToken(userInstance.id)
         const accessToken = TokenServices.generateAccessToken(token)
@@ -107,7 +175,7 @@ describe('AuthController test routes', () => {
     test('POST /api/me - expired token', async () => {
         const userInstance = await UserFactory.withCustomer().create({
             password: 'BonjourJeSuisUnPassword75@!',
-        });
+        })
 
         const token = await TokenServices.createToken(userInstance.id)
         token.expireAt = new Date('2021-01-01')

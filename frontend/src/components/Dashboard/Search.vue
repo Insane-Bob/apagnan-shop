@@ -15,7 +15,10 @@ import {
     CommandShortcut,
 } from '@components/ui/command'
 import { computed, ref, watch } from 'vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
+import {useRouter} from "vue-router";
+
+const apiClient = new ApiClient()
 
 const isOpen = ref(false)
 const search = ref('')
@@ -63,13 +66,19 @@ function filterFunction(list, searchTerm) {
 }
 
 watch(search, fetch, { immediate: true })
+
+const router = useRouter()
+function goToPage(route){
+  router.push('/admin'+route)
+  isOpen.value = false
+}
 </script>
 
 <template>
     <div>
         <OutlinedInput
             type="search"
-            placeholder="Search..."
+            placeholder="Rechercher..."
             class="md:w-[100px] lg:w-[300px]"
             @mousedown="isOpen = true"
         />
@@ -79,19 +88,19 @@ watch(search, fetch, { immediate: true })
             v-model:open="isOpen"
         >
             <CommandInput
-                placeholder="Type a command or search..."
+                placeholder="Rechercher un produit, un utilisateur, une collections, etc..."
                 @input="handleSearch"
             />
             <CommandList>
-                <CommandEmpty>No results found. {{ search }}</CommandEmpty>
+                <CommandEmpty>Pas de résultat. {{ search }}</CommandEmpty>
                 <CommandGroup heading="Utilisateurs">
-                    <CommandItem :value="u.id" v-for="u in users">
+                    <CommandItem :value="u.id" v-for="u in users" @click="goToPage('/users?id='+u.id)">
                         <span>{{ u.firstName }} {{ u.lastName }}</span>
                     </CommandItem>
                 </CommandGroup>
                 <CommandSeparator />
                 <CommandGroup heading="Commandes">
-                    <CommandItem :value="o.id" v-for="o in orders">
+                    <CommandItem :value="o.id" v-for="o in orders" @click="goToPage('/orders?id='+o.id)">
                         <span
                             >#{{ o.id }} - {{ o.Customer.User.firstName }}
                             {{ o.Customer.User.lastName }}</span
@@ -99,7 +108,7 @@ watch(search, fetch, { immediate: true })
                     </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Produits">
-                    <CommandItem :value="p.name" v-for="p in products">
+                    <CommandItem :value="p.name" v-for="p in products" @click="goToPage('/products?id='+p.id)">
                         <span>{{ p.name }} - {{ p.Collection.name }}</span>
                     </CommandItem>
                 </CommandGroup>

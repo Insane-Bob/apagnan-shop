@@ -9,6 +9,8 @@ import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValid
 import { UserUpdateValidator } from '../../Validator/UserUpdateValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { UserPolicy } from '../Policies/UserPolicy.js'
+import { UserPersonalInformationService } from '../../Services/UserPersonalInformationService.js'
+import { UserInformationDownloadJob } from '../../Jobs/UserInformationDownloadJob.js'
 
 export class UserController extends Controller {
     user_resource /** @provide by UserProvider */
@@ -16,7 +18,7 @@ export class UserController extends Controller {
         this.can(UserPolicy.index)
         let search = new SearchRequest(
             this.req,
-            ['role'],
+            ['role','id'],
             ['email', 'firstName', 'lastName'],
         )
 
@@ -40,7 +42,7 @@ export class UserController extends Controller {
 
     async update() {
         this.can(UserPolicy.update, this.user_resource)
-
+        
         const payload = this.validate(
             UserUpdateValidator,
             this.req.getUser().hasRole(USER_ROLES.ADMIN)
@@ -75,8 +77,21 @@ export class UserController extends Controller {
 
     async delete() {
         this.can(UserPolicy.delete, this.user_resource)
-        const rowsDeleted = await this.user_resource.destroy()
-        NotFoundException.abortIf(rowsDeleted === 0)
+
+        const transaction = await Database.transaction()
+        try {
+            await UserPersonalInformationService.anonymizeUserPersonalInformation(
+                this.user_resource,
+            )
+            await NotificationsServices.notifyUserPersonalDataDeleted(
+                this.user_resource,
+            )
+            await transaction.commit()
+        } catch (e) {
+            await transaction.rollback()
+            throw e
+        }
+
         this.res.json({
             message: 'User deleted',
             success: true,
@@ -125,6 +140,16 @@ export class UserController extends Controller {
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)
 
-        this.res.redirect(`${process.env.FRONT_END_URL}/home`)
+        this.res.redirect(`${process.env.FRONT_END_URL}/home?activate=true`)
+    }
+
+    async askPersonalData() {
+        this.can(UserPolicy.I, this.user_resource)
+        const user = this.req.getUser()
+        UserInformationDownloadJob.start(user.id).then((r) => console.log(r))
+        this.res.status(202).json({
+            message: 'User informations requested',
+            success: true,
+        })
     }
 }

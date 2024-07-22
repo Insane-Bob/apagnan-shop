@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DataTable from '@/components/tables/DataTable.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import type { Order, TableColumns } from '@/types'
 import type { OrderStatus } from '@/types/OrderStatus'
 import { useUserStore } from '@store/user'
@@ -9,15 +9,19 @@ import Button from '../ui/button/Button.vue'
 import type { TableActions } from '@/types'
 import { useRouter } from 'vue-router'
 import { useSort } from '@/composables/useSort'
-import Card from "@components/ui/card/Card.vue";
-import CardDescription from "@components/ui/card/CardDescription.vue";
-import CardTitle from "@components/ui/card/CardTitle.vue";
-import CardHeader from "@components/ui/card/CardHeader.vue";
-import ProfileLayout from "@/layout/ProfileLayout.vue";
-import Separator from "@components/ui/separator/Separator.vue";
-import CardContent from "@components/ui/card/CardContent.vue";
-import CardFooter from "@components/ui/card/CardFooter.vue";
-import OrderDetailsProductList from "@components/product/OrderDetailsProductList.vue";
+import Card from '@components/ui/card/Card.vue'
+import CardDescription from '@components/ui/card/CardDescription.vue'
+import CardTitle from '@components/ui/card/CardTitle.vue'
+import CardHeader from '@components/ui/card/CardHeader.vue'
+import ProfileLayout from '@/layout/ProfileLayout.vue'
+import Separator from '@components/ui/separator/Separator.vue'
+import CardContent from '@components/ui/card/CardContent.vue'
+import CardFooter from '@components/ui/card/CardFooter.vue'
+import OrderDetailsProductList from '@components/product/OrderDetailsProductList.vue'
+import {Money} from "../../utils/money";
+import {OrderFormat} from "../../utils/orderFormat";
+
+const apiClient = new ApiClient()
 
 const router = useRouter()
 const user = useUserStore()
@@ -30,6 +34,7 @@ const statusTranslate = {
     pending: 'En attente',
     processing: 'En cours de traitement',
     paid: 'Payée',
+    payment_failed: 'Paiement échoué',
     cancel: 'Annulée',
     shipped: 'Expédiée',
     delivered: 'Livrée',
@@ -37,70 +42,17 @@ const statusTranslate = {
     cancelled: 'Annulée',
 }
 
-const columns: TableColumns[] = [
-    {
-        label: 'Crée le',
-        key: 'createdAt',
-        sorting: true,
-        sortingType: 'date',
-        toDisplay: (value: string) => {
-            return new Date(
-                value.slice(0, value.indexOf('T')),
-            ).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            })
-        },
-    },
-    {
-        label: "Nombre d'article",
-        key: 'OrderDetails',
-        sorting: true,
-        toDisplay: (value: any) => {
-            return value.length + ' article(s)'
-        },
-    },
-    {
-        label: 'Total',
-        key: 'OrderDetails',
-        sorting: true,
-        toDisplay: (value: any) => {
-            return (
-                value
-                    .map((detail: { total: number }) => detail.total)
-                    .reduce((a: number, b: number) => a + b, 0) + ' €'
-            )
-        },
-    },
-    {
-        label: 'Status',
-        key: 'status',
-        sorting: true,
-        toDisplay: (value: OrderStatus) => {
-            return statusTranslate[value]
-        },
-    },
-]
-
-const actions: TableActions[] = [
-    {
-        label: 'Voir le détail',
-        icon: 'eye-outline',
-        class: 'text-blue-500',
-        action: (row: any) => {
-            router.push('/profile/command/' + row.id)
-        },
-    },
-]
-
 onMounted(async () => {
     await fetchOrders()
     loading.value = false
 })
 
 const fetchOrders = async () => {
-    const response = await apiClient.get('/users/' + user.getId + '/orders?withProducts=true&order=createdAt&direction=desc')
+    const response = await apiClient.get(
+        '/users/' +
+            user.getId +
+            '/orders?withProducts=true&order=createdAt&direction=desc',
+    )
     const data = response.data.data
     data.forEach((c: any) => {
         orders.push(c)
@@ -109,92 +61,121 @@ const fetchOrders = async () => {
 </script>
 <template>
     <ProfileLayout>
-      <div class="flex flex-col gap-6">
-        <h1 class="text-2xl font-bold uppercase tracking-wider">
-          Mes commandes
-        </h1>
+        <div class="flex flex-col gap-6">
+            <h1 class="text-2xl font-bold uppercase tracking-wider">
+                Mes commandes
+            </h1>
+            <div class="flex gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardDescription> Commandes passés </CardDescription>
+                        <CardTitle>
+                            {{ orders.length }}
+                        </CardTitle>
+                    </CardHeader>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardDescription> Commandes en cours </CardDescription>
+                        <CardTitle>
+                            {{
+                                orders.filter((o) =>
+                                    [
+                                        'pending',
+                                        'paid',
+                                        'processing',
+                                        'shipped',
+                                    ].includes(o.status),
+                                ).length
+                            }}
+                        </CardTitle>
+                    </CardHeader>
+                </Card>
+            </div>
 
-        <div class="flex gap-6">
-          <Card>
-            <CardHeader>
-              <CardDescription>
-                Commandes passés
-              </CardDescription>
-              <CardTitle>
-                {{ orders.length }}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>
-                Commandes en cours
-              </CardDescription>
-              <CardTitle>
-                {{ orders.filter((o)=> ['pending','paid','processing','shipped'].includes(o.status)).length }}
-
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
-
-        <div class="grid grid-cols-3 items-center">
-          <CardDescription class="col-span-1">Historique des commandes passés</CardDescription> <Separator class="col-span-2"/>
-        </div>
-
-        <div class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
-
-
-        <Card v-if="orders.length" v-for="order in orders">
-            <CardHeader class="flex flex-row justify-between">
-             <div>
-               <CardDescription>
-                 Commande n°{{ order.id }}
-               </CardDescription>
-               <CardTitle>
-                 {{ statusTranslate[order.status]}}
-               </CardTitle>
-             </div>
-              <div>
-                <RouterLink :to="'/profile/command/' + order.id">
-                  <Button variant="ghost" class="font-bold flex gap-4 text-primary">Voir le détail <ion-icon name="chevron-forward-outline"></ion-icon>
-                  </Button>
-                </RouterLink>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <CardDescription class="mb-2">Produits</CardDescription>
-              <OrderDetailsProductList :order-details="order.OrderDetails"/>
-            </CardContent>
-          <Separator/>
-            <CardFooter class="pt-4">
-              <div class="flex flex-1 flex-row justify-between">
-                <div>
-                  <CardDescription>Crée le</CardDescription>
-                  {{ new Date(order.createdAt.slice(0, order.createdAt.indexOf('T'))).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) }}
+            <div class="grid grid-cols-3 items-center">
+                <div class="flex flex-col gap-y-2">
+                    <CardDescription class="flex flex-col col-span-1"
+                        >Historique des commandes passés</CardDescription
+                    >
+                    <Separator />
                 </div>
-                <div>
-                  <CardDescription>Total</CardDescription>
-                  <CardTitle>{{ order.total}} €</CardTitle>
+            </div>
+
+            <div v-if="orders.length" class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
+                <Card v-for="order in orders" :key="order.id">
+                    <CardHeader class="flex flex-row justify-between">
+                        <div>
+                            <CardDescription>
+                                Commande {{ OrderFormat.formatOrderNumber(order.id) }}
+                            </CardDescription>
+                            <CardTitle>
+                                {{ statusTranslate[order.status] }}
+                            </CardTitle>
+                        </div>
+                        <div>
+                            <RouterLink :to="'/profile/command/' + order.id">
+                                <Button
+                                    variant="ghost"
+                                    class="font-bold flex gap-4 text-primary"
+                                    >Voir le détail
+                                    <ion-icon
+                                        name="chevron-forward-outline"
+                                    ></ion-icon>
+                                </Button>
+                            </RouterLink>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <CardDescription class="mb-2">Produits</CardDescription>
+                        <OrderDetailsProductList
+                            :order-details="order.OrderDetails"
+                        />
+                    </CardContent>
+                    <Separator />
+                    <CardFooter class="pt-4">
+                        <div class="flex flex-1 flex-row justify-between">
+                            <div>
+                                <CardDescription>Crée le</CardDescription>
+                                {{
+                                    new Date(
+                                        order.createdAt.slice(
+                                            0,
+                                            order.createdAt.indexOf('T'),
+                                        ),
+                                    ).toLocaleDateString('fr-FR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    })
+                                }}
+                            </div>
+                            <div>
+                                <CardDescription>Total</CardDescription>
+                                <CardTitle>
+                                  {{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}
+                                </CardTitle>
+                            </div>
+                        </div>
+                    </CardFooter>
+                </Card>
+            </div>
+            <div v-else>
+                <h2 class="text-primary text-sm">Vous n'avez pas encore passé de commande</h2>
+                <div
+                    class="flex flex-col gap-y-7 justify-center items-center mt-6"
+                >
+                    <img
+                        src="/src/assets/images/goToShop.webp"
+                        alt="aller dans la boutique"
+                        class="w-1/2 h-1/2 object-cover rounded-sm"
+                    />
+                    <RouterLink to="/products"
+                        ><Button>Aller dans la boutique</Button></RouterLink
+                    >
                 </div>
-              </div>
-            </CardFooter>
-        </Card>
-        <div v-else class="h-[80vh]">
-          <h2>Vous n'avez pas encore passé de commande</h2>
-          <div class="flex flex-col gap-y-7 justify-center items-center mt-6">
-            <img
-                src="/src/assets/images/goToShop.webp"
-                alt="aller dans la boutique"
-                class="w-1/2 h-1/2 object-cover rounded-sm"
-            />
-            <RouterLink to="/products"
-            ><Button>Aller dans la boutique</Button></RouterLink
-            >
-          </div>
-        </div>
+            </div>
         </div>
 
-      </div>
     </ProfileLayout>
 </template>

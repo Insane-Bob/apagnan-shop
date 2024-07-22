@@ -62,6 +62,10 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
+                await StockService.checkStockForAdminNotif(
+                    orderDetail.productId,
+                )
+
                 this.res.redirect(
                     process.env.FRONT_END_URL +
                         '/order/success?orderId=' +
@@ -186,9 +190,12 @@ export class PaymentController extends Controller {
         let order = await payment.getOrder()
         let service = new OrderServices(order)
         await service.setStatus(OrderStatus.PAID, undefined, false)
-        await service.setStatus(OrderStatus.PROCESSING) //start a denormalization task
+        await service.setStatus(OrderStatus.PROCESSING)
+
+        const user = await (await order.getCustomer()).getUser()
 
         await NotificationsServices.notifySuccessPaymentCustomer(
+            user,
             payment.Order.Customer.User,
             payment.Order,
         )

@@ -2,6 +2,7 @@
 import type { Collection } from './Collection'
 import type { User } from './User'
 import type { Product } from './Product'
+import type { Specific } from './Specific'
 import type { Review } from './Review'
 import type { Address } from './Address'
 import type { Order } from './Order'
@@ -27,6 +28,7 @@ export type {
     TableActions,
     User,
     Product,
+    Specific,
     Review,
     BasketItem,
     Address,

@@ -3,6 +3,7 @@ import setUpApp from '../../app.js'
 import { Database } from '../../Models/index.js'
 import { actingAs } from '../../tests/authTestUtils.js'
 import { USER_ROLES } from '../../Models/SQL/user.js'
+import { UserPersonalInformationService } from '../../Services/UserPersonalInformationService.js'
 
 let app = null
 describe('UserController test routes', () => {
@@ -85,9 +86,23 @@ describe('UserController test routes', () => {
     })
 
     test('DELETE /api/users/:id - no delete user', async () => {
+        let commit = jest.fn()
+        let rollback = jest.fn()
+        Database.transaction = jest.fn(() => ({
+            commit,
+            rollback,
+        }))
+        UserPersonalInformationService.anonymizeUserPersonalInformation =
+            jest.fn()
         loginAsUser()
         await testRequest('/api/users/2', 'delete', 403)
         await testRequest('/api/users/1', 'delete', 200)
+        expect(
+            UserPersonalInformationService.anonymizeUserPersonalInformation,
+        ).toHaveBeenCalled()
+        expect(Database.transaction).toHaveBeenCalled()
+        expect(commit).toHaveBeenCalled()
+        expect(rollback).not.toHaveBeenCalled()
     })
 
     test('GET /api/users/:id - admin access user', async () => {

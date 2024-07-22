@@ -1,146 +1,236 @@
 <script setup lang="ts">
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import PromoBanner from '@components/promo/PromoBanner.vue'
-import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import { computed, reactive, ref } from 'vue'
-import MobileMenu from '@components/mobile/MobileMenu.vue'
 
-import { useUserStore } from '@store/user'
+import Button from "../ui/button/Button.vue";
+import {computed, type HTMLAttributes, reactive} from "vue";
+import OutlinedInput from "@components/ui/input/OutlinedInput.vue";
+import {useUserStore} from "@/stores/user";
+import CartDrawer from "@components/Drawers/CartDrawer.vue";
+import {Sheet, SheetContent, SheetTrigger} from "@components/ui/sheet";
+import AuthDrawer from "@components/Drawers/AuthDrawer.vue";
+import {cn} from "@/utils/utils";
 
-const user = useUserStore()
+const props = defineProps<{
+  variant : string
+  class?: HTMLAttributes['class']
+}>()
 
-const promoPromoted = ref(false)
-
-const isLogged = computed(() => user.isAuthenticated)
-
-const search = reactive({
-    query: '',
-    show: false,
+const userStore = useUserStore()
+const links = computed(()=>{
+  return [
+    {
+      to:'/admin',
+      icon:'laptop-outline',
+      visible: userStore.isAdmin && userStore.isAuthenticated
+    },
+    {
+      to:'/profile',
+      icon:'person-outline',
+      visible: userStore.isAuthenticated
+    },
+    {
+      to:'/logout',
+      icon:'log-out-outline',
+      visible: userStore.isAuthenticated
+    }
+  ]
 })
 
-const menuMobileOpen = ref(false)
+const search = reactive({
+  query: '',
+  show: false,
+})
+function handleSearch(){}
 
-const onOpenBurgerMenu = () => {
-    menuMobileOpen.value = !menuMobileOpen.value
-}
 
-const onSearch = () => {
-    if (!search.show) {
-        search.show = true
-        return
-    }
-
-    alert(`searching for ${search.query}`)
-}
 </script>
 
 <template>
-    <div>
-        <div class="taker w-full h-[96px]"></div>
-        <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true"/>
-        <header
-            class="main-header fixed h-24 bg-white w-full z-40 flex justify-end items-center px-4 md:px-20"
-            :class="{'top-0': !promoPromoted, 'top-8': promoPromoted}"
-        >
-            <RouterLink to="/">
-                <img
-                    class="absolute right-1/2 translate-x-1/2 top-1/2 -translate-y-1/2 h-full pt-4"
-                    src="/src/assets/logo_black.svg"
-                    alt="Apagnain Logo"
-                />
-            </RouterLink>
-            <nav class="flex justy-center gap-x-6 items-center">
-                <Sheet v-if="!isLogged">
-                    <SheetTrigger as-child>
-                        <ion-icon
-                            name="log-in-outline"
-                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
-                    </SheetTrigger>
-                    <SheetContent><AuthDrawer></AuthDrawer></SheetContent>
-                </Sheet>
-
-                <Sheet v-if="isLogged">
-                    <SheetTrigger>
-                        <div class="relative group">
-                            <ion-icon
-                                name="cart-outline"
-                                class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
-                            <div
-                                v-if="user.countCartItem > 0"
-                                class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4"
-                            >
-                                <div
-                                    :class="{
-                                        'animate-ping': user.cartHasNewItems,
-                                        'bg-red-500/20 rounded-full w-4 h-4 absolute': true,
-                                    }"
-                                ></div>
-                                <span class="text-white">{{
-                                    user.countCartItem
-                                }}</span>
-                            </div>
-                        </div>
-                    </SheetTrigger>
-                    <SheetContent><CartDrawer></CartDrawer></SheetContent>
-                </Sheet>
-                
-                <RouterLink to="/admin" class="relative group" v-if="isLogged && user.isAdmin">
-                  <ion-icon 
-                      name="laptop-outline"
-                      class="header-icon text-black text-2xl cursor-pointer group-hover:scale-105 duration-100 hidden md:block"
-                  ></ion-icon>
-                </RouterLink>
-
-                <RouterLink to="/profile" v-if="isLogged">
-                    <button class="flex items-center">
-                        <ion-icon
-                            name="person-outline"
-                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
-                        ></ion-icon>
-                    </button>
-                </RouterLink>
-
-                <form
-                    @submit.prevent="onSearch()"
-                    class="flex justify-center items-center -ml-6 gap-2"
-                >
-                    <input
-                        v-model="search.query"
-                        type="text"
-                        class="rounded-sm duration-300 px-2 py-1 max-w-44"
-                        :class="{
-                            'w-0 border-0': !search.show,
-                            'w-[30vw] border ml-2': search.show,
-                        }"
-                        placeholder="Search..."
-                    />
-                    <button class="flex items-center">
-                        <ion-icon
-                            name="search-outline"
-                            class="header-icon text-black text-2xl cursor-pointer hover:scale-105 duration-100"
-                        ></ion-icon>
-                    </button>
-                </form>
-                <div
-                    @click="onOpenBurgerMenu()"
-                    class="header-icon flex items-center justify-center gap-x-3 cursor-pointer group text-black"
-                >
-                    <ion-icon
-                        name="menu-outline"
-                        class="text-2xl group-hover:scale-105 duration-100"
-                    ></ion-icon>
-                    <p
-                        class="group-hover:scale-105 duration-100 hidden md:block"
-                    >
-                        Menu
-                    </p>
-                </div>
-            </nav>
-        </header>
-        <MobileMenu :isOpen="menuMobileOpen" @close="menuMobileOpen = false" />
+<div>
+  <div class="taker"></div>
+  <header :class="cn('ap-header','ap-header--' + props.variant, props.class)">
+    <div></div>
+    <div class="logo-container">
+      <RouterLink to="/">
+        <img
+            src="/src/assets/logo_black.svg"
+            alt="Apagnain Logo"
+        />
+      </RouterLink>
     </div>
+
+    <div class="actions-container">
+      <form @submit.prevent="handleSearch()" class="search-form" :class="{'search-form--open':search.show}">
+        <OutlinedInput name="search" v-model="search.query" placeholder="Rechercher..."></OutlinedInput>
+        <Button variant="tone-white" size="icon" @click="search.show = !search.show">
+          <ion-icon
+              :name="search.show ? 'close-outline' : 'search-outline'"
+          />
+        </Button>
+      </form>
+
+      <nav>
+        <Sheet v-if="!userStore.isAuthenticated">
+          <SheetTrigger as-child>
+            <Button variant="tone-white" class="flex gap-3">
+              <ion-icon
+                  name="log-in-outline"
+              />
+              <span class="hidden sm:block">Se connecter</span>
+            </Button>
+
+          </SheetTrigger>
+          <SheetContent>
+            <AuthDrawer />
+          </SheetContent>
+        </Sheet>
+
+        <Sheet v-if="userStore.isAuthenticated">
+          <SheetTrigger>
+            <div class="cart-container">
+              <Button variant="tone-white" size="icon">
+                <ion-icon
+                    name="cart-outline"
+                />
+              </Button>
+              <div class="cart-pill bg-red-500"  v-if="userStore.countCartItem > 0">
+                <div :class="{'animate-ping': userStore.cartHasNewItems, 'bg-red-500/20 rounded-full w-4 h-4 absolute': true }"/>
+                <span class="text-white">
+                  {{ userStore.countCartItem }}
+                </span>
+              </div>
+            </div>
+          </SheetTrigger>
+          <SheetContent>
+            <CartDrawer />
+          </SheetContent>
+        </Sheet>
+        <template v-for="link in links">
+          <RouterLink :to="link.to"  v-if="link.visible">
+            <Button variant="tone-white" size="icon">
+              <ion-icon
+                  :name="link.icon"
+              ></ion-icon>
+            </Button>
+          </RouterLink>
+        </template>
+      </nav>
+    </div>
+  </header>
+</div>
 </template>
-<style></style>
+
+<style scoped lang="scss">
+
+.ap-header{
+
+  --gap : 2em;
+  padding: 0 var(--gap);
+  @media screen and (max-width: 768px){
+    --gap: 1em;
+  }
+
+  &--home{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    color: white;
+    background: transparent;
+    transition: 0.2s;
+
+    .logo-container{
+      img{
+        opacity: 0;
+        transition: 0.2s;
+      }
+    }
+  }
+  &--home-white{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background-color: white;
+    color: black;
+    transition: 0.2s;
+
+    .logo-container{
+      img{
+        opacity: 1;
+        transition: 0.2s;
+
+      }
+    }
+  }
+
+
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-gap: var(--gap);
+
+  .logo-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90px;
+  }
+
+  .actions-container{
+    display: flex;
+    justify-content: flex-end;
+
+    .search-form{
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      input{
+        opacity: 0;
+        width: 0;
+        padding: 0;
+        transition: 0.2s ease-in-out;
+      }
+
+      &--open{
+        input{
+          opacity: 1;
+          width: 200px;
+          padding: 0.5em;
+        }
+      }
+    }
+
+    nav{
+      --space : 0.5em;
+      margin-left: var(--space);
+      display: flex;
+      gap: var(--space);
+      align-items: center;
+    }
+    .cart-container{
+      position: relative;
+      .cart-pill{
+        top: -2px;
+        right: -5px;
+        width: 24px;
+        height: 24px;
+        transform: scale(0.8);
+        border-radius:100px;
+        position: absolute;
+      }
+    }
+
+  }
+
+  ion-icon{
+    font-size: 1.5em;
+  }
+
+
+}
+.ag-header--with-promo{
+  top: 2em;
+}
+</style>

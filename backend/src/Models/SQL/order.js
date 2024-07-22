@@ -3,6 +3,7 @@
 import { Model } from 'sequelize'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { PaymentStatus } from './payment.js'
+import {Money} from "../../utils/money.js";
 
 export class Order extends Model {
     static associate(models) {
@@ -57,7 +58,7 @@ export class Order extends Model {
                         model: models.Customer,
                         include: [
                             {
-                                model: models.User,
+                                model: models.User.unscoped(),
                             },
                         ],
                     },
@@ -71,6 +72,10 @@ export class Order extends Model {
                 {
                     model: models.OrderStatus,
                     as: 'statusHistory',
+                    order: [['createdAt', 'DESC']],
+                },
+                {
+                    model: models.Promo,
                 },
                 {
                     model: models.OrderDetail,
@@ -151,6 +156,12 @@ function model(sequelize, DataTypes) {
                 get() {
                     return this.getTotal()
                 },
+            },
+            totalFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(this.total)
+                }
             },
             nbProducts: {
                 type: DataTypes.VIRTUAL,
