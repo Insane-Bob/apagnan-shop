@@ -1,15 +1,17 @@
 <script setup lang="ts">
 
 import Button from "../ui/button/Button.vue";
-import {computed, reactive} from "vue";
+import {computed, type HTMLAttributes, reactive} from "vue";
 import OutlinedInput from "@components/ui/input/OutlinedInput.vue";
 import {useUserStore} from "@/stores/user";
 import CartDrawer from "@components/Drawers/CartDrawer.vue";
 import {Sheet, SheetContent, SheetTrigger} from "@components/ui/sheet";
 import AuthDrawer from "@components/Drawers/AuthDrawer.vue";
+import {cn} from "@/utils/utils";
 
 const props = defineProps<{
   variant : string
+  class?: HTMLAttributes['class']
 }>()
 
 const userStore = useUserStore()
@@ -45,7 +47,7 @@ function handleSearch(){}
 <template>
 <div>
   <div class="taker"></div>
-  <header class="ap-header" :class="['ap-header--' + props.variant]">
+  <header :class="cn('ap-header','ap-header--' + props.variant, props.class)">
     <div></div>
     <div class="logo-container">
       <RouterLink to="/">
@@ -120,6 +122,7 @@ function handleSearch(){}
 <style scoped lang="scss">
 
 .ap-header{
+
   --gap : 2em;
   padding: 0 var(--gap);
   @media screen and (max-width: 768px){
@@ -224,5 +227,10 @@ function handleSearch(){}
   ion-icon{
     font-size: 1.5em;
   }
+
+
+}
+.ag-header--with-promo{
+  top: 2em;
 }
 </style>

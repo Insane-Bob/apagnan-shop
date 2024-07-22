@@ -19,7 +19,7 @@
             ></div>
 
             <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
-            <HeaderComponent :variant="isOnTop ? 'home' : 'home-white'"/>
+            <HeaderComponent :class="{ 'ag-header--with-promo': promoPromoted }" :variant="isOnTop ? 'home' : 'home-white'"/>
             <h1
                 class="main-title uppercase mt-16 md:mt-12 lg:mt-8 text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
@@ -115,7 +115,6 @@
 </template>
 
 <script setup lang="ts">
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import PromoBanner from '@components/promo/PromoBanner.vue'
 import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
@@ -124,16 +123,14 @@ import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import FooterComponent from '@components/footer/FooterComponent.vue'
 import Button from '@components/ui/button/Button.vue'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import {RouterLink, useRouter} from 'vue-router'
 import HeaderComponent from "@components/Header/HeaderComponent.vue";
 import Section from '@/layout/Section.vue'
 import Newsletter from '@components/Newsletter/Newsletter.vue'
-import { useUserStore } from '@/stores/user'
 import { useToast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 
-const user = useUserStore()
 const { toast } = useToast()
 const router = useRouter()
 

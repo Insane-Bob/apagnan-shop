@@ -6,11 +6,14 @@ import { emptyTables, useFreshDatabase } from '../../tests/databaseUtils.js'
 import { UserFactory } from '../../database/factories/UserFactory.js'
 import { PaymentServices } from '../../Services/PaymentServices.js'
 import { EmailSender } from '../../lib/EmailSender.js'
+import {CaptchaValidator} from "../../Validator/CaptchaValidator.js";
 
 let app = null
 describe('AuthController test routes', () => {
+    let baseCaptchaValidatorAfterValidation = CaptchaValidator.prototype.afterValidation
     useFreshDatabase(
         () => {
+            CaptchaValidator.prototype.afterValidation = jest.fn(()=>true)
             EmailSender.send = jest.fn()
         },
         () => {
@@ -30,9 +33,27 @@ describe('AuthController test routes', () => {
                 ...UserFactory.instanciate(),
                 password: 'BonjourJeSuisUnPassword75@!',
                 passwordConfirmation: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
+                approveCGV_CGU: true,
             })
             .set('Accept', 'application/json')
         expect(response.statusCode).toBe(201)
+        PaymentServices.createCustomer.mockRestore()
+    })
+
+    test('POST /api/register - without CGV', async () => {
+        PaymentServices.createCustomer = jest.fn()
+        const response = await request(app)
+            .post('/api/register')
+            .send({
+                ...UserFactory.instanciate(),
+                password: 'BonjourJeSuisUnPassword75@!',
+                passwordConfirmation: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
+                approveCGV_CGU: false,
+            })
+            .set('Accept', 'application/json')
+        expect(response.statusCode).toBe(422)
         PaymentServices.createCustomer.mockRestore()
     })
 
@@ -51,6 +72,7 @@ describe('AuthController test routes', () => {
             .send({
                 email: userInstance.email,
                 password: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'test',
             })
             .set('Accept', 'application/json')
 
@@ -62,6 +84,28 @@ describe('AuthController test routes', () => {
         expect(accessToken).toBeDefined()
         expect(refreshToken).toBeDefined()
         expect(user?.email).toBe(userInstance.email)
+    })
+
+    test('POST /api/login - invalid captcha', async () => {
+        CaptchaValidator.prototype.afterValidation = baseCaptchaValidatorAfterValidation
+        UserServices.comparePassword = jest.fn(UserServices.comparePassword)
+        UserServices.retrieveUserByEmail = jest.fn(
+            UserServices.retrieveUserByEmail,
+        )
+        const userInstance = await UserFactory.withCustomer().create({
+            password: 'BonjourJeSuisUnPassword75@!',
+            emailVerifiedAt: new Date(),
+        })
+        const response = await request(app)
+            .post('/api/login')
+            .send({
+                email: userInstance.email,
+                password: 'BonjourJeSuisUnPassword75@!',
+                captcha: 'invalid',
+            })
+            .set('Accept', 'application/json')
+        expect(response.statusCode).toBe(422)
+        expect(response.body.errors[0].path).toBe('captcha')
     })
 
     test('POST /api/login - not verifed account', async () => {
