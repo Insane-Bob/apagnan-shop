@@ -108,20 +108,22 @@
                     <template #label>Confirmer le mot de passe</template>
                 </PasswordInput>
 
-                <FormInput :errors="errors" name="approveCGV_CGU" inputClass="bg-red-50" variant="none">
+                <div class="flex flex-col gap-6 py-3">
+                  <FormInput :errors="errors" name="approveCGV_CGU" inputClass="bg-red-50" variant="none">
                     <div class="flex gap-2 items-center">
                       <Checkbox
-                        @update:checked="
+                          @update:checked="
                           (checked) => approveCGV_CGU = checked
                         "
                       ></Checkbox>
                       <Label>
-                        Accepter les conditions générales de vente et d'utilisations
+                        Accepter les <RouterLink to="/cgu" class="text-primary underline">conditions générales de vente et d'utilisations</RouterLink>
                       </Label>
                     </div>
-                </FormInput>
+                  </FormInput>
 
-                <Captcha name="catpcha" :errors="errors" v-model="captcha" v-model:id="captchaId"/>
+                  <Captcha name="captcha" :errors="errors" v-model="captcha" v-model:id="captchaId"/>
+                </div>
 
                 <Button :disabled="!isFormValid || isSubmitting">
                     <ion-spinner

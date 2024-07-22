@@ -6,7 +6,7 @@ import MyCommands from '@components/views/MyCommands.vue'
 import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import { useUserStore } from '@store/user'
 import NotificationManagementView from "@components/views/NotificationManagementView.vue";
-import { apiClient } from '@/lib/apiClient'
+import {ApiClient} from '@/lib/apiClient'
 import MyProfile from '@components/views/MyProfile.vue'
 import { useRouter } from 'vue-router'
 
@@ -75,10 +75,9 @@ export const backofficeRoutes = [
             const router = useRouter()
 
             if (localStorage.getItem('accessToken')) {
-                await apiClient.post('logout')
-                localStorage.removeItem('accessToken')
-                localStorage.removeItem('refreshToken')
-                user.clearUser()
+                const apiClient = new ApiClient()
+                await apiClient.post('logout',{})
+                user.logout()
             }
 
             toast({
@@ -86,9 +85,7 @@ export const backofficeRoutes = [
                 description: 'Vous avez été déconnecté.',
             })
 
-            router.push({ name: 'Home' }).then(() => {
-                user.clearUser()
-            })
+            router.push({ name: 'Home' })
         },
     },
 ]

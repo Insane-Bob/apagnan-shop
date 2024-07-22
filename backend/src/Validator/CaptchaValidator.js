@@ -30,6 +30,7 @@ export class CaptchaValidator extends Validator {
       const data = await response.json()
 
       if (!data.success) {
+        console.warn(data)
         throw new ValidationException([
           {
             path: 'captcha',
@@ -38,6 +39,7 @@ export class CaptchaValidator extends Validator {
         ])
       }
     }catch(e){
+      console.error(e)
       throw new ValidationException([
         {
           path: 'captcha',

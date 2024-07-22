@@ -158,8 +158,6 @@ export class AuthController extends Controller {
             'User is not authenticated',
         )
         await TokenServices.revokeToken(this.req.token)
-        this.validate(CaptchaValidator)
-
         this.res.json({ message: 'User logged out', success: true })
     }
 

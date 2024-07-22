@@ -19,115 +19,12 @@
             ></div>
 
             <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
-            <header
-                class="main-header fixed h-24 bg-transparant w-full z-20 flex justify-end items-center px-4 md:px-20"
-                :class="{ 'top-0': !promoPromoted, 'top-8': promoPromoted }"
-            >
-                <RouterLink to="/">
-                    <div
-                        class="header-title tracking-widest uppercase text-black font-bold text-xl md:text-4xl absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 opacity-0"
-                    >
-                        <img
-                            class="flex items-center relative right-1/2 translate-x-40 h-full pt-4"
-                            src="/src/assets/logo_black.svg"
-                            alt="Apagnain Logo"
-                        />
-                    </div>
-                </RouterLink>
-                <nav class="flex justy-center items-center gap-x-6">
-                    <!-- SEARCH -->
-                    <form
-                        @submit.prevent="onSearch()"
-                        class="flex justify-center items-center -ml-6 gap-x-2"
-                    >
-                        <input
-                            v-model="search.query"
-                            name="search"
-                            type="text"
-                            class="rounded-sm duration-500 px-2 py-1 max-w-44 text-current"
-                            :class="{
-                                'w-0 border-0 bg-transparent': !search.show,
-                                'w-[30vw] border ml-2': search.show,
-                            }"
-                            placeholder="Search..."
-                        />
-                        <button class="flex justify-center items-center">
-                            <ion-icon
-                                name="search-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100"
-                            ></ion-icon>
-                        </button>
-                    </form>
-                    <Sheet v-if="!isLogged">
-                        <SheetTrigger as-child>
-                            <ion-icon
-                                name="log-in-outline"
-                                class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                            ></ion-icon>
-                        </SheetTrigger>
-                        <SheetContent>
-                            <AuthDrawer />
-                        </SheetContent>
-                    </Sheet>
-
-                    <Sheet v-if="isLogged">
-                        <SheetTrigger>
-                            <div class="relative group">
-                                <ion-icon
-                                    name="cart-outline"
-                                    class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                                ></ion-icon>
-                                <div
-                                    v-if="user.countCartItem > 0"
-                                    class="group-hover:scale-105 absolute -top-2 -right-2 bg-red-500 rounded-full text-xs text-white w-4 h-4"
-                                >
-                                    <div
-                                        :class="{
-                                            'animate-ping':
-                                                user.cartHasNewItems,
-                                            'bg-red-500/20 rounded-full w-4 h-4 absolute': true,
-                                        }"
-                                    ></div>
-                                    <span class="text-white">{{
-                                        user.countCartItem
-                                    }}</span>
-                                </div>
-                            </div>
-                        </SheetTrigger>
-                        <SheetContent><CartDrawer /></SheetContent>
-                    </Sheet>
-                    
-
-                    <RouterLink to="/admin" v-if="isLogged && user.isAdmin">
-                        <ion-icon
-                            name="laptop-outline"
-                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
-                    </RouterLink>
-
-                    <RouterLink to="/profile" v-if="isLogged">
-                        <ion-icon
-                            name="person-outline"
-                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
-                    </RouterLink>
-
-                    <RouterLink to="/logout" v-if="isLogged">
-                        <ion-icon
-                            name="log-out-outline"
-                            class="header-icon text-white text-2xl cursor-pointer hover:scale-105 duration-100 hidden md:block"
-                        ></ion-icon>
-                    </RouterLink>
-
-                </nav>
-            </header>
+            <HeaderComponent :variant="isOnTop ? 'home' : 'home-white'"/>
             <h1
                 class="main-title uppercase mt-16 md:mt-12 lg:mt-8 text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
                 Apagnain
             </h1>
-
-            <!-- @TODO: Find a way to close the modal -->
 
             <div class="flex flex-col justify-center items-center gap-y-3">
                 <p
@@ -235,6 +132,7 @@ import Section from "@/layout/Section.vue";
 import Newsletter from "@components/Newsletter/Newsletter.vue";
 import {useUserStore} from "@/stores/user";
 import {useToast} from '@components/ui/toast';
+import HeaderComponent from "@components/Header/HeaderComponent.vue";
 
 const apiClient = new ApiClient()
 
@@ -245,23 +143,7 @@ const isLogged = computed(() => user.isAuthenticated)
 const promoPromoted = ref(false)
 
 const loading = ref(true)
-
-const search = reactive({
-    query: '',
-    show: false,
-})
-
 const collection = ref<Collection>({} as Collection)
-
-const onSearch = () => {
-    if (!search.show) {
-        search.show = true
-        return
-    }
-
-    alert(`searching for ${search.query}`)
-}
-
 const isOnTop = ref(true)
 
 function changeBrightness() {
@@ -336,10 +218,6 @@ onMounted(async () => {
     await fetchPromotedCollection()
     await fetchCollections()
     loading.value = false
-    //
-    // setTimeout(() => {
-    //     showCookiesModal.value = false
-    // }, 500)
 })
 
 const collections = ref(null)
@@ -371,18 +249,6 @@ const fetchPromotedCollection = async () => {
     transition: all 1s;
     letter-spacing: 0.1em;
     animation: forwards 1s ease-in-out 0s 1 spaceLetters;
-}
-
-.main-header {
-    transition: all 1s;
-}
-
-.header-icon {
-    transition: all 1s;
-}
-
-.header-title {
-    transition: all 1s;
 }
 
 body {

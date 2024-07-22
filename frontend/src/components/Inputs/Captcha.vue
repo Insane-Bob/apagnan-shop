@@ -55,6 +55,7 @@ onMounted(()=>{
 });
 
 const error = computed(() => {
+  console.log(props.errors,props.name,props?.errors?.find(e => e.path === props.name))
   return props?.errors?.find(e => e.path === props.name);
 });
 
@@ -65,11 +66,13 @@ function handleOpenCookie(){
 </script>
 
 <template>
-    <div :id="uniqueId" v-if="isActive('hCaptcha')"></div>
-    <div v-else class="text-red-400 text-xs">
-      Vous devez activer les cookies hCaptcha pour vous connecter, <span class="underline" @click="handleOpenCookie">gestion des cookies</span>
+    <div>
+      <div :id="uniqueId" v-if="isActive('hCaptcha')"></div>
+      <div v-else class="text-red-400 text-xs">
+        Vous devez activer les cookies hCaptcha pour vous connecter, <span class="underline cursor-pointer" @click="handleOpenCookie">gestion des cookies</span>
+      </div>
+      <div v-if="error" class="text-red-500 text-sm">{{ error.message }}</div>
     </div>
-    <div v-if="error" class="text-red-500 text-sm">{{ error.message }}</div>
 </template>
 
 <style scoped>
