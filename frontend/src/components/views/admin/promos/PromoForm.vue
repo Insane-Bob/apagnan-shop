@@ -36,7 +36,7 @@ const type = ref('')
 const promoted = ref(false)
 const available = ref(false)
 const isModalOpen = ref(true)
-const errors = ref(null)
+const errors = ref<any[]>([])
 
 const onSubmit = () => {
     createPromo()
