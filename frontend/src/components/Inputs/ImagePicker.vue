@@ -137,8 +137,8 @@ async function handleSave(){
             <img :src="image.preview" alt="img" class="h-[100px] w-[100px] object-contain object-center p-2">
           </div>
           <template v-else>
-            <input type="file" @input="(e)=>handleInputFile(e,index)" class="opacity-0 absolute top-0 left-0 right-0 bottom-0 cursor-pointer">
-            <OutlinedInput id="picture" type="file" :multiple="props.multiple" class="hidden mt-[60px]"  />
+            <input type="file" :multiple="props.multiple" @input="(e)=>handleInputFile(e,index)" class="opacity-0 absolute top-0 left-0 right-0 bottom-0 cursor-pointer">
+            <OutlinedInput id="picture" type="file" class="hidden mt-[60px]"  />
             <ion-icon name="cloud-upload-outline" class="text-[3em] pointer-events-none text-slate-500 relative left-[50%] top-[-10%] translate-x-0.5 -translate-y-0.5"></ion-icon>
           </template>
           <span v-if="image.uploadProgress >= 0  && image.uploadProgress < 100" class="text-blue text-xs">

@@ -140,7 +140,7 @@ export class UserController extends Controller {
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)
 
-        this.res.redirect(`${process.env.FRONT_END_URL}/home`)
+        this.res.redirect(`${process.env.FRONT_END_URL}/home?activate=true`)
     }
 
     async askPersonalData() {

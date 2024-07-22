@@ -147,13 +147,12 @@ async function submit() {
         toast({
             title: 'Succès',
             description:
-                'Connexion réussie, bienvenue dans votre espace personnel !',
+                'Connexion réussie, bienvenue !',
             status: 'success',
             duration: 2000,
         })
 
-        // Redirect to profile page
-        router.push('/profile')
+        router.push('/')
     } catch (error) {
         window.hcaptcha.reset(captchaId.value)
         handleError(error)

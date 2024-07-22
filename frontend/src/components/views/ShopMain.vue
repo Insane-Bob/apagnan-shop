@@ -121,24 +121,21 @@ import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
 import ProductCard2 from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
-import CartDrawer from '@components/Drawers/CartDrawer.vue'
-import CookiesModal from '@components/Modals/CookiesModal.vue'
 import FooterComponent from '@components/footer/FooterComponent.vue'
 import Button from '@components/ui/button/Button.vue'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import AuthDrawer from '../Drawers/AuthDrawer.vue'
-import Section from "@/layout/Section.vue";
-import Newsletter from "@components/Newsletter/Newsletter.vue";
-import {useUserStore} from "@/stores/user";
-import {useToast} from '@components/ui/toast';
 import HeaderComponent from "@components/Header/HeaderComponent.vue";
+import Section from '@/layout/Section.vue'
+import Newsletter from '@components/Newsletter/Newsletter.vue'
+import { useUserStore } from '@/stores/user'
+import { useToast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
-const isLogged = computed(() => user.isAuthenticated)
+const router = useRouter()
 
 const promoPromoted = ref(false)
 
@@ -209,12 +206,18 @@ const scrollFunction = () => {
 }
 
 window.addEventListener('scroll', scrollFunction)
-
 onUnmounted(() => {
     window.removeEventListener('scroll', scrollFunction)
 })
-
 onMounted(async () => {
+    if (router.currentRoute.value.query.activate === 'true') {
+        toast({
+            title: 'Succès',
+            description: 'Votre compte a été activé avec succès',
+            duration: 2000,
+        })
+    }
+
     await fetchPromotedCollection()
     await fetchCollections()
     loading.value = false
