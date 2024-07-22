@@ -72,6 +72,7 @@ export class OrderController extends Controller {
         this.res.json({
             ...this.order.toJSON(),
             RefundRequestOrders: refundsRequest,
+            Promo: await this.order.getPromo(),
         })
     }
     async store() {

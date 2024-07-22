@@ -1,5 +1,6 @@
 import { UploadController } from '../../Http/Controllers/UploadController.js'
 import { AccessLinkMiddleware } from '../../Http/Middlewares/AccessLinkMiddleware.js'
+import {UploadMiddleware} from "../../Http/Middlewares/UploadMiddleware.js";
 
 export default function (router) {
     router.group('/api/uploads', function () {
@@ -7,5 +8,7 @@ export default function (router) {
             AccessLinkMiddleware,
             100,
         )
+        this.post('/', UploadController, 'upload')
+            .middleware(UploadMiddleware)
     })
 }

@@ -13,6 +13,7 @@ const productSchema = z.object({
     }),
     published: z.boolean(),
     collectionId: z.number(),
+    imagesIds: z.array(z.number()),
 })
 
 export class ProductValidator extends Validator {

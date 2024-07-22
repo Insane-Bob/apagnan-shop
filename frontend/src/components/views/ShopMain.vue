@@ -8,14 +8,14 @@
         >
             <img
                 v-if="collection.image"
-                :src="'/src/' + collection.image.path"
+                :src="collection.image.url"
                 alt="Main Gnome"
-                class="main-shop-page object-cover absolute top-0 h-screen w-screen brightness-50 -z-10"
+                class="main-shop-page object-cover absolute top-0 h-screen w-full brightness-50 -z-10"
             />
 
             <div
                 v-else
-                class="absolute top-0 h-screen w-screen bg-primary-accent/90 -z-10"
+                class="absolute top-0 h-screen w-full bg-primary-accent/90 -z-10"
             ></div>
 
             <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
@@ -143,14 +143,14 @@
                 </RouterLink>
             </div>
         </div>
-        <Section class="max-w-[1000px] mx-auto">
+        <Section class="max-w-[1200px] mx-auto">
             <h1 class="text-md uppercase font-medium text-center">
                 Collection à la une
             </h1>
             <div
                 v-if="!loading"
                 id="promoted"
-                class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-20"
+                class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-20"
             >
                 <ProductCard2
                     :key="product.id"
@@ -160,8 +160,9 @@
                     :name="product.name"
                     :slug="product.slug"
                     :shortDescription="product.description"
-                    :price="product.price"
-                    :image="product.images[0]"
+                    :price="product.priceFormatted"
+                    :image="product.mainImage"
+                    height="300px"
                 />
             </div>
             <div
@@ -345,7 +346,7 @@ onMounted(async () => {
 
 const collections = ref(null)
 async function fetchCollections() {
-    const response = await apiClient.get('collections?withImage&limit=6')
+    const response = await apiClient.get('collections?withImage&limit=6&random')
     collections.value = response.data.data
 }
 

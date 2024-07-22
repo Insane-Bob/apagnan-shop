@@ -10,6 +10,7 @@ const collectionSchema = z.object({
             'La description de la collection doit faire au moins 10 caractères',
     }),
     published: z.boolean(),
+    imageId: z.number(),
 })
 
 export class CollectionValidator extends Validator {

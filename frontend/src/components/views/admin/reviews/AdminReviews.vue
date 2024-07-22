@@ -39,14 +39,6 @@ const columns: TableColumns[] = [
         label: 'Note',
         key: 'rate',
         sorting: true,
-        // toDisplay: (value: number) => {
-
-        //     const stars = new Array(value).fill(0).map((_, index) => index + 1).map((index) => 
-        //         `<ion-icon name="${index <= value ? 'star' : 'star-outline'}" class="text-primary"></ion-icon>`
-        //     ).join('')
-
-        //     return String.raw`${stars}`
-        // }
     },
     {
         label: 'Contenu',
@@ -58,11 +50,13 @@ const columns: TableColumns[] = [
         label: 'Auteur',
         key: 'User',
         toDisplay: (value: any) => value.email,
+        to: (row) => `/admin/users?id=${row.User.id}`,
     },
     {
         label: 'Produit',
         key: 'Product',
         toDisplay: (value: any) => value.name,
+        to: (row) => `/admin/products?id=${row.Product.id}`,
     },
     {
         label: 'Date de création',

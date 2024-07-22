@@ -18,6 +18,8 @@ import Separator from '@components/ui/separator/Separator.vue'
 import CardContent from '@components/ui/card/CardContent.vue'
 import CardFooter from '@components/ui/card/CardFooter.vue'
 import OrderDetailsProductList from '@components/product/OrderDetailsProductList.vue'
+import {Money} from "../../utils/money";
+import {OrderFormat} from "../../utils/orderFormat";
 
 const apiClient = new ApiClient()
 
@@ -32,69 +34,13 @@ const statusTranslate = {
     pending: 'En attente',
     processing: 'En cours de traitement',
     paid: 'Payée',
+    payment_failed: 'Paiement échoué',
     cancel: 'Annulée',
     shipped: 'Expédiée',
     delivered: 'Livrée',
     refunded: 'Remboursée',
     cancelled: 'Annulée',
 }
-
-const columns: TableColumns[] = [
-    {
-        label: 'Crée le',
-        key: 'createdAt',
-        sorting: true,
-        sortingType: 'date',
-        toDisplay: (value: string) => {
-            return new Date(
-                value.slice(0, value.indexOf('T')),
-            ).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            })
-        },
-    },
-    {
-        label: "Nombre d'article",
-        key: 'OrderDetails',
-        sorting: true,
-        toDisplay: (value: any) => {
-            return value.length + ' article(s)'
-        },
-    },
-    {
-        label: 'Total',
-        key: 'OrderDetails',
-        sorting: true,
-        toDisplay: (value: any) => {
-            return (
-                value
-                    .map((detail: { total: number }) => detail.total)
-                    .reduce((a: number, b: number) => a + b, 0) + ' €'
-            )
-        },
-    },
-    {
-        label: 'Status',
-        key: 'status',
-        sorting: true,
-        toDisplay: (value: OrderStatus) => {
-            return statusTranslate[value]
-        },
-    },
-]
-
-const actions: TableActions[] = [
-    {
-        label: 'Voir le détail',
-        icon: 'eye-outline',
-        class: 'text-blue-500',
-        action: (row: any) => {
-            router.push('/profile/command/' + row.id)
-        },
-    },
-]
 
 onMounted(async () => {
     await fetchOrders()
@@ -156,12 +102,12 @@ const fetchOrders = async () => {
                 </div>
             </div>
 
-            <div class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
-                <Card v-if="orders.length" v-for="order in orders">
+            <div v-if="orders.length" class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
+                <Card v-for="order in orders" :key="order.id">
                     <CardHeader class="flex flex-row justify-between">
                         <div>
                             <CardDescription>
-                                Commande n°{{ order.id }}
+                                Commande {{ OrderFormat.formatOrderNumber(order.id) }}
                             </CardDescription>
                             <CardTitle>
                                 {{ statusTranslate[order.status] }}
@@ -206,27 +152,30 @@ const fetchOrders = async () => {
                             </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ order.total }} €</CardTitle>
+                                <CardTitle>
+                                  {{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}
+                                </CardTitle>
                             </div>
                         </div>
                     </CardFooter>
                 </Card>
-                <div v-else>
-                    <h2 class="text-primary text-sm">Vous n'avez pas encore passé de commande</h2>
-                    <div
-                        class="flex flex-col gap-y-7 justify-center items-center mt-6"
+            </div>
+            <div v-else>
+                <h2 class="text-primary text-sm">Vous n'avez pas encore passé de commande</h2>
+                <div
+                    class="flex flex-col gap-y-7 justify-center items-center mt-6"
+                >
+                    <img
+                        src="/src/assets/images/goToShop.webp"
+                        alt="aller dans la boutique"
+                        class="w-1/2 h-1/2 object-cover rounded-sm"
+                    />
+                    <RouterLink to="/products"
+                        ><Button>Aller dans la boutique</Button></RouterLink
                     >
-                        <img
-                            src="/src/assets/images/goToShop.webp"
-                            alt="aller dans la boutique"
-                            class="w-1/2 h-1/2 object-cover rounded-sm"
-                        />
-                        <RouterLink to="/products"
-                            ><Button>Aller dans la boutique</Button></RouterLink
-                        >
-                    </div>
                 </div>
             </div>
         </div>
+
     </ProfileLayout>
 </template>

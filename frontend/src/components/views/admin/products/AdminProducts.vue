@@ -3,21 +3,30 @@ import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import ProductForm from '@/components/views/admin/products/ProductForm.vue'
 import { TableColumns, TableActions } from '@types'
-import { useRouter } from 'vue-router'
+import {useRoute, useRouter} from 'vue-router'
 import { ApiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
+import {computed, watch} from "vue";
 
 const apiClient = new ApiClient()
 
 const router = useRouter()
-const { filters, query, resetFilters } = useFilters({
+const route = useRoute()
+
+let filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     published: [],
     search: '',
+    id: filterId.value
 })
+watch(filterId, () => {
+    filters.id = filterId.value
+})
+
 
 const { fetch, rows, pagination, sorting } = useTable('/products', query)
 
@@ -28,8 +37,8 @@ const columns: TableColumns[] = [
         sorting: true,
     },
     {
-        label: 'Prix (€)',
-        key: 'price',
+        label: 'Prix (TTC)',
+        key: 'priceFormatted',
         sorting: true,
     },
     {
@@ -57,6 +66,7 @@ const columns: TableColumns[] = [
         label: 'Collection',
         key: 'collectionId',
         sorting: true,
+        to: (row)=> `/admin/collections?id=${row.collectionId}`
     },
 ]
 

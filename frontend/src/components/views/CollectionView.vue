@@ -17,7 +17,8 @@ import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 const route = useRoute()
 const collectionSlug = computed(()=> route.params.cslug)
-const url = computed(()=> `/collections/${collectionSlug.value}?withProducts=true`)
+const url = computed(()=> `/collections/${collectionSlug.value}?withProducts=true&withImage=true`)
+
 
 const {items:collections,fetch:fetchSuggestion} = useSuggestion<Collection>([collectionSlug.value],6)
 
@@ -40,8 +41,9 @@ const breadcrumbLinks = computed(()=>[
 
 <template>
   <loader :wait-for="collection">
+
     <main>
-      <img v-if="collection?.image" :src="collection.image.path"
+      <img v-if="collection?.image" :src="collection.image.url"
            class="w-full h-[30vh] sm:h-[35vh] lg:h-[40vh] object-top object-cover"
       >
       <div class="w-full h-14 mb-10">
@@ -74,7 +76,7 @@ const breadcrumbLinks = computed(()=>[
               :name="product.name"
               :slug="product.slug"
               :collection="collection"
-              :shortDescription="product.description" :image="product?.images?.length ? product.images[0] : null">
+              :shortDescription="product.description" :image="product?.mainImage">
             <template #action>
               <Button class="hover:text-primary transition uppercase" variant="ghost">
                 Ce nain m'interesse

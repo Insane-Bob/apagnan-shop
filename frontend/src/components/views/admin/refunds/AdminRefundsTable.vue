@@ -27,6 +27,7 @@ const columns: TableColumns[] = [
         label: 'Order',
         key: 'orderId',
         sorting: true,
+        to : (row)=> `/admin/orders?id=${row.orderId}`
     },
 
     {

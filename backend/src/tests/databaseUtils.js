@@ -88,7 +88,7 @@ export function getModelMock() {
         constructor(obj) {
             Object.assign(this, obj)
         }
-
+        static scope = jest.fn(() => this)
         static findOne = jest.fn(() => new MockedModel({ id: 1 }))
         static create = jest.fn((obj) => new MockedModel(obj))
         static destroy = jest.fn()

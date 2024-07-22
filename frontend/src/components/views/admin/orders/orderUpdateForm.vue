@@ -33,7 +33,6 @@ function handleSubmit(){
   submit(()=>{
     emits('close')
   },(e)=>{
-    console.log(e)
     if(e.response && e.response.data.message && e.response.status == 403){
       toast({
         title: e.response.data.message,
@@ -54,37 +53,39 @@ function handleSubmit(){
         <DialogTitle>Mettre a jour le statut</DialogTitle>
       </DialogHeader>
 
-      <Select v-model="statusSelected">
-        <SelectTrigger class="w-[180px]">
-          <SelectValue placeholder="Statut" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Traitement</SelectLabel>
-            <SelectItem value="processing">
-              En cours de traitement
-            </SelectItem>
-            <SelectItem value="shipped">
-              Expédiée
-            </SelectItem>
+      <div class="py-5">
+        <Select v-model="statusSelected">
+          <SelectTrigger class="w-full" >
+            <SelectValue placeholder="Statut" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Traitement</SelectLabel>
+              <SelectItem value="processing">
+                En cours de traitement
+              </SelectItem>
+              <SelectItem value="shipped">
+                Expédiée
+              </SelectItem>
 
-          </SelectGroup>
-          <SelectGroup>
-            <SelectLabel>
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Statuts iréversibles
-            </SelectLabel>
-            <SelectItem value="delivered">
-              Livrée
-            </SelectItem>
-            <SelectItem value="cancelled">
-              Annulée
-            </SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+            </SelectGroup>
+            <SelectGroup>
+              <SelectLabel>
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                Statuts iréversibles
+              </SelectLabel>
+              <SelectItem value="delivered">
+                Livrée
+              </SelectItem>
+              <SelectItem value="cancelled">
+                Annulée
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <DialogFooter class="mt-4">
+      <DialogFooter>
         <DialogClose class="flex gap-5">
           <Button type="submit">Mettre a jour</Button>
         </DialogClose>

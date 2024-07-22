@@ -17,6 +17,8 @@ import { usePaymentBroadcastChannel } from '@/composables/usePaymentBroadcastCha
 import { useUserStore } from '@/stores/user'
 import CommandManageMenu from '@components/Menus/CommandManageMenu.vue'
 import DocumentsList from '@components/views/order/DocumentsList.vue'
+import {OrderFormat} from "../../utils/orderFormat";
+import {Money} from "../../utils/money";
 
 const apiClient = new ApiClient()
 
@@ -90,7 +92,7 @@ async function fetch() {
 }
 onMounted(() => {
     fetch()
-    if (route.query.payment === 'success') {
+    if(route.query.status === 'success') {
         user.clearCart()
     }
 })
@@ -113,7 +115,7 @@ async function handlePay() {
                     <div class="">
                         <CardTitle>
                             Suivi de la commande
-                            <b>n°{{ order?.id }}</b></CardTitle
+                            <b>{{OrderFormat.formatOrderNumber(order.id)}}</b></CardTitle
                         >
                         <CardDescription>
                             Votre commande est
@@ -215,7 +217,7 @@ async function handlePay() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card v-if="order">
                     <CardHeader>
                         <CardDescription>
                             Contenu de votre commande
@@ -228,10 +230,18 @@ async function handlePay() {
                     </CardContent>
                     <Separator />
                     <CardFooter class="pt-4">
-                        <div class="flex flex-1 flex-row justify-end">
+                        <div class="flex flex-1 flex-row" 
+                        :class="{'justify-end': !order.Promo, 'justify-between': order.Promo}"
+                        >
+                        <div v-if="order.Promo">
+                            <div>
+                                <CardDescription>Remise</CardDescription>
+                                <CardTitle>{{ order.Promo.value }} {{ order.Promo.type === 'percent' ? '%' : '€' }} <span class="text-base font-light">({{ order.Promo.code }})</span></CardTitle>
+                            </div>
+                        </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ order.total }} €</CardTitle>
+                                <CardTitle>{{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}</CardTitle>
                             </div>
                         </div>
                     </CardFooter>

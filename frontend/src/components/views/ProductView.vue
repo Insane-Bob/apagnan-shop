@@ -92,19 +92,20 @@ const reviewForm = reactive<{ rate: number; content: string }>({
 
 const fetchProduct = async () => {
     try {
-        const response = await apiClient.get('products/' + route.params.pslug)
+        const response = await apiClient.get('products/' + route.params.pslug + "?withImages=true")
         const data = response.data
 
         product.value = data.product
 
-        if (data.images.length > 0) {
-            carouselImages.value = data.images.map(
-                (image: { path: string }) => '/src/' + image.path,
+        if (data.product.images.length > 0) {
+            carouselImages.value = data.product.images.map(
+                (image) => image.url,
             )
         } else {
             carouselImages.value = ['/src/assets/images/noPhotoAvailable.webp']
         }
     } catch (e) {
+
         toast({
             title: "Le produit n'existe pas",
             variant: 'destructive',
@@ -116,7 +117,7 @@ const fetchProduct = async () => {
 const fetchCollection = async () => {
     try {
         const response = await apiClient.get(
-            'collections/' + route.params.cslug,
+            'collections/' + route.params.cslug + "?withImage=true",
         )
         const data = response.data
 
@@ -129,8 +130,8 @@ const fetchCollection = async () => {
         }
 
         collection.value = data.collection
-        if (data.image) {
-            collectionImage.value = data.image.path
+        if (data.collection.image) {
+            collectionImage.value = data.collection.image
         } else {
             collectionImage.value = '/src/assets/images/noPhotoAvailable.webp'
         }
@@ -224,7 +225,7 @@ watch(() => product.value, () => {
     <div>
         <div class="h-80 flex items-center justify-center">
             <img
-                :src="'/src/' + collectionImage"
+                :src="collectionImage.url"
                 class="w-full h-full object-cover"
             />
         </div>
@@ -261,7 +262,7 @@ watch(() => product.value, () => {
                     </div>
                     <div>
                         <p class="text-2xl font-semibold">
-                            € {{ product.price }}
+                            {{ product.priceFormatted }}
                         </p>
                         <p
                             class="text-sm"
@@ -439,12 +440,13 @@ watch(() => product.value, () => {
       <SuggestionCarousel :suggestions="suggestions.map((p : Product)=>({...p,url:`/collections/${p?.Collection?.slug}/products/${p.slug}`}))" >
         <template #item="{suggestion}">
           <ProductCard2
+
               height="300px"
               :key="suggestion.id"
               :name="suggestion.name"
               :slug="suggestion.slug"
               :collection="suggestion?.Collection"
-              :shortDescription="suggestion.description" :image="suggestion?.image">
+              :shortDescription="suggestion.description" :image="suggestion?.mainImage">
             <template #action>
               <Button class="hover:text-primary transition uppercase" variant="ghost">
                 Decouvrir ce nain

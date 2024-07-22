@@ -94,6 +94,7 @@ describe('UserController test routes', () => {
                     name: 'Test',
                     description: 'Test description',
                     published: true,
+                    imageId: 1,
                 })
             },
             (response) => {
@@ -118,6 +119,7 @@ describe('UserController test routes', () => {
                     name: 'TestModified',
                     description: 'Test description modified',
                     published: true,
+                    imageId: 1,
                 })
             },
             (response) => {
