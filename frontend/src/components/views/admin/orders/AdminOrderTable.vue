@@ -130,7 +130,8 @@ const actions: TableActions[] = [
       </Filter>
       <Filter label="Client" v-model="filters.customerId">
         <FilterItem
-            v-for="customer in customers"
+            v-for="(customer,index) in customers"
+            :key="index"
             :label="customer.label"
             :value="customer.value"
         />
