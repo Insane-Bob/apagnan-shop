@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Search from '@components/Dashboard/Search.vue'
 import UserNav from '@components/Dashboard/UserNav.vue'
+import {translate } from '@utils/translateBreadcrumb.js'
 
 const routes = computed(() => {
     return adminRoutes[0].children.map((route) => {
@@ -24,8 +25,9 @@ const links = computed(() => {
         .split('/')
         .slice(1)
         .map((path, index) => {
+          console.log(path)
             return [
-                path,
+                translate[path] || path,
                 $route.path
                     .split('/')
                     .slice(0, index + 2)
