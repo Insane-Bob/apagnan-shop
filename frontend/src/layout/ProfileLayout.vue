@@ -13,8 +13,6 @@ import Separator from "@components/ui/separator/Separator.vue";
 import CardContent from "@components/ui/card/CardContent.vue";
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import Button from "@components/ui/button/Button.vue";
-import DeleteAccount from "@components/Modals/DeleteAccount.vue";
-
 
 const userStore = useUserStore()
 const route = useRoute()
@@ -101,7 +99,7 @@ const routes = computed(() => {
                             Se déconnecter
                           </Button>
                         </RouterLink>
-                            <DeleteAccount/>
+
                     </CardFooter>
                 </Card>
             </aside>

@@ -93,13 +93,11 @@ const fetchOrders = async () => {
                 </Card>
             </div>
 
-            <div class="grid grid-cols-3 items-center">
-                <div class="flex flex-col gap-y-2">
-                    <CardDescription class="flex flex-col col-span-1"
-                        >Historique des commandes passés</CardDescription
-                    >
-                    <Separator />
-                </div>
+            <div class="flex gap-3 items-center">
+              <CardDescription class="text-nowrap">
+                Historique des commandes passés
+              </CardDescription>
+              <Separator class="grow w-auto" />
             </div>
 
             <div v-if="orders.length" class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
