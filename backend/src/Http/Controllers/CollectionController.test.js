@@ -5,7 +5,7 @@ import { actingAs } from '../../tests/authTestUtils.js'
 import { USER_ROLES } from '../../Models/SQL/user.js'
 
 let app = null
-describe('UserController test routes', () => {
+describe('CollectionController test routes', () => {
     let userTemplate = {
         id: 1,
         firstName: 'Test',

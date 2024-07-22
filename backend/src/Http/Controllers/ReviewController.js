@@ -7,6 +7,7 @@ import { SearchRequest } from '../../lib/SearchRequest.js'
 export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
     async getReviews() {
+        console.log('here')
         if (this.product) {
 
             const data = await Database.getInstance().models.Review.findAll({
@@ -65,6 +66,7 @@ export class ReviewController extends Controller {
     }
 
     async createReview() {
+        this.req.body.userId = this.req.user.id
         const payload = this.validate(ReviewValidator)
         const review =
             await Database.getInstance().models.Review.create(payload)
