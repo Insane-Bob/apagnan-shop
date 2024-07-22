@@ -67,6 +67,33 @@ const columns: TableColumns[] = [
 
 const actions: TableActions[] = [
     {
+        label:"Promouvoir Admin",
+        icon: "ribbon-outline",
+        class:"text-primary",
+        condition: (row: any) => row.role !== 'admin',
+        action: async (row: any) => {
+            await apiClient.patch('users/' + row.id, { role: 'admin' })
+            toast({
+                title: 'Utilisateur promu',
+            })
+            await fetch()
+        },
+    },
+
+    {
+        label:"Réléguer Utilisateur",
+        icon: "remove-circle-outline",
+        class:"text-red-500",
+        condition: (row: any) => row.role === 'admin' && row.id !== user.getId,
+        action: async (row: any) => {
+            await apiClient.patch('users/' + row.id, { role: 'user' })
+            toast({
+                title: 'Utilisateur rélégué au rang d\'utilisateur',
+            })
+            await fetch()
+        },
+    },
+    {
         label: 'Se connecter en tant que',
         icon: 'glasses-outline',
         class: 'text-blue-500',
