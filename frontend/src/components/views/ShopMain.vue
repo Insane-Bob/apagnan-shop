@@ -329,7 +329,9 @@ const scrollFunction = () => {
 }
 
 window.addEventListener('scroll', scrollFunction)
-
+onUnmounted(() => {
+    window.removeEventListener('scroll', scrollFunction)
+})
 onMounted(async () => {
     if (router.currentRoute.value.query.activate === 'true') {
         toast({
