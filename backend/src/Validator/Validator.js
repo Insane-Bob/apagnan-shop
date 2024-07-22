@@ -7,7 +7,8 @@ export class Validator {
         this.schema = schema
     }
 
-    beforeValidation(data) {}
+    beforeValidation(request) {}
+    afterValidation(payload) {}
 
     validate(data) {
         try {

@@ -54,7 +54,7 @@
                         ></ion-icon>
                     </template>
                 </FormInput>
-
+              <Captcha :errors="errors" name="captcha" v-model="captcha" v-model:id="captchaId"/>
                 <small
                     @click="$emit('switch-to-forgot-password')"
                     class="text-xs text-primary-accent/60 hover:underline hover:cursor-pointer"
@@ -63,6 +63,7 @@
                 </small>
                 <!-- SUBMIT -->
                 <Button type="submit">Se connecter</Button>
+                <FormPrivacy/>
             </div>
         </FormGrid>
     </form>
@@ -102,6 +103,8 @@ import { ApiClient } from '@/lib/apiClient'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { useUserStore } from '@store/user'
+import Captcha from '@components/Inputs/Captcha.vue'
+import FormPrivacy from '@components/Forms/FormPrivacy.vue'
 
 const apiClient = new ApiClient()
 
@@ -110,6 +113,8 @@ const user = useUserStore()
 // Reactive variables
 const email = ref('')
 const password = ref('')
+const captcha = ref('')
+const captchaId = ref('')
 const errors = ref(null)
 
 // Password Input Behavior
@@ -127,7 +132,7 @@ const { toast } = useToast()
 // Submit function
 async function submit() {
     try {
-        const data = { email: email.value, password: password.value }
+        const data = { email: email.value, password: password.value,captcha:captcha.value }
         const response = await apiClient.post('/login', data)
 
         const userData = response.data.user
@@ -149,6 +154,7 @@ async function submit() {
         // Redirect to profile page
         router.push('/profile')
     } catch (error) {
+        window.hcaptcha.reset(captchaId.value)
         handleError(error)
     }
 }

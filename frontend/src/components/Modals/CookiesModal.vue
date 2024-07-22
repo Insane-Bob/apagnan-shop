@@ -1,86 +1,124 @@
 <template>
-    <AlertDialog v-if="open">
-        <AlertDialogContent>
+    <AlertDialog v-model:open="open">
+        <AlertDialogContent class="w-[90vw] z-[100]">
             <AlertDialogHeader>
                 <AlertDialogTitle>
                     <h2>Utilisation des Cookies sur Apagnain 🍪</h2>
                     <AlertDialogCancel
                         class="!text-xs underline"
-                        @click="closeModal"
-                        >Continuer sans accepter</AlertDialogCancel
-                    >
+                        @click="denyAll"
+                        >
+                      Continuer en acceptant les cookies nécessaires
+                    </AlertDialogCancel>
                 </AlertDialogTitle>
+              <template v-if="!edit">
                 <AlertDialogDescription>
-                    Chez Apagnain, nous nous engageons à vous offrir une
-                    expérience de navigation optimale et personnalisée. Pour ce
-                    faire, nous utilisons des cookies et d'autres technologies
-                    similaires.
+                  Chez Apagnain, nous nous engageons à vous offrir une
+                  expérience de navigation optimale et sécurisé. Pour ce
+                  faire, nous utilisons des cookies et d'autres technologies
+                  similaires.
                 </AlertDialogDescription>
                 <AlertDialogDescription>
-                    Ces cookies nous permettent de :
-                    <ul class="list-disc ml-6 mt-2 text-sm">
-                        <li>
-                            Améliorer les performances de notre site et la
-                            fluidité de votre navigation
-                        </li>
-                        <li>
-                            Vous proposer des contenus et des publicités
-                            pertinents en fonction de vos intérêts
-                        </li>
-                        <li>
-                            Analyser notre audience afin d'améliorer nos
-                            services et mieux répondre à vos besoins
-                        </li>
-                    </ul>
+                  Ces cookies nous permettent de :
+                  <ul class="list-disc ml-6 mt-2 text-sm">
+                    <li>
+                      Au bon fonctionnement de notre site internet (cookie de session)
+                    </li>
+                    <li>
+                      A la protection de notre plateforme (hCapcha)
+                    </li>
+                  </ul>
                 </AlertDialogDescription>
                 <AlertDialogDescription>
-                    En continuant à naviguer sur notre site de vente de nains de
-                    jardin de luxe, vous consentez à l'utilisation de ces
-                    cookies. Vous avez la possibilité de gérer vos préférences
-                    en matière de cookies à tout moment en accédant à notre
-                    Politique de Cookies.
+                  En continuant à naviguer sur notre site de vente de nains de
+                  jardin de luxe, vous consentez à l'utilisation de ces
+                  cookies. Vous avez la possibilité de gérer vos préférences
+                  en matière de cookies à tout moment en accédant à notre
+                  Politique de Cookies.
                 </AlertDialogDescription>
+              </template>
+              <template v-else>
+                <AlertDialogDescription>
+                  <h2>Paramètres des cookies</h2>
+                  <p>
+                    Vous pouvez personnaliser vos préférences en matière de
+                    cookies en fonction de vos besoins. Pour plus
+                    d'informations, veuillez consulter notre Politique de
+                    Cookies.
+                  </p>
+                </AlertDialogDescription>
+
+                <div v-for="prefrence in cookiePreferences">
+                  <div class="flex justify-between items-center">
+                   <div>
+                     <p>{{prefrence.label}}</p>
+                     <p class="text-muted-foreground text-xs">{{prefrence.description}}</p>
+                   </div>
+                    <input
+                      :disabled="prefrence.disabled"
+                        type="checkbox"
+                        :checked="prefrence.value"
+                        @change="(e) => setCookie(prefrence.name,!prefrence.value)"
+                        >
+                  </div>
+                </div>
+
+              </template>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogAction @click="acceptCookies"
-                    >Accepter les cookies</AlertDialogAction
-                >
-                <AlertDialogCancel
+                <Button @click="handleOk">
+                  {{!edit ? 'Accepter tous les cookies' : 'Enregistrer'}}
+                </Button>
+                <Button
+                  variant="ghost"
                     class="!text-black/40"
                     @click="openCookieSettings"
-                    >Paramètres des cookies</AlertDialogCancel
-                >
+                    >
+                    {{!edit ? 'Paramètres des cookies' : 'Fermer'}}
+                </Button>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 
 import { ref } from 'vue'
+import { useCookie } from '@/composables/useCookie.ts'
+import { Button } from '@components/ui/button'
 
-const open = ref(true)
+const open = defineModel('open')
+const edit = ref(false)
 
+const {cookiePreferences,setCookie, disableAll, activeAll,setCookieHasBeenAsked} = useCookie()
+
+
+function handleOk(){
+  if(edit.value){
+    closeModal()
+  }else{
+    activeAll()
+    closeModal()
+  }
+}
+function denyAll(){
+  disableAll()
+  closeModal()
+}
 const closeModal = () => {
-    open.value = false
+  setCookieHasBeenAsked()
+  open.value = false
 }
-
-const acceptCookies = () => {
-    closeModal()
-}
-
 const openCookieSettings = () => {
-    closeModal()
+  edit.value = !edit.value
 }
 </script>

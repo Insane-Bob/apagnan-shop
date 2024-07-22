@@ -12,9 +12,13 @@ import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
+import { CaptchaValidator } from '../../Validator/CaptchaValidator.js'
+import { CGUCGVValidator } from '../../Validator/CGUCGVValidator.js'
+
 
 export class AuthController extends Controller {
     async login() {
+        await this.validate(CaptchaValidator)
         const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
@@ -97,8 +101,10 @@ export class AuthController extends Controller {
     }
 
     async register() {
+        await this.validate(CaptchaValidator)
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
+        this.validate(CGUCGVValidator)
 
         const userExist = await UserServices.retrieveUserByEmail(email)
         UnprocessableEntity.abortIf(userExist, 'Email already used')
@@ -152,6 +158,8 @@ export class AuthController extends Controller {
             'User is not authenticated',
         )
         await TokenServices.revokeToken(this.req.token)
+        this.validate(CaptchaValidator)
+
         this.res.json({ message: 'User logged out', success: true })
     }
 

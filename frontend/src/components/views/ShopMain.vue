@@ -128,7 +128,6 @@
             </h1>
 
             <!-- @TODO: Find a way to close the modal -->
-            <CookiesModal :open="showCookiesModal" />
 
             <div class="flex flex-col justify-center items-center gap-y-3">
                 <p
@@ -264,7 +263,6 @@ const onSearch = () => {
 }
 
 const isOnTop = ref(true)
-const showCookiesModal = ref(true)
 
 function changeBrightness() {
     const mainShopPage = document.querySelector('.main-shop-page')
@@ -338,10 +336,10 @@ onMounted(async () => {
     await fetchPromotedCollection()
     await fetchCollections()
     loading.value = false
-
-    setTimeout(() => {
-        showCookiesModal.value = false
-    }, 500)
+    //
+    // setTimeout(() => {
+    //     showCookiesModal.value = false
+    // }, 500)
 })
 
 const collections = ref(null)
