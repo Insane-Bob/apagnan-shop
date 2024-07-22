@@ -78,7 +78,7 @@ function goToPage(route){
     <div>
         <OutlinedInput
             type="search"
-            placeholder="Search..."
+            placeholder="Rechercher..."
             class="md:w-[100px] lg:w-[300px]"
             @mousedown="isOpen = true"
         />
@@ -88,11 +88,11 @@ function goToPage(route){
             v-model:open="isOpen"
         >
             <CommandInput
-                placeholder="Type a command or search..."
+                placeholder="Rechercher un produit, un utilisateur, une collections, etc..."
                 @input="handleSearch"
             />
             <CommandList>
-                <CommandEmpty>No results found. {{ search }}</CommandEmpty>
+                <CommandEmpty>Pas de résultat. {{ search }}</CommandEmpty>
                 <CommandGroup heading="Utilisateurs">
                     <CommandItem :value="u.id" v-for="u in users" @click="goToPage('/users?id='+u.id)">
                         <span>{{ u.firstName }} {{ u.lastName }}</span>
