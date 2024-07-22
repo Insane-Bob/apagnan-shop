@@ -48,15 +48,15 @@ describe('ReviewController test routes', () => {
         Database.mock()
     })
 
-    // test('GET /api/reviews - user access reviews index', async () => {
-    //     loginAsUser()
-    //     await testRequest('/api/reviews', 'get', 200)
-    // })
+    test('GET /api/reviews - user access reviews index', async () => {
+        loginAsUser()
+        await testRequest('/api/reviews', 'get', 200)
+    })
 
-    // test('GET /api/reviews - admin access reviews index', async () => {
-    //     loginAsAdmin()
-    //     await testRequest('/api/reviews', 'get', 200)
-    // })
+    test('GET /api/reviews - admin access reviews index', async () => {
+        loginAsAdmin()
+        await testRequest('/api/reviews', 'get', 200)
+    })
 
     test('GET /api/review/:id - user can access one review', async () => {
         loginAsUser()
