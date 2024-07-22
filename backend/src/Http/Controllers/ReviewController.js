@@ -7,9 +7,7 @@ import { SearchRequest } from '../../lib/SearchRequest.js'
 export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
     async getReviews() {
-        console.log('here')
         if (this.product) {
-
             const data = await Database.getInstance().models.Review.findAll({
                 where: {
                     approved: true,
