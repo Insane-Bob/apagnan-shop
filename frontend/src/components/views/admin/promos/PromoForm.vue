@@ -35,12 +35,13 @@ const value = ref('')
 const type = ref('')
 const promoted = ref(false)
 const available = ref(false)
-
+const isModalOpen = ref(true)
 const errors = ref(null)
 
 const onSubmit = () => {
     createPromo()
 }
+
 const createPromo = async () => {
     try {
         let body: Promo = {
@@ -55,110 +56,122 @@ const createPromo = async () => {
 
         if (response.status === 201) {
             toast({
-                title: 'Succés',
-                description: 'Votre code promo a été crée',
+                title: 'Succès',
+                description: 'Votre code promo a été créé',
             })
             emit('reload-promo')
+            // Close modal only if creation is successful
+            closeModal()
         }
     } catch (error) {
-        errors.value = error.response.data.errors
+        // Capture the errors from the response
+        errors.value = error.response.data.errors || []
     }
+}
+
+const closeModal = () => {
+    isModalOpen.value = false
 }
 </script>
 
 <template>
-    <form @submit.prevent="onSubmit">
-        <DialogHeader>
-            <DialogTitle>Créer une promotion</DialogTitle>
-        </DialogHeader>
+    <div v-if="isModalOpen">
+        <form @submit.prevent="onSubmit">
+            <DialogHeader>
+                <DialogTitle>Créer une promotion</DialogTitle>
+            </DialogHeader>
 
-        <FormGrid>
-            <FormInput
-                name="code"
-                :errors="errors"
-                class="col-start-1 col-span-full"
-                required
-            >
-                <template #label>Nom du code</template>
-                <template #input="inputProps">
-                    <input type="text" v-model="code" v-bind="inputProps" />
-                </template>
-            </FormInput>
-
-            <FormInput
-                name="value"
-                :errors="errors"
-                class="col-start-1 col-span-6"
-                required
-            >
-                <template #label>Valeur</template>
-                <template #input="inputProps">
-                    <input type="number" v-model="value" v-bind="inputProps" />
-                </template>
-            </FormInput>
-
-            <Select v-model="type">
-                <SelectTrigger class="col-span-6 self-end h-11">
-                    <SelectValue placeholder="Selectionner un type" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <SelectItem value="percent"> Pourcentage </SelectItem>
-                        <SelectItem value="amount"> Fixe </SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-                <FormError> </FormError>
-            </Select>
-
-            <div
-                class="row-span-1 col-start-1 col-span-full flex items-center gap-x-4"
-            >
-                <Label
-                    @click="available = !available"
-                    for="available"
-                    class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+            <FormGrid>
+                <FormInput
+                    name="code"
+                    :errors="errors"
+                    class="col-start-1 col-span-full"
+                    required
                 >
-                    Disponible
-                </Label>
-                <Switch
-                    name="available"
-                    type="text"
-                    :checked="available"
-                    @click="available = !available"
-                    class=""
-                />
-            </div>
+                    <template #label>Nom du code</template>
+                    <template #input="inputProps">
+                        <input type="text" v-model="code" v-bind="inputProps" />
+                    </template>
+                </FormInput>
 
-            <div
-                class="row-span-1 col-start-1 col-span-full flex items-center gap-x-4"
-            >
-                <Label
-                    @click="promoted = !promoted"
-                    for="promoted"
-                    class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                <FormInput
+                    name="value"
+                    :errors="errors"
+                    class="col-start-1 col-span-6"
+                    required
                 >
-                    Mise en avant
-                </Label>
-                <Switch
-                    name="promoted"
-                    type="text"
-                    :checked="promoted"
-                    @click="promoted = !promoted"
-                    class=""
-                />
-            </div>
-        </FormGrid>
+                    <template #label>Valeur</template>
+                    <template #input="inputProps">
+                        <input
+                            type="number"
+                            v-model="value"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
 
-        <DialogFooter>
-            <DialogClose>
-                <Button
-                    type="button"
-                    variant="destructive"
-                    class="border-slate-300"
-                    >Fermer</Button
+                <Select v-model="type">
+                    <SelectTrigger class="col-span-6 self-end h-11">
+                        <SelectValue placeholder="Sélectionner un type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectItem value="percent">Pourcentage</SelectItem>
+                            <SelectItem value="amount">Fixe</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+
+                <div
+                    class="row-span-1 col-start-1 col-span-full flex items-center gap-x-4"
                 >
-            </DialogClose>
-            <DialogClose> <Button>Créer</Button> </DialogClose>
-        </DialogFooter>
-    </form>
+                    <Label
+                        @click="available = !available"
+                        for="available"
+                        class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                    >
+                        Disponible
+                    </Label>
+                    <Switch
+                        name="available"
+                        type="text"
+                        :checked="available"
+                        @click="available = !available"
+                        class=""
+                    />
+                </div>
+
+                <div
+                    class="row-span-1 col-start-1 col-span-full flex items-center gap-x-4"
+                >
+                    <Label
+                        @click="promoted = !promoted"
+                        for="promoted"
+                        class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                    >
+                        Mise en avant
+                    </Label>
+                    <Switch
+                        name="promoted"
+                        type="text"
+                        :checked="promoted"
+                        @click="promoted = !promoted"
+                        class=""
+                    />
+                </div>
+            </FormGrid>
+
+            <DialogFooter>
+                <DialogClose>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        class="border-slate-300"
+                        >Fermer</Button
+                    >
+                </DialogClose>
+                <Button type="submit">Créer</Button>
+            </DialogFooter>
+        </form>
+    </div>
 </template>
