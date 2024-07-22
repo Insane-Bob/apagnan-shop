@@ -25,7 +25,6 @@ const links = computed(() => {
         .split('/')
         .slice(1)
         .map((path, index) => {
-          console.log(path)
             return [
                 translate[path] || path,
                 $route.path
