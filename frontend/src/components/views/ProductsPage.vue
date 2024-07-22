@@ -100,7 +100,7 @@ onBeforeMount(() => {
     <div
         class="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 px-12 lg:px-32 mt-24 pt-12 justify-items-center"
     >
-        <div
+        <!--<div
             id="filters"
             class="row-span-5 sm:row-span-5 lg:row-span-3 sticky top-24 self-start"
         >
@@ -195,7 +195,7 @@ onBeforeMount(() => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <SmallProductCard
             :loading="loading"

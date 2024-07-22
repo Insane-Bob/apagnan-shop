@@ -8,20 +8,65 @@ import {
     CommandItem,
     CommandList,
 } from '@components/ui/command'
-import { computed, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { apiClient } from '@/lib/apiClient'
+import { useFilters } from '@/composables/useFilters'
+import Checkbox from '../ui/checkbox/Checkbox.vue'
+import { useRouter } from 'vue-router'
+import { Building } from 'lucide-vue-next'
 
+const router = useRouter()
 const isOpen = ref(false)
-const search = ref('')
 const tempSearch = ref('')
 const cooldown = ref(false)
 const data = ref([])
+const collections = ref([])
+
+const { filters, query } = useFilters({
+    priceMin: 0,
+    priceMax: 1000,
+    collection: [],
+    color: [],
+    s: '',
+})
+
+const colors = [
+    'red',
+    'blue',
+    'green',
+    'yellow',
+    'purple',
+    'orange',
+    'black',
+    'white',
+    'grey',
+    'brown',
+]
+
+const fetchCollections = async () => {
+    try {
+        const response = await apiClient.get('/collections')
+        collections.value = response.data.slice(0, 5)
+        console.log(collections.value)
+    } catch (e) {
+        collections.value = []
+    }
+}
+
+async function buildFilters() {
+    const urlParams = new URLSearchParams(window.location.search)
+    filters.priceMin = urlParams.get('priceMin') || 0
+    filters.priceMax = urlParams.get('priceMax') || 1000
+    filters.collection = urlParams.getAll('collection')
+    filters.color = urlParams.getAll('color')
+    filters.s = urlParams.get('s') || ''
+}
 
 async function fetch() {
+    router.push({ query: filters })
     try {
-        const response = await apiClient.get(
-            '/search/products?s=' + search.value,
-        )
+        const search = query.value.toString()
+        const response = await apiClient.get('/search/products?' + search)
         data.value = response.data
     } catch (e) {
         data.value = []
@@ -34,39 +79,19 @@ function handleSearch(event) {
         clearTimeout(cooldown.value)
     }
     cooldown.value = setTimeout(() => {
-        search.value = tempSearch.value
+        filters.s = tempSearch.value
         cooldown.value = false
     }, 200)
 }
 
-watch(search, fetch, { immediate: true })
+watch(filters, fetch, { immediate: true })
+
+onMounted(() => {
+    buildFilters()
+    fetchCollections()
+})
 </script>
 
 <template>
-    <div>
-        <OutlinedInput
-            type="search"
-            placeholder="Search..."
-            class="md:w-[100px] lg:w-[300px]"
-            @mousedown="isOpen = true"
-        />
-        <CommandDialog
-            :filterFunction="filterFunction"
-            class="rounded-lg border shadow-md max-w-[450px]"
-            v-model:open="isOpen"
-        >
-            <CommandInput
-                placeholder="Type a command or search..."
-                @input="handleSearch"
-            />
-            <CommandList>
-                <CommandEmpty>No results found. {{ search }}</CommandEmpty>
-                <CommandGroup heading="Produits">
-                    <CommandItem :value="p.id" v-for="p in data.value">
-                        <span>{{ p.name }}</span>
-                    </CommandItem>
-                </CommandGroup>
-            </CommandList>
-        </CommandDialog>
-    </div>
+    <div></div>
 </template>

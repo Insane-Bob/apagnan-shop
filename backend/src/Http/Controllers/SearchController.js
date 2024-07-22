@@ -1,8 +1,9 @@
 import { Controller } from '../../Core/Controller.js'
 import { SearchValidator } from '../../Validator/SearchValidator.js'
+import { FrontFilterValidator } from '../../Validator/FrontFilterValidator.js'
 import { Database } from '../../Models/index.js'
 import { SearchPolicy } from '../Policies/SearchPolicy.js'
-import {ProductServices} from "../../Services/ProductServices.js";
+import { ProductServices } from '../../Services/ProductServices.js'
 
 export class SearchController extends Controller {
     get collectionsToSearch() {
@@ -13,12 +14,7 @@ export class SearchController extends Controller {
         ]
     }
 
-    async makeQuery(
-        collection,
-        searchString,
-        aggregate = [],
-        matchCustom = [],
-    ) {
+    async makeQuery(collection, searchString, matchCustom = []) {
         let attributes = collection.searchAttributes.map((attr) => attr.name)
         function escapeRegExp(string) {
             return string.trim().replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -35,36 +31,33 @@ export class SearchController extends Controller {
             }
         })
 
+        console.log()
+
         return collection.aggregate([
             {
                 $match: {
-                    $or: matchCustom,
-                }
-            },
-            {
-                $match: {
-                    $or: matchOrClause,
+                    $or: [...matchCustom, ...matchOrClause],
                 },
             },
             {
                 $addFields: {
                     concatenatedFields: {
                         $concat: attributes.map((attr) => ({
-                            $cond : {
+                            $cond: {
                                 if: {
-                                    $isArray: `$${attr}`
+                                    $isArray: `$${attr}`,
                                 },
-                                then:{
-                                    $reduce:{
+                                then: {
+                                    $reduce: {
                                         input: `$${attr}`,
-                                        initialValue: "",
+                                        initialValue: '',
                                         in: {
-                                            $concat: ["$$value", " ", "$$this"]
-                                        }
-                                    }
+                                            $concat: ['$$value', ' ', '$$this'],
+                                        },
+                                    },
                                 },
-                                else: `$${attr}`
-                            }
+                                else: `$${attr}`,
+                            },
                         })),
                     },
                 },
@@ -98,9 +91,9 @@ export class SearchController extends Controller {
                 $limit: 10,
             },
             {
-                 $project: {
-                     concatenatedFields: 0,
-                 },
+                $project: {
+                    concatenatedFields: 0,
+                },
             },
         ])
     }
@@ -134,16 +127,26 @@ export class SearchController extends Controller {
     }
 
     async FrontProductSearch() {
-        const { s: searchString } = this.validate(SearchValidator)
-
+        const filters = this.validate(FrontFilterValidator)
+        console.log('filters', filters)
         const results = await this.makeQuery(
             Database.getInstance().mongoModels.Products,
-            searchString,
+            filters.s || '',
             [
-
+                {
+                    'Collection.name': {
+                        $in: filters.collection || [],
+                    },
+                },
+                {
+                    price: {
+                        $gte: filters.priceMin || 0,
+                        $lte: filters.priceMax || 1000,
+                    },
+                },
             ],
         )
 
-        this.res.json(products)
+        this.res.json(results)
     }
 }
