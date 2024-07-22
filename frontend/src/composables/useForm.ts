@@ -13,10 +13,12 @@ export function useForm(url, payload, method = 'post') {
         try {
             const response = await apiClient[method](url, payload.value)
             data.value = response.data
-            onSuccess(data)
+            if (onSuccess) onSuccess(data)
+            return data
         } catch (e) {
-            if (e.response && e.response.status === 422) errors.value = e.response.data.errors
-            if(onError) onError(e)
+            if (e.response && e.response.status === 422)
+                errors.value = e.response.data.errors
+            if (onError) onError(e)
             else throw e
         } finally {
             loading.value = false
