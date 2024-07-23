@@ -23,6 +23,7 @@ const { filters, query } = useFilters({
     published: [],
     search: '',
     withImage: true,
+    withProductCount: true,
     id: filterId.value,
 })
 watch(filterId, () => {
@@ -124,8 +125,24 @@ const actions: TableActions[] = [
         label: 'Suprimer',
         icon: 'trash-outline',
         class: 'text-red-500',
+        confirmation: {
+            title: 'Supprimer la collection',
+            message: 'Êtes-vous sûr de vouloir supprimer cette collection ?',
+            styleConfirm: 'bg-red-500',
+        },
+        condition: (row: any) => row.productCount == 0,
         action: (row: any) => {
             deleteCollection(row)
+        },
+    },
+
+    {
+        label: 'Il y a des produits, impossible de supprimer',
+        icon: 'trash-outline',
+        class: 'text-red-800 opacity-40',
+        condition: (row: any) => row.productCount != 0,
+        action: (row: any) => {
+            
         },
     },
 ]
