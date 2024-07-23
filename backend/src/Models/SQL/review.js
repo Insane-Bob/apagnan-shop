@@ -5,11 +5,30 @@ import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/Product
 function model(sequelize, DataTypes) {
     class Review extends DenormalizableModel {
         static associate(models) {
-            Review.belongsTo(models.Product, {
+            models.Review.belongsTo(models.Product, {
                 foreignKey: 'productId',
             })
-            Review.belongsTo(models.User, {
+            models.Review.belongsTo(models.User, {
                 foreignKey: 'userId',
+            })
+        }
+
+        static addScopes(models) {
+            models.Review.addScope('withProduct', {
+                include: [
+                    {
+                        model: models.Product,
+                        attributes: ['id', 'name', 'slug'],
+                    },
+                ],
+            })
+            models.Review.addScope('withUser', {
+                include: [
+                    {
+                        model: models.User,
+                        attributes: ['id', 'email', 'firstName', 'lastName'],
+                    },
+                ],
             })
         }
     }
@@ -31,6 +50,7 @@ function model(sequelize, DataTypes) {
             },
             rate: DataTypes.INTEGER,
             content: DataTypes.STRING,
+            approved: DataTypes.BOOLEAN,
             productId: DataTypes.INTEGER,
             userId: DataTypes.INTEGER,
             updatedAt: DataTypes.DATE,

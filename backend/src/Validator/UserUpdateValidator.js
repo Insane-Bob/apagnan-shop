@@ -11,28 +11,43 @@ export class UserUpdateValidator extends Validator {
         return z.object({
             firstName: z
                 .string()
-                .min(2, { message: 'First name is required' })
+                .min(2, { message: 'Le Prénom est obligatoire' })
                 .optional(),
             lastName: z
                 .string()
-                .min(2, { message: 'Last name is required' })
+                .min(2, { message: 'Le Nom est obligatoire' })
                 .optional(),
             password: z
                 .string()
-                .min(6, {
-                    message: 'Password must be at least 6 characters long',
+                .min(12, {
+                    message:
+                        'Votre mot de passe doit faire au moins 12 caractères',
+                })
+                .regex(/[a-z]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins une minuscule',
+                })
+                .regex(/[A-Z]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins une majuscule',
+                })
+                .regex(/[0-9]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins un chiffre',
                 })
                 .optional(),
             email: z.string().email({ message: 'Invalid email' }).optional(),
+            emailVerifiedAt: z.string().optional(),
             phone: z
                 .string()
                 .min(10, {
-                    message: 'Phone number must be at least 10 characters long',
+                    message:
+                        'Le numéro de téléphone doit comporter au moins 10 chiffres et uniquement des chiffres',
                 })
                 .optional(),
             role: z
                 .enum(Object.values(USER_ROLES), {
-                    message: 'Invalid role',
+                    message: 'Vous navez pas le rôle requis',
                 })
                 .optional(),
         })
@@ -42,23 +57,40 @@ export class UserUpdateValidator extends Validator {
         return z.object({
             firstName: z
                 .string()
-                .min(2, { message: 'First name is required' })
+                .min(2, { message: 'Le Prénom est obligatoire' })
                 .optional(),
             lastName: z
                 .string()
-                .min(2, { message: 'Last name is required' })
+                .min(2, { message: 'Le Nom est obligatoire' })
                 .optional(),
             password: z
                 .string()
-                .min(6, {
-                    message: 'Password must be at least 6 characters long',
+                .min(12, {
+                    message:
+                        'Votre mot de passe doit faire au moins 12 caractères',
+                })
+                .regex(/[a-z]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins une minuscule',
+                })
+                .regex(/[A-Z]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins une majuscule',
+                })
+                .regex(/[0-9]/, {
+                    message:
+                        'Votre mot de passe doit contenir au moins un chiffre',
                 })
                 .optional(),
-            email: z.string().email({ message: 'Invalid email' }).optional(),
+            email: z
+                .string()
+                .email({ message: "Votre email n'est pas au bon format" })
+                .optional(),
             phone: z
                 .string()
-                .min(10, {
-                    message: 'Phone number must be at least 10 characters long',
+                .regex(/^\d{10,}$/, {
+                    message:
+                        'Le numéro de téléphone doit comporter au moins 10 chiffres et uniquement des chiffres',
                 })
                 .optional(),
         })

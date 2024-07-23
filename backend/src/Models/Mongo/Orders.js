@@ -23,11 +23,7 @@ export const schema = new Schema({
         },
     ],
 })
-schema.index({
-    status: 'text',
-    'Customer.User.firstName': 'text',
-    'Customer.User.lastName': 'text',
-})
+
 
 /**
  *
@@ -36,6 +32,11 @@ schema.index({
  */
 export default function (mongoose) {
     const model = mongoose.model('Orders', schema)
+    model.searchAttributes = [
+        { name : "status"},
+        { name : "Customer.User.firstName"},
+        { name : "Customer.User.lastName"},
+    ]
     model.createIndexes()
     return model
 }

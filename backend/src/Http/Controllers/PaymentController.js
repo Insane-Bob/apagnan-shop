@@ -62,6 +62,10 @@ export class PaymentController extends Controller {
 
                 await transaction.commit()
 
+                await StockService.checkStockForAdminNotif(
+                    orderDetail.productId,
+                )
+
                 this.res.redirect(
                     process.env.FRONT_END_URL +
                         '/order/success?orderId=' +
@@ -115,7 +119,8 @@ export class PaymentController extends Controller {
             const type = payload.type
             const object = payload.data.object
 
-            if (type === 'payment_intent.succeeded') {
+            if (type === 'checkout.session.completed'
+                || type === 'checkout.session.async_payment_succeeded') {
                 await this.onPaymentSucceeded(object)
             }
 
@@ -169,26 +174,31 @@ export class PaymentController extends Controller {
         }
     }
 
-    async onPaymentSucceeded(paymentIntent) {
-        if (!paymentIntent) return
+    async onPaymentSucceeded(checkoutSession) {
+        if (!checkoutSession) return
 
-        const { payment, checkoutSession } =
-            await this.webhookFetch(paymentIntent)
+        const { payment } =
+            await this.webhookFetch({
+                id: checkoutSession.payment_intent,
+            })
 
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
 
         await PaymentServices.updatePayment(checkoutSession.id, {
-            paymentIntentId: paymentIntent.id,
+            paymentIntentId: checkoutSession.payment_intent,
             status: PaymentStatus.SUCCEEDED,
         })
 
         let order = await payment.getOrder()
         let service = new OrderServices(order)
         await service.setStatus(OrderStatus.PAID, undefined, false)
-        await service.setStatus(OrderStatus.PROCESSING) //start a denormalization task
+        await service.setStatus(OrderStatus.PROCESSING)
+
+        const user = await (await order.getCustomer()).getUser()
 
         await NotificationsServices.notifySuccessPaymentCustomer(
+            user,
             payment.Order.Customer.User,
             payment.Order,
         )

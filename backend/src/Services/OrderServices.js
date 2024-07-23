@@ -81,8 +81,14 @@ export class OrderServices {
             options,
         )
         this.order.statusHistory.push(s)
-        if (denormalize)
-            await new OrderDenormalizationTask().execute(this.order)
+        if(denormalize){
+            if(options?.transaction) {
+                options?.transaction.afterCommit(async () => {
+                    await new OrderDenormalizationTask().execute(this.order)
+                })
+            }
+            else await new OrderDenormalizationTask().execute(this.order)
+        }
         return s
     }
 }

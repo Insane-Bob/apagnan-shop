@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import DataTable from '@components/tables/DataTable.vue'
 import { TableActions, TableColumns, User } from '@types'
 import { useToast } from '@/components/ui/toast'
@@ -9,16 +9,44 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import { useFilters } from '@/composables/useFilters'
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
+const route = useRoute()
 
-const { filters, query, resetFilters } = useFilters({
-    withCustomer: [],
+const selected = ref([])
+const filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     role: [],
     search: '',
+    id: filterId.value,
 })
-const { rows, pagination, sorting } = useTable('/users', query)
+watch(filterId, () => {
+    filters.id = filterId.value
+})
+
+const { rows, pagination, sorting, fetch } = useTable('/users', query)
+
+const groupedActionLabel = computed(() => {
+    return selected.value.length <= 1
+        ? 'Activer le compte'
+        : 'Activer les comptes'
+})
+
+const groupedActions = [
+    {
+        label: groupedActionLabel,
+        icon: 'flash-outline',
+        class: 'text-red-500',
+        action: (ids: number[]) => {
+            massActivate(ids)
+        },
+    },
+]
 
 const columns: TableColumns[] = [
     {
@@ -32,24 +60,18 @@ const columns: TableColumns[] = [
         key: 'firstName',
         sorting: true,
     },
-
-    {
-        label: 'email',
-        key: 'email',
-        sorting: true,
-        toDisplay: (value: string) => {
-            // anonymize email
-            const [name, domain] = value.split('@')
-            return `${name.slice(0, 2)}...@${domain}`
-        },
-    },
-
     {
         label: 'Role',
         key: 'role',
         sorting: true,
         toDisplay: (value: string) => {
-            return value === 'admin' ? 'Administrateur' : 'Utilisateur'
+            if (value === 'admin') {
+                return 'Administrateur'
+            } else if (value === 'store_keeper') {
+                return 'Gestion des stock'
+            } else {
+                return 'Utilisateur'
+            }
         },
     },
 
@@ -64,25 +86,98 @@ const columns: TableColumns[] = [
             ),
     },
 ]
-
 const actions: TableActions[] = [
+    {
+        label: 'Changer le role',
+        icon: 'sync',
+        class: 'text-primary',
+        action: () => {
+            return
+        },
+        children: [
+            {
+                label: 'Administrateur',
+                icon: 'ribbon-outline',
+                class: 'text-primary',
+                condition: (row: any) => {
+                    console.log(row.role)
+                    return row.role !== 'admin'
+                },
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, { role: 'admin' })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            },
+            {
+                icon: 'storefront-outline',
+                label: 'Gestion des stock',
+                class: 'text-primary',
+                condition: (row: any) => row.role !== 'store_keeper',
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, {
+                        role: 'store_keeper',
+                    })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            },
+            {
+                icon: 'person-outline',
+                label: 'Utilisateur',
+                condition: (row: any) => row.role !== 'user',
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, { role: 'user' })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            },
+        ],
+    },
     {
         label: 'Se connecter en tant que',
         icon: 'glasses-outline',
         class: 'text-blue-500',
+        condition: (row: any) => row.id !== user.getId,
         action: (row: any) => {
             loginAs(row.id)
         },
     },
     {
-        label: 'Bannir',
-        icon: 'ban-outline',
+        label: 'Supprimer',
+        icon: 'trash-outline',
         class: 'text-red-500',
+        condition: (row: any) => row.id !== user.getId,
+        confirmation: {
+            title: "Supprimer l'Utilisateur",
+            message: 'Voulez-vous vraiment bannir cet utilisateur ?',
+            styleConfirm: 'bg-red-500',
+        },
+        action: async (row: any) => {
+            await apiClient.delete('users/' + row.id)
+            toast({
+                title: 'Utilisateur banni',
+            })
+            await fetch()
+        },
+    },
+    {
+        label: 'Activer',
+        icon: 'flash-off-outline',
+        class: 'text-slate-500',
+        condition: (row: any) => row.id !== user.getId && !row.emailVerifiedAt,
         action: (row: any) => {
-            console.log('Supprimer', row)
+            activateUser(row)
         },
     },
 ]
+
 const loginAs = async (id: number) => {
     try {
         const response = await apiClient.post('users/ask-login-as/' + id)
@@ -125,7 +220,34 @@ const loginAs = async (id: number) => {
         return
     }
 }
+
+function activateUser(row) {
+    ApiClient.handleError(async () => {
+        await apiClient.patch('/users/' + row.id, {
+            emailVerifiedAt: new Date(),
+        })
+        fetch()
+        toast({
+            title: `L'utilisateur ${row.firstName} ${row.lastName} a bien été activé`,
+        })
+    })
+}
+
+function massActivate(ids: number[]) {
+    ApiClient.handleError(async () => {
+        for (let id of ids) {
+            await apiClient.patch('/users/' + id, {
+                emailVerifiedAt: new Date(),
+            })
+        }
+        fetch()
+        toast({
+            title: `Les utilisateurs sélectionnés ont bien été activés`,
+        })
+    })
+}
 </script>
+
 <template>
     <div class="flex flex-col mx-6 gap-4">
         <div class="flex gap-4 items-center">
@@ -135,11 +257,6 @@ const loginAs = async (id: number) => {
                 v-model="filters.search"
             >
             </OutlinedInput>
-
-            <Filter label="Compte client" v-model="filters.withCustomer">
-                <FilterItem value="true" label="oui" />
-                <FilterItem value="false" label="non" />
-            </Filter>
             <Filter label="Role" v-model="filters.role">
                 <FilterItem value="admin" label="Administrateur" />
                 <FilterItem value="store_keeper" label="Gestion des stock" />
@@ -147,7 +264,9 @@ const loginAs = async (id: number) => {
             </Filter>
         </div>
         <DataTable
+            v-model:selected="selected"
             :columns="columns"
+            :multi-actions="groupedActions"
             :rows="rows"
             :pagination="pagination"
             :sorting="sorting"

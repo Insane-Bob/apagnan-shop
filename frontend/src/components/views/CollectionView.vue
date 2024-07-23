@@ -17,7 +17,8 @@ import Newsletter from "@components/Newsletter/Newsletter.vue";
 
 const route = useRoute()
 const collectionSlug = computed(()=> route.params.cslug)
-const url = computed(()=> `/collections/${collectionSlug.value}?withProducts=true`)
+const url = computed(()=> `/collections/${collectionSlug.value}?withProducts=true&withImage=true`)
+
 
 const {items:collections,fetch:fetchSuggestion} = useSuggestion<Collection>([collectionSlug.value],6)
 
@@ -40,8 +41,9 @@ const breadcrumbLinks = computed(()=>[
 
 <template>
   <loader :wait-for="collection">
+
     <main>
-      <img v-if="collection?.image" :src="collection.image.path"
+      <img v-if="collection?.image" :src="collection.image.url"
            class="w-full h-[30vh] sm:h-[35vh] lg:h-[40vh] object-top object-cover"
       >
       <div class="w-full h-14 mb-10">
@@ -63,17 +65,18 @@ const breadcrumbLinks = computed(()=>[
         </div>
 
 
-        <div
+        <div v-if="collection && collection?.Products.length > 0"
             class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-12"
         >
           <ProductCard2
               height="300px"
               :key="product.id"
+              :id="product.id"
               v-for="product in collection.Products"
               :name="product.name"
               :slug="product.slug"
               :collection="collection"
-              :shortDescription="product.description" :image="product?.images?.length ? product.images[0] : null">
+              :shortDescription="product.description" :image="product?.mainImage">
             <template #action>
               <Button class="hover:text-primary transition uppercase" variant="ghost">
                 Ce nain m'interesse
@@ -82,6 +85,11 @@ const breadcrumbLinks = computed(()=>[
             </template>
 
           </ProductCard2>
+        </div>
+
+        <div v-else class="text-center flex flex-col justify-center items-center gap-y-4 uppercase">
+          <h1 class="text-2xl">Il semblerait qu'il n'y ai rien ici...</h1>
+          <img src="/src/assets/images/nothing.webp" class="w-96 aspect-square">
         </div>
       </Section>
 

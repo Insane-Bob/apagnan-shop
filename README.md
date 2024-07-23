@@ -7,7 +7,12 @@ Nous avons décidé de vous présenter notre projet sous forme de guide pour vou
 
 Notre backend est inspiré des frameworks Symfony et Laravel. Il est conçu pour être extensible et utilisable pour d'autres projets d'API.
 
-## Installation et Configuration
+## Prérequis
+
+- Compte stripe (clé d'API + signature webhook)
+- Compte hCaptcha
+
+## Installation et Configuration (Environment dev)
 
 ### Étape 2 : Configuration des fichiers d'environnement
 Créez un fichier `.env` à la racine du projet :
@@ -18,15 +23,29 @@ Ensuite, créez les fichiers `.env` dans les sous-dossiers `backend` et `fronten
 
 ### Étape 3 : Lancer Docker Compose
 ```bash
-docker-compose up
+docker compose up --build
 ```
+> Le `--build` est optionnel, sauf si des modifications ont été apportées aux Dockerfiles ou au fichier `nginx.conf`.
 
-### Étape 4 : Lancer les migrations
+### Étape 4 : Installer la paire de clés RSA pour le JWT
 ```bash
-docker-compose run backend npm run migrate
+docker-compose exec backend npm run key:generate
 ```
 
-En développement, accédez à l'API sur [http://localhost](http://localhost) et au frontend sur [http://localhost:5173](http://localhost:5173).
+### Étape 5 : Lancer les migrations
+```bash
+docker compose run backend npm run migrate
+```
+> Vous pouvez aussi lancer les migrations et les seeders en même temps avec `npm run migrate:fresh`. 
+> 
+> **Attention** : cela supprimera toutes les données de la base de données.
+
+Pour s'assurer que le backend soit toujours bien lancé, on peut restart le service : 
+```bash
+docker compose restart backend
+```
+
+En développement, accédez à l'API sur [http://localhost/api](http://localhost/api) et au frontend sur [http://localhost:5173](http://localhost:5173).
 
 ## Structure du Projet
 
@@ -234,13 +253,12 @@ Pour lancer en production :
     docker-compose run frontend npm run build
     ```
 5. Changez `NODE_ENV` à `production` dans `.env`.
-6. Redémarrez Docker Compose :
+6. Redémarrez Docker Compose (backend seulement):
     ```bash
     docker-compose down
     docker-compose up backend
     ```
 ---
-
 
 ## GitHub Actions -> Tests et Déploiement
 
@@ -254,3 +272,4 @@ Fichier : `/github/workflows/backend-test.yml`
 ### Le déploiement
 
 Le déploiement suit globalement les étapes décrites dans la section "Lancement en production". Il build le backend et le frontend au niveau du job GitHub pour ne pas charger notre serveur et profiter des ressources de leur serveur. Ensuite, il upload les artefacts sur notre serveur de production et déploie l'application en lançant uniquement Nginx, le backend et les bases de données.
+Fichier : `/github/workflows/deploy.yml`

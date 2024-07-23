@@ -3,6 +3,7 @@
 import { Model } from 'sequelize'
 import { OrderStatus } from '../../Enums/OrderStatus.js'
 import { PaymentStatus } from './payment.js'
+import {Money} from "../../utils/money.js";
 
 export class Order extends Model {
     static associate(models) {
@@ -41,6 +42,7 @@ export class Order extends Model {
                     {
                         model: models.OrderStatus,
                         as: 'statusHistory',
+                        order: [['createdAt', 'ASC']],
                     },
                     {
                         model: models.OrderDetail,
@@ -57,7 +59,7 @@ export class Order extends Model {
                         model: models.Customer,
                         include: [
                             {
-                                model: models.User,
+                                model: models.User.unscoped(),
                             },
                         ],
                     },
@@ -71,18 +73,28 @@ export class Order extends Model {
                 {
                     model: models.OrderStatus,
                     as: 'statusHistory',
+                    order: [['createdAt', 'ASC']],
+                },
+                {
+                    model: models.Promo,
                 },
                 {
                     model: models.OrderDetail,
                     include: [
                         {
                             model: models.Product,
+                            attributes: {exclude:['StockTransactions']},
                             include: [
                                 {
                                     association: 'images',
                                 },
+                                {
+                                    model: models.StockTransaction,
+
+                                }
                             ],
                         },
+
                     ],
                 },
                 {
@@ -152,6 +164,12 @@ function model(sequelize, DataTypes) {
                     return this.getTotal()
                 },
             },
+            totalFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(this.total)
+                }
+            },
             nbProducts: {
                 type: DataTypes.VIRTUAL,
                 get() {
@@ -179,6 +197,9 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.VIRTUAL,
                 get() {
                     if (!this.Payments) return null
+                    let UNPAID_STATUSES = [OrderStatus.REFUNDED, OrderStatus.CANCELLED]
+                    let hasUnpaidStatus = this.statusHistory.some(status => UNPAID_STATUSES.includes(status.status))
+                    if(hasUnpaidStatus) return false
                     return (
                         this.Payments.reduce((acc, payment) => {
                             return payment.createdAt > acc.createdAt

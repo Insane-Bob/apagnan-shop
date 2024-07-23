@@ -9,7 +9,9 @@ export class NewsletterValidator extends Validator {
 
     static default() {
         return z.object({
-            email: z.string().email(),
+            email: z.string().email({
+                message: "Votre email n'est pas au bon format",
+            }),
         })
     }
 }

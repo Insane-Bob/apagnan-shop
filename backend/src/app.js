@@ -7,7 +7,9 @@ import express from 'express'
 import cors from 'cors'
 import { AuthMiddleware } from './Http/Middlewares/AuthMiddleware.js'
 import { Router } from './Core/Router.js'
-import { UploadMiddleware } from './Http/Middlewares/multer.js'
+import {ThrottleMiddleware} from "./Http/Middlewares/ThrottleMiddleware.js";
+import throttle from "express-throttle";
+
 
 async function setUpApp() {
     console.time('Server started in')
@@ -19,7 +21,7 @@ async function setUpApp() {
     const router = new Router(app)
     await router
         .middleware(AuthMiddleware)
-        .middleware(UploadMiddleware)
+        .middleware(ThrottleMiddleware,200)
         .init(app)
 
     app.all('*', (req, res) => {

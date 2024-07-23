@@ -1,12 +1,13 @@
+import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 import AdminLayout from '@/layout/AdminLayout.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
-import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
-import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
-import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 import AdminOrderTable from '@components/views/admin/orders/AdminOrderTable.vue'
 import AdminPromos from '@components/views/admin/promos/AdminPromos.vue'
+import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
+import AdminReviews from '@components/views/admin/reviews/AdminReviews.vue'
+import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 
 export const adminRoutes = [
     {
@@ -18,6 +19,7 @@ export const adminRoutes = [
             // If not, redirect to login page
             if (localStorage.getItem('accessToken')) {
                 try {
+                    const apiClient = new ApiClient()
                     const result = await apiClient.get('me')
                     if (result.data.user.role === 'admin') {
                         return true
@@ -39,9 +41,16 @@ export const adminRoutes = [
             },
             {
                 path: 'products',
-                component: WorkInProgress,
+                component: AdminProducts,
                 name: 'Produits',
                 meta: { label: 'Produits', icon: 'cube' },
+                children: [
+                    {
+                        path: ':slug',
+                        name: 'Produit',
+                        meta: { label: 'Produit' },
+                    },
+                ],
             },
             {
                 path: 'collections',
@@ -54,6 +63,12 @@ export const adminRoutes = [
                 component: AdminOrderTable,
                 name: 'Commandes',
                 meta: { label: 'Commandes', icon: 'cart' },
+            },
+            {
+                path: 'reviews',
+                component: AdminReviews,
+                name: 'Avis',
+                meta: { label: 'Avis', icon: 'star' },
             },
             {
                 path: 'users',

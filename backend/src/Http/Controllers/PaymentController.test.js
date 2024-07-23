@@ -97,14 +97,14 @@ describe('PaymentController test routes', () => {
         expect(spy).toHaveBeenCalled()
     })
 
-    function makeWebhookRequest(paymentIntent) {
+    function makeWebhookRequest(object, type = 'checkout.session.completed') {
         return request(app)
             .post('/api/payments/webhook')
             .send({
-                type: 'payment_intent.succeeded',
+                type,
                 object: 'event',
                 data: {
-                    object: paymentIntent,
+                    object,
                 },
             })
     }
@@ -117,11 +117,12 @@ describe('PaymentController test routes', () => {
         expect(response.statusCode).toBe(400)
     })
 
-    test('POST /api/payments/webhook - payment_intent.succeeded', async () => {
-        let paymentIntent = {
-            id: 'pi_123',
-        }
+    test('POST /api/payments/webhook - checkout.session.completed || checkout.session.async_payment_succeeded', async () => {
         const payment = await createPayment()
+        let checkoutSession = {
+            id: payment.sessionId,
+            payment_intent: 'pi_123',
+        }
         PaymentServices.constructEvent = jest.fn((body) => {
             return JSON.parse(body.toString())
         })
@@ -136,9 +137,12 @@ describe('PaymentController test routes', () => {
             })
 
         actingAs(user)
-        await makeWebhookRequest(paymentIntent)
+        let event = Math.random() > 0.5 ? 'checkout.session.completed' : 'checkout.session.async_payment_succeeded'
+        await makeWebhookRequest(checkoutSession, event)
+
+
         expect(PaymentControllerPaymentSucceededSpy).toHaveBeenCalledWith(
-            paymentIntent,
+            checkoutSession,
         )
 
         let updatedPayment =
@@ -154,16 +158,7 @@ describe('PaymentController test routes', () => {
                 data: [],
             })
 
-        let response = await request(app)
-            .post('/api/payments/webhook')
-            .send({
-                type: 'payment_intent.succeeded',
-                object: 'event',
-                data: {
-                    object: paymentIntent,
-                },
-            })
-
+        let response = await makeWebhookRequest(checkoutSession, event)
         expect(response.statusCode).toBe(404)
     })
 })

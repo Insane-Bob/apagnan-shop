@@ -9,8 +9,8 @@ defineProps<{item: BasketItem}>();
 <template>
     <div class="flex w-full justify-between ">
         <img 
-            class="w-14 h-14 relative mr-8"
-            src="/src/assets/images/noPhotoAvailable.webp"
+            class="w-14 h-14 relative mr-8 object-contain"
+            :src="item.product.mainImage.url"
             alt="placeholder"
         />
         <div class="flex flex-col grow">
@@ -18,7 +18,7 @@ defineProps<{item: BasketItem}>();
                 <p class="uppercase font-medium">{{ item.product.name }}</p>
                 <p class="uppercase font-light whitespace-nowrap ">Qté:  {{ item.quantity }}</p>
             </div>
-            <p class="w-full text-right text-xs">€ {{  item.product.price }}</p>
+            <p class="w-full text-right text-xs">{{  item.product.priceFormatted }}</p>
         </div>
     </div>
 

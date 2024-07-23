@@ -1,9 +1,20 @@
 import path from 'path'
 import fs from 'fs'
 import { Database } from '../src/Models/index.js'
-import { DenormalizerModelListener } from '../src/lib/Denormalizer/DenormalizerModelListener.js'
 import { DenormalizerQueue } from '../src/lib/Denormalizer/DenormalizerQueue.js'
+
+function parseArgs() {
+    const args = process.argv.slice(2)
+    const parsedArgs = {}
+    args.forEach((arg) => {
+        const [key, value] = arg.split('=')
+        parsedArgs[key] = value
+    })
+    return parsedArgs
+}
 export async function seed() {
+    let parsedArgs = parseArgs()
+    let factor = parsedArgs['--factor'] || 1
     let seederInstance = {
         references: new Map(),
         random: (a, b) => {
@@ -13,6 +24,7 @@ export async function seed() {
             return array[this.random(0, array.length - 1)]
         },
         db: null,
+        factor,
     }
 
     DenormalizerQueue.prototype.enqueue = async function (task) {
@@ -23,7 +35,7 @@ export async function seed() {
     seederInstance.db.sequelize.options.logging = false
 
     const seedersPath = path.resolve('src/database/seeders')
-    const seeders = fs.readdirSync(seedersPath)
+    const seeders = fs.readdirSync(seedersPath).filter((file) => file.includes('.js'))
 
     for (const seeder of seeders) {
         console.time('== ' + seeder + ': seeded in')

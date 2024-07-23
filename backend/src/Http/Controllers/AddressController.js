@@ -45,16 +45,6 @@ export class AddressController extends Controller {
             await Database.getInstance().models.Address.create(payload)
         this.res.json(address)
     }
-    async update() {
-        this.can(AddressPolicy.show, this.address)
-        const payload = this.validate(
-            AddressValidator,
-            AddressValidator.update(),
-        )
-        const rowsEdited = await this.address.update(payload)
-        NotFoundException.abortIf(!rowsEdited)
-        this.res.sendStatus(200)
-    }
 
     async delete() {
         this.can(AddressPolicy.show, this.address)

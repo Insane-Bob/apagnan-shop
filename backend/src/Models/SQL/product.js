@@ -4,6 +4,7 @@ import slugify from 'slugify'
 import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
 import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import {Money} from "../../utils/money.js";
 
 function model(sequelize, DataTypes) {
     class Product extends DenormalizableModel {
@@ -17,14 +18,12 @@ function model(sequelize, DataTypes) {
             Product.hasMany(models.Review, {
                 foreignKey: 'productId',
             })
-            Product.hasMany(models.Upload, {
-                foreignKey: 'modelId',
-                constraints: false,
-                scope: {
-                    modelName: 'product',
-                },
+
+            Product.hasMany(models.ProductImage, {
+                foreignKey: 'productId',
                 as: 'images',
             })
+
             Product.hasMany(models.OrderDetail, {
                 foreignKey: 'productId',
             })
@@ -48,6 +47,12 @@ function model(sequelize, DataTypes) {
         }
 
         static addScopes(models) {
+            models.Product.addScope('withImages', {
+                include: {
+                    model: models.ProductImage,
+                    as: 'images',
+                },
+            })
             models.Product.addScope('withCollection', {
                 include: {
                     model: models.Collection,
@@ -61,7 +66,7 @@ function model(sequelize, DataTypes) {
                 replacements: { productId: this.id },
                 type: QueryTypes.SELECT,
             })
-            this.stock = Number(result.stock)
+            this._stock = Number(result.stock)
             return Number(result.stock)
         }
     }
@@ -86,7 +91,33 @@ function model(sequelize, DataTypes) {
             deletedAt: DataTypes.DATE,
             stock: {
                 type: DataTypes.VIRTUAL,
+                get(){
+                    if(this.StockTransactions){
+                        return this.StockTransactions.reduce((acc, transaction) => {
+                            return acc + transaction.quantity
+                        }, 0)
+                    }
+                    else return this._stock
+                }
             },
+            _stock:{
+                type: DataTypes.VIRTUAL,
+            },
+            mainImage:{
+                type: DataTypes.VIRTUAL,
+                get() {
+                    if (this.images && this.images.length > 0) {
+                        return this.images[0]
+                    }
+                    return null
+                }
+            },
+            priceFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(Number(this.price))
+                }
+            }
         },
         {
             sequelize,

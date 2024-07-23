@@ -1,7 +1,8 @@
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { ref } from 'vue'
 
-export function useForm(url, payload , method = 'post') {
+export function useForm(url, payload, method = 'post') {
+    const apiClient = new ApiClient()
     const errors = ref(null)
     const data = ref(null)
     const loading = ref(false)
@@ -12,10 +13,13 @@ export function useForm(url, payload , method = 'post') {
         try {
             const response = await apiClient[method](url, payload.value)
             data.value = response.data
-            onSuccess(data)
+            if (onSuccess) onSuccess(data)
+            return data
         } catch (e) {
-            if (e.response.status === 422) errors.value = e.response.data.errors
-            else onError(errors)
+            if (e.response && e.response.status === 422)
+                errors.value = e.response.data.errors
+            if (onError) onError(e)
+            else throw e
         } finally {
             loading.value = false
         }

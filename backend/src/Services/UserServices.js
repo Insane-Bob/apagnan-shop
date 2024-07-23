@@ -43,16 +43,28 @@ export class UserServices {
     }
 
     static retrieveUserByEmail(email) {
-        return Database.getInstance().models.User.findOne({
-            where: {
-                email,
-            },
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .scope('notDeleted')
+            .findOne({
+                where: {
+                    email,
+                },
+            })
     }
 
     static activateUserAccount(user) {
         return user.update({
             emailVerifiedAt: new Date(),
+        })
+    }
+
+    static async retrieveAdminUsersMail() {
+        return Database.getInstance().models.User.findAll({
+            where: {
+                role: USER_ROLES.ADMIN,
+            },
+            attributes: ['email'],
         })
     }
 }

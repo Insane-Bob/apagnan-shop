@@ -43,6 +43,9 @@ export const useUserStore = defineStore('user', {
 
             this.newItem = true
         },
+        getItem(id: number) {
+            return this.cart.find((item) => item?.product.id === id)
+        },
         cartViewed() {
             this.newItem = false
         },
@@ -53,10 +56,19 @@ export const useUserStore = defineStore('user', {
         setLoggedAs(value: boolean) {
             this.loggedAs = value
         },
+
+        logout() {
+            this.clearUser()
+            this.clearCart()
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
+        },
     },
     getters: {
         isAuthenticated: (state: any): boolean => !!state.user,
         isAdmin: (state: any): boolean => state.user?.role === 'admin',
+        isStoreKeeper: (state: any): boolean =>
+            state.user?.role === 'store_keeper',
         getId: (state: any): number => state.user?.id,
         get: (state: any): User => state.user,
         getCart: (state: any): BasketItem[] => state.cart,

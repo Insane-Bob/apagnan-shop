@@ -2,7 +2,7 @@
 import DataTable from '@components/tables/DataTable.vue'
 import { Dialog } from '@components/ui/dialog'
 import { TableActions, TableColumns, User } from '@types'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useToast } from '@components/ui/toast'
 import { useTable } from '@/composables/useTable'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
@@ -10,6 +10,8 @@ import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
 import { useFilters } from '@/composables/useFilters'
 import { computed } from 'vue'
+
+const apiClient = new ApiClient()
 
 const { toast } = useToast()
 
@@ -25,6 +27,7 @@ const columns: TableColumns[] = [
         label: 'Order',
         key: 'orderId',
         sorting: true,
+        to : (row)=> `/admin/orders?id=${row.orderId}`
     },
 
     {

@@ -88,7 +88,7 @@ export function getModelMock() {
         constructor(obj) {
             Object.assign(this, obj)
         }
-
+        static scope = jest.fn(() => this)
         static findOne = jest.fn(() => new MockedModel({ id: 1 }))
         static create = jest.fn((obj) => new MockedModel(obj))
         static destroy = jest.fn()
@@ -98,7 +98,7 @@ export function getModelMock() {
                 .map((_, i) => new MockedModel({ id: i })),
         )
         static findByPk = jest.fn((id) => new MockedModel({ id }))
-        static count = jest.fn(() => 4)
+        static count = jest.fn((obj) => 4)
 
         destroy() {
             return true
@@ -130,6 +130,7 @@ export function mockDatabase(databaseClass) {
             Upload: getModelMock(),
             Address: getModelMock(),
             AccessLink: getModelMock(),
+            Review: getModelMock(),
         },
     }))
 }

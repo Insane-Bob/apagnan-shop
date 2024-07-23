@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { DialogTrigger } from '@/components/ui/dialog'
+import ConfirmationModal from '@components/Modals/ConfirmationModal.vue'
 import SimplePagination from '@components/paginations/SimplePagination.vue'
 import HeaderTable from '@components/tables/utils/HeaderTable.vue'
 import CellTable from '@components/tables/utils/CellTable.vue'
-import Button from '@components/ui/button/Button.vue'
 import { computed, reactive, ref } from 'vue'
 import { TableColumns, TableActions, Page } from '@types'
-const isAllSelected = ref(false)
+import MultipleActionMenu from '@components/tables/MultipleActionMenu.vue'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const emit = defineEmits([
     'emitNextPage',
@@ -24,7 +30,7 @@ const props = defineProps<{
         label: string
         icon?: string
         class?: string
-        action: (rows: any[]) => void
+        action: (ids: number[]) => void
     }[]
     page?: Page
     pagination?: object
@@ -39,6 +45,21 @@ const props = defineProps<{
     }
 }>()
 
+const selected = defineModel('selected')
+const isAllSelected = computed(() => {
+    return rows.value
+        .map((r) => r.id)
+        .every((id) => selected.value.includes(id))
+})
+const hasMultipleActions = computed(() => {
+    return props.multiActions && props.multiActions.length > 0
+})
+const isSelected = computed(() => {
+    return (id: number) => {
+        return selected.value.some((rowId) => rowId === id)
+    }
+})
+
 const rows = computed(() => {
     return props.rows
 })
@@ -49,20 +70,21 @@ function onSort(key: string) {
 }
 
 function onSelectAll() {
-    const allSelected = rows.value.every((row) => row.selected)
-    rows.value.forEach((selectedRows) => (selectedRows.selected = !allSelected))
-    isAllSelected.value = !allSelected
-
-    emit('updateRows', rows.value)
+    let idsOfPage = props.rows.map((row) => row.id)
+    if (isAllSelected.value) {
+        selected.value = selected.value.filter(
+            (rowId) => !idsOfPage.includes(rowId),
+        )
+    } else {
+        selected.value = [...selected.value, ...idsOfPage]
+    }
 }
 
 function onSelect(id: number) {
-    const row = rows.value.find((row) => row.id === id)
-    emit('updateRows', rows.value)
-    if (row) {
-        row.selected = !row.selected
-        isAllSelected.value = rows.value.every((row) => row.selected)
-    }
+    const isSelected = selected.value.some((rowId) => rowId === id)
+    if (isSelected)
+        selected.value = selected.value.filter((rowId) => rowId !== id)
+    else selected.value.push(id)
 }
 
 function onSearchIn(event: any, key: string) {
@@ -76,38 +98,13 @@ function onExecMultiAction(callBack: (item: any) => void) {
 
 <template>
     <div class="relative">
-        <div
-            v-if="
-                props.multiActions &&
-                props.multiActions.length > 0 &&
-                rows.some((row) => row.selected)
-            "
-            class="absolute top-0 flex gap-x-2 w-full justify-end duration-150"
-        >
-            <Button
-                v-for="action in multiActions"
-                :key="'multi-' + action.label"
-                :class="action.class"
-                @click="onExecMultiAction(action.action)"
-            >
-                <ion-icon :name="action.icon"></ion-icon>
-                <span>{{ action.label }}</span>
-            </Button>
-        </div>
-
         <div class="border rounded-md overflow-hidden">
             <table class="w-full text-sm text-left text-gray-500">
                 <thead
                     class="text-xs text-gray-700 uppercase hover:bg-muted/50 border-b bg-gray-50"
                 >
                     <tr>
-                        <HeaderTable
-                            class="pl-4"
-                            v-if="
-                                props.multiActions &&
-                                props.multiActions.length > 0
-                            "
-                        >
+                        <HeaderTable class="pl-4" v-if="hasMultipleActions">
                             <ion-icon
                                 @click="onSelectAll()"
                                 :name="
@@ -116,22 +113,21 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         : 'square-outline'
                                 "
                                 class="text-lg cursor-pointer"
-                            ></ion-icon>
+                            />
                         </HeaderTable>
 
                         <HeaderTable
                             v-for="column in props.columns"
                             :key="column.key"
                             :columns="column"
-                            :multiActionLength="props.multiActions?.length"
                             :position="column.position"
                             @click="
                                 column.sorting ? onSort(column.key) : () => {}
                             "
                         >
-                            <slot :name="column.key" class="fiont">{{
-                                column.label
-                            }}</slot>
+                            <slot :name="column.key" class="fiont">
+                                {{ column.label }}
+                            </slot>
                             <ion-icon
                                 v-if="
                                     column.sorting &&
@@ -144,16 +140,27 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         ? 'arrow-up'
                                         : 'arrow-down'
                                 "
-                            ></ion-icon>
+                            />
                             <ion-icon
                                 v-else-if="column.sorting"
-                                class="cursor-pointer text-sm opacity-0 hover:opacity-100"
+                                class="cursor-pointer text-sm opacity-50 hover:opacity-100"
                                 name="chevron-expand"
                             />
                         </HeaderTable>
 
                         <HeaderTable
-                            v-if="props.actions && props.actions.length > 0"
+                            v-if="hasMultipleActions && selected.length"
+                            position="right"
+                        >
+                            <MultipleActionMenu
+                                :multiple-actions="multiActions"
+                                :selected="selected"
+                            />
+                        </HeaderTable>
+                        <HeaderTable
+                            v-else-if="
+                                props.actions && props.actions.length > 0
+                            "
                             position="right"
                         >
                             Actions
@@ -161,10 +168,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                     </tr>
                     <tr v-if="search && search.length > 0" class="bg-gray-100">
                         <CellTable
-                            v-if="
-                                props.multiActions &&
-                                props.multiActions?.length > 0
-                            "
+                            v-if="hasMultipleActions"
                             class="pl-4 py-2"
                         ></CellTable>
                         <td
@@ -183,7 +187,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                 v-if="search?.some((s) => s.key === column.key)"
                                 class="absolute top-1/2 right-4 -translate-y-1/2 -translate-x-full z-20 hidden md:block"
                                 name="search-outline"
-                            ></ion-icon>
+                            />
                         </td>
                         <CellTable
                             v-if="props.actions && props.actions.length > 0"
@@ -193,40 +197,46 @@ function onExecMultiAction(callBack: (item: any) => void) {
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(row, index) in props.page
-                            ? rows.slice(
-                                  (props.page.current - 1) * props.page.perPage,
-                                  props.page.current * props.page.perPage,
-                              )
-                            : rows"
+                        v-for="(row, index) in rows"
                         :key="index"
                         class="bg-white border-b hover:bg-muted/50"
                     >
-                        <CellTable
-                            v-if="
-                                props.multiActions &&
-                                props.multiActions.length > 0
-                            "
-                            class="pl-4"
+                        <CellTable v-if="hasMultipleActions" class="pl-4"
                             ><ion-icon
                                 @click="onSelect(row.id)"
                                 :name="
-                                    row.selected ? 'checkbox' : 'square-outline'
+                                    isSelected(row.id)
+                                        ? 'checkbox'
+                                        : 'square-outline'
                                 "
                                 class="text-lg cursor-pointer"
-                            ></ion-icon
-                        ></CellTable>
+                        /></CellTable>
                         <CellTable
                             v-for="column in props.columns"
                             :key="column.key"
                             :multiActionLength="props.multiActions?.length"
                             :columns="column"
                         >
-                            <slot :name="'row:' + column.key" :row="row">{{
-                                column.toDisplay
-                                    ? column.toDisplay(row[column.key])
-                                    : row[column.key]
-                            }}</slot>
+                            <slot :name="'row:' + column.key" :row="row">
+                                <RouterLink
+                                    v-if="column?.to"
+                                    :to="column.to(row)"
+                                    class="text-primary hover:text-primary/80"
+                                >
+                                    {{
+                                        column.toDisplay
+                                            ? column.toDisplay(row[column.key])
+                                            : row[column.key]
+                                    }}
+                                </RouterLink>
+                                <template v-else>
+                                    {{
+                                        column.toDisplay
+                                            ? column.toDisplay(row[column.key])
+                                            : row[column.key]
+                                    }}
+                                </template>
+                            </slot>
                         </CellTable>
 
                         <CellTable v-if="props.actions && props.actions.length">
@@ -240,26 +250,50 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                             : false,
                                     }"
                                 >
-                                    <div
-                                        v-if="
-                                            !action.trigger ||
-                                            action.trigger === false
-                                        "
-                                        class="relative group transition delay-1000"
-                                    >
+                                    <div v-if="action.children && action.children.length">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger class="group relative">
+                                                <ion-icon
+                                                    class="cursor-pointer hover:scale-105 duration-200 text-xl"
+                                                    :class="action.class"
+                                                    :name="action.icon || 'ellipsis-vertical'"
+                                                ></ion-icon>
+                                                <span
+                                                    class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
+                                                    >{{ action.label }}</span
+                                                >
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem v-for="(a, index) in action.children" :key="index" :disabled="!a.condition(row)" @click="a.action(row)">
+                                                    <ion-icon
+                                                        class="mr-2"
+                                                        :class="a.class"
+                                                        :name="a.icon"
+                                                    ></ion-icon>
+                                                    {{ a.label }}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+
+                                    </div>
+                                    <div v-else-if="
+                                            (!action.trigger ||
+                                            action.trigger === false)
+                                            && !action.confirmation"
+                                        class="relative group transition delay-1000">
                                         <ion-icon
                                             @click.stop="action.action(row)"
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"
                                             :class="action.class"
                                             :name="action.icon"
-                                        ></ion-icon>
+                                        />
                                         <span
                                             class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
                                             >{{ action.label }}</span
                                         >
                                     </div>
                                     <DialogTrigger
-                                        v-else
+                                        v-if="action.trigger || action.trigger === true"
                                         class="relative group transition delay-1000"
                                     >
                                         <ion-icon
@@ -267,12 +301,32 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"
                                             :class="action.class"
                                             :name="action.icon"
-                                        ></ion-icon>
+                                        />
                                         <span
                                             class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
                                             >{{ action.label }}</span
                                         >
                                     </DialogTrigger>
+
+                                    <ConfirmationModal v-if="action.confirmation" 
+                                    :confirm="action.action"
+                                    :props="row"
+                                    :title="action.confirmation.title || ''" 
+                                    :message="action.confirmation.message || ''"
+                                    :style-confirm="action.confirmation.styleConfirm || ''"
+                                    :style-cancel="action.confirmation.styleCancel || ''"
+
+                                    >
+                                        <ion-icon
+                                            class="cursor-pointer hover:scale-105 duration-200 text-xl"
+                                            :class="action.class"
+                                            :name="action.icon"
+                                        ></ion-icon>
+                                        <span
+                                            class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
+                                            >{{ action.label }}</span
+                                        >
+                                    </ConfirmationModal>
                                 </div>
                             </div>
                         </CellTable>

@@ -32,7 +32,7 @@ export class Factory {
 
     static async createInstance(obj = {}) {
         let payload = {
-            ...(await this.getDefault()),
+            ...(await this.getDefault(obj)),
             ...obj,
         }
         const instance = await this.getModel().create(payload)
