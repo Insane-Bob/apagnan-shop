@@ -14,9 +14,8 @@ export class ProductPolicy {
     }
     static updateStock(user) {
         return (
-            user.hasRole(USER_ROLES.ADMIN)
-        ) || (
-            user.hasRole(USER_ROLES.STOCK_MANAGER)
+            user.hasRole(USER_ROLES.ADMIN) ||
+            user.hasRole(USER_ROLES.STORE_KEEPER)
         )
     }
     static delete(user) {
