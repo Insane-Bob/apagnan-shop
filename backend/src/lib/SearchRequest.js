@@ -100,6 +100,7 @@ export class SearchRequest {
             where: this.where,
             order: this.order,
             replacements: this.replacements,
+            include: []
         }
     }
 }

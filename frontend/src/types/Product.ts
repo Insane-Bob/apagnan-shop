@@ -6,6 +6,7 @@ export interface Product extends Suggestion{
     id: number
     modele: string
     price: number
+    priceFormatted:string,
     image: string
     category: string
     createdAt: string
@@ -14,7 +15,19 @@ export interface Product extends Suggestion{
     collectionId: number
     published: boolean
     stock: number
-    images: Upload[]
+    mainImage: {
+        url: string
+        uploadId : number
+        productId : number
+        file: Upload
+    }
+    images?: {
+        url : string
+        uploadId : number
+        productId : number
+        file: Upload
+    }[];
     reviews: Review[]
     Collection? : Collection
+
 }

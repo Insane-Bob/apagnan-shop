@@ -5,11 +5,12 @@ import { CollectionValidator } from '../../Validator/CollectionValidator.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 
 export class CollectionController extends Controller {
+    collection
     async getCollections() {
-        let search = new SearchRequest(this.req, ['published'], ['name'])
+        let search = new SearchRequest(this.req, ['published','id'], ['name'])
 
-        const model = Database.getInstance().models.Collection
-        if (this.req.query.has('withImage')) model.scope('withImage')
+        let model = Database.getInstance().models.Collection
+        if (this.req.query.has('withImage')) model = model.scope('withImage')
         const total = await model.count(search.queryWithoutPagination)
 
         let query = { ...search.query }
@@ -30,15 +31,8 @@ export class CollectionController extends Controller {
 
     async getCollection() {
         const collection = this.collection
-        const image = await Database.getInstance().models.Upload.findOne({
-            where: {
-                modelId: collection.id,
-                modelName: 'collection',
-            },
-        })
         this.res.json({
             collection: collection,
-            image: image,
         })
     }
 
@@ -53,14 +47,12 @@ export class CollectionController extends Controller {
                         model: Database.getInstance().models.Product,
                         include: [
                             {
-                                model: Database.getInstance().models.Upload,
-                                as: 'images',
+                                association: 'images',
                             },
                         ],
                     },
                     {
-                        model: Database.getInstance().models.Upload,
-                        as: 'image',
+                        association: 'image',
                     },
                 ],
             })
@@ -75,13 +67,6 @@ export class CollectionController extends Controller {
         const payload = this.validate(CollectionValidator)
         const collection =
             await Database.getInstance().models.Collection.create(payload)
-        /* if (this.req.file) {
-            await Database.getInstance().models.Upload.create({
-                modelId: collection.id,
-                modelName: 'collection',
-                imagePath: this.req.file.path,
-            })
-        } */
         this.res.json({
             collection: collection,
         })
@@ -91,24 +76,33 @@ export class CollectionController extends Controller {
         this.can(CollectionPolicy.update)
         const collection = this.collection
         const payload = this.validate(CollectionValidator)
-        /* if (this.req.file) {
-            // Delete previous image if exists
-            await Database.getInstance().models.Upload.destroy({
-                where: {
-                    modelId: collection.id,
-                    modelName: 'collection',
-                },
-            })
-
-            await Database.getInstance().models.Upload.create({
-                modelId: collection.id,
-                modelName: 'collection',
-                imagePath: this.req.file.path,
-            })
-        } */
         await collection.update(payload)
-
         await collection.save()
+        this.res.json({
+            collection: collection,
+        })
+    }
+
+    async promoteCollection() {
+        await Database.getInstance().models.Collection.update(
+            {
+                promoted: false,
+            },
+            {
+                where: { promoted: true },
+            },
+        )
+
+        const collection =
+            await Database.getInstance().models.Collection.update(
+                {
+                    promoted: true,
+                },
+                {
+                    where: { id: this.collection.id },
+                },
+            )
+
         this.res.json({
             collection: collection,
         })

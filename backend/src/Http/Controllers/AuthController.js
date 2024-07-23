@@ -5,16 +5,19 @@ import {
 } from '../../Exceptions/HTTPException.js'
 import { Database } from '../../Models/index.js'
 import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
-
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { TokenServices } from '../../Services/TokenServices.js'
 import { UserServices } from '../../Services/UserServices.js'
 import { AskResetPasswordValidator } from '../../Validator/AskResetPasswordValidator.js'
 import { LoginValidator } from '../../Validator/LoginValidator.js'
 import { RegisterValidator } from '../../Validator/RegisterValidator.js'
+import { ValidationException } from '../../Exceptions/ValidationException.js'
+import { CaptchaValidator } from '../../Validator/CaptchaValidator.js'
+import { CGUCGVValidator } from '../../Validator/CGUCGVValidator.js'
 
 export class AuthController extends Controller {
     async login() {
+        await this.validate(CaptchaValidator)
         const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
@@ -50,6 +53,13 @@ export class AuthController extends Controller {
                 success: true,
             })
         }
+
+        ValidationException.abortIf(!user.isEmailVerified(), [
+            {
+                path: 'email',
+                message: 'Votre email doit être vérifié afin de vous connecter',
+            },
+        ])
 
         const token = await TokenServices.createToken(user.id)
         const accessToken = TokenServices.generateAccessToken(token)
@@ -95,8 +105,10 @@ export class AuthController extends Controller {
     }
 
     async register() {
+        await this.validate(CaptchaValidator)
         const { firstName, lastName, email, password } =
             this.validate(RegisterValidator)
+        this.validate(CGUCGVValidator)
 
         const userExist = await UserServices.retrieveUserByEmail(email)
         UnprocessableEntity.abortIf(userExist, 'Email already used')

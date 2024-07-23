@@ -5,17 +5,30 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import CollectionForm from '@/components/views/admin/collections/CollectionForm.vue'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import { Collection, TableActions, TableColumns } from '@types'
 import { reactive } from 'vue'
+import {useRoute} from "vue-router";
+import {computed, watch} from "vue";
 
-const { filters, query, resetFilters } = useFilters({
+const apiClient = new ApiClient()
+
+
+const route = useRoute()
+const filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     published: [],
     search: '',
+    withImage: true,
+    id: filterId.value,
 })
+watch(filterId, () => {
+  filters.id = filterId.value
+})
+
 
 const { fetch, rows, pagination, sorting } = useTable('/collections', query)
 
@@ -76,8 +89,7 @@ const actions: TableActions[] = [
         class: 'text-yellow-500',
         condition: (row: any) => !row.promoted,
         action: (row: any) => {
-            removeOldPromoted()
-            updateCollection({ ...row, promoted: true })
+            promoteCollection(row)
         },
     },
     {
@@ -121,14 +133,11 @@ const actions: TableActions[] = [
 const updateCollection = async (row: any) => {
     await apiClient.patch('collections/' + row.slug, row)
     fetch()
-
 }
 
-const removeOldPromoted = () => {
-    const oldPromoted = rows.value.find((c: any) => c.promoted)
-    if (oldPromoted) {
-        updateCollection({ ...oldPromoted, promoted: false })
-    }
+const promoteCollection = async (row: any) => {
+    await apiClient.patch('collections/'+ row.slug + '/promote')
+    fetch()
 }
 
 const deleteCollection = async (row: any) => {

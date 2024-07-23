@@ -43,6 +43,9 @@ export const useUserStore = defineStore('user', {
 
             this.newItem = true
         },
+        getItem(id: number) {
+            return this.cart.find((item) => item?.product.id === id)
+        },
         cartViewed() {
             this.newItem = false
         },

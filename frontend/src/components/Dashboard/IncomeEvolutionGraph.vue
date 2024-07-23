@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, onMounted, ref, watch } from 'vue'
 import CardHeader from '@components/ui/card/CardHeader.vue'
 import CardDescription from '@components/ui/card/CardDescription.vue'
 import CardTitle from '@components/ui/card/CardTitle.vue'
 import AreaChart from '@components/ui/chart-area/AreaChart.vue'
+
+const apiClient = new ApiClient()
 
 const props = defineProps({
     dateRange: {

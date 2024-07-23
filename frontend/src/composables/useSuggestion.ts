@@ -14,7 +14,7 @@ export function  useSuggestion<T extends Suggestion>(exceptSlugs: string[] = [],
     })
 
     const items = ref<Suggestion[]>([])
-    const url = computed(()=>`/${type}?limit=${limit.value}&random=true&withCollection`);
+    const url = computed(()=>`/${type}?limit=${limit.value}&random=true&withCollection&withImages&withImage`);
     const fetcher = useFetch(url,null,(data)=>{
         items.value = data.data.filter((c: Suggestion) => !exceptSlugs.includes(c.slug)).splice(0, size)
     })

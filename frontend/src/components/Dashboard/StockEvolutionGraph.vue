@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, defineProps, onMounted, ref, watch } from 'vue'
 import BarChart from '@components/ui/chart-bar/BarChart.vue'
 import CardContent from '@components/ui/card/CardContent.vue'
@@ -12,6 +12,8 @@ import SelectItem from "@components/ui/select/SelectItem.vue";
 import SelectContent from "@components/ui/select/SelectContent.vue";
 import SelectTrigger from "@components/ui/select/SelectTrigger.vue";
 import SelectValue from "@components/ui/select/SelectValue.vue";
+
+const apiClient = new ApiClient()
 
 const props = defineProps({
     dateRange: {

@@ -10,7 +10,9 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { ref, defineProps, defineEmits } from 'vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
+
+const apiClient = new ApiClient()
 
 const emit = defineEmits(['stockUpdated'])
 const props = defineProps<{

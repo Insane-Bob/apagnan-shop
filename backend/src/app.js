@@ -7,7 +7,7 @@ import express from 'express'
 import cors from 'cors'
 import { AuthMiddleware } from './Http/Middlewares/AuthMiddleware.js'
 import { Router } from './Core/Router.js'
-import { UploadMiddleware } from './Http/Middlewares/multer.js'
+
 
 async function setUpApp() {
     console.time('Server started in')
@@ -19,7 +19,6 @@ async function setUpApp() {
     const router = new Router(app)
     await router
         .middleware(AuthMiddleware)
-        .middleware(UploadMiddleware)
         .init(app)
 
     app.all('*', (req, res) => {

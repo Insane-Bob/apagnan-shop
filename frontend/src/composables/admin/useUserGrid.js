@@ -1,8 +1,9 @@
 import { onMounted, ref } from 'vue'
-import { apiClient } from '@lib/apiClient.ts'
+import { ApiClient } from '@lib/apiClient.ts'
 import { useUserStore } from '@store/user'
 
 export function useUserGrid() {
+    const apiClient = new ApiClient()
     const grid = ref(null)
     const user = useUserStore()
     async function fetch() {

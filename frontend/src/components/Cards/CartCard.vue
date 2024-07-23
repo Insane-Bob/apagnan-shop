@@ -7,10 +7,12 @@ SelectTrigger,
 SelectValue
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { apiClient } from '@/lib/apiClient';
+import { ApiClient } from '@/lib/apiClient';
 import type { Product } from '@/types';
 import { useUserStore } from '@store/user';
 import { ref } from 'vue';
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
@@ -58,9 +60,10 @@ const onQuantityUpdated = async () => {
 </script>
 <template>
         <div v-if="quantity" class="flex items-center gap-x-4 my-4 ">
-            <img v-if="product.images && product.images.length > 0"
-                class="min-w-20 w-20 h-20"
-                :src="'/src/' + product.images[0].path"
+
+            <img v-if="product?.mainImage"
+                class="min-w-20 w-20 h-20 object-contain"
+                :src="product?.mainImage?.url"
                 :alt="product.name"
             />
             <div v-else class="relative group min-w-20 h-20">
@@ -75,7 +78,7 @@ const onQuantityUpdated = async () => {
             </div>
             <div class="flex flex-col gap-y-2">
                 <h3 class="text-lg font-semibold">{{ product.name }}</h3>
-                <p class="text-sm">prix: {{ product.price }} €</p>
+                <p class="text-sm">prix: {{ product.priceFormatted }}</p>
                 <p class="text-sm">quantité: x{{ quantity }}</p>
             </div>
             <div class="flex justify-end grow">

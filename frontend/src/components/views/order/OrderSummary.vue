@@ -13,15 +13,14 @@ import FormInput from '@/components/Inputs/FormInput.vue';
 import Button from '@/components/ui/button/Button.vue'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useUserStore } from '@/stores/user'
 import { onBeforeMount, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SummaryCard from '@components/Cards/SummaryCard.vue'
 
 import AddressForm from '@/components/views/order/AddressForm.vue'
-import type { BasketItem, Order, Promo, PromotionCodeStripe } from '@/types'
-import {backofficeRoutesName} from "@/routes/backoffice";
+import type { BasketItem,  Promo } from '@/types'
 import {usePaymentBroadcastChannel} from "@/composables/usePaymentBroadcastChannel";
 import CardHeader from "@components/ui/card/CardHeader.vue";
 import Card from "@components/ui/card/Card.vue";
@@ -33,6 +32,9 @@ import Badge from "@components/ui/badge/Badge.vue";
 import CardTitle from "@components/ui/card/CardTitle.vue";
 import CardFooter from "@components/ui/card/CardFooter.vue";
 import FormGrid from '@/components/Forms/FormGrid.vue'
+import {Money} from "@/utils/money";
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const router = useRouter()
@@ -116,6 +118,7 @@ const goToPayment = async () => {
         toast({
             title: 'Veuillez choisir une adresse de livraison',
             variant: 'destructive',
+            duration: 2000,
         })
         return
     }
@@ -126,6 +129,7 @@ const goToPayment = async () => {
             toast({
                 title: "Veuillez remplir tous les champs de l'adresse de livraison",
                 variant: 'destructive',
+                duration: 2000,
             })
             return
         }
@@ -280,6 +284,7 @@ const createOrder = async (
     if (response.status === 201) {
         toast({
             title: 'Votre commande a été enregistrée',
+            duration: 1000,
         })
         // user.clearCart()
         return response.data.id
@@ -287,6 +292,7 @@ const createOrder = async (
         toast({
             title: 'Une erreur est survenue lors de la création de votre commande',
             variant: 'destructive',
+            duration: 2000,
         })
         return 0
     }
@@ -461,19 +467,18 @@ const removePromo = () => {
               <div class="flex justify-between items-center">
                 Sous-total
                 <span>
-                  €
                   {{
-                    user.getCart.reduce(
+                    Money.format(user.getCart.reduce(
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
-                    )
+                    ))
                   }}
                 </span>
               </div>
               <div class="flex justify-between items-center">
                 Livraison
-                <p>€ 0 (offerte)</p>
+                <p>0.00€ (offerte)</p>
               </div>
 
               <div v-if="promo.code" class="flex justify-between items-center relative">
@@ -487,9 +492,8 @@ const removePromo = () => {
               <div class="flex justify-between items-center font-medium text-sm uppercase">
                 Total
                 <p>
-                  €
                   {{
-                    user.getCart.reduce(
+                    Money.format(user.getCart.reduce(
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
@@ -497,7 +501,7 @@ const removePromo = () => {
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
-                    ) * promo.value / 100)) : 0)
+                    ) * promo.value / 100)) : 0))
                   }}
                 </p>
               </div>
@@ -507,13 +511,12 @@ const removePromo = () => {
               >
                 TVA
                 <p>
-                  €
                   {{
-                    user.getCart.reduce(
+                    Money.format((user.getCart.reduce(
                         (acc: number, item: BasketItem) =>
                             acc + item.product.price * item.quantity,
                         0,
-                    ) * 0.2
+                    ) * 0.2))
                   }}
                 </p>
               </div>

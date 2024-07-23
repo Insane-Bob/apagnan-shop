@@ -18,7 +18,7 @@ export class UserController extends Controller {
         this.can(UserPolicy.index)
         let search = new SearchRequest(
             this.req,
-            ['role'],
+            ['role','id'],
             ['email', 'firstName', 'lastName'],
         )
 
@@ -42,7 +42,7 @@ export class UserController extends Controller {
 
     async update() {
         this.can(UserPolicy.update, this.user_resource)
-
+        
         const payload = this.validate(
             UserUpdateValidator,
             this.req.getUser().hasRole(USER_ROLES.ADMIN)
@@ -140,7 +140,7 @@ export class UserController extends Controller {
         UserServices.activateUserAccount(user)
         await NotificationsServices.notifyAccountActivated(user)
 
-        this.res.redirect(`${process.env.FRONT_END_URL}/home`)
+        this.res.redirect(`${process.env.FRONT_END_URL}/home?activate=true`)
     }
 
     async askPersonalData() {

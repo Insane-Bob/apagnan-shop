@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Toaster from '@/components/ui/toast/Toaster.vue';
-import { apiClient } from '@/lib/apiClient';
+import { ApiClient } from '@/lib/apiClient';
 import { onMounted, ref } from 'vue';
 
 import { useUserStore } from '@store/user';
@@ -16,6 +16,7 @@ onMounted( async () => {
 
   try{
     if(localStorage.getItem('accessToken')) {
+      const apiClient = new ApiClient()
       const response = await apiClient.get('/me')
 
     
@@ -69,8 +70,9 @@ const stopLoggedAs = async () => {
   localStorage.removeItem('oldAccessToken')
   localStorage.removeItem('oldRefreshToken')
 
+    const apiClient = new ApiClient()
 
-    const response = await apiClient.get('me')
+    const response = await apiClient.get('/me')
     user.setUser(response.data.user)
     user.setLoggedAs(false)
 
