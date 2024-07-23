@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
@@ -11,32 +12,29 @@ import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import { Collection, TableActions, TableColumns } from '@types'
 import { reactive } from 'vue'
-import {useRoute} from "vue-router";
-import {computed, watch} from "vue";
+import { useRoute } from 'vue-router'
+import { computed, watch } from 'vue'
 
 const apiClient = new ApiClient()
-
-
 const route = useRoute()
+
+const collectionModalOpen = ref(false)
 const filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     published: [],
-    search: '',
+    search: '', 
     withImage: true,
     id: filterId.value,
 })
 watch(filterId, () => {
-  filters.id = filterId.value
+    filters.id = filterId.value
 })
-
 
 const { fetch, rows, pagination, sorting } = useTable('/collections', query)
 
 const form = reactive<{ collection: Collection | null }>({
     collection: null,
 })
-
-
 
 const columns: TableColumns[] = [
     {
@@ -136,7 +134,7 @@ const updateCollection = async (row: any) => {
 }
 
 const promoteCollection = async (row: any) => {
-    await apiClient.patch('collections/'+ row.slug + '/promote')
+    await apiClient.patch('collections/' + row.slug + '/promote')
     fetch()
 }
 
@@ -187,7 +185,12 @@ const deleteCollection = async (row: any) => {
         <DialogContent>
             <CollectionForm
                 :collection="form.collection"
-                @reload-collection="fetch"
+                @close="
+                    () => {
+                        collectionModalOpen = false
+                        fetch()
+                    }
+                "
             ></CollectionForm>
         </DialogContent>
     </Dialog>
