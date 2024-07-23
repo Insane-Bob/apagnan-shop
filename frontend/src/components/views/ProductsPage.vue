@@ -5,7 +5,6 @@ import { ref } from 'vue'
 
 const products = ref([])
 
-console.log('test', products)
 </script>
 
 <template>
