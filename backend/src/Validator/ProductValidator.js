@@ -8,7 +8,7 @@ const productSchema = z.object({
     description: z.string().min(10, {
         message: 'La description du produit doit faire au moins 10 caractères',
     }),
-    price: z.number().min(0, {
+    price: z.number().min(1, {
         message: 'Le prix du produit doit être supérieur à 0',
     }),
     published: z.boolean(),

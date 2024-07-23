@@ -84,18 +84,18 @@ const stopLoggedAs = async () => {
   <RouterView v-if="loaded"></RouterView>
   <Toaster />
   <div v-if="user.isLoggedAs" class="fixed bottom-2 left-2 text-sm z-50 shadow-md">
-    <div v-if="hidden" class="bg-white px-4 py-2 rounded-md text-blue-400 w-min">
+    <div v-if="hidden" class="bg-white px-4 py-2 rounded-md text-primary w-min">
       <ion-icon @click="hidden = false" name="eye-outline" class="cursor-pointer"></ion-icon>
     </div>
-    <div v-else class="bg-white px-4 py-2 rounded-md text-blue-400 flex divide-x divide-slate-400 gap-x-2">
+    <div v-else class="bg-white px-4 py-2 rounded-md text-primary flex divide-x divide-slate-400 gap-x-2">
       <div class="flex justify-start items-center cursor-pointer  ">
         <ion-icon @click="hidden = true" name="eye-off-outline" class="text-slate-400 hover:text-red-400 duration-300"></ion-icon>
       </div>
       <div class="pl-2">
-        <p>Connecter en tant que: <br />
+        <p class="text-sm text-primary">Connecter en tant que: <br />
           <span class="text-slate-400 italic text-xs">{{ user.identity }}</span>
         </p>
-        <small @click="stopLoggedAs()" class="flex justify-start items-center gap-x-1 text-blue-400 cursor-pointer">
+        <small @click="stopLoggedAs()" class="flex justify-start items-center gap-x-1 text-primary cursor-pointer">
           <ion-icon name="arrow-back-outline"></ion-icon>
           Se déconnecter 
         </small>

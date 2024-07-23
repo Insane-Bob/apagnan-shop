@@ -4,6 +4,7 @@ import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import {
+    DialogContent,
     DialogClose,
     DialogFooter,
     DialogHeader,
@@ -21,60 +22,62 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { ApiClient } from '@/lib/apiClient'
 import { Promo } from '@types'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useToast } from '@/components/ui/toast/use-toast'
-
-const apiClient = new ApiClient()
-
-const emit = defineEmits(['reload-promo'])
+import { useForm } from '@/composables/useForm'
 
 const { toast } = useToast()
+const apiClient = new ApiClient()
+
+const emits = defineEmits(['close'])
 
 const code = ref('')
 const value = ref('')
 const type = ref('')
 const promoted = ref(false)
 const available = ref(false)
-const isModalOpen = ref(true)
 const errors = ref<any[]>([])
 
-const onSubmit = () => {
-    createPromo()
-}
+const payload = computed(() => ({
+    code: code.value,
+    value: value.value,
+    type: type.value,
+    promoted: promoted.value,
+    available: available.value,
+}))
 
-const createPromo = async () => {
-    try {
-        let body: Promo = {
-            code: code.value.toUpperCase(),
-            value: value.value,
-            type: type.value,
-            promoted: promoted.value,
-            available: available.value,
-        }
+const { submit } = useForm(`/promos`, payload, 'post')
 
-        const response = await apiClient.post('promos/', body)
-
-        if (response.status === 201) {
+function handleSubmit() {
+    submit(
+        () => {
             toast({
-                title: 'Succès',
-                description: 'Votre code promo a été créé',
+                title: 'Succés',
+                description: 'La code promo a été créée avec succès',
             })
-            emit('reload-promo')
-            closeModal()
-        }
-    } catch (error) {
-        errors.value = error.response.data.errors || []
-    }
-}
-
-const closeModal = () => {
-    isModalOpen.value = false
+            emits('close')
+        },
+        (e) => {
+            if (
+                e.response &&
+                e.response.data.message &&
+                e.response.status == 403
+            ) {
+                toast({
+                    title: e.response.data.message,
+                    variant: 'destructive',
+                })
+            } else if (e.response.status == 422) {
+                errors.value = e.response.data.errors
+            }
+        },
+    )
 }
 </script>
 
 <template>
-    <div v-if="isModalOpen">
-        <form @submit.prevent="onSubmit">
+    <DialogContent>
+        <form @submit.prevent.stop="handleSubmit">
             <DialogHeader>
                 <DialogTitle>Créer une promotion</DialogTitle>
             </DialogHeader>
@@ -160,16 +163,16 @@ const closeModal = () => {
             </FormGrid>
 
             <DialogFooter>
-                <DialogClose>
+                <DialogClose class="flex gap-2">
                     <Button
                         type="button"
                         variant="destructive"
                         class="border-slate-300"
                         >Fermer</Button
                     >
+                    <Button type="submit">Créer</Button>
                 </DialogClose>
-                <Button type="submit">Créer</Button>
             </DialogFooter>
         </form>
-    </div>
+    </DialogContent>
 </template>
