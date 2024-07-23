@@ -279,6 +279,17 @@ const images = computed({
                         class=""
                     />
                 </div>
+                <FormInput class="flex flex-col justify-center">
+                    <template #label>Seuil d'alerte de stock</template>
+                    <template #input="inputProps">
+                        <input
+                            type="number"
+                            v-model="product.product.lowStockValue"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
+
                 <div class="col-span-8">
                     <ImagePicker v-model="images" />
                     <small class="text-slate-500"
