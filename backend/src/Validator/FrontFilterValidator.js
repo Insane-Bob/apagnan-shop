@@ -20,6 +20,16 @@ export class FrontFilterValidator extends Validator {
         if (req.query.has('priceMax')) {
             req.query.set('priceMax', parseInt(req.query.get('priceMax')))
         }
+        if (req.query.has('onlyInStock')) {
+            switch (req.query.get('onlyInStock')) {
+                case 'true':
+                    req.query.set('onlyInStock', true)
+                    break
+                case 'false':
+                    req.query.set('onlyInStock', false)
+                    break
+            }
+        }
     }
 
     static schema() {
@@ -29,6 +39,7 @@ export class FrontFilterValidator extends Validator {
             priceMax: z.number().int().optional(),
             color: z.array(z.string()).optional(),
             collection: z.array(z.string()).optional(),
+            onlyInStock: z.boolean().optional(),
         })
     }
 }

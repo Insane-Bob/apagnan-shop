@@ -139,6 +139,10 @@ export class SearchController extends Controller {
     async FrontProductSearch() {
         const { min, max } = await ProductServices.getPricesRange()
         const filters = this.validate(FrontFilterValidator)
+        const productIdWhereStockIsNotZero =
+            await ProductServices.getProductListIdWhereStockIsNotZero()
+
+        console.log('ICIIIIIIIIIIII', productIdWhereStockIsNotZero)
         const results = await this.makeQuery(
             Database.getInstance().mongoModels.Products,
             filters.s || '',
@@ -164,6 +168,13 @@ export class SearchController extends Controller {
                                       $in: filters.color,
                                   },
                               },
+                          },
+                      }
+                    : null,
+                filters.onlyInStock
+                    ? {
+                          id: {
+                              $in: productIdWhereStockIsNotZero,
                           },
                       }
                     : null,
