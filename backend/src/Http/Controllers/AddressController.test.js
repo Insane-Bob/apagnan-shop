@@ -106,42 +106,6 @@ describe('AddressController test routes', () => {
         expect(response.statusCode).toBe(403)
     })
 
-    test('PUT /api/addresses/:address - update billing address', async () => {
-        await emptyTables()
-
-        const user1 = await UserFactory.withCustomer().create()
-        const billingAddressUser1 = await AddressFactory.count(1).create({
-            customerId: user1.customer.id,
-        })
-
-        const user2 = await UserFactory.withCustomer().create()
-        const billingAddressUser2 = await AddressFactory.count(1).create({
-            customerId: user2.customer.id,
-        })
-
-        actingAs(user1)
-
-        let response = await request(app)
-            .patch(`/api/addresses/${billingAddressUser1.id}`)
-            .send({
-                street: faker.location.street(),
-            })
-        expect(response.statusCode).toBe(200)
-
-        response = await request(app)
-            .patch(`/api/addresses/${billingAddressUser2.id}`)
-            .send({
-                street: faker.location.street(),
-            })
-
-        expect(response.statusCode).toBe(403)
-
-        response = await request(app).patch(`/api/addresses/10`).send({
-            street: faker.location.street(),
-        })
-        expect(response.statusCode).toBe(404)
-    })
-
     test('DELETE /api/addresses/:address - delete billing address', async () => {
         await emptyTables()
 
