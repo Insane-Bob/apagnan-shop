@@ -26,14 +26,14 @@ const props = defineProps<{
         <AlertDialogTrigger>
             <slot></slot>
         </AlertDialogTrigger>
-      <AlertDialogContent class="w-[30–vw]">
+      <AlertDialogContent class="w-[30vw] px-12 py-8">
         <AlertDialogHeader>
           <AlertDialogTitle>{{  props.title || 'Êtes vous sûr?' }}</AlertDialogTitle>
           <AlertDialogDescription>
             {{ props.message || 'Cette action a des effet permanents.' }}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter class="flex items-center sm:justify-end w-full px-10" :class="styleFooter">
+        <AlertDialogFooter class="flex items-center sm:justify-end w-full " :class="styleFooter">
           <AlertDialogCancel :class="styleCancel" @click="$emit('cancel')">Cancel</AlertDialogCancel>
           <AlertDialogAction :class="styleConfirm" @click="$emit('confirm')">Continue</AlertDialogAction>
         </AlertDialogFooter>
