@@ -57,16 +57,18 @@ export const useUserStore = defineStore('user', {
             this.loggedAs = value
         },
 
-        logout(){
+        logout() {
             this.clearUser()
             this.clearCart()
             localStorage.removeItem('accessToken')
             localStorage.removeItem('refreshToken')
-        }
+        },
     },
     getters: {
         isAuthenticated: (state: any): boolean => !!state.user,
         isAdmin: (state: any): boolean => state.user?.role === 'admin',
+        isStoreKeeper: (state: any): boolean =>
+            state.user?.role === 'store_keeper',
         getId: (state: any): number => state.user?.id,
         get: (state: any): User => state.user,
         getCart: (state: any): BasketItem[] => state.cart,
