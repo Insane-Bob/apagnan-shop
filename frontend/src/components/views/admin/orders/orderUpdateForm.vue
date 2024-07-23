@@ -48,11 +48,12 @@ function handleSubmit() {
                     title: e.response.data.message,
                     variant: 'destructive',
                 })
-            } else
+            } else {
                 toast({
-                    title: 'Erreur lors de la mise a jour du statut',
+                    title: 'Erreur lors de la mise à jour du statut',
                     variant: 'destructive',
                 })
+            }
         },
     )
 }
@@ -62,37 +63,38 @@ function handleSubmit() {
     <DialogContent>
         <form @submit.prevent.stop="handleSubmit">
             <DialogHeader>
-                <DialogTitle>Mettre a jour le statut</DialogTitle>
+                <DialogTitle>Mettre à jour le statut</DialogTitle>
             </DialogHeader>
 
-                                Statuts iréversibles
-      <div class="py-5">
-        <Select v-model="statusSelected">
-          <SelectTrigger class="w-full" >
-            <SelectValue placeholder="Statut" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Traitement</SelectLabel>
-              <SelectItem value="pending" disabled>
-                En attente
-              </SelectItem>
-              <SelectItem value="paid" disabled>
-                Payé
-              </SelectItem>
-              <SelectItem value="payment_failed" disabled>
-                Paiement échoué
-              </SelectItem>
-              <SelectItem value="processing">
-                En cours de traitement
-              </SelectItem>
-              <SelectItem value="shipped">
-                Expédiée
-              </SelectItem>
+            <div class="py-5">
+                <Select v-model="statusSelected">
+                    <SelectTrigger class="w-full">
+                        <SelectValue placeholder="Statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Traitement</SelectLabel>
+                            <SelectItem value="pending" disabled>
+                                En attente
+                            </SelectItem>
+                            <SelectItem value="paid" disabled>
+                                Payé
+                            </SelectItem>
+                            <SelectItem value="payment_failed" disabled>
+                                Paiement échoué
+                            </SelectItem>
+                            <SelectItem value="processing">
+                                En cours de traitement
+                            </SelectItem>
+                            <SelectItem value="shipped"> Expédiée </SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </div>
 
             <DialogFooter>
                 <DialogClose class="flex gap-5">
-                    <Button type="submit">Mettre a jour</Button>
+                    <Button type="submit">Mettre à jour</Button>
                 </DialogClose>
             </DialogFooter>
         </form>

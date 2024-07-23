@@ -8,6 +8,7 @@ import { useTable } from '@/composables/useTable'
 import { ApiClient } from '@/lib/apiClient'
 import type { Promo, TableActions, TableColumns } from '@/types'
 import { reactive, ref } from 'vue'
+import OutlinedInput from '@/components/ui/input/OutlinedInput.vue'
 
 const apiClient = new ApiClient()
 

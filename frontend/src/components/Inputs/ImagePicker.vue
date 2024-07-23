@@ -17,8 +17,12 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    name: {
+        type: String,
+        default: '',
+    },
     errors: {
-        type: Array,
+        type: [Array, String],
         default: () => [],
     },
 })
@@ -28,6 +32,13 @@ const model = defineModel()
 const { toast } = useToast()
 
 const images = reactive([])
+
+const inputError = computed(() => {
+    if (Array.isArray(props.errors)) {
+        return props.errors.find((error) => error.path === props.name)
+    }
+    return null
+})
 
 function syncImagesWithModel() {
     if (model.value.length === images.length) return
@@ -50,11 +61,6 @@ onMounted(() => {
 
 watch(model, syncImagesWithModel)
 
-const error = computed(() => {
-    console.log(props.name)
-    return props?.errors?.find((e) => e.path === props.name)
-})
-
 function addImage() {
     images.push({
         inputFile: null,
@@ -63,6 +69,7 @@ function addImage() {
         uploadProgress: -1,
     })
 }
+
 function removeImage(index) {
     if (props.multiple) {
         images.splice(index, 1)
@@ -76,6 +83,7 @@ function removeImage(index) {
     }
     syncModelWithImages()
 }
+
 async function handleInputFile(e, index) {
     let files = Array.from(e.target.files)
     if (files.length === 0) return
@@ -103,6 +111,7 @@ async function handleInputFile(e, index) {
         i++
     }
 }
+
 async function handleSave() {
     let apiClient = new ApiClient()
     let tasks = images.map(async (image, index) => {
@@ -236,7 +245,12 @@ async function handleSave() {
         <FormError v-if="inputError">
             {{ inputError.message }}
         </FormError>
-        <Button v-if="images.some(i => i.uploadProgress === -1)" class="flex gap-2 ml-0 mt-3" @click.stop.prevent="handleSave" variant="outlineDashboard">
+
+        <Button
+            class="flex gap-2 ml-0 mt-3"
+            @click.stop.prevent="handleSave"
+            variant="outlineDashboard"
+        >
             <ion-icon name="cloud-upload-outline"></ion-icon>
             <span>Téléverser</span>
         </Button>
@@ -245,5 +259,8 @@ async function handleSave() {
 
 <style>
 .img-picker-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
 }
 </style>
