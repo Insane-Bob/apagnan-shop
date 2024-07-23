@@ -7,6 +7,11 @@ Nous avons décidé de vous présenter notre projet sous forme de guide pour vou
 
 Notre backend est inspiré des frameworks Symfony et Laravel. Il est conçu pour être extensible et utilisable pour d'autres projets d'API.
 
+## Prérequis
+
+- Compte stripe (clé d'API + signature webhook)
+- Compte hCaptcha
+
 ## Installation et Configuration (Environment dev)
 
 ### Étape 2 : Configuration des fichiers d'environnement
@@ -18,13 +23,22 @@ Ensuite, créez les fichiers `.env` dans les sous-dossiers `backend` et `fronten
 
 ### Étape 3 : Lancer Docker Compose
 ```bash
-docker compose up
+docker compose up --build
+```
+> Le `--build` est optionnel, sauf si des modifications ont été apportées aux Dockerfiles ou au fichier `nginx.conf`.
+
+### Étape 4 : Installer la paire de clés RSA pour le JWT
+```bash
+docker-compose exec backend npm run key:generate
 ```
 
-### Étape 4 : Lancer les migrations
+### Étape 5 : Lancer les migrations
 ```bash
 docker compose run backend npm run migrate
 ```
+> Vous pouvez aussi lancer les migrations et les seeders en même temps avec `npm run migrate:fresh`. 
+> 
+> **Attention** : cela supprimera toutes les données de la base de données.
 
 Pour s'assurer que le backend soit toujours bien lancé, on peut restart le service : 
 ```bash
