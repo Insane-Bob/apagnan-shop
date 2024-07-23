@@ -9,28 +9,44 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import { useFilters } from '@/composables/useFilters'
-import {computed, watch} from "vue";
-import {useRoute} from "vue-router";
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
-
 const route = useRoute()
+
+const selected = ref([])
 const filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     role: [],
     search: '',
-    id: filterId.value
+    id: filterId.value,
 })
 watch(filterId, () => {
-  filters.id = filterId.value
+    filters.id = filterId.value
 })
 
+const { rows, pagination, sorting, fetch } = useTable('/users', query)
 
+const groupedActionLabel = computed(() => {
+    return selected.value.length <= 1
+        ? 'Activer le compte'
+        : 'Activer les comptes'
+})
 
-const { rows, pagination, sorting,fetch } = useTable('/users', query)
+const groupedActions = [
+    {
+        label: groupedActionLabel,
+        icon: 'flash-outline',
+        class: 'text-red-500',
+        action: (ids: number[]) => {
+            massActivate(ids)
+        },
+    },
+]
 
 const columns: TableColumns[] = [
     {
@@ -48,15 +64,15 @@ const columns: TableColumns[] = [
         label: 'Role',
         key: 'role',
         sorting: true,
-        toDisplay: (value: string) =>{
-            if(value === 'admin'){
+        toDisplay: (value: string) => {
+            if (value === 'admin') {
                 return 'Administrateur'
-            }else if(value === 'store_keeper'){
+            } else if (value === 'store_keeper') {
                 return 'Gestion des stock'
-            }else{
+            } else {
                 return 'Utilisateur'
-        }
-    }
+            }
+        },
     },
 
     {
@@ -70,24 +86,23 @@ const columns: TableColumns[] = [
             ),
     },
 ]
-
 const actions: TableActions[] = [
-        {
+    {
         label: 'Changer le role',
         icon: 'sync',
         class: 'text-primary',
         action: () => {
-            return 
+            return
         },
         children: [
             {
                 label: 'Administrateur',
-                icon: "ribbon-outline",
-                class:"text-primary",
+                icon: 'ribbon-outline',
+                class: 'text-primary',
                 condition: (row: any) => {
                     console.log(row.role)
-                return row.role !== 'admin'
-            },
+                    return row.role !== 'admin'
+                },
                 action: async (row: any) => {
                     await apiClient.patch('users/' + row.id, { role: 'admin' })
                     toast({
@@ -97,12 +112,14 @@ const actions: TableActions[] = [
                 },
             },
             {
-                icon: "storefront-outline",
+                icon: 'storefront-outline',
                 label: 'Gestion des stock',
-                class:"text-primary",
+                class: 'text-primary',
                 condition: (row: any) => row.role !== 'store_keeper',
                 action: async (row: any) => {
-                    await apiClient.patch('users/' + row.id, { role: 'store_keeper' })
+                    await apiClient.patch('users/' + row.id, {
+                        role: 'store_keeper',
+                    })
                     toast({
                         title: 'Role changé',
                     })
@@ -110,7 +127,7 @@ const actions: TableActions[] = [
                 },
             },
             {
-                icon: "person-outline",
+                icon: 'person-outline',
                 label: 'Utilisateur',
                 condition: (row: any) => row.role !== 'user',
                 action: async (row: any) => {
@@ -120,8 +137,8 @@ const actions: TableActions[] = [
                     })
                     await fetch()
                 },
-            }
-        ]
+            },
+        ],
     },
     {
         label: 'Se connecter en tant que',
@@ -138,19 +155,29 @@ const actions: TableActions[] = [
         class: 'text-red-500',
         condition: (row: any) => row.id !== user.getId,
         confirmation: {
-            title: 'Supprimer l\'Utilisateur',
+            title: "Supprimer l'Utilisateur",
             message: 'Voulez-vous vraiment bannir cet utilisateur ?',
             styleConfirm: 'bg-red-500',
         },
         action: async (row: any) => {
-            await  apiClient.delete('users/' + row.id)
+            await apiClient.delete('users/' + row.id)
             toast({
                 title: 'Utilisateur banni',
             })
             await fetch()
         },
     },
+    {
+        label: 'Activer',
+        icon: 'flash-off-outline',
+        class: 'text-slate-500',
+        condition: (row: any) => row.id !== user.getId && !row.emailVerifiedAt,
+        action: (row: any) => {
+            activateUser(row)
+        },
+    },
 ]
+
 const loginAs = async (id: number) => {
     try {
         const response = await apiClient.post('users/ask-login-as/' + id)
@@ -193,7 +220,34 @@ const loginAs = async (id: number) => {
         return
     }
 }
+
+function activateUser(row) {
+    ApiClient.handleError(async () => {
+        await apiClient.patch('/users/' + row.id, {
+            emailVerifiedAt: new Date(),
+        })
+        fetch()
+        toast({
+            title: `L'utilisateur ${row.firstName} ${row.lastName} a bien été activé`,
+        })
+    })
+}
+
+function massActivate(ids: number[]) {
+    ApiClient.handleError(async () => {
+        for (let id of ids) {
+            await apiClient.patch('/users/' + id, {
+                emailVerifiedAt: new Date(),
+            })
+        }
+        fetch()
+        toast({
+            title: `Les utilisateurs sélectionnés ont bien été activés`,
+        })
+    })
+}
 </script>
+
 <template>
     <div class="flex flex-col mx-6 gap-4">
         <div class="flex gap-4 items-center">
@@ -210,7 +264,9 @@ const loginAs = async (id: number) => {
             </Filter>
         </div>
         <DataTable
+            v-model:selected="selected"
             :columns="columns"
+            :multi-actions="groupedActions"
             :rows="rows"
             :pagination="pagination"
             :sorting="sorting"
