@@ -59,7 +59,7 @@ export class OrderController extends Controller {
 
         const orders = await model.findAll(search.query)
 
-        const total = await model.count(search.queryWithoutPagination)
+        const total = await model.unscoped().count(search.queryWithoutPagination)
 
         this.res.json({
             data: orders,
