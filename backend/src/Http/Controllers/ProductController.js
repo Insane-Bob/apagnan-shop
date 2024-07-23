@@ -6,6 +6,7 @@ import { ProductPolicy } from '../Policies/ProductPolicy.js'
 import { ProductValidator } from '../../Validator/ProductValidator.js'
 import { ProductStockObserver } from '../../Observers/ProductStockObserver.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
+import { ProductDeleteValidator } from '../../Validator/ProductDeleteValidator.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
@@ -16,17 +17,20 @@ export class ProductController extends Controller {
             products = await this.collection.getProducts()
             total = products.length
         } else {
-            let search = new SearchRequest(this.req, ['published','id'], ['name'])
+            let search = new SearchRequest(
+                this.req,
+                ['published', 'id'],
+                ['name'],
+            )
 
             let model = Database.getInstance().models.Product
             total = await model.count(search.queryWithoutPagination)
 
-            let scopes= []
+            let scopes = []
 
             if (this.req.query.has('withCollection'))
                 scopes.push('withCollection')
-            if(this.req.query.has('withImages'))
-                scopes.push('withImages')
+            if (this.req.query.has('withImages')) scopes.push('withImages')
 
             let query = { ...search.query }
             if (this.req.query.has('random')) {
@@ -85,6 +89,15 @@ export class ProductController extends Controller {
         const deleted = await this.product.destroy()
         NotFoundException.abortIf(!deleted)
         this.res.sendStatus(204)
+    }
+
+    async massDelete() {
+        this.can(ProductPolicy.delete)
+        const { ids } = this.validate(ProductDeleteValidator)
+        const deleted = await Database.getInstance().models.Product.destroy({
+            where: { id: ids },
+        })
+        this.res.status(200).json({ deleted: deleted })
     }
 
     async streamStock() {
