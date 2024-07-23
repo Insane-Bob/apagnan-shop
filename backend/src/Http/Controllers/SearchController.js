@@ -14,7 +14,12 @@ export class SearchController extends Controller {
         ]
     }
 
-    async makeQuery(collection, searchString, matchCustom = [],authorizeEmpty= false) {
+    async makeQuery(
+        collection,
+        searchString,
+        matchCustom = [],
+        authorizeEmpty = false,
+    ) {
         let attributes = collection.searchAttributes.map((attr) => attr.name)
         function escapeRegExp(string) {
             return string.trim().replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -34,12 +39,12 @@ export class SearchController extends Controller {
         const pipeline = [
             {
                 $match: {
-                    $and : [
+                    $and: [
                         {
                             $or: matchOrClause,
                         },
-                        ...matchCustom
-                    ]
+                        ...matchCustom,
+                    ],
                 },
             },
             {
@@ -99,7 +104,6 @@ export class SearchController extends Controller {
                 },
             },
         ]
-        console.log(JSON.stringify(pipeline, null, 2))
 
         return collection.aggregate(pipeline)
     }
@@ -133,27 +137,27 @@ export class SearchController extends Controller {
     }
 
     async FrontProductSearch() {
+        const { min, max } = await ProductServices.getPricesRange()
         const filters = this.validate(FrontFilterValidator)
-        console.log('filters', filters)
         const results = await this.makeQuery(
             Database.getInstance().mongoModels.Products,
             filters.s || '',
             [
-                (filters.collection ?
-                  {
-                      'Collection.id': {
-                          $in: filters.collection.map(Number),
-                      },
-                  }
-                 : null),
+                filters.collection
+                    ? {
+                          'Collection.id': {
+                              $in: filters.collection.map(Number),
+                          },
+                      }
+                    : null,
                 {
                     price: {
-                        $gte: filters.priceMin || 0,
-                        $lte: filters.priceMax || 1000,
+                        $gte: filters.priceMin || min,
+                        $lte: filters.priceMax || max,
                     },
                 },
             ].filter(Boolean),
-          true
+            true,
         )
 
         this.res.json(results)

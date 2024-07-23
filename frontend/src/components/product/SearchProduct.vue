@@ -1,19 +1,9 @@
 <script setup lang="ts">
-import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import {
-    CommandDialog,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@components/ui/command'
 import { onMounted, ref, watch } from 'vue'
 import { apiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
-import Checkbox from '../ui/checkbox/Checkbox.vue'
 import { useRouter } from 'vue-router'
-import { Building } from 'lucide-vue-next'
+import Slider from '@components/ui/slider/Slider.vue'
 
 const router = useRouter()
 const isOpen = ref(false)
@@ -24,7 +14,7 @@ const collections = ref([])
 
 const { filters, query } = useFilters({
     priceMin: 0,
-    priceMax: 1000,
+    priceMax: 2500,
     collection: [],
     color: [],
     s: '',
@@ -43,20 +33,49 @@ const colors = [
     'brown',
 ]
 
-const fetchCollections = async () => {
+const fetchDataForFilter = async () => {
     try {
         const response = await apiClient.get('/collections')
-        collections.value = response.data.slice(0, 5)
-        console.log(collections.value)
+        collections.value = response.data
+        console.log('iciiiiiiiii', collections.value)
     } catch (e) {
         collections.value = []
+    }
+}
+
+const updatePrice = (values) => {
+    if (cooldown.value) {
+        clearTimeout(cooldown.value)
+    }
+    cooldown.value = setTimeout(() => {
+        filters.priceMin = values[0]
+        filters.priceMax = values[1]
+        cooldown.value = false
+    }, 200)
+}
+
+const addCollection = (collection) => {
+    let collections = filters.collection
+    if (collections.includes(collection)) {
+        collections = collections.filter((c) => c !== collection)
+    } else {
+        collections.push(collection)
+    }
+}
+
+const addColor = (color) => {
+    let colors = filters.color
+    if (colors.includes(color)) {
+        colors = colors.filter((c) => c !== color)
+    } else {
+        colors.push(color)
     }
 }
 
 async function buildFilters() {
     const urlParams = new URLSearchParams(window.location.search)
     filters.priceMin = urlParams.get('priceMin') || 0
-    filters.priceMax = urlParams.get('priceMax') || 1000
+    filters.priceMax = urlParams.get('priceMax') || 2500
     filters.collection = urlParams.getAll('collection')
     filters.color = urlParams.getAll('color')
     filters.s = urlParams.get('s') || ''
@@ -87,11 +106,97 @@ function handleSearch(event) {
 watch(filters, fetch, { immediate: true })
 
 onMounted(() => {
+    fetchDataForFilter()
     buildFilters()
-    fetchCollections()
 })
 </script>
 
 <template>
-    <div></div>
+    <div
+        id="filters"
+        class="row-span-5 sm:row-span-5 lg:row-span-3 sticky top-24 self-start"
+    >
+        <h1 class="text-2xl font-bold">Filtres</h1>
+        <div class="flex flex-col gap-5 mt-5">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-lg font-bold">Mot-clé</h2>
+
+                <div class="relative">
+                    <input
+                        type="text"
+                        class="w-full p-1 border border-gray-300 rounded-md pr-0 md:pr-8"
+                        placeholder="Recherchez un Produit, une Collec.."
+                        v-model="filters.s"
+                        @input="handleSearch"
+                    />
+                    <ion-icon
+                        class="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/2 z-20 hidden md:block"
+                        name="search-outline"
+                    ></ion-icon>
+                </div>
+            </div>
+
+            <hr class="border-primary border-t-2 my-2" />
+
+            <div class="flex flex-col gap-2">
+                <h2 class="text-lg font-bold">Prix</h2>
+                <Slider
+                    :modelValue="[filters.priceMin, filters.priceMax]"
+                    :onUpdate:modelValue="(values) => updatePrice(values)"
+                    :min="0"
+                    :max="2500"
+                    :step="1"
+                    :defaultValue="[0, 2500]"
+                />
+                <div class="flex justify-between">
+                    <p>{{ filters.priceMin }}€</p>
+                    <p>{{ filters.priceMax }}€</p>
+                </div>
+            </div>
+
+            <hr class="border-primary border-t-2 my-2" />
+
+            <div class="flex flex-col gap-2">
+                <h2 class="text-lg font-bold">Collection(s)</h2>
+                <div class="flex flex-col gap-y-1">
+                    <div
+                        @click="addCollection(collection)"
+                        class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer"
+                        v-for="collection in collections"
+                        :key="collection.id"
+                    >
+                        <ion-icon
+                            name="checkbox"
+                            v-if="filters.collection.includes(collection)"
+                        ></ion-icon>
+                        <ion-icon name="square-outline" v-else></ion-icon>
+                        <label :for="collection.id" class="cursor-pointer">{{
+                            collection.name
+                        }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-primary border-t-2 my-2" />
+
+            <div class="flex flex-col gap-2">
+                <h2 class="text-lg font-bold">Couleur(s)</h2>
+                <div class="flex flex-wrap gap-3">
+                    <div
+                        v-for="color in colors"
+                        :key="color"
+                        @click="addColor(color)"
+                        :class="`w-6 h-6 rounded-full  cursor-pointer ${color === 'white' ? 'border border-black' : ''} ${filters.color.includes(color) ? 'outline outline-2 outline-offset-2 outline-primary' : ''}`"
+                        :style="{ backgroundColor: color }"
+                    ></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
+
+<style scoped>
+[name='checkbox'] {
+    color: hsl(var(--primary));
+}
+</style>

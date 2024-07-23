@@ -12,6 +12,7 @@ export default function (router) {
     router
         .group('/api/products', function () {
             this.get('/', ProductController, 'getProducts')
+            this.get('/prices', ProductController, 'getPricesRange')
             this.get('/:product', ProductController, 'getProduct')
             this.post('/', ProductController, 'createProduct')
             this.patch('/:product', ProductController, 'updateProduct')

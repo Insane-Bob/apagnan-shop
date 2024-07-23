@@ -136,4 +136,12 @@ export class ProductController extends Controller {
             this.res.end()
         })
     }
+
+    async getPricesRange() {
+        const { min, max } = await ProductServices.getPricesRange()
+        this.res.status(200).json({
+            min,
+            max,
+        })
+    }
 }
