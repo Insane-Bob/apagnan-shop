@@ -7,7 +7,7 @@ Nous avons décidé de vous présenter notre projet sous forme de guide pour vou
 
 Notre backend est inspiré des frameworks Symfony et Laravel. Il est conçu pour être extensible et utilisable pour d'autres projets d'API.
 
-## Installation et Configuration
+## Installation et Configuration (Environment dev)
 
 ### Étape 2 : Configuration des fichiers d'environnement
 Créez un fichier `.env` à la racine du projet :
@@ -18,15 +18,20 @@ Ensuite, créez les fichiers `.env` dans les sous-dossiers `backend` et `fronten
 
 ### Étape 3 : Lancer Docker Compose
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ### Étape 4 : Lancer les migrations
 ```bash
-docker-compose run backend npm run migrate
+docker compose run backend npm run migrate
 ```
 
-En développement, accédez à l'API sur [http://localhost](http://localhost) et au frontend sur [http://localhost:5173](http://localhost:5173).
+Pour s'assurer que le backend soit toujours bien lancé, on peut restart le service : 
+```bash
+docker compose restart backend
+```
+
+En développement, accédez à l'API sur [http://localhost/api](http://localhost/api) et au frontend sur [http://localhost:5173](http://localhost:5173).
 
 ## Structure du Projet
 
@@ -234,13 +239,12 @@ Pour lancer en production :
     docker-compose run frontend npm run build
     ```
 5. Changez `NODE_ENV` à `production` dans `.env`.
-6. Redémarrez Docker Compose :
+6. Redémarrez Docker Compose (backend seulement):
     ```bash
     docker-compose down
     docker-compose up backend
     ```
 ---
-
 
 ## GitHub Actions -> Tests et Déploiement
 
@@ -254,3 +258,4 @@ Fichier : `/github/workflows/backend-test.yml`
 ### Le déploiement
 
 Le déploiement suit globalement les étapes décrites dans la section "Lancement en production". Il build le backend et le frontend au niveau du job GitHub pour ne pas charger notre serveur et profiter des ressources de leur serveur. Ensuite, il upload les artefacts sur notre serveur de production et déploie l'application en lançant uniquement Nginx, le backend et les bases de données.
+Fichier : `/github/workflows/deploy.yml`
