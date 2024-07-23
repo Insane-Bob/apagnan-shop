@@ -243,6 +243,13 @@ export class OrderController extends Controller {
                     product:
                         await Database.getInstance().models.Product.findByPk(
                             od.productId,
+                            {
+                                include: [
+                                    {
+                                        model: Database.getInstance().models.StockTransaction,
+                                    },
+                                ],
+                            }
                         ),
                 }
             }),
@@ -287,15 +294,17 @@ export class OrderController extends Controller {
         )
         NotFoundException.abortIf(!creditNotes, 'No credit note found')
 
-        return this.res.json([
-            {
-                file: invoice.invoice_pdf,
-                type: 'invoice',
-            },
-            ...creditNotes.map((creditNote) => ({
-                file: creditNote.pdf,
-                type: 'creditNote',
-            })),
-        ])
+        return this.res.json({
+            data:[
+                {
+                    file: invoice.invoice_pdf,
+                    type: 'invoice',
+                },
+                ...creditNotes.map((creditNote) => ({
+                    file: creditNote.pdf,
+                    type: 'creditNote',
+                })),
+            ]
+        })
     }
 }

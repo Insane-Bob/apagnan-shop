@@ -21,7 +21,7 @@ import IncomeEvolutionGraph from '@components/Dashboard/IncomeEvolutionGraph.vue
 import Tabs from '@components/ui/tabs/Tabs.vue'
 import TabsList from '@components/ui/tabs/TabsList.vue'
 import TabsTrigger from '@components/ui/tabs/TabsTrigger.vue'
-import {Money} from "@/utils/money.js";
+import {Money} from "@/utils/money";
 
 const widgetAvailable = reactive([
     {

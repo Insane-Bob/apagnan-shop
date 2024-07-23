@@ -4,12 +4,10 @@ import type { Review } from '@types'
 import ReviewNoteComponent from './ReviewNoteComponent.vue'
 import { Progress } from '@/components/ui/progress'
 
+
 const props = defineProps<{
   reviews: Review[]
 }>()
-
-
-
 </script>
 
 <template>
