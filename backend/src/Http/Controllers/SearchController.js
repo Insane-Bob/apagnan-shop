@@ -156,6 +156,17 @@ export class SearchController extends Controller {
                         $lte: filters.priceMax || max,
                     },
                 },
+                filters.color
+                    ? {
+                          Specifics: {
+                              $elemMatch: {
+                                  content: {
+                                      $in: filters.color,
+                                  },
+                              },
+                          },
+                      }
+                    : null,
             ].filter(Boolean),
             true,
         )

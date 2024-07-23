@@ -9,14 +9,18 @@ const router = useRouter()
 const isOpen = ref(false)
 const tempSearch = ref('')
 const cooldown = ref(false)
-const data = ref([])
 const collections = ref([])
+
+const products = defineModel('products', {
+    type: Array,
+    default: [],
+})
 
 const { filters, query } = useFilters({
     priceMin: 0,
     priceMax: 2500,
-    collection: [],
-    color: [],
+    collection: '',
+    color: '',
     s: '',
 })
 
@@ -36,8 +40,7 @@ const colors = [
 const fetchDataForFilter = async () => {
     try {
         const response = await apiClient.get('/collections')
-        collections.value = response.data
-        console.log('iciiiiiiiii', collections.value)
+        collections.value = response.data.data
     } catch (e) {
         collections.value = []
     }
@@ -54,21 +57,27 @@ const updatePrice = (values) => {
     }, 200)
 }
 
-const addCollection = (collection) => {
-    let collections = filters.collection
-    if (collections.includes(collection)) {
-        collections = collections.filter((c) => c !== collection)
+const addCollection = (collectionId) => {
+    const currentCollections = filters.collection
+        .split(',')
+        .filter((c) => c !== '')
+    if (currentCollections.includes(collectionId.toString())) {
+        filters.collection = currentCollections
+            .filter((id) => id !== collectionId.toString())
+            .join(',')
     } else {
-        collections.push(collection)
+        currentCollections.push(collectionId.toString())
+        filters.collection = currentCollections.join(',')
     }
 }
 
 const addColor = (color) => {
-    let colors = filters.color
-    if (colors.includes(color)) {
-        colors = colors.filter((c) => c !== color)
+    const currentColors = filters.color.split(',').filter((c) => c !== '')
+    if (currentColors.includes(color)) {
+        filters.color = currentColors.filter((c) => c !== color).join(',')
     } else {
-        colors.push(color)
+        currentColors.push(color)
+        filters.color = currentColors.join(',')
     }
 }
 
@@ -76,8 +85,8 @@ async function buildFilters() {
     const urlParams = new URLSearchParams(window.location.search)
     filters.priceMin = urlParams.get('priceMin') || 0
     filters.priceMax = urlParams.get('priceMax') || 2500
-    filters.collection = urlParams.getAll('collection')
-    filters.color = urlParams.getAll('color')
+    filters.collection = urlParams.get('collection') || ''
+    filters.color = urlParams.get('color') || ''
     filters.s = urlParams.get('s') || ''
 }
 
@@ -86,9 +95,9 @@ async function fetch() {
     try {
         const search = query.value.toString()
         const response = await apiClient.get('/search/products?' + search)
-        data.value = response.data
+        products.value = response.data
     } catch (e) {
-        data.value = []
+        products.value = []
     }
 }
 
@@ -112,10 +121,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div
-        id="filters"
-        class="row-span-5 sm:row-span-5 lg:row-span-3 sticky top-24 self-start"
-    >
+    <div id="filters" class="row-span-5 sticky top-24 self-start">
         <h1 class="text-2xl font-bold">Filtres</h1>
         <div class="flex flex-col gap-5 mt-5">
             <div class="flex flex-col gap-2">
@@ -160,14 +166,18 @@ onMounted(() => {
                 <h2 class="text-lg font-bold">Collection(s)</h2>
                 <div class="flex flex-col gap-y-1">
                     <div
-                        @click="addCollection(collection)"
+                        @click="addCollection(collection.id)"
                         class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer"
                         v-for="collection in collections"
                         :key="collection.id"
                     >
                         <ion-icon
                             name="checkbox"
-                            v-if="filters.collection.includes(collection)"
+                            v-if="
+                                filters?.collection
+                                    ?.split(',')
+                                    ?.includes(collection.id.toString())
+                            "
                         ></ion-icon>
                         <ion-icon name="square-outline" v-else></ion-icon>
                         <label :for="collection.id" class="cursor-pointer">{{
