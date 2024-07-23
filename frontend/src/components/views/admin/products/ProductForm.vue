@@ -47,6 +47,8 @@ const product = reactive<{ product: Product }>({
     },
 })
 
+const collectionSlug = ref('')
+
 const collections = reactive<Collection[]>([])
 
 interface Image {
@@ -85,7 +87,7 @@ const createProduct = async () => {
     if (response.status === 201) {
       router.push('/admin/products/' + response.data.product.slug)
     }
-  }catch (error){
+  }catch (error: any){
     if(error?.response?.status == 422){
       errors.value = error.response.data.errors
       toast({
@@ -117,7 +119,7 @@ const updateProduct = async () => {
             title: 'Produit modifié',
             description: 'Le produit a bien été modifié',
         })
-    } catch (error) {
+    } catch (error: any) {
         if(error?.response?.status == 422){
           errors.value = error.response.data.errors
           toast({
@@ -143,11 +145,15 @@ const onSubmit = () => {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCollections()
     if (slug.value !== 'new') {
-        fetchProductData()
+
+        await fetchProductData()
+        collectionSlug.value = collections.find((collection: Collection) => {
+          return collection.id === product.product.collectionId
+        })?.slug
     }
-    fetchCollections()
 })
 
 const loading = computed(()=>{
@@ -267,7 +273,7 @@ const images = computed({
                       class=""
                   />
               </div>
-              <div class="col-span-4">
+              <div class="col-span-8">
                   <ImagePicker v-model="images"/>
                   <small class="text-slate-500">N'oubliez pas de sauvegarder le produit après avoir modifier les fichiers</small>
               </div>
@@ -287,6 +293,17 @@ const images = computed({
                           ></StockForm>
                       </DialogContent>
                   </Dialog>
+                  <RouterLink target="_blank" :to="'/collections/' + collectionSlug + '/products/' + slug">
+                    <Button type="button" variant="outlineDashboard" class="flex items-center gap-x-1" >
+                      <ion-icon name="open-outline"></ion-icon>
+                      Voir la page produit
+                    </Button>
+                  </RouterLink>
+                  <Button v-if="slug === 'new'"
+                      variant="outlineDashboard"
+                      @click="router.push('/admin/products')"
+                  >Annuler
+                  </Button>
               </div>
           </form>
         </Card>

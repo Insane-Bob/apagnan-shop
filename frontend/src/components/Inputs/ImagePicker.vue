@@ -155,16 +155,10 @@ async function handleSave(){
       </div>
     </div>
 
-    <Button class="flex gap-2 ml-0 mt-3" @click.stop.prevent="handleSave" variant="outlineDashboard">
+    <Button v-if="images.some(i => i.uploadProgress === -1)" class="flex gap-2 ml-0 mt-3" @click.stop.prevent="handleSave" variant="outlineDashboard">
       <ion-icon name="cloud-upload-outline"></ion-icon>
       <span>Téléverser</span>
     </Button>
 
   </div>
 </template>
-
-<style>
-.img-picker-container{
-
-}
-</style>
