@@ -61,6 +61,15 @@ function handleSubmit(){
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Traitement</SelectLabel>
+              <SelectItem value="pending" disabled>
+                En attente
+              </SelectItem>
+              <SelectItem value="paid" disabled>
+                Payé
+              </SelectItem>
+              <SelectItem value="payment_failed" disabled>
+                Paiement échoué
+              </SelectItem>
               <SelectItem value="processing">
                 En cours de traitement
               </SelectItem>
