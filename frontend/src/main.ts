@@ -9,6 +9,7 @@ import './assets/index.css'
 import { backofficeRoutes } from './routes/backoffice'
 import { publicRoutes } from './routes/public'
 import { adminRoutes } from './routes/admin'
+import { storeKeeperRoutes } from './routes/storeKeeper'
 import { orderRoutes } from './routes/order'
 import { errorsRoutes } from './routes/errors'
 
@@ -21,9 +22,10 @@ app.use(pinia)
 
 const routes = [{ path: '/home', component: ShopMain }]
     .concat(backofficeRoutes)
-    .concat(publicRoutes)
+    .concat(storeKeeperRoutes)
     .concat(adminRoutes)
     .concat(orderRoutes)
+    .concat(publicRoutes)
     .concat(errorsRoutes) // HAVE TO BE IN THE END
 
 const router = createRouter({

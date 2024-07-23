@@ -1,15 +1,13 @@
+import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 import AdminLayout from '@/layout/AdminLayout.vue'
 import { ApiClient } from '@/lib/apiClient'
-import { useToast } from '@/components/ui/toast/use-toast'
-import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 import Dashboard from '@components/views/admin/Dashboard.vue'
 import AdminCollections from '@components/views/admin/collections/AdminCollections.vue'
-import AdminReviews from '@components/views/admin/reviews/AdminReviews.vue'
-import WorkInProgress from '@components/views/WorkInProgress/WorkInProgress.vue'
-import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
-import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 import AdminOrderTable from '@components/views/admin/orders/AdminOrderTable.vue'
 import AdminPromos from '@components/views/admin/promos/AdminPromos.vue'
+import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
+import AdminReviews from '@components/views/admin/reviews/AdminReviews.vue'
+import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
 
 export const adminRoutes = [
     {
