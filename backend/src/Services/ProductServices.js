@@ -12,12 +12,15 @@ export class ProductServices {
     }
 
     static async getPricesRange() {
-        const products = await Database.getInstance().models.Product.findAll({
-            attributes: ['price'],
+        let sql =
+            'SELECT CAST(min(price) AS INTEGER) AS min, CAST(max(price) AS INTEGER) AS max FROM "Products"'
+        const result = await Database.getInstance().sequelize.query(sql, {
+            type: QueryTypes.SELECT,
         })
-        let min = Math.min(...products.map((product) => product.price))
-        let max = Math.max(...products.map((product) => product.price))
-        return { min, max }
+
+        const minPrice = parseInt(result[0].min)
+        const maxPrice = parseInt(result[0].max)
+        return { min: minPrice, max: maxPrice }
     }
 
     static async syncImages(product, imagesIds = null) {
