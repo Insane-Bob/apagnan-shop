@@ -10,6 +10,7 @@ import Button from "@components/ui/button/Button.vue";
 import Separator from "@components/ui/separator/Separator.vue";
 import {NotificationSubscriptionType, useUserNotificationsStore} from "@/stores/userNotificationsStore";
 import {computed} from "vue";
+import ConfirmationModal from "../Modals/ConfirmationModal.vue";
 
 const notificationStore = useUserNotificationsStore();
 
@@ -61,10 +62,17 @@ function disableAllCollectionAlerts(){
                Désactiver les alertes de prix ({{notificationStore.preferences[NotificationSubscriptionType.PRODUCT_PRICE_CHANGE].ids.length}})
              </Button>
            </div>
-           <Button size="sm" variant="tone-danger" @click="disableAllProductAlerts">
-             <ion-icon name="notifications-off"></ion-icon>
-             Désactiver toutes les alertes produits ({{totalProductAlerts}})
-           </Button>
+           <ConfirmationModal 
+          :confirm="disableAllProductAlerts"
+          title="Voulez-vous vraiment enlever toutes les notifications"
+          message="Cette action est enlevera toutes les notifications, vous pourrez toujours les réactiver plus tard"
+          style-confirm="bg-red-500"
+          >
+            <Button size="sm" variant="tone-danger">
+              <ion-icon name="notifications-off"></ion-icon>
+              Désactiver toutes les alertes produits ({{totalProductAlerts}})
+            </Button>
+          </ConfirmationModal>
          </template>
           <CardDescription v-else>
             Vous n'avez pas d'alertes produits active
