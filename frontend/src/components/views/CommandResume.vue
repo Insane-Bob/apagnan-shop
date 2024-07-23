@@ -17,8 +17,8 @@ import { usePaymentBroadcastChannel } from '@/composables/usePaymentBroadcastCha
 import { useUserStore } from '@/stores/user'
 import CommandManageMenu from '@components/Menus/CommandManageMenu.vue'
 import DocumentsList from '@components/views/order/DocumentsList.vue'
-import {OrderFormat} from "../../utils/orderFormat";
-import {Money} from "../../utils/money";
+import { OrderFormat } from '../../utils/orderFormat'
+import { Money } from '../../utils/money'
 
 const apiClient = new ApiClient()
 
@@ -92,7 +92,7 @@ async function fetch() {
 }
 onMounted(() => {
     fetch()
-    if(route.query.status === 'success') {
+    if (route.query.status === 'success') {
         user.clearCart()
     }
 })
@@ -115,7 +115,9 @@ async function handlePay() {
                     <div class="">
                         <CardTitle>
                             Suivi de la commande
-                            <b>{{OrderFormat.formatOrderNumber(order.id)}}</b></CardTitle
+                            <b>{{
+                                OrderFormat.formatOrderNumber(order.id)
+                            }}</b></CardTitle
                         >
                         <CardDescription>
                             Votre commande est
@@ -230,35 +232,49 @@ async function handlePay() {
                     </CardContent>
                     <Separator />
                     <CardFooter class="pt-4">
-                        <div class="flex flex-1 flex-row" 
-                        :class="{'justify-end': !order.Promo, 'justify-between': order.Promo}"
+                        <div
+                            class="flex flex-1 flex-row"
+                            :class="{
+                                'justify-end': !order.Promo,
+                                'justify-between': order.Promo,
+                            }"
                         >
-                        <div v-if="order.Promo">
-                            <div>
-                                <CardDescription>Remise</CardDescription>
-                                <CardTitle>{{ order.Promo.value }} {{ order.Promo.type === 'percent' ? '%' : '€' }} <span class="text-base font-light">({{ order.Promo.code }})</span></CardTitle>
+                            <div v-if="order.Promo">
+                                <div>
+                                    <CardDescription>Remise</CardDescription>
+                                    <CardTitle
+                                        >{{ order.Promo.value }}
+                                        {{
+                                            order.Promo.type === 'percent'
+                                                ? '%'
+                                                : '€'
+                                        }}
+                                        <span class="text-base font-light"
+                                            >({{ order.Promo.code }})</span
+                                        ></CardTitle
+                                    >
+                                </div>
                             </div>
-                        </div>
                             <div>
                                 <CardDescription>Total</CardDescription>
-                                <CardTitle>{{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}</CardTitle>
+                                <CardTitle>{{
+                                    Money.format(
+                                        order.total -
+                                            (order.Promo
+                                                ? order.Promo.type === 'percent'
+                                                    ? (order.Promo.value /
+                                                          100) *
+                                                      order.total
+                                                    : order.Promo.value
+                                                : 0),
+                                    )
+                                }}</CardTitle>
                             </div>
                         </div>
                     </CardFooter>
                 </Card>
                 <!-- ADD INVOICE DOCUMENTS COMPONENS  -->
                 <DocumentsList :order="order" />
-                <!--                          <iframe-->
-                <!--                              width="500"-->
-                <!--                              height="600"-->
-                <!--                              frameborder="0"-->
-                <!--                              scrolling="no"-->
-                <!--                              marginheight="0"-->
-                <!--                              marginwidth="0"-->
-                <!--                              src="https://maps.google.com/maps?width=720&amp;height=600&amp;hl=en&amp;q=242%20Rue%20du%20Faubourg%20Saint-Antoine,%2075012%20Paris+()&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"-->
-                <!--                          ><a href="https://www.gps.ie/"-->
-                <!--                          >gps systems</a-->
-                <!--                          ></iframe>-->
             </div>
         </loader>
     </ProfileLayout>
