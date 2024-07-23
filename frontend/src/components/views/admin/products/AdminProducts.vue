@@ -162,9 +162,6 @@ const fetchProductData = async () => {
                 :actions="actions"
             ></DataTable>
         </div>
-        <DialogTrigger>
-            <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
-        </DialogTrigger>
         <DialogContent>
             <StockForm
             :productId="selectedProduct?.id || 0"
