@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import {nextTick, onMounted, ref, watch} from 'vue'
 import { apiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
 import { useRouter } from 'vue-router'
 import Slider from '@components/ui/slider/Slider.vue'
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@components/ui/card";
+import {Input} from "@components/ui/input";
+import FormInput from "@components/Inputs/FormInput.vue";
+import {Checkbox} from "@components/ui/checkbox";
+import {Separator} from "@components/ui/separator";
 
 const router = useRouter()
 const isOpen = ref(false)
+const firstSearch = ref('')
 const tempSearch = ref('')
 const cooldown = ref(false)
 const collections = ref([])
@@ -89,6 +95,7 @@ async function buildFilters() {
     filters.collection = urlParams.get('collection') || ''
     filters.color = urlParams.get('color') || ''
     filters.s = urlParams.get('s') || ''
+    firstSearch.value = urlParams.get('s') || ''
     filters.onlyInStock = urlParams.get('onlyInStock') || false
 }
 
@@ -119,110 +126,100 @@ watch(filters, fetch, { immediate: true })
 onMounted(() => {
     fetchDataForFilter()
     buildFilters()
+
 })
 </script>
 
 <template>
-    <div id="filters" class="row-span-5 sticky top-24 self-start">
-        <h1 class="text-2xl font-bold">Filtres</h1>
-        <div class="flex flex-col gap-5 mt-5">
-            <div class="flex flex-col gap-2">
-                <h2 class="text-lg font-bold">Mot-clé</h2>
+  <div class="space-y-6 col-span-1 sticky top-24 self-start" id="filters">
+    <Card>
+      <CardHeader>
+        <CardDescription>Mot-clé</CardDescription>
+        <FormInput>
+          <template #input>
+            <Input v-model="firstSearch"  @input="handleSearch" />
+          </template>
+          <template #after-input>
+            <ion-icon
+                class="hidden md:block"
+                name="search-outline"
+            ></ion-icon>
+          </template>
+        </FormInput>
+      </CardHeader>
+    </Card>
+    <Card>
+      <CardHeader>
+        <CardDescription>Stock</CardDescription>
+        <div class="flex gap-2 items-center">
+          <Checkbox
+              type="checkbox"
+              id="onlyInStock"
+              @update:checked="(e)=> filters.onlyInStock = e"
+              :checked="filters.onlyInStock"
+          />
+          <label for="onlyInStock">En stock</label>
+        </div>
 
-                <div class="relative">
-                    <input
-                        type="text"
-                        class="w-full p-1 border border-gray-300 rounded-md pr-0 md:pr-8"
-                        placeholder="Recherchez un Produit, une Collec.."
-                        v-model="filters.s"
-                        @input="handleSearch"
-                    />
-                    <ion-icon
-                        class="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/2 z-20 hidden md:block"
-                        name="search-outline"
-                    ></ion-icon>
-                </div>
-            </div>
+        <Separator class="my-4"/>
 
-            <hr class="border-primary border-t-2 my-2" />
+        <CardDescription>Prix</CardDescription>
+        <Slider
+            :modelValue="[filters.priceMin, filters.priceMax]"
+            :onUpdate:modelValue="(values) => updatePrice(values)"
+            :min="0"
+            :max="2500"
+            :step="1"
+            :defaultValue="[0, 2500]"
+        />
+        <div class="flex justify-between">
+          <p>{{ filters.priceMin }}€</p>
+          <p>{{ filters.priceMax }}€</p>
+        </div>
 
-            <div class="flex flex-col gap-2">
-                <h2 class="text-lg font-bold">Stocks</h2>
-                <div class="flex flex-col gap-y-1">
-                    <div
-                        class="flex gap-x-3 items-center w-min whitespace-nowrap"
-                    >
-                        <input
-                            type="checkbox"
-                            id="onlyInStock"
-                            v-model="filters.onlyInStock"
-                        />
-                        <label for="onlyInStock">En stock</label>
-                    </div>
-                </div>
-            </div>
+        <Separator class="my-4"/>
 
-            <hr class="border-primary border-t-2 my-2" />
+        <CardDescription>Collection(s)</CardDescription>
 
-            <div class="flex flex-col gap-2">
-                <h2 class="text-lg font-bold">Prix</h2>
-                <Slider
-                    :modelValue="[filters.priceMin, filters.priceMax]"
-                    :onUpdate:modelValue="(values) => updatePrice(values)"
-                    :min="0"
-                    :max="2500"
-                    :step="1"
-                    :defaultValue="[0, 2500]"
-                />
-                <div class="flex justify-between">
-                    <p>{{ filters.priceMin }}€</p>
-                    <p>{{ filters.priceMax }}€</p>
-                </div>
-            </div>
-
-            <hr class="border-primary border-t-2 my-2" />
-
-            <div class="flex flex-col gap-2">
-                <h2 class="text-lg font-bold">Collection(s)</h2>
-                <div class="flex flex-col gap-y-1">
-                    <div
-                        @click="addCollection(collection.id)"
-                        class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer"
-                        v-for="collection in collections"
-                        :key="collection.id"
-                    >
-                        <ion-icon
-                            name="checkbox"
-                            v-if="
+        <div class="flex flex-col gap-y-1 max-h-[250px] overflow-y-auto overflow-x-hidden">
+          <div
+              @click="addCollection(collection.id)"
+              class="flex gap-x-3 items-center w-min whitespace-nowrap cursor-pointer"
+              v-for="collection in collections"
+              :key="collection.id"
+          >
+            <ion-icon
+                name="checkbox"
+                v-if="
                                 filters?.collection
                                     ?.split(',')
                                     ?.includes(collection.id.toString())
                             "
-                        ></ion-icon>
-                        <ion-icon name="square-outline" v-else></ion-icon>
-                        <label :for="collection.id" class="cursor-pointer">{{
-                            collection.name
-                        }}</label>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-primary border-t-2 my-2" />
-
-            <div class="flex flex-col gap-2">
-                <h2 class="text-lg font-bold">Couleur(s)</h2>
-                <div class="flex flex-wrap gap-3">
-                    <div
-                        v-for="color in colors"
-                        :key="color"
-                        @click="addColor(color)"
-                        :class="`w-6 h-6 rounded-full  cursor-pointer ${color === 'white' ? 'border border-black' : ''} ${filters.color.includes(color) ? 'outline outline-2 outline-offset-2 outline-primary' : ''}`"
-                        :style="{ backgroundColor: color }"
-                    ></div>
-                </div>
-            </div>
+            ></ion-icon>
+            <ion-icon name="square-outline" v-else></ion-icon>
+            <label :for="collection.id" class="cursor-pointer">{{
+                collection.name
+              }}</label>
+          </div>
         </div>
-    </div>
+
+        <Separator class="my-4"/>
+
+        <CardDescription>Couleur(s)</CardDescription>
+        <div class="flex flex-wrap gap-3">
+          <div
+              v-for="color in colors"
+              :key="color"
+              @click="addColor(color)"
+              :class="`w-6 h-6 rounded-full  cursor-pointer ${color === 'white' ? 'border border-black' : ''} ${filters.color.includes(color) ? 'outline outline-2 outline-offset-2 outline-primary' : ''}`"
+              :style="{ backgroundColor: color }"
+          ></div>
+        </div>
+
+      </CardHeader>
+    </Card>
+  </div>
+
 </template>
 
 <style scoped>

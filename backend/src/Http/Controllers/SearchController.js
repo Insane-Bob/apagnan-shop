@@ -19,6 +19,7 @@ export class SearchController extends Controller {
         searchString,
         matchCustom = [],
         authorizeEmpty = false,
+        limit = 10
     ) {
         let attributes = collection.searchAttributes.map((attr) => attr.name)
         function escapeRegExp(string) {
@@ -96,7 +97,7 @@ export class SearchController extends Controller {
                 $sort: { score: -1 },
             },
             {
-                $limit: 10,
+                $limit: limit
             },
             {
                 $project: {
@@ -179,7 +180,19 @@ export class SearchController extends Controller {
                     : null,
             ].filter(Boolean),
             true,
+            20
         )
+
+        let resultsWithImages = []
+
+        for(let product of results){
+            product.images = await Database.getInstance().models.ProductImage.findAll({
+                where: {
+                    productId: product.id
+                }
+            })
+            resultsWithImages.push(product)
+        }
 
         this.res.json(results)
     }
