@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineProps, onMounted, reactive, ref} from 'vue'
+import { computed, defineProps, onMounted, reactive, ref } from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
@@ -20,11 +20,11 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import StockForm from '../stocks/StockForm.vue'
-import Card from "@components/ui/card/Card.vue";
-import CardDescription from "@components/ui/card/CardDescription.vue";
-import Loader from "@components/ui/loader/Loader.vue";
-import ImagePicker from "@components/Inputs/ImagePicker.vue";
-import {useToast} from "@components/ui/toast";
+import Card from '@components/ui/card/Card.vue'
+import CardDescription from '@components/ui/card/CardDescription.vue'
+import Loader from '@components/ui/loader/Loader.vue'
+import ImagePicker from '@components/Inputs/ImagePicker.vue'
+import { useToast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 
@@ -59,7 +59,9 @@ interface Image {
 }
 
 const fetchProductData = async () => {
-    const response = await apiClient.get('products/' + slug.value + "?withImages")
+    const response = await apiClient.get(
+        'products/' + slug.value + '?withImages',
+    )
     const data = await response.data
     product.product = data.product
 }
@@ -70,39 +72,39 @@ const fetchCollections = async () => {
     collections.push(...data.data)
 }
 
-
-function preParsePayload(){
-  product.product.imagesIds = product.product.images.map((image) => image.file.id)
-  product.product.price = Number(product.product.price)
+function preParsePayload() {
+    product.product.imagesIds = product.product.images.map(
+        (image) => image.file.id,
+    )
+    product.product.price = Number(product.product.price)
 }
 
 const createProduct = async () => {
-  try{
-    preParsePayload()
-    const response = await apiClient.post('products', product.product)
-    toast({
-      title: 'Produit créer',
-      description: 'Le produit a bien été créer',
-    })
-    if (response.status === 201) {
-      router.push('/admin/products/' + response.data.product.slug)
+    try {
+        preParsePayload()
+        const response = await apiClient.post('products', product.product)
+        toast({
+            title: 'Produit créer',
+            description: 'Le produit a bien été créer',
+        })
+        if (response.status === 201) {
+            router.push('/admin/products/' + response.data.product.slug)
+        }
+    } catch (error: any) {
+        if (error?.response?.status == 422) {
+            errors.value = error.response.data.errors
+            toast({
+                title: 'Champs invalides',
+                description: 'Certains champs sont invalides',
+                variant: 'destructive',
+            })
+        } else
+            toast({
+                title: 'Erreur',
+                description: 'Une erreur est survenue',
+                variant: 'destructive',
+            })
     }
-  }catch (error: any){
-    if(error?.response?.status == 422){
-      errors.value = error.response.data.errors
-      toast({
-        title: 'Champs invalides',
-        description: 'Certains champs sont invalides',
-        variant:'destructive'
-      })
-    }else toast({
-      title: 'Erreur',
-      description: 'Une erreur est survenue',
-      variant:'destructive'
-
-    })
-  }
-
 }
 
 const updateProduct = async () => {
@@ -120,20 +122,19 @@ const updateProduct = async () => {
             description: 'Le produit a bien été modifié',
         })
     } catch (error: any) {
-        if(error?.response?.status == 422){
-          errors.value = error.response.data.errors
-          toast({
-            title: 'Champs invalides',
-            description: 'Certains champs sont invalides',
-            variant:'destructive'
-
-          })
-        }else toast({
-            title: 'Erreur',
-            description: 'Une erreur est survenue',
-          variant:'destructive'
-
-        })
+        if (error?.response?.status == 422) {
+            errors.value = error.response.data.errors
+            toast({
+                title: 'Champs invalides',
+                description: 'Certains champs sont invalides',
+                variant: 'destructive',
+            })
+        } else
+            toast({
+                title: 'Erreur',
+                description: 'Une erreur est survenue',
+                variant: 'destructive',
+            })
     }
 }
 
@@ -146,40 +147,36 @@ const onSubmit = () => {
 }
 
 onMounted(async () => {
-  await fetchCollections()
+    await fetchCollections()
     if (slug.value !== 'new') {
-
         await fetchProductData()
         collectionSlug.value = collections.find((collection: Collection) => {
-          return collection.id === product.product.collectionId
+            return collection.id === product.product.collectionId
         })?.slug
     }
 })
 
-const loading = computed(()=>{
-  if(slug.value === 'new'){
-    return {}
-  }
-  else {
-    return product.product.id
-  }
+const loading = computed(() => {
+    if (slug.value === 'new') {
+        return {}
+    } else {
+        return product.product.id
+    }
 })
-
 
 const images = computed({
-  get: () => product.product?.images?.map((image) => image.file) || [],
-  set: (value) => {
-    product.product.images = value.map((file: object) => ({ file }))
-  }
+    get: () => product.product?.images?.map((image) => image.file) || [],
+    set: (value) => {
+        product.product.images = value.map((file: object) => ({ file }))
+    },
 })
-
 </script>
 
 <template>
-  <loader :wait-for="loading"></loader>
+    <loader :wait-for="loading"></loader>
     <div class="max-w-4xl mx-auto p-6 flex flex-col gap-6">
         <Card class="p-6">
-          <CardDescription class="mb-6">Fiche produit</CardDescription>
+            <CardDescription class="mb-6">Fiche produit</CardDescription>
 
           <form @submit.prevent="onSubmit" class="grid grid-cols-4 gap-6">
 
@@ -244,16 +241,20 @@ const images = computed({
                   </template>
               </FormInput>
 
-              <FormInput :errors="errors" name="description" class="col-span-4">
-                  <template #label>Description</template>
-                  <template #input="inputProps">
-                      <textarea
-                          class="min-h-[150px]"
-                          v-model="product.product.description"
-                          v-bind="inputProps"
-                      ></textarea>
-                  </template>
-              </FormInput>
+                <FormInput
+                    :errors="errors"
+                    name="description"
+                    class="col-span-4"
+                >
+                    <template #label>Description</template>
+                    <template #input="inputProps">
+                        <textarea
+                            class="min-h-[150px]"
+                            v-model="product.product.description"
+                            v-bind="inputProps"
+                        ></textarea>
+                    </template>
+                </FormInput>
 
               <div class="flex items-center gap-x-4">
                   <Label
@@ -313,6 +314,5 @@ const images = computed({
             v-if="product.product.id"
             :productId="product.product.id"
         ></SpecificTable>
-
     </div>
 </template>
