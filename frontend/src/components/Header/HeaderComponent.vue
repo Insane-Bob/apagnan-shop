@@ -20,7 +20,12 @@ const links = computed(()=>{
     {
       to:'/admin',
       icon:'laptop-outline',
-      visible: userStore.isAdmin && userStore.isAuthenticated
+      visible: userStore.isAuthenticated && userStore.isAdmin
+    },
+    {
+      to:'/store-keeper',
+      icon:'storefront-outline',
+      visible: userStore.isAuthenticated && userStore.isStoreKeeper
     },
     {
       to:'/profile',
@@ -104,7 +109,7 @@ function handleSearch(){}
             <CartDrawer />
           </SheetContent>
         </Sheet>
-        <template v-for="link in links">
+        <template v-for="link, index in links" :key="index">
           <RouterLink :to="link.to"  v-if="link.visible">
             <Button variant="tone-white" size="icon">
               <ion-icon

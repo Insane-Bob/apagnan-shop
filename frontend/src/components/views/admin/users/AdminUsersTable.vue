@@ -48,9 +48,15 @@ const columns: TableColumns[] = [
         label: 'Role',
         key: 'role',
         sorting: true,
-        toDisplay: (value: string) => {
-            return value === 'admin' ? 'Administrateur' : 'Utilisateur'
-        },
+        toDisplay: (value: string) =>{
+            if(value === 'admin'){
+                return 'Administrateur'
+            }else if(value === 'store_keeper'){
+                return 'Gestion des stock'
+            }else{
+                return 'Utilisateur'
+        }
+    }
     },
 
     {
@@ -66,36 +72,56 @@ const columns: TableColumns[] = [
 ]
 
 const actions: TableActions[] = [
-    {
-        label:"Promouvoir Admin",
-        icon: "ribbon-outline",
-        class:"text-primary",
-        condition: (row: any) => row.role !== 'admin',
-        confirmation: {
-            title: 'Promouvoir Utilisateur',
-            message: 'Voulez-vous vraiment promouvoir cet utilisateur au rang d\'administrateur ?',
+        {
+        label: 'Changer le role',
+        icon: 'sync',
+        class: 'text-primary',
+        action: () => {
+            return 
         },
-        action: async (row: any) => {
-            await apiClient.patch('users/' + row.id, { role: 'admin' })
-            toast({
-                title: 'Utilisateur promu',
-            })
-            await fetch()
-        },
-    },
-
-    {
-        label:"Réléguer Utilisateur",
-        icon: "remove-circle-outline",
-        class:"text-red-500",
-        condition: (row: any) => row.role === 'admin' && row.id !== user.getId,
-        action: async (row: any) => {
-            await apiClient.patch('users/' + row.id, { role: 'user' })
-            toast({
-                title: 'Utilisateur rélégué au rang d\'utilisateur',
-            })
-            await fetch()
-        },
+        children: [
+            {
+                label: 'Administrateur',
+                icon: "ribbon-outline",
+                class:"text-primary",
+                condition: (row: any) => {
+                    console.log(row.role)
+                return row.role !== 'admin'
+            },
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, { role: 'admin' })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            },
+            {
+                icon: "storefront-outline",
+                label: 'Gestion des stock',
+                class:"text-primary",
+                condition: (row: any) => row.role !== 'store_keeper',
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, { role: 'store_keeper' })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            },
+            {
+                icon: "person-outline",
+                label: 'Utilisateur',
+                condition: (row: any) => row.role !== 'user',
+                action: async (row: any) => {
+                    await apiClient.patch('users/' + row.id, { role: 'user' })
+                    toast({
+                        title: 'Role changé',
+                    })
+                    await fetch()
+                },
+            }
+        ]
     },
     {
         label: 'Se connecter en tant que',

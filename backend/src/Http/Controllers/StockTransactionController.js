@@ -5,7 +5,7 @@ import { StockTransactionValidator } from '../../Validator/StockTransactionValid
 
 export class StockTransactionController extends Controller {
     async updateStock() {
-        this.can(ProductPolicy.update)
+        this.can(ProductPolicy.updateStock)
         const payload = this.validate(StockTransactionValidator)
         const { productId, quantity } = payload
         if (this.req.route.path === '/add-stock') {

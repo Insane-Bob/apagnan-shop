@@ -17,6 +17,7 @@ const apiClient = new ApiClient()
 const emit = defineEmits(['stockUpdated'])
 const props = defineProps<{
     productId: number
+    actualStock?: number
 }>()
 
 const quantity = ref(0)
@@ -48,7 +49,9 @@ const removeStock = async () => {
         <form>
             <DialogHeader>
                 <DialogTitle>Gestion du stock</DialogTitle>
+                <span v-if="actualStock">Stock actuel: {{ actualStock }}</span>
             </DialogHeader>
+
 
             <FormGrid>
                 <FormInput

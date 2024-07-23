@@ -7,6 +7,14 @@ import CellTable from '@components/tables/utils/CellTable.vue'
 import Button from '@components/ui/button/Button.vue'
 import { computed, reactive, ref } from 'vue'
 import { TableColumns, TableActions, Page } from '@types'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 const isAllSelected = ref(false)
 
 const emit = defineEmits([
@@ -253,14 +261,37 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                             : false,
                                     }"
                                 >
-                                    <div
-                                        v-if="
+                                    <div v-if="action.children && action.children.length">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger class="group relative">
+                                                <ion-icon
+                                                    class="cursor-pointer hover:scale-105 duration-200 text-xl"
+                                                    :class="action.class"
+                                                    :name="action.icon || 'ellipsis-vertical'"
+                                                ></ion-icon>
+                                                <span
+                                                    class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
+                                                    >{{ action.label }}</span
+                                                >
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem v-for="(a, index) in action.children" :key="index" :disabled="!a.condition(row)" @click="a.action(row)">
+                                                    <ion-icon
+                                                        class="mr-2"
+                                                        :class="a.class"
+                                                        :name="a.icon"
+                                                    ></ion-icon>
+                                                    {{ a.label }}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+
+                                    </div>
+                                    <div v-else-if="
                                             (!action.trigger ||
                                             action.trigger === false)
-                                            && !action.confirmation
-                                        "
-                                        class="relative group transition delay-1000"
-                                    >
+                                            && !action.confirmation"
+                                        class="relative group transition delay-1000">
                                         <ion-icon
                                             @click.stop="action.action(row)"
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"

@@ -6,16 +6,18 @@ const schema = z
         password: z
             .string()
             .min(12, {
-                message: 'Password must be at least 12 characters long',
+                message: 'Votre mot de passe doit faire au moins 12 caractères',
             })
             .regex(/[a-z]/, {
-                message: 'Password must contain at least one lowercase letter',
+                message:
+                    'Votre mot de passe doit contenir au moins une minuscule',
             })
             .regex(/[A-Z]/, {
-                message: 'Password must contain at least one uppercase letter',
+                message:
+                    'Votre mot de passe doit contenir au moins une majuscule',
             })
             .regex(/[0-9]/, {
-                message: 'Password must contain at least one number',
+                message: 'Votre mot de passe doit contenir au moins un chiffre',
             }),
         passwordConfirmation: z.string(),
     })
