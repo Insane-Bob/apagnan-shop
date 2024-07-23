@@ -22,6 +22,7 @@ export function usePagination(collectionLength: any) {
         nextPage: next,
         prevPage: prev,
         goToPage: goTo,
+        setLimit,
         total: total.value,
         currentPage: currentPage.value,
         limit: pagination.limit,
@@ -42,6 +43,11 @@ export function usePagination(collectionLength: any) {
         } else return false
     }
 
+    function setLimit(limit: number) {
+        pagination.limit = limit
+        goTo(1)
+    }
+
     return {
         query,
         currentPage,
@@ -50,5 +56,6 @@ export function usePagination(collectionLength: any) {
         next,
         prev,
         goTo,
+        setLimit,
     }
 }

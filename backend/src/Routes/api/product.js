@@ -16,6 +16,7 @@ export default function (router) {
             this.post('/', ProductController, 'createProduct')
             this.patch('/:product', ProductController, 'updateProduct')
             this.delete('/:product', ProductController, 'deleteProduct')
+            this.delete('/', ProductController, 'massDelete')
 
             this.group('/:product', function () {
                 this.get('/reviews', ReviewController, 'getReviews')
