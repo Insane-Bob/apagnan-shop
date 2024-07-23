@@ -41,9 +41,9 @@ const userStore = useUserStore()
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-                <RouterLink to="/admin/settings">
+                <RouterLink to="/profile">
                     <DropdownMenuItem class="flex items-center gap-2">
-                        <ion-icon name="cog"></ion-icon> Parameters
+                        <ion-icon name="people"></ion-icon> Profil
                     </DropdownMenuItem>
                 </RouterLink>
                 <RouterLink to="/home">

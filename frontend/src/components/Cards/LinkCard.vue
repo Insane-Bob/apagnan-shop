@@ -18,8 +18,8 @@ const props = defineProps<{
                 <img class="rounded-full aspect-square object-cover group-hover:scale-105 duration-300" :src="props.image" />
             </div>
 
-                <h1 class="uppercase text-xl underline tracking-wider font-light">{{ props.name }}</h1>
-                <p class="text-center font-thin tracking-wider px-4">{{ props.shortDescription }}</p>
+                <h1 class="uppercase text-xl tracking-wider font-medium">{{ props.name }}</h1>
+                <p class="text-sm font-normal text-center tracking-wider px-4 whitespace-pre">{{ props.shortDescription }}</p>
         </section>
     </RouterLink>
 </template>

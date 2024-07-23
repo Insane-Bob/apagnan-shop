@@ -18,4 +18,20 @@ export class ProductServices {
         let max = Math.max(...products.map((product) => product.price))
         return { min, max }
     }
+
+    static async syncImages(product, imagesIds = null) {
+        if (!imagesIds) return product
+        await Database.getInstance().models.ProductImage.destroy({
+            where: {
+                productId: product.id,
+            },
+        })
+        await Database.getInstance().models.ProductImage.bulkCreate(
+            imagesIds.map((uploadId) => ({
+                productId: product.id,
+                uploadId,
+            })),
+        )
+        return product
+    }
 }

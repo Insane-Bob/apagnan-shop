@@ -7,8 +7,10 @@ import type { Promo, TableActions, TableColumns } from '@/types';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { reactive } from 'vue';
 import PromoForm from '@/components/views/admin/promos/PromoForm.vue'
-import { apiClient } from '@/lib/apiClient';
+import { ApiClient } from '@/lib/apiClient';
 
+
+const apiClient = new ApiClient()
 
 const form = reactive<{ promo: Promo | null }>({
     promo: null,

@@ -51,10 +51,15 @@ export class RequestHandler {
     validate(validatorClass, schema = undefined) {
         const validatorInstance = new validatorClass(schema)
         validatorInstance.beforeValidation(this.req)
-        return validatorInstance.validate({
+        const payload = validatorInstance.validate({
             ...this.req.params.all(),
             ...this.req.query.all(),
             ...this.req.body.all(),
         })
+        let res = validatorInstance.afterValidation(payload)
+        if(res instanceof Promise) return new Promise((resolve, reject) => {
+            res.then(() => resolve(payload)).catch(e => reject(e))
+        })
+        return payload
     }
 }

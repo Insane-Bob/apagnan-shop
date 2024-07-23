@@ -1,6 +1,19 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import CookiesModal from '@components/Modals/CookiesModal.vue'
+import { ref } from 'vue'
+import { useCookie } from '@/composables/useCookie'
+
+const {hasBeenAsked} = useCookie()
+const showCookiesModal = ref(!hasBeenAsked.value)
+function openCookie(){
+  showCookiesModal.value = true
+}
+
+window.openCookie = openCookie
+</script>
 
 <template>
+  <CookiesModal v-model:open="showCookiesModal" />
   <footer class="bg-black w-full h-fit pb-4 md:pb-0 md:h-80 text-white flex justify-center items-center mt-20">
     <div class="flex flex-col sm:flex-row sm:gap-10 md:gap-20 pt-7">
       <div>
@@ -39,8 +52,11 @@
           </li>
           <li>
             <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >Politique de confidentialité et cookies</a
+              >Politique de confidentialité</a
             >
+          </li>
+          <li @click="openCookie" class="hover:underline cursor-pointer">
+             Gestions des cookies
           </li>
           <li>
             <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"

@@ -1,10 +1,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
-import { apiClient } from '../../lib/apiClient.ts'
+import { ApiClient } from '../../lib/apiClient.ts'
 
 export function useDashboardTile(props) {
     const dateRange = computed(() => {
         return props.dateRange
     })
+
+    const apiClient = new ApiClient()
 
     const data = ref()
     async function fetch() {

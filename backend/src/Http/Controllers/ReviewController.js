@@ -8,8 +8,22 @@ export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
     async getReviews() {
         if (this.product) {
+
+            const data = await Database.getInstance().models.Review.findAll({
+                where: {
+                    approved: true,
+                    productId: this.product.id,
+                },
+                include: [
+                    {
+                        model: Database.getInstance().models.User,
+                        attributes: ['id', 'firstName', 'lastName'],
+                    },
+                ],
+            })
+
             this.res.status(200).json({
-                reviews: await this.product.getReviews(),
+                reviews: data,
             })
         } else {
             let search = new SearchRequest(

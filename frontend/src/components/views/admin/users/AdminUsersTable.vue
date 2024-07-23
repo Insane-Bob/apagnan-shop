@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import DataTable from '@components/tables/DataTable.vue'
 import { TableActions, TableColumns, User } from '@types'
 import { useToast } from '@/components/ui/toast'
@@ -9,15 +9,27 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import { useFilters } from '@/composables/useFilters'
+import {computed, watch} from "vue";
+import {useRoute} from "vue-router";
+
+const apiClient = new ApiClient()
 
 const user = useUserStore()
 const { toast } = useToast()
 
-const { filters, query, resetFilters } = useFilters({
-    withCustomer: [],
+const route = useRoute()
+const filterId = computed(() => route.query.id || '')
+const { filters, query } = useFilters({
     role: [],
     search: '',
+    id: filterId.value
 })
+watch(filterId, () => {
+  filters.id = filterId.value
+})
+
+
+
 const { rows, pagination, sorting,fetch } = useTable('/users', query)
 
 const columns: TableColumns[] = [
@@ -54,6 +66,33 @@ const columns: TableColumns[] = [
 ]
 
 const actions: TableActions[] = [
+    {
+        label:"Promouvoir Admin",
+        icon: "ribbon-outline",
+        class:"text-primary",
+        condition: (row: any) => row.role !== 'admin',
+        action: async (row: any) => {
+            await apiClient.patch('users/' + row.id, { role: 'admin' })
+            toast({
+                title: 'Utilisateur promu',
+            })
+            await fetch()
+        },
+    },
+
+    {
+        label:"Réléguer Utilisateur",
+        icon: "remove-circle-outline",
+        class:"text-red-500",
+        condition: (row: any) => row.role === 'admin' && row.id !== user.getId,
+        action: async (row: any) => {
+            await apiClient.patch('users/' + row.id, { role: 'user' })
+            toast({
+                title: 'Utilisateur rélégué au rang d\'utilisateur',
+            })
+            await fetch()
+        },
+    },
     {
         label: 'Se connecter en tant que',
         icon: 'glasses-outline',
@@ -127,11 +166,6 @@ const loginAs = async (id: number) => {
                 v-model="filters.search"
             >
             </OutlinedInput>
-
-            <Filter label="Compte client" v-model="filters.withCustomer">
-                <FilterItem value="true" label="oui" />
-                <FilterItem value="false" label="non" />
-            </Filter>
             <Filter label="Role" v-model="filters.role">
                 <FilterItem value="admin" label="Administrateur" />
                 <FilterItem value="store_keeper" label="Gestion des stock" />

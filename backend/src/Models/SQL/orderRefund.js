@@ -21,6 +21,10 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
+            creditNoteId: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 allowNull: false,

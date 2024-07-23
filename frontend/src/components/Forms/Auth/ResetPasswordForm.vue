@@ -91,9 +91,11 @@ import FormGrid from '@/components/Forms/FormGrid.vue'
 import FormHeader from '@/components/Forms/FormHeader.vue'
 import PasswordInput from '@/components/Inputs/PasswordInput.vue'
 import Button from '@/components/ui/button/Button.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
+
+const apiClient = new ApiClient()
 
 const route = useRoute()
 
@@ -137,6 +139,8 @@ async function submit() {
             `/users/${encodeURIComponent(userId)}?a=${encodeURIComponent(identifier)}`,
             data,
         )
+
+        toast.success('Votre mot de passe a été réinitialisé avec succès ! 🎉')
 
         isSubmitted.value = true
     } catch (error) {

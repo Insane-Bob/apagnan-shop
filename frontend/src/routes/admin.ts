@@ -1,5 +1,5 @@
 import AdminLayout from '@/layout/AdminLayout.vue'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { useToast } from '@/components/ui/toast/use-toast'
 import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 import Dashboard from '@components/views/admin/Dashboard.vue'
@@ -21,6 +21,7 @@ export const adminRoutes = [
             // If not, redirect to login page
             if (localStorage.getItem('accessToken')) {
                 try {
+                    const apiClient = new ApiClient()
                     const result = await apiClient.get('me')
                     if (result.data.user.role === 'admin') {
                         return true

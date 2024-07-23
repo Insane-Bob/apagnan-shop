@@ -12,6 +12,7 @@ import { useUserStore } from '@store/user'
 import { RouterLink } from 'vue-router'
 import { orderRoutesName } from '@/routes/order'
 import { useToast } from '@components/ui/toast'
+import {Money} from "../../utils/money";
 
 const user = useUserStore()
 user.cartViewed()
@@ -60,13 +61,13 @@ dismiss()
                 <p class="text-lg font-semibold">Total:</p>
                 <p class="text-lg font-semibold">
                     {{
-                        user.getCart.reduce(
+                        Money.format( user.getCart.reduce(
                             (acc: number, item: BasketItem) =>
                                 acc + item.product.price * item.quantity,
                             0,
-                        )
+                        ))
                     }}
-                    €
+
                 </p>
             </div>
             <hr class="border-b-2 border-primary my-3" />

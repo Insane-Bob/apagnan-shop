@@ -3,7 +3,7 @@ import {computed, defineProps, onMounted, reactive, ref} from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { apiClient } from '@/lib/apiClient'
+import { ApiClient } from '@/lib/apiClient'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useRouter } from 'vue-router'
@@ -23,7 +23,12 @@ import StockForm from '../stocks/StockForm.vue'
 import Card from "@components/ui/card/Card.vue";
 import CardDescription from "@components/ui/card/CardDescription.vue";
 import Loader from "@components/ui/loader/Loader.vue";
+import ImagePicker from "@components/Inputs/ImagePicker.vue";
+import {useToast} from "@components/ui/toast";
 
+const apiClient = new ApiClient()
+
+const {toast} = useToast()
 const router = useRouter()
 const props = defineProps<{
     cslug: string
@@ -42,6 +47,8 @@ const product = reactive<{ product: Product }>({
     },
 })
 
+const collectionSlug = ref('')
+
 const collections = reactive<Collection[]>([])
 
 interface Image {
@@ -50,14 +57,11 @@ interface Image {
     modelName: string
     path: string
 }
-const images = ref<Image[]>([])
 
 const fetchProductData = async () => {
-    images.value = []
-    const response = await apiClient.get('products/' + slug.value)
+    const response = await apiClient.get('products/' + slug.value + "?withImages")
     const data = await response.data
     product.product = data.product
-    images.value.push(...data.images)
 }
 
 const fetchCollections = async () => {
@@ -66,15 +70,44 @@ const fetchCollections = async () => {
     collections.push(...data.data)
 }
 
+
+function preParsePayload(){
+  product.product.imagesIds = product.product.images.map((image) => image.file.id)
+  product.product.price = Number(product.product.price)
+}
+
 const createProduct = async () => {
+  try{
+    preParsePayload()
     const response = await apiClient.post('products', product.product)
+    toast({
+      title: 'Produit créer',
+      description: 'Le produit a bien été créer',
+    })
     if (response.status === 201) {
-        router.push('/admin/products/' + response.data.product.slug)
+      router.push('/admin/products/' + response.data.product.slug)
     }
+  }catch (error: any){
+    if(error?.response?.status == 422){
+      errors.value = error.response.data.errors
+      toast({
+        title: 'Champs invalides',
+        description: 'Certains champs sont invalides',
+        variant:'destructive'
+      })
+    }else toast({
+      title: 'Erreur',
+      description: 'Une erreur est survenue',
+      variant:'destructive'
+
+    })
+  }
+
 }
 
 const updateProduct = async () => {
     try {
+        preParsePayload()
         const response = await apiClient.patch(
             'products/' + slug.value,
             product.product,
@@ -82,8 +115,25 @@ const updateProduct = async () => {
         if (response.status === 200) {
             router.push('/admin/products/' + response.data.product.slug)
         }
-    } catch (error) {
-        errors.value = error.response.data.errors
+        toast({
+            title: 'Produit modifié',
+            description: 'Le produit a bien été modifié',
+        })
+    } catch (error: any) {
+        if(error?.response?.status == 422){
+          errors.value = error.response.data.errors
+          toast({
+            title: 'Champs invalides',
+            description: 'Certains champs sont invalides',
+            variant:'destructive'
+
+          })
+        }else toast({
+            title: 'Erreur',
+            description: 'Une erreur est survenue',
+          variant:'destructive'
+
+        })
     }
 }
 
@@ -95,11 +145,15 @@ const onSubmit = () => {
     }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCollections()
     if (slug.value !== 'new') {
-        fetchProductData()
+
+        await fetchProductData()
+        collectionSlug.value = collections.find((collection: Collection) => {
+          return collection.id === product.product.collectionId
+        })?.slug
     }
-    fetchCollections()
 })
 
 const loading = computed(()=>{
@@ -110,6 +164,15 @@ const loading = computed(()=>{
     return product.product.id
   }
 })
+
+
+const images = computed({
+  get: () => product.product?.images?.map((image) => image.file) || [],
+  set: (value) => {
+    product.product.images = value.map((file: object) => ({ file }))
+  }
+})
+
 </script>
 
 <template>
@@ -161,6 +224,8 @@ const loading = computed(()=>{
                   <template #input="inputProps">
                       <input
                           type="number"
+                          min="0"
+                          step="0.01"
                           v-model="product.product.price"
                           v-bind="inputProps"
                       />
@@ -208,6 +273,11 @@ const loading = computed(()=>{
                       class=""
                   />
               </div>
+              <div class="col-span-8">
+                  <ImagePicker v-model="images"/>
+                  <small class="text-slate-500">N'oubliez pas de sauvegarder le produit après avoir modifier les fichiers</small>
+              </div>
+
               <div class="flex gap-4 col-span-4">
                   <Button type="submit">
                       {{ slug === 'new' ? 'Créer' : 'Modifier' }}
@@ -223,6 +293,17 @@ const loading = computed(()=>{
                           ></StockForm>
                       </DialogContent>
                   </Dialog>
+                  <RouterLink target="_blank" :to="'/collections/' + collectionSlug + '/products/' + slug">
+                    <Button type="button" variant="outlineDashboard" class="flex items-center gap-x-1" >
+                      <ion-icon name="open-outline"></ion-icon>
+                      Voir la page produit
+                    </Button>
+                  </RouterLink>
+                  <Button v-if="slug === 'new'"
+                      variant="outlineDashboard"
+                      @click="router.push('/admin/products')"
+                  >Annuler
+                  </Button>
               </div>
           </form>
         </Card>
@@ -232,19 +313,5 @@ const loading = computed(()=>{
             :productId="product.product.id"
         ></SpecificTable>
 
-      <Card class="p-6">
-        <CardDescription>
-          Images
-        </CardDescription>
-        <div class="flex flex-wrap gap-4 mt-2">
-          <div v-for="image in images" :key="image.id" class="w-32 h-32">
-            <img
-                :src="`/src/${image.path}`"
-                :alt="`Image ${image.id}`"
-                class="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-      </Card>
     </div>
 </template>

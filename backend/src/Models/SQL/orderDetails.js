@@ -1,5 +1,6 @@
 'use strict'
 import { Model } from 'sequelize'
+import {Money} from "../../utils/money.js";
 
 export class OrderDetails extends Model {
     static associate(models) {
@@ -32,6 +33,18 @@ function model(sequelize, DataTypes) {
                     return this.quantity * this.unitPrice
                 },
             },
+            totalFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(this.total)
+                }
+            },
+            unitPriceFormatted: {
+                type: DataTypes.VIRTUAL,
+                get() {
+                    return Money.format(Number(this.unitPrice))
+                }
+            }
         },
         {
             sequelize,
