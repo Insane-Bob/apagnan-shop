@@ -60,11 +60,9 @@ const createPromo = async () => {
                 description: 'Votre code promo a été créé',
             })
             emit('reload-promo')
-            // Close modal only if creation is successful
             closeModal()
         }
     } catch (error) {
-        // Capture the errors from the response
         errors.value = error.response.data.errors || []
     }
 }
