@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DialogTrigger } from '@/components/ui/dialog'
+import ConfirmationModal from '@components/Modals/ConfirmationModal.vue'
 import SimplePagination from '@components/paginations/SimplePagination.vue'
 import HeaderTable from '@components/tables/utils/HeaderTable.vue'
 import CellTable from '@components/tables/utils/CellTable.vue'
@@ -286,13 +287,11 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         </DropdownMenu>
 
                                     </div>
-                                    <div
-                                        v-else-if="
-                                            !action.trigger ||
-                                            action.trigger === false
-                                        "
-                                        class="relative group transition delay-1000"
-                                    >
+                                    <div v-else-if="
+                                            (!action.trigger ||
+                                            action.trigger === false)
+                                            && !action.confirmation"
+                                        class="relative group transition delay-1000">
                                         <ion-icon
                                             @click.stop="action.action(row)"
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"
@@ -305,7 +304,7 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         >
                                     </div>
                                     <DialogTrigger
-                                        v-else
+                                        v-if="action.trigger || action.trigger === true"
                                         class="relative group transition delay-1000"
                                     >
                                         <ion-icon
@@ -319,6 +318,26 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                             >{{ action.label }}</span
                                         >
                                     </DialogTrigger>
+
+                                    <ConfirmationModal v-if="action.confirmation" 
+                                    :confirm="action.action"
+                                    :props="row"
+                                    :title="action.confirmation.title || ''" 
+                                    :message="action.confirmation.message || ''"
+                                    :style-confirm="action.confirmation.styleConfirm || ''"
+                                    :style-cancel="action.confirmation.styleCancel || ''"
+
+                                    >
+                                        <ion-icon
+                                            class="cursor-pointer hover:scale-105 duration-200 text-xl"
+                                            :class="action.class"
+                                            :name="action.icon"
+                                        ></ion-icon>
+                                        <span
+                                            class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
+                                            >{{ action.label }}</span
+                                        >
+                                    </ConfirmationModal>
                                 </div>
                             </div>
                         </CellTable>

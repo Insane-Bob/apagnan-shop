@@ -6,4 +6,11 @@ export interface TableActions {
     action: (row: any) => void
     children: TableActions[]
     trigger?: boolean
+    confirmation: {
+        title: string
+        message: string
+        styleConfirm: string
+        styleCancel: string
+        styleFooter: string
+    }
 }

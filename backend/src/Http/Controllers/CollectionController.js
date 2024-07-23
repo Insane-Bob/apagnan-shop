@@ -11,6 +11,8 @@ export class CollectionController extends Controller {
 
         let model = Database.getInstance().models.Collection
         if (this.req.query.has('withImage')) model = model.scope('withImage')
+        if (this.req.query.has('withProductCount'))
+            model = model.scope('withProductCount')
         const total = await model.count(search.queryWithoutPagination)
 
         let query = { ...search.query }

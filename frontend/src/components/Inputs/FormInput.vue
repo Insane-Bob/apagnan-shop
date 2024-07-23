@@ -41,7 +41,6 @@
                 <slot name="after-input" />
             </div>
         </div>
-
         <FormError v-if="inputError">
             {{ inputError.message }}
         </FormError>

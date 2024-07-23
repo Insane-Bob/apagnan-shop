@@ -197,6 +197,7 @@ const images = computed({
                   :errors="errors"
                   name="collectionId"
                   class="col-span-2"
+                  noBorder
               >
                 <template #label>Collection</template>
                 <template #input="inputProps">
@@ -274,7 +275,7 @@ const images = computed({
                   />
               </div>
               <div class="col-span-8">
-                  <ImagePicker v-model="images"/>
+                  <ImagePicker name="imagesId" :errors="errors" v-model="images"/>
                   <small class="text-slate-500">N'oubliez pas de sauvegarder le produit après avoir modifier les fichiers</small>
               </div>
 

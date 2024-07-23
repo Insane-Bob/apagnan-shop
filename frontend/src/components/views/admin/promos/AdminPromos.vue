@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
+import { Dialog } from '@/components/ui/dialog'
+import PromoForm from '@/components/views/admin/promos/PromoForm.vue'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
-import type { Promo, TableActions, TableColumns } from '@/types';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { reactive } from 'vue';
-import PromoForm from '@/components/views/admin/promos/PromoForm.vue'
-import { ApiClient } from '@/lib/apiClient';
-
+import { ApiClient } from '@/lib/apiClient'
+import type { Promo, TableActions, TableColumns } from '@/types'
+import { reactive, ref } from 'vue'
+import OutlinedInput from '@/components/ui/input/OutlinedInput.vue'
 
 const apiClient = new ApiClient()
 
@@ -22,7 +22,6 @@ const { filters, query, resetFilters } = useFilters({
 })
 
 const { fetch, rows, pagination, sorting } = useTable('/promos', query)
-
 
 const columns: TableColumns[] = [
     {
@@ -61,7 +60,7 @@ const actions: TableActions[] = [
         class: 'text-yellow-500',
         condition: (row: any) => row.promoted,
         action: (row: any) => {
-            updatePromo({id: row.id, promoted: false})
+            updatePromo({ id: row.id, promoted: false })
         },
     },
     {
@@ -70,8 +69,8 @@ const actions: TableActions[] = [
         class: 'text-yellow-500',
         condition: (row: any) => !row.promoted,
         action: (row: any) => {
-            updatePromo({id: row.id, promoted: true})
-    },
+            updatePromo({ id: row.id, promoted: true })
+        },
     },
     {
         label: 'Désactiver',
@@ -79,7 +78,7 @@ const actions: TableActions[] = [
         class: 'text-orange-400',
         condition: (row: any) => row.available,
         action: (row: Promo) => {
-            updatePromo({id: row.id, available: false})
+            updatePromo({ id: row.id, available: false })
         },
     },
     {
@@ -88,64 +87,66 @@ const actions: TableActions[] = [
         class: 'text-green-500',
         condition: (row: any) => !row.available,
         action: (row: any) => {
-            updatePromo({id: row.id, available: true})
+            updatePromo({ id: row.id, available: true })
         },
     },
 ]
 
 const updatePromo = async (row: any) => {
-    await apiClient.patch('promos/' + row.id, 
-        row
-    )
+    await apiClient.patch('promos/' + row.id, row)
     fetch()
 }
 
 const fetchPromo = () => {
+    console.log('fetching promo code')
     fetch()
 }
 
+const promoModalOpen = ref(false)
+
 </script>
 <template>
-   <Dialog>
-        <div class="flex flex-col mx-6">
-            <div class="flex justify-between items-center mb-3">
-                <div class="flex gap-4 items-center">
-                    <OutlinedInput
-                        class="max-w-[200px]"
-                        placeholder="Recherche"
-                        v-model="filters.search"
-                    >
-                    </OutlinedInput>
+    <div class="flex flex-col mx-6">
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex gap-4 items-center">
+                <OutlinedInput
+                    class="max-w-[200px]"
+                    placeholder="Recherche"
+                    v-model="filters.search"
+                >
+                </OutlinedInput>
 
-                    <Filter label="Status" v-model="filters.published">
-                        <FilterItem value="true" label="publié" />
-                        <FilterItem value="false" label="non publié" />
-                    </Filter>
-                </div>
-                <DialogTrigger>
-                    <Button
-                        @click="form.promo = null"
-                        class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
-                    >
-                        <span>Créer une nouvelle promo</span>
-                        <ion-icon
-                            class="text-lg"
-                            name="add-circle-outline"
-                        ></ion-icon>
-                    </Button>
-                </DialogTrigger>
+                <Filter label="Status" v-model="filters.published">
+                    <FilterItem value="true" label="publié" />
+                    <FilterItem value="false" label="non publié" />
+                </Filter>
             </div>
-            <DataTable
-                :columns="columns"
-                :rows="rows"
-                :pagination="pagination"
-                :sorting="sorting"
-                :actions="actions"
-            ></DataTable>
+            <Button
+                @click="promoModalOpen = true"
+                class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+            >
+                <span>Créer une nouvelle promo</span>
+                <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
+            </Button>
         </div>
+        <DataTable
+            :columns="columns"
+            :rows="rows"
+            :pagination="pagination"
+            :sorting="sorting"
+            :actions="actions"
+        ></DataTable>
+    </div>
 
-        <DialogContent>
-            <PromoForm :promo="form.promo" @reload-promo="fetch" />
-        </DialogContent>
+    <Dialog v-model:open="promoModalOpen">
+        <PromoForm
+            :promo="form.promo"
+            @close="
+                () => {
+                    promoModalOpen = false
+                    fetchPromo()
+                }
+            "
+        />
     </Dialog>
 </template>
