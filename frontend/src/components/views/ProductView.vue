@@ -438,7 +438,6 @@ watch(() => product.value, () => {
       <SuggestionCarousel :suggestions="suggestions.map((p : Product)=>({...p,url:`/collections/${p?.Collection?.slug}/products/${p.slug}`}))" >
         <template #item="{suggestion}">
           <ProductCard2
-
               height="300px"
               :key="suggestion.id"
               :name="suggestion.name"
@@ -446,7 +445,7 @@ watch(() => product.value, () => {
               :collection="suggestion?.Collection"
               :shortDescription="suggestion.description" :image="suggestion?.mainImage">
             <template #action>
-              <Button class="hover:text-primary transition uppercase" variant="ghost">
+              <Button class="uppercase" variant="ghost">
                 Decouvrir ce nain
                 <ion-icon name="chevron-forward-outline" class="text-lg ml-4"/>
               </Button>

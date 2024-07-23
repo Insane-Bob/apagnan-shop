@@ -19,7 +19,10 @@
             ></div>
 
             <PromoBanner class="fixed top-0" @isPromo="promoPromoted = true" />
-            <HeaderComponent :class="{ 'ag-header--with-promo': promoPromoted }" :variant="isOnTop ? 'home' : 'home-white'"/>
+            <HeaderComponent
+                :class="{ 'ag-header--with-promo': promoPromoted }"
+                :variant="isOnTop ? 'home' : 'home-white'"
+            />
             <h1
                 class="main-title uppercase mt-16 md:mt-12 lg:mt-8 text-white font-bold text-4xl md:text-[130px] lg:text-[150px] opacity-75"
             >
@@ -48,7 +51,7 @@
                 id="promoted"
                 class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-20"
             >
-                <ProductCard2
+                <ProductCard
                     :key="product.id"
                     :id="product.id"
                     v-for="product in collection.Products"
@@ -92,7 +95,6 @@
                     <template #action>
                         <Button
                             class="hover:text-primary transition uppercase"
-                            variant="ghost"
                         >
                             Découvrir la collection
                             <ion-icon
@@ -118,13 +120,13 @@
 import PromoBanner from '@components/promo/PromoBanner.vue'
 import { ApiClient } from '@/lib/apiClient'
 import type { Collection } from '@/types'
-import ProductCard2 from '@components/Cards/ProductCard2.vue'
+import ProductCard from '@components/Cards/ProductCard2.vue'
 import ProductCardSkeleton from '@components/Cards/ProductCardSkeleton.vue'
 import FooterComponent from '@components/footer/FooterComponent.vue'
 import Button from '@components/ui/button/Button.vue'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import {RouterLink, useRouter} from 'vue-router'
-import HeaderComponent from "@components/Header/HeaderComponent.vue";
+import { RouterLink, useRouter } from 'vue-router'
+import HeaderComponent from '@components/Header/HeaderComponent.vue'
 import Section from '@/layout/Section.vue'
 import Newsletter from '@components/Newsletter/Newsletter.vue'
 import { useToast } from '@components/ui/toast'
