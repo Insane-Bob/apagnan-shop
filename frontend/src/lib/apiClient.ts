@@ -10,11 +10,12 @@ class ApiClient {
         try {
             await callback()
         } catch (e) {
-            if (e.response.status == 422) throw e
+            if (e?.response?.status == 422) throw e
             toast({
                 title: 'Une erreur est survenue',
                 variant: 'destructive',
             })
+            throw e
         }
     }
 
