@@ -24,6 +24,7 @@ export function useCart(
         if (user.isAuthenticated && product.value) {
             const myQuantity = user.getItem(product.value.id) || { quantity: 0 }
             const availableStock = stockComputed.value + myQuantity?.quantity
+            console.log(availableStock)
             if (quantitySelected.value > availableStock) {
                 toast({
                     title: "Il n'y a pas assez de stock",

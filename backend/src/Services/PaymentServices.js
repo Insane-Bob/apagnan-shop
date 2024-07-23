@@ -57,8 +57,7 @@ export class PaymentServices {
             payment_method_types: ['card'],
             line_items: lineItems,
             currency: 'eur',
-            discounts: discounts,
-
+            discounts: Boolean(discounts) && discounts.filter(Boolean).length ? discounts.filter(Boolean) : undefined,
             mode: 'payment',
             currency: 'eur',
             automatic_tax: {

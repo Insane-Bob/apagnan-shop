@@ -40,6 +40,7 @@ async function reorder() {
   const { data } = await apiClient.get(`/orders/${order.value?.id}/products`)
   const products = data.data
   for (let product of products) {
+    console.log(product)
     const cart = useCart(ref(product.product))
     cart.quantitySelected.value = product.quantity
     await cart.addToCart()

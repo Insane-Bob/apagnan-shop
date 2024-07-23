@@ -59,7 +59,9 @@ const statusDescription = {
 
 const orderStatusHistoryParsed = computed(() => {
     if (!order.value) return
-    return order.value?.statusHistory.map((status: object, index: number) => {
+    return order.value?.statusHistory
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+        .map((status: object, index: number) => {
         let isLast = index === order.value.statusHistory.length - 1
         return {
             isLast: index === order.value.statusHistory.length - 1,
@@ -67,7 +69,7 @@ const orderStatusHistoryParsed = computed(() => {
                 status.status === 'payment_failed'
                     ? isLast
                         ? 'red-500'
-                        : 'gray-400'
+                        : 'slate-400'
                     : 'primary',
             value: status.status,
             status: statusTranslate[status.status],
