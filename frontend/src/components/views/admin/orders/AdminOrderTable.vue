@@ -6,14 +6,13 @@ import { Dialog } from '@components/ui/dialog'
 import { type TableColumns, type User } from '@types'
 import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
-import {computed, onMounted, ref} from 'vue'
-import {useFetch} from "@/composables/useFetch";
-import type {Order, TableActions} from "@/types";
-import {OrderFormat} from "@/utils/orderFormat";
-import {watch} from "vue";
-import {useRoute} from "vue-router";
-import OrderUpdateForm from "@components/views/admin/orders/orderUpdateForm.vue";
-
+import { computed, onMounted, ref } from 'vue'
+import { useFetch } from '@/composables/useFetch'
+import type { Order, TableActions } from '@/types'
+import { OrderFormat } from '@/utils/orderFormat'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import OrderUpdateForm from '@components/views/admin/orders/orderUpdateForm.vue'
 
 const route = useRoute()
 const filterId = computed(() => route.query.id || '')
@@ -23,25 +22,26 @@ const { filters, query } = useFilters({
     id: filterId.value,
 })
 watch(filterId, () => {
-  filters.id = filterId.value
+    filters.id = filterId.value
 })
 
-
-const {  rows, pagination, sorting, fetch } = useTable('/orders', query)
+const { rows, pagination, sorting, fetch } = useTable('/orders', query)
 
 const customers = ref<{
     value: number
     label: string
 }>([])
 
-
-const fetchCustomers = useFetch(computed(() => '/users'), null, (data)=>{
-    customers.value = data.data.map((user : User)=>({
-        value: user.id,
-        label: `${user.firstName} ${user.lastName}`
-
-    }))
-})
+const fetchCustomers = useFetch(
+    computed(() => '/users'),
+    null,
+    (data) => {
+        customers.value = data.data.map((user: User) => ({
+            value: user.id,
+            label: `${user.firstName} ${user.lastName}`,
+        }))
+    },
+)
 
 onMounted(fetchCustomers.get)
 
@@ -67,7 +67,7 @@ const columns: TableColumns[] = [
         label: 'Statut',
         key: 'status',
         sorting: false,
-
+        toDisplay: (value: string) => OrderFormat.translatedStatus(value),
     },
     {
         label: 'Nombre de produits',
@@ -93,64 +93,69 @@ const columns: TableColumns[] = [
             ),
     },
 ]
-
 const orderSelected = ref<Order | null>(null)
 const orderEditDialogOpen = ref(false)
 const actions: TableActions[] = [
     {
-    label: 'Changer le statut',
-    icon: 'sync-outline',
-    class: 'text-blue-500',
-    action: async (row: Order) => {
-      orderSelected.value = row
-      orderEditDialogOpen.value = true
+        label: 'Changer le statut',
+        icon: 'sync-outline',
+        class: 'text-blue-500',
+        action: async (row: Order) => {
+            orderSelected.value = row
+            orderEditDialogOpen.value = true
+        },
+        condition: (row: Order) =>
+            row.status !== 'cancelled' &&
+            row.status !== 'refunded' &&
+            row.status !== 'delivered',
     },
-    condition: (row: Order) => row.status !== 'cancelled' && row.status !== 'refunded' && row.status !== 'delivered'
-  },
 ]
-
-
 </script>
 <template>
-  <div class="flex flex-col mx-6 gap-4">
-    <div class="flex gap-4 items-center">
-      <OutlinedInput
-          class="max-w-[200px]"
-          v-model="filters.id"
-          placeholder="Numéro de commande"
-          type="number"/>
-      <Filter label="Statut" v-model="filters.status">
-        <FilterItem value="pending" label="En attente" />
-        <FilterItem value="shipped" label="En livraison" />
-        <FilterItem value="delivered" label="Livré" />
-        <FilterItem value="cancelled" label="Annulé" />
-        <FilterItem value="refunded" label="Remboursé" />
-        <FilterItem value="paid" label="Payé" />
-        <FilterItem value="payment_failed" label="Paiement échoué" />
-      </Filter>
-      <Filter label="Client" v-model="filters.customerId">
-        <FilterItem
-            v-for="(customer,index) in customers"
-            :key="index"
-            :label="customer.label"
-            :value="customer.value"
-        />
-      </Filter>
+    <div class="flex flex-col mx-6 gap-4">
+        <div class="flex gap-4 items-center">
+            <OutlinedInput
+                class="max-w-[200px]"
+                v-model="filters.id"
+                placeholder="Numéro de commande"
+                type="number"
+            />
+            <Filter label="Statut" v-model="filters.status">
+                <FilterItem value="pending" label="En attente" />
+                <FilterItem value="shipped" label="En livraison" />
+                <FilterItem value="delivered" label="Livré" />
+                <FilterItem value="cancelled" label="Annulé" />
+                <FilterItem value="refunded" label="Remboursé" />
+                <FilterItem value="paid" label="Payé" />
+                <FilterItem value="payment_failed" label="Paiement échoué" />
+            </Filter>
+            <Filter label="Client" v-model="filters.customerId">
+                <FilterItem
+                    v-for="customer in customers"
+                    :label="customer.label"
+                    :value="customer.value"
+                />
+            </Filter>
+        </div>
+        <DataTable
+            :columns="columns"
+            :rows="rows"
+            :pagination="pagination"
+            :sorting="sorting"
+            :actions="actions"
+        ></DataTable>
     </div>
-    <DataTable
-        :columns="columns"
-        :rows="rows"
-        :pagination="pagination"
-        :sorting="sorting"
-        :actions="actions"
-    >
-    </DataTable>
-  </div>
     <Dialog v-model:open="orderEditDialogOpen">
-      <OrderUpdateForm :order="orderSelected" v-if="orderSelected" @close="()=>{
-        orderEditDialogOpen = false
-        orderSelected = null
-        fetch()
-      }"/>
+        <OrderUpdateForm
+            :order="orderSelected"
+            v-if="orderSelected"
+            @close="
+                () => {
+                    orderEditDialogOpen = false
+                    orderSelected = null
+                    fetch()
+                }
+            "
+        />
     </Dialog>
 </template>
