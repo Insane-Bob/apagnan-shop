@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import {
-    DialogClose,
     DialogContent,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@components/ui/dialog'
 import { OrderFormat } from '@/utils/orderFormat'
-import DocumentsList from '../../order/DocumentsList.vue';
+import DocumentsList from '../../order/DocumentsList.vue'
 
 const props = defineProps<{
     order: Order

@@ -117,6 +117,7 @@ const actions: TableActions[] = [
         icon: 'document-text-outline',
         class: 'text-primary',
         action: async (row: Order) => {
+            orderSelected.value = row
             orderDocumentDialogOpen.value = true
         },
         condition: (row: Order) =>
@@ -181,8 +182,6 @@ const actions: TableActions[] = [
             @close="
                 () => {
                     orderDocumentDialogOpen = false
-                    orderSelected = null
-                    fetch()
                 }
             "
         />
