@@ -178,10 +178,8 @@ const sendReview = async () => {
             ...reviewForm,
             rate: parseInt(reviewForm.rate.toString()),
             productId: product.value.id,
-            userId: user.getId,
         }
-        const response = await apiClient.post('/reviews', data)
-        reviews.push(response.data.review)
+        await apiClient.post('/reviews', data)
         toast({
             title: 'Votre avis a été ajouté',
             description: 'Il sera visible après validation',
