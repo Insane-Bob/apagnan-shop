@@ -22,6 +22,7 @@ const { filters, query } = useFilters({
     collection: '',
     color: '',
     s: '',
+    onlyInStock: false,
 })
 
 const colors = [
@@ -88,6 +89,7 @@ async function buildFilters() {
     filters.collection = urlParams.get('collection') || ''
     filters.color = urlParams.get('color') || ''
     filters.s = urlParams.get('s') || ''
+    filters.onlyInStock = urlParams.get('onlyInStock') || false
 }
 
 async function fetch() {
@@ -139,6 +141,24 @@ onMounted(() => {
                         class="absolute top-1/2 right-0 -translate-y-1/2 -translate-x-1/2 z-20 hidden md:block"
                         name="search-outline"
                     ></ion-icon>
+                </div>
+            </div>
+
+            <hr class="border-primary border-t-2 my-2" />
+
+            <div class="flex flex-col gap-2">
+                <h2 class="text-lg font-bold">Stocks</h2>
+                <div class="flex flex-col gap-y-1">
+                    <div
+                        class="flex gap-x-3 items-center w-min whitespace-nowrap"
+                    >
+                        <input
+                            type="checkbox"
+                            id="onlyInStock"
+                            v-model="filters.onlyInStock"
+                        />
+                        <label for="onlyInStock">En stock</label>
+                    </div>
                 </div>
             </div>
 

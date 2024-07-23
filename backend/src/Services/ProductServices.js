@@ -36,16 +36,13 @@ export class ProductServices {
         return product
     }
 
-    static getProductListIdWhereStockIsNotZero() {
+    static async getProductListIdWhereStockIsNotZero() {
         let sql =
             'select id from "Products" where id in (select "productId" from "StockTransactions" group by "productId" having sum(quantity) > 0)'
-        const result = Database.getInstance().sequelize.query(sql, {
+        const result = await Database.getInstance().sequelize.query(sql, {
             type: QueryTypes.SELECT,
         })
-        // result : [{id: 1}, {id: 2}, {id: 3}]
-        console.log(typeof result)
         const ids = result.map((item) => item.id)
-
-        return result
+        return ids
     }
 }

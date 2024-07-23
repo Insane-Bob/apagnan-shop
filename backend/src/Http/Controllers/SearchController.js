@@ -142,7 +142,6 @@ export class SearchController extends Controller {
         const productIdWhereStockIsNotZero =
             await ProductServices.getProductListIdWhereStockIsNotZero()
 
-        console.log('ICIIIIIIIIIIII', productIdWhereStockIsNotZero)
         const results = await this.makeQuery(
             Database.getInstance().mongoModels.Products,
             filters.s || '',
