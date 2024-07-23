@@ -17,4 +17,8 @@ export class ReviewValidator extends Validator {
     constructor() {
         super(reviewSchema)
     }
+
+    beforeValidation(req) {
+        req.query.set('userId', req.user.id)
+    }
 }

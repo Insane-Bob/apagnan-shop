@@ -98,7 +98,7 @@ export function getModelMock() {
                 .map((_, i) => new MockedModel({ id: i })),
         )
         static findByPk = jest.fn((id) => new MockedModel({ id }))
-        static count = jest.fn(() => 4)
+        static count = jest.fn((obj) => 4)
 
         destroy() {
             return true
@@ -130,6 +130,7 @@ export function mockDatabase(databaseClass) {
             Upload: getModelMock(),
             Address: getModelMock(),
             AccessLink: getModelMock(),
+            Review: getModelMock(),
         },
     }))
 }

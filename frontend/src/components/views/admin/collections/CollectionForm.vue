@@ -25,10 +25,14 @@ const props = defineProps<{
     collection?: Collection
 }>()
 
+const { toast } = useToast()
+
 const name = ref(props.collection?.name || '')
 const description = ref(props.collection?.description || '')
 const published = ref(props.collection?.published || false)
 const errors = ref(null)
+
+const isModalOpen = ref(true)
 
 const onSubmit = () => {
     if (props.collection) {
