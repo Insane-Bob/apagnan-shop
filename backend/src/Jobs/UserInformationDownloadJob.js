@@ -153,8 +153,15 @@ export class UserInformationDownloadJob {
         const file = new File()
         file.setData(JSON.stringify(translatedUserInfos))
         file.encryptFor(userId)
-        file.save('uploads')
+        let filePath = file.save('uploads')
         let name = file.name
+
+        Database.getInstance().models.Upload.create({
+            name,
+            hash: file.name,
+            mime: 'application/json',
+            path: filePath
+        })
 
         const accessLink = await AccessLinkServices.createAccessLink(
             userId,

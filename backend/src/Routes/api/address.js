@@ -7,7 +7,6 @@ export default function (router) {
             this.get('/', AddressController, 'index')
             this.get('/:address', AddressController, 'show')
             this.post('/', AddressController, 'store')
-            this.patch('/:address', AddressController, 'update')
             this.delete('/:address', AddressController, 'delete')
         })
         .provide(AddressProvider)

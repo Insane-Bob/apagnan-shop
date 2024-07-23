@@ -284,7 +284,7 @@ const images = computed({
                   </Button>
                   <Dialog>
                       <DialogTrigger>
-                          <Button variant="outlineDashboard">Gestion du stock</Button>
+                          <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
                       </DialogTrigger>
                       <DialogContent>
                           <StockForm

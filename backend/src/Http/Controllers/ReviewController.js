@@ -8,7 +8,6 @@ export class ReviewController extends Controller {
     product /** @provide by ProductProvider */
     async getReviews() {
         if (this.product) {
-
             const data = await Database.getInstance().models.Review.findAll({
                 where: {
                     approved: true,
