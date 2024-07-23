@@ -256,7 +256,7 @@ Pour lancer en production :
 6. Redémarrez Docker Compose (backend seulement):
     ```bash
     docker-compose down
-    docker-compose up backend
+    docker-compose up nginx
     ```
 ---
 
