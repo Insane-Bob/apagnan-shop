@@ -62,7 +62,7 @@ function disableAllCollectionAlerts(){
                Désactiver les alertes de prix ({{notificationStore.preferences[NotificationSubscriptionType.PRODUCT_PRICE_CHANGE].ids.length}})
              </Button>
            </div>
-           <ConfirmationModal @confirm="disableAllProductAlerts"
+           <ConfirmationModal :confirm="disableAllProductAlerts"
           title="Voulez-vous vraiment enlever toutes les notifications"
           message="Cette action est enlevera toutes les notifications, vous pourrez toujours les réactiver plus tard"
           style-confirm="bg-red-500"

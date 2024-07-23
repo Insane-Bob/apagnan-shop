@@ -289,7 +289,8 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                     </DialogTrigger>
 
                                     <ConfirmationModal v-if="action.confirmation" 
-                                    @confirm="action.action(row)" 
+                                    :confirm="action.action"
+                                    :props="row"
                                     :title="action.confirmation.title || ''" 
                                     :message="action.confirmation.message || ''"
                                     :style-confirm="action.confirmation.styleConfirm || ''"
