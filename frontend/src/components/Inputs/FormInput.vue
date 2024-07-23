@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="variant == 'primary'">
         <Label
             v-if="$slots.label"
             :for="id"
@@ -46,6 +46,12 @@
             {{ inputError.message }}
         </FormError>
     </div>
+    <div v-else class="flex flex-col gap-2">
+      <slot></slot>
+      <FormError v-if="inputError">
+        {{ inputError.message }}
+      </FormError>
+    </div>
 </template>
 
 <script setup>
@@ -78,6 +84,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    variant:{
+        type: String,
+        default: 'primary'
+    }
 })
 
 const id = (Math.random() + 1).toString(36).substring(2)

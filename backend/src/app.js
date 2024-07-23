@@ -8,6 +8,7 @@ import cors from 'cors'
 import { AuthMiddleware } from './Http/Middlewares/AuthMiddleware.js'
 import { Router } from './Core/Router.js'
 
+
 async function setUpApp() {
     console.time('Server started in')
 

@@ -51,9 +51,10 @@ import {apiClient} from "@/lib/apiClient.ts";
 import {useUserStore} from "@/stores/user.ts";
 import {useRouter} from "vue-router";
 import AlertDialogTrigger from "@components/ui/alert-dialog/AlertDialogTrigger.vue";
+import {useToast} from "@components/ui/toast/index.ts";
 
 const open = ref(true)
-
+const {toast} = useToast()
 function cancel() {
     open.value = false
 }
@@ -64,6 +65,12 @@ function deleteAccount() {
     open.value = false
     user.logout()
     router.push("/")
+  }).catch(e=>{
+    toast({
+      title: 'Erreur',
+      description: 'Une erreur est survenue lors de la suppression de votre compte',
+      variant: 'destructive'
+    })
   })
 
 }

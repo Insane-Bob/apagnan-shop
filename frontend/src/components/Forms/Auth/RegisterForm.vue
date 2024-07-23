@@ -107,6 +107,24 @@
                 >
                     <template #label>Confirmer le mot de passe</template>
                 </PasswordInput>
+
+                <div class="flex flex-col gap-6 py-3">
+                  <FormInput :errors="errors" name="approveCGV_CGU" inputClass="bg-red-50" variant="none">
+                    <div class="flex gap-2 items-center">
+                      <Checkbox
+                          @update:checked="
+                          (checked) => approveCGV_CGU = checked
+                        "
+                      ></Checkbox>
+                      <Label>
+                        Accepter les <RouterLink to="/cgu" class="text-primary underline">conditions générales de vente et d'utilisations</RouterLink>
+                      </Label>
+                    </div>
+                  </FormInput>
+
+                  <Captcha name="captcha" :errors="errors" v-model="captcha" v-model:id="captchaId"/>
+                </div>
+
                 <Button :disabled="!isFormValid || isSubmitting">
                     <ion-spinner
                         v-if="isSubmitting"
@@ -118,6 +136,8 @@
                     >
                     <span v-else>S'inscrire</span>
                 </Button>
+
+                <FormPrivacy></FormPrivacy>
             </div>
         </FormGrid>
 
@@ -185,6 +205,10 @@ import Input from '@/components/ui/input/Input.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { ApiClient } from '@/lib/apiClient.js'
 import { computed, reactive, ref } from 'vue'
+import Captcha from '@components/Inputs/Captcha.vue'
+import { Checkbox } from '@components/ui/checkbox'
+import { Label } from '@components/ui/label'
+import FormPrivacy from '@components/Forms/FormPrivacy.vue'
 
 const apiClient = new ApiClient()
 
@@ -194,6 +218,10 @@ const firstName = ref('')
 const email = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
+const approveCGV_CGU = ref(false)
+const captcha = ref('')
+const captchaId = ref('')
+
 const errors = ref(null)
 const isSubmitted = ref(false)
 const isSubmitting = ref(false)
@@ -234,6 +262,7 @@ const isFormValid = computed(() => {
 // Submit function
 async function submit() {
     try {
+        errors.value = null
         isSubmitting.value = true
         const data = {
             lastName: lastName.value,
@@ -241,8 +270,9 @@ async function submit() {
             email: email.value,
             password: password.value,
             passwordConfirmation: passwordConfirmation.value,
+            captcha : captcha.value,
+            approveCGV_CGU : approveCGV_CGU.value
         }
-
         await apiClient.post('/register', data)
 
         setTimeout(() => {
@@ -250,6 +280,7 @@ async function submit() {
             isSubmitting.value = false
         }, 2000)
     } catch (error) {
+        window.hcaptcha.reset(captchaId.value)
         console.error('Registration failed', error)
         errors.value = error.response.data.errors
         isSubmitting.value = false
