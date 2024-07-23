@@ -8,7 +8,16 @@ export class ProductPolicy {
         return true
     }
     static update(user) {
-        return user.hasRole(USER_ROLES.ADMIN)
+        return (
+            user.hasRole(USER_ROLES.ADMIN)
+        )
+    }
+    static updateStock(user) {
+        return (
+            user.hasRole(USER_ROLES.ADMIN)
+        ) || (
+            user.hasRole(USER_ROLES.STOCK_MANAGER)
+        )
     }
     static delete(user) {
         return ProductPolicy.update(user)
