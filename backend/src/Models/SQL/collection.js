@@ -32,6 +32,18 @@ function model(sequelize, DataTypes) {
                     }
                 },
             })
+            models.Collection.addScope('withProductCount', {
+                attributes: {
+                    include: [
+                        [
+                            sequelize.literal(
+                                `(SELECT COUNT(*) FROM "Products" WHERE "Products"."collectionId" = "Collection"."id")`,
+                            ),
+                            'productCount',
+                        ],
+                    ],
+                },
+            })
         }
     }
 

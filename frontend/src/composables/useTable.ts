@@ -27,7 +27,6 @@ export function useTable(url: string, query = null, ...options) {
                 sortQuery.value.toString()
 
             if (query?.value) {
-                console.log(query)
                 URL += '&' + query.value.toString()
             }
 

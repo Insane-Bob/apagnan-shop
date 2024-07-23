@@ -72,7 +72,7 @@ const columns: TableColumns[] = [
 ]
 
 const actions: TableActions[] = [
-    {
+        {
         label: 'Changer le role',
         icon: 'sync',
         class: 'text-primary',
@@ -127,14 +127,21 @@ const actions: TableActions[] = [
         label: 'Se connecter en tant que',
         icon: 'glasses-outline',
         class: 'text-blue-500',
+        condition: (row: any) => row.id !== user.getId,
         action: (row: any) => {
             loginAs(row.id)
         },
     },
     {
-        label: 'Bannir',
-        icon: 'ban-outline',
+        label: 'Supprimer',
+        icon: 'trash-outline',
         class: 'text-red-500',
+        condition: (row: any) => row.id !== user.getId,
+        confirmation: {
+            title: 'Supprimer l\'Utilisateur',
+            message: 'Voulez-vous vraiment bannir cet utilisateur ?',
+            styleConfirm: 'bg-red-500',
+        },
         action: async (row: any) => {
             await  apiClient.delete('users/' + row.id)
             toast({
