@@ -4,6 +4,8 @@ import Button from '@/components/ui/button/Button.vue'
 import ProductForm from '@/components/views/admin/products/ProductForm.vue'
 import { TableColumns, TableActions } from '@types'
 import { useRoute, useRouter } from 'vue-router'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import StockForm from '../stocks/StockForm.vue'
 import { ApiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
@@ -11,8 +13,11 @@ import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import { computed, ref, watch } from 'vue'
-import { useToast } from '@components/ui/toast'
+import { useUserStore } from '@/stores/user'
+import type { Product } from '@/types'
+import { toast } from '@/components/ui/toast'
 
+const user = useUserStore()
 const apiClient = new ApiClient()
 
 const router = useRouter()
@@ -31,6 +36,7 @@ watch(filterId, () => {
 })
 
 const { fetch, rows, pagination, sorting } = useTable('/products', query)
+const selectedProduct = ref<Product | null>(null)
 
 const groupedActions = [
     {
@@ -84,10 +90,21 @@ const columns: TableColumns[] = [
 ]
 
 const actions: TableActions[] = [
+{
+        label: 'Gérer les stocks',
+        icon: 'sync-outline',
+        class: 'text-blue-500',
+        condition: () => user.isStoreKeeper,
+        trigger: true,
+        action: (row: any) => {
+            selectedProduct.value = row
+        },
+    },
     {
         label: 'Modifier',
         icon: 'document-text-outline',
         class: 'text-blue-500',
+        condition: () => user.isAdmin,
         action: (row: any) => {
             router.push('/admin/products/' + row.slug)
         },
@@ -96,13 +113,12 @@ const actions: TableActions[] = [
         label: 'Supprimer',
         icon: 'trash-outline',
         class: 'text-red-500',
+        condition: () => user.isAdmin,
         action: (row: any) => {
             deleteProduct({ ...row, deletedAt: new Date(), published: false })
         },
     },
 ]
-
-const { toast } = useToast()
 
 const deleteProduct = (row: any) => {
     ApiClient.handleError(async () => {
@@ -126,41 +142,68 @@ function massDelete(ids: number[]) {
         })
     })
 }
+
+const fetchProductData = async () => {
+    if(!selectedProduct.value) return
+    try{
+        await apiClient.get('products/' + selectedProduct.value.slug + "?withImages")
+    }catch(e){
+        toast({
+            title: 'Erreur',
+            description: 'Une erreur est survenue lors de la récupération des données du produit',
+            variant: 'destructive'
+        })
+    }
+    fetch()
+}
 </script>
 
 <template>
-    <div v-if="!$route.params.slug" class="flex flex-col mx-6">
-        <div class="flex justify-between items-center mb-3">
-            <div class="flex gap-4 items-center">
-                <OutlinedInput
-                    class="max-w-[200px]"
-                    placeholder="Recherche"
-                    v-model="filters.search"
-                >
-                </OutlinedInput>
+    <Dialog v-if="!$route.params.slug || user.isStoreKeeper">
 
-                <Filter label="Status" v-model="filters.published">
-                    <FilterItem value="true" label="Publié" />
-                    <FilterItem value="false" label="Non publié" />
-                </Filter>
+        <div  class="flex flex-col mx-6">
+            <div class="flex justify-between items-center mb-3">
+                <div class="flex gap-4 items-center">
+                    <OutlinedInput
+                        class="max-w-[200px]"
+                        placeholder="Recherche"
+                        v-model="filters.search"
+                    >
+                    </OutlinedInput>
+
+                    <Filter label="Status" v-model="filters.published">
+                        <FilterItem value="true" label="Publié" />
+                        <FilterItem value="false" label="Non publié" />
+                    </Filter>
+                </div>
+                <Button
+                    @click="router.push('/admin/products/new')"
+                    class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
+                >
+                    <span>Créer un nouveau produit</span>
+                    <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
+                </Button>
             </div>
-            <Button
-                @click="router.push('/admin/products/new')"
-                class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
-            >
-                <span>Créer un nouveau produit</span>
-                <ion-icon class="text-lg" name="add-circle-outline" />
-            </Button>
+            <DataTable
+                v-model:selected="selected"
+                :multi-actions="groupedActions"
+                :columns="columns"
+                :rows="rows"
+                :pagination="pagination"
+                :sorting="sorting"
+                :actions="actions"
+            ></DataTable>
         </div>
-        <DataTable
-            v-model:selected="selected"
-            :multi-actions="groupedActions"
-            :columns="columns"
-            :rows="rows"
-            :pagination="pagination"
-            :sorting="sorting"
-            :actions="actions"
-        ></DataTable>
-    </div>
-    <ProductForm :cslug="$route.params.slug" v-else></ProductForm>
+        <DialogTrigger>
+            <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
+        </DialogTrigger>
+        <DialogContent>
+            <StockForm
+            :productId="selectedProduct?.id || 0"
+            :actualStock="selectedProduct?.stock || 0"
+            @stockUpdated="fetchProductData"
+            ></StockForm>
+        </DialogContent>
+    </Dialog>
+    <ProductForm :cslug="Array.isArray($route.params.slug)? $route.params.slug[0]: $route.params.slug" v-else></ProductForm>
 </template>

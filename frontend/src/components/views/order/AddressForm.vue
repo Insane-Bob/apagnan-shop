@@ -2,6 +2,7 @@
 import regions from "/src/assets/json/regions.json" with { type: "json" };
 import FormGrid from '@/components/Forms/FormGrid.vue';
 import FormInput from '@/components/Inputs/FormInput.vue';
+import FormError from "@/components/Forms/FormError.vue";
 import Button from '@/components/ui/button/Button.vue';
 import {
 Select,
@@ -61,7 +62,7 @@ const regionsList = computed(() => {
                     <input type="text" v-model="city" v-bind="inputProps" />
                 </template>
             </FormInput>
-            <small v-if="errors.city" class="text-red-500 text-sm">{{ errors.city }}</small>
+            <FormError v-if="errors.city" class="text-red-500 text-sm">{{ errors.city }}</FormError>
         </div>
 
         <div class="col-span-4">
@@ -71,7 +72,7 @@ const regionsList = computed(() => {
                     <input type="text" v-model="postalCode" v-bind="inputProps" />
                 </template>
             </FormInput>
-            <small v-if="errors.postalCode" class="text-red-500 text-sm">{{ errors.postalCode }}</small>
+            <FormError v-if="errors.postalCode" class="text-red-500 text-sm">{{ errors.postalCode }}</FormError>
         </div>
 
         <div class="col-span-full">
@@ -82,7 +83,7 @@ const regionsList = computed(() => {
                 </template>
                 
             </FormInput>
-            <small class="text-red-500 text-sm">{{ errors.street }}</small>
+            <FormError class="text-red-500 text-sm">{{ errors.street }}</FormError>
         </div>
     </FormGrid>
 </template>

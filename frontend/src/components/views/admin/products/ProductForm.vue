@@ -28,7 +28,7 @@ import { useToast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 
-const { toast } = useToast()
+const {toast} = useToast()
 const router = useRouter()
 const props = defineProps<{
     cslug: string
@@ -285,49 +285,34 @@ const images = computed({
                     >
                 </div>
 
-                <div class="flex gap-4 col-span-4">
-                    <Button type="submit">
-                        {{ slug === 'new' ? 'Créer' : 'Modifier' }}
+              <div class="flex gap-4 col-span-4">
+                  <Button type="submit">
+                      {{ slug === 'new' ? 'Créer' : 'Modifier' }}
+                  </Button>
+                  <Dialog>
+                      <DialogTrigger>
+                          <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                          <StockForm
+                              :productId="product.product.id"
+                              @stockUpdated="fetchProductData"
+                          ></StockForm>
+                      </DialogContent>
+                  </Dialog>
+                  <RouterLink target="_blank" :to="'/collections/' + collectionSlug + '/products/' + slug">
+                    <Button type="button" variant="outlineDashboard" class="flex items-center gap-x-1" >
+                      <ion-icon name="open-outline"></ion-icon>
+                      Voir la page produit
                     </Button>
-                    <Dialog>
-                        <DialogTrigger>
-                            <Button variant="outlineDashboard"
-                                >Gestion du stock</Button
-                            >
-                        </DialogTrigger>
-                        <DialogContent>
-                            <StockForm
-                                :productId="product.product.id"
-                                @stockUpdated="fetchProductData"
-                            ></StockForm>
-                        </DialogContent>
-                    </Dialog>
-                    <RouterLink
-                        target="_blank"
-                        :to="
-                            '/collections/' +
-                            collectionSlug +
-                            '/products/' +
-                            slug
-                        "
-                    >
-                        <Button
-                            type="button"
-                            variant="outlineDashboard"
-                            class="flex items-center gap-x-1"
-                        >
-                            <ion-icon name="open-outline" />
-                            Voir la page produit
-                        </Button>
-                    </RouterLink>
-                    <Button
-                        v-if="slug === 'new'"
-                        variant="outlineDashboard"
-                        @click="router.push('/admin/products')"
-                        >Annuler
-                    </Button>
-                </div>
-            </form>
+                  </RouterLink>
+                  <Button v-if="slug === 'new'"
+                      variant="outlineDashboard"
+                      @click="router.push('/admin/products')"
+                  >Annuler
+                  </Button>
+              </div>
+          </form>
         </Card>
 
         <SpecificTable
