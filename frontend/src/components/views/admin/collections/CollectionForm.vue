@@ -25,8 +25,6 @@ const props = defineProps<{
     collection?: Collection
 }>()
 
-const { toast } = useToast()
-
 const name = ref(props.collection?.name || '')
 const description = ref(props.collection?.description || '')
 const published = ref(props.collection?.published || false)
