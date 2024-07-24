@@ -10,9 +10,13 @@ export class CollectionController extends Controller {
         let search = new SearchRequest(this.req, ['published','id'], ['name'])
 
         let model = Database.getInstance().models.Collection
-        if (this.req.query.has('withImage')) model = model.scope('withImage')
+        const scopes = []
         if (this.req.query.has('withProductCount'))
-            model = model.scope('withProductCount')
+            scopes.push('withProductCount')
+        if (this.req.query.has('withImage')) scopes.push('withImage')
+
+        model = model.scope(scopes)
+
         const total = await model.count(search.queryWithoutPagination)
 
         let query = { ...search.query }

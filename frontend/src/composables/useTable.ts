@@ -39,6 +39,19 @@ export function useTable(url: string, query = null, ...options) {
         }
     }
 
+    async function fetchWithoutPagination() {
+        try {
+            let URL = url + '?' + sortQuery.value.toString()
+            if (query?.value) {
+                URL += '&' + query.value.toString()
+            }
+            const response = await apiClient.get(URL, ...options)
+            return response.data.data
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     if (query) {
         watch(query, () => {
             let res = goTo(1)
@@ -64,5 +77,6 @@ export function useTable(url: string, query = null, ...options) {
         rows: collection,
         sorting: dataTableSort,
         pagination: dataTablePagination,
+        exportCSV: fetchWithoutPagination,
     }
 }

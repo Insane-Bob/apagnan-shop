@@ -1,18 +1,19 @@
 import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
+import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
-import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
+import { LowStockProduct } from '../Emails/LowStockProduct.js'
+import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
+import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
-import { EmailSender } from '../lib/EmailSender.js'
-import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
-import { LowStockProduct } from '../Emails/LowStockProduct.js'
-import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
-import { UserNotificationServices } from './UserNotificationServices.js'
-import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
-import { UserServices } from './UserServices.js'
+import { SubscribeNewsletterEmail } from '../Emails/SubscribeNewsletterEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
-import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
+import { UnsubscribeNewsletterEmail } from '../Emails/UnsubscribeNewsletterEmail.js'
+import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
+import { EmailSender } from '../lib/EmailSender.js'
+import { UserNotificationServices } from './UserNotificationServices.js'
+import { UserServices } from './UserServices.js'
 
 export class NotificationsServices {
     static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
@@ -116,10 +117,7 @@ export class NotificationsServices {
                 name: user.firstName + ' ' + user.lastName,
                 order_id: orderLink,
             })
-            .addTo(
-                `${user.email}`,
-                `${user.firstName} ${user.lastName}`,
-            )
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(orderSupportedEmail)
     }
@@ -165,13 +163,29 @@ export class NotificationsServices {
         })
         await EmailSender.send(outOfStockProductEmail)
     }
+
     /**
      * Newsletter
      */
+    static async notifyNewsletterSubscribe(email) {
+        const unsubscribe_link = `${process.env.FRONT_END_URL}/unsubscribe`
+        const subscribeNewsletterEmail = new SubscribeNewsletterEmail()
+            .setParams({
+                email,
+                unsubscribe_link,
+            })
+            .addTo(`${email}`)
+        await EmailSender.send(subscribeNewsletterEmail)
+    }
 
-    static async notifyNewsletterSubscribe(email) {}
-
-    static async notifyNewsletterUnsubscribe(email) {}
+    static async notifyNewsletterUnsubscribe(email) {
+        const unsubcribeNewsletterEmail = new UnsubscribeNewsletterEmail()
+            .setParams({
+                email,
+            })
+            .addTo(`${email}`)
+        await EmailSender.send(unsubcribeNewsletterEmail)
+    }
 
     /**
      * USER NOTIFICATIONS

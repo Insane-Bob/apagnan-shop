@@ -27,7 +27,10 @@ watch(filterId, () => {
     filters.id = filterId.value
 })
 
-const { rows, pagination, sorting, fetch } = useTable('/orders', query)
+const { rows, pagination, sorting, fetch, exportCSV } = useTable(
+    '/orders',
+    query,
+)
 
 const customers = ref<{
     value: number
@@ -49,7 +52,7 @@ onMounted(fetchCustomers.get)
 
 const columns: TableColumns[] = [
     {
-        label: 'Order',
+        label: 'Commande',
         key: 'id',
         sorting: true,
         toDisplay: (value: number) => OrderFormat.formatOrderNumber(value),
@@ -69,6 +72,7 @@ const columns: TableColumns[] = [
         label: 'Statut',
         key: 'status',
         sorting: false,
+        toDisplay: (value: string) => OrderFormat.translatedStatus(value),
     },
     {
         label: 'Nombre de produits',
@@ -158,6 +162,7 @@ const actions: TableActions[] = [
             :pagination="pagination"
             :sorting="sorting"
             :actions="actions"
+            :export="exportCSV"
         >
         </DataTable>
     </div>

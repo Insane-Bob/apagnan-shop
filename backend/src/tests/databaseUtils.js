@@ -3,14 +3,29 @@ import { spawnSync } from 'child_process'
 import crypto from 'crypto'
 import mongoose from 'mongoose'
 
-const isGithubAction = process.env.CI === 'true'
-
 function databseLog(...args) {
-    if (isGithubAction) return
+    if (process.env.TEST_CI !== undefined) return
     console.log(...args)
 }
 
+export function setConsoleForTest() {
+    if (process.env.TEST_CI !== undefined) {
+        console = {
+            ...console,
+            error: console.error,
+            log: () => {},
+            warn: () => {},
+            info: () => {},
+            debug: () => {},
+            trace: () => {},
+            time: () => {},
+            timeEnd: () => {},
+        }
+    }
+}
+
 export function useFreshMongoDatabase(deleteAfter = true) {
+    setConsoleForTest()
     const uniqueId = crypto.randomBytes(4).toString('hex')
     process.env.MONGO_URI = process.env.MONGO_URI.replace(
         /\/mongo$/,
@@ -34,6 +49,8 @@ export function useFreshDatabase(
     beforeAllCallback = async () => null,
     afterAllCallback = async () => null,
 ) {
+    setConsoleForTest()
+
     const uniqueId = crypto.randomBytes(4).toString('hex')
     const url = 'postgres://postgres:postgres@db:5432/test_postgres_' + uniqueId
     beforeAll(async () => {

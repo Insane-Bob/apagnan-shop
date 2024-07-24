@@ -18,8 +18,8 @@ import Separator from '@components/ui/separator/Separator.vue'
 import CardContent from '@components/ui/card/CardContent.vue'
 import CardFooter from '@components/ui/card/CardFooter.vue'
 import OrderDetailsProductList from '@components/product/OrderDetailsProductList.vue'
-import {Money} from "../../utils/money";
-import {OrderFormat} from "../../utils/orderFormat";
+import { Money } from '../../utils/money'
+import { OrderFormat } from '../../utils/orderFormat'
 
 const apiClient = new ApiClient()
 
@@ -94,18 +94,22 @@ const fetchOrders = async () => {
             </div>
 
             <div class="flex gap-3 items-center">
-              <CardDescription class="text-nowrap">
-                Historique des commandes passés
-              </CardDescription>
-              <Separator class="grow w-auto" />
+                <CardDescription class="text-nowrap">
+                    Historique des commandes passés
+                </CardDescription>
+                <Separator class="grow w-auto" />
             </div>
 
-            <div v-if="orders.length" class="max-h-[600px] overflow-y-auto flex flex-col gap-4">
+            <div
+                v-if="orders.length"
+                class="max-h-[600px] overflow-y-auto flex flex-col gap-4"
+            >
                 <Card v-for="order in orders" :key="order.id">
                     <CardHeader class="flex flex-row justify-between">
                         <div>
                             <CardDescription>
-                                Commande {{ OrderFormat.formatOrderNumber(order.id) }}
+                                Commande
+                                {{ OrderFormat.formatOrderNumber(order.id) }}
                             </CardDescription>
                             <CardTitle>
                                 {{ statusTranslate[order.status] }}
@@ -151,7 +155,19 @@ const fetchOrders = async () => {
                             <div>
                                 <CardDescription>Total</CardDescription>
                                 <CardTitle>
-                                  {{ Money.format(order.total - (order.Promo ? (order.Promo.type === 'percent' ? order.Promo.value /100 * order.total : order.Promo.value): 0)) }}
+                                    {{
+                                        Money.format(
+                                            order.total -
+                                                (order.Promo
+                                                    ? order.Promo.type ===
+                                                      'percent'
+                                                        ? (order.Promo.value /
+                                                              100) *
+                                                          order.total
+                                                        : order.Promo.value
+                                                    : 0),
+                                        )
+                                    }}
                                 </CardTitle>
                             </div>
                         </div>
@@ -159,12 +175,14 @@ const fetchOrders = async () => {
                 </Card>
             </div>
             <div v-else>
-                <h2 class="text-primary text-sm">Vous n'avez pas encore passé de commande</h2>
+                <h2 class="text-primary text-sm">
+                    Vous n'avez pas encore passé de commande
+                </h2>
                 <div
                     class="flex flex-col gap-y-7 justify-center items-center mt-6"
                 >
                     <img
-                        src="/src/assets/images/goToShop.webp"
+                        src="/images/goToShop.webp"
                         alt="aller dans la boutique"
                         class="w-1/2 h-1/2 object-cover rounded-sm"
                     />
@@ -174,6 +192,5 @@ const fetchOrders = async () => {
                 </div>
             </div>
         </div>
-
     </ProfileLayout>
 </template>
