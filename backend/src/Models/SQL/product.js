@@ -43,8 +43,6 @@ function model(sequelize, DataTypes) {
                     NotificationsServices.notifyNewProductInCollection(product)
                 if (product.changed('price'))
                     NotificationsServices.notifyProductPriceUpdate(product)
-                if (product.changed('stock'))
-                    NotificationsServices.notifyProductRestock(product)
             })
         }
 

@@ -5,13 +5,8 @@ import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
 import { LowStockProductEmail } from '../Emails/LowStockProductEmail.js'
 import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
 import { ProductPriceChangeEmail } from '../Emails/ProductPriceChangeEmail.js'
-import { LowStockProduct } from '../Emails/LowStockProduct.js'
-import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
-import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
-import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
-import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
 import { SubscribeNewsletterEmail } from '../Emails/SubscribeNewsletterEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
 import { UnsubscribeNewsletterEmail } from '../Emails/UnsubscribeNewsletterEmail.js'
@@ -143,13 +138,6 @@ export class NotificationsServices {
     }
 
     /**
-     * Newsletter
-     */
-    static async notifyNewsletterSubscribe(email) {}
-
-    static async notifyNewsletterUnsubscribe(email) {}
-
-    /**
      * USER NOTIFICATIONS
      */
     // EMAIL FOR THE STOCK KEPPER | ADMIN THAT HAVE THE NOTIFICATION FOR THE OUT OF STOCK PRODUCT
@@ -182,17 +170,6 @@ export class NotificationsServices {
         await EmailSender.send(lowStockProductEmail)
     }
 
-    static async notifNotifOutOfStockProduct(product) {
-        const outOfStockProductEmail = new OutOfStockProduct().setParams({
-            name: product.name,
-        })
-
-        const adminMails = await UserServices.retrieveAdminUsersMail()
-        adminMails.forEach((mail) => {
-            outOfStockProductEmail.addTo(mail.email, 'Admin')
-        })
-        await EmailSender.send(outOfStockProductEmail)
-    }
     /**
      * Newsletter
      */

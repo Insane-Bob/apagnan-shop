@@ -47,14 +47,15 @@ export class EmailSender {
     })
 
     static async send(email) {
-        console.log('ICI Sending email')
+        console.log('Sending email ' + email.constructor.name)
         if (!process.env.BREVO_API_KEY) return
+        if (process.env.NODE_ENV === 'test') return
         if (!(email instanceof Email))
             throw new Error('Email instance expected')
 
         try {
             const data = await EmailSender.apiInstance.post(url, email.json)
-            console.log('ICI Email sent')
+            console.log('Email sent' + email.constructor.name)
             return data
         } catch (error) {
             console.error(error)
