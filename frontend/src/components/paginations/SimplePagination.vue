@@ -30,7 +30,7 @@ const pagination = computed(() => {
 <template>
     <div v-if="pagination" class="flex gap-3 justify-end items-center">
         <div class="flex items-center space-x-2">
-            <p class="font-medium">Ligne par page</p>
+            <p class="font-medium">Lignes par page</p>
             <Select
                 :model-value="pagination.limit"
                 @update:model-value="pagination.setLimit"

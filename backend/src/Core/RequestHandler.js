@@ -37,7 +37,7 @@ export class RequestHandler {
             await this.beforeEach()
             await this[action](...args)
         } catch (e) {
-            console.error(e)
+            if (process.env.TEST_CI === undefined) console.error(e)
             if (e instanceof HTTPException) {
                 let json = e.toJSON()
                 this.res.status(json.status).json(json)
@@ -57,9 +57,10 @@ export class RequestHandler {
             ...this.req.body.all(),
         })
         let res = validatorInstance.afterValidation(payload)
-        if(res instanceof Promise) return new Promise((resolve, reject) => {
-            res.then(() => resolve(payload)).catch(e => reject(e))
-        })
+        if (res instanceof Promise)
+            return new Promise((resolve, reject) => {
+                res.then(() => resolve(payload)).catch((e) => reject(e))
+            })
         return payload
     }
 }

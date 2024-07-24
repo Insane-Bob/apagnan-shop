@@ -8,8 +8,11 @@ import cors from 'cors'
 import { AuthMiddleware } from './Http/Middlewares/AuthMiddleware.js'
 import { Router } from './Core/Router.js'
 import { ThrottleMiddleware } from './Http/Middlewares/ThrottleMiddleware.js'
+import { setConsoleForTest } from './tests/databaseUtils.js'
 
 async function setUpApp() {
+    setConsoleForTest()
+
     console.time('Server started in')
 
     const app = express()

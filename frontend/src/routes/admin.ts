@@ -1,3 +1,4 @@
+import WorkInProgress from '@/components/views/WorkInProgress/WorkInProgress.vue'
 import AdminProducts from '@/components/views/admin/products/AdminProducts.vue'
 import AdminLayout from '@/layout/AdminLayout.vue'
 import { ApiClient } from '@/lib/apiClient'
@@ -8,6 +9,8 @@ import AdminPromos from '@components/views/admin/promos/AdminPromos.vue'
 import AdminRefundsTable from '@components/views/admin/refunds/AdminRefundsTable.vue'
 import AdminReviews from '@components/views/admin/reviews/AdminReviews.vue'
 import AdminUsersTable from '@components/views/admin/users/AdminUsersTable.vue'
+import AdminNewsletterTable from '@components/views/admin/newletter/AdminNewsletterTable.vue'
+import AdminLegalTable from '@components/views/admin/Legals/AdminLegalTable.vue'
 
 export const adminRoutes = [
     {
@@ -87,6 +90,25 @@ export const adminRoutes = [
                 component: AdminPromos,
                 name: 'Promotions',
                 meta: { label: 'Promo', icon: 'pricetag' },
+            },
+            {
+                path: 'newsletter',
+                component: AdminNewsletterTable,
+                name: 'Newsletter',
+                meta: { label: 'Newsletter', icon: 'mail' },
+            },
+            {
+                path: 'legales',
+                component: AdminLegalTable,
+                name: 'legalesIndex',
+                meta: { label: 'Légales', icon: 'document' },
+                children: [
+                    {
+                        path: ':slug',
+                        name: 'legal',
+                        meta: { label: 'Edtition' },
+                    },
+                ],
             },
         ],
     },
