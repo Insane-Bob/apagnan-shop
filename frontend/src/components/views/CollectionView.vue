@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Collection } from '@/types'
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Section from '@/layout/Section.vue'
 import { useFetch } from '@/composables/useFetch'
 import Loader from '@components/ui/loader/Loader.vue'
@@ -12,8 +12,11 @@ import MyBreadcrumbComponent from '@components/breadcrumb/MyBreadcrumbComponent.
 import SuggestionCarousel from '@components/product/SuggestionCarousel.vue'
 import NotificationMenu from '@components/Menus/NotificationMenu.vue'
 import Newsletter from '@components/Newsletter/Newsletter.vue'
+import { useToast } from '@components/ui/toast'
 
 const route = useRoute()
+const router = useRouter()
+const { toast } = useToast()
 const collectionSlug = computed(() => route.params.cslug)
 const url = computed(
     () =>
@@ -31,6 +34,16 @@ const fetcher = useFetch(url, null, (data: any) => {
 onMounted(fetcher.get)
 watch(url, fetcher.get)
 watch(url, fetchSuggestion)
+watch(collection, () => {
+    if (collection.value?.published === false) {
+        toast({
+            title: 'Collection non publiée',
+            description: 'Cette collection n\'est pas encore publiée',
+            variant: 'destructive',
+        })
+        router.push('/')
+    }
+})
 
 const breadcrumbLinks = computed(() => [
     ['Accueil', '/'],
@@ -83,7 +96,7 @@ const breadcrumbLinks = computed(() => [
                         height="300px"
                         :key="product.id"
                         :id="product.id"
-                        v-for="product in collection.Products"
+                        v-for="product in collection.Products.filter((p) => p.published)"
                         :name="product.name"
                         :slug="product.slug"
                         :collection="collection"

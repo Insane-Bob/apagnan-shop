@@ -103,6 +103,14 @@ const fetchProduct = async () => {
 
         product.value = data.product
 
+        if(product.value.published === false) {
+            toast({
+                title: "Ce produit est indisponible",
+                variant: 'destructive',
+            })
+            router.push('/home')
+        }
+
         if (data.product.images.length > 0) {
             carouselImages.value = data.product.images.map((image) => image.url)
         } else {

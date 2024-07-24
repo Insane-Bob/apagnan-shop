@@ -31,7 +31,7 @@ export class CollectionController extends Controller {
             query.offset =
                 total > search.query.limit
                     ? Math.floor(Math.random() * (total - search.query.limit))
-                    : 1
+                    : 0
         }
 
         const data = await model.findAll(query)
