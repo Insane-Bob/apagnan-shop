@@ -1,21 +1,24 @@
 import { AccountActivatedEmail } from '../Emails/AccountActivatedEmail.js'
+import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
 import { ConnectionAttempt3FailedEmail } from '../Emails/ConnectionAttempt3FailedEmail.js'
-import { DeliveryEmail } from '../Emails/DeliveryEmail.js'
 import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
+import { LowStockProductEmail } from '../Emails/LowStockProductEmail.js'
+import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
+import { ProductPriceChangeEmail } from '../Emails/ProductPriceChangeEmail.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
-import { EmailSender } from '../lib/EmailSender.js'
-import { ConfirmResetPasswordEmail } from '../Emails/ConfirmResetPasswordEmail.js'
-import { LowStockProduct } from '../Emails/LowStockProduct.js'
-import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
-import { UserNotificationServices } from './UserNotificationServices.js'
-import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
-import { UserServices } from './UserServices.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
-import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
+import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
+import { EmailSender } from '../lib/EmailSender.js'
+import { UserNotificationServices } from './UserNotificationServices.js'
+import { UserServices } from './UserServices.js'
+import { NewProductEmail } from '../Emails/NewProductEmail.js'
+import { OutOfStockProductEmail } from '../Emails/OutOfStockProductEmail.js'
+import { OrderStatusChangedEmail } from '../Emails/OrderStatusChangedEmail.js'
 
 export class NotificationsServices {
-    static async notifyConnectionAttempt3Failed(user, accessLinkIdentifier) {
+    // EMAIL WHEN THE USER MAKE MORE THAN 3 CONNECTION ATTEMPT
+    static async notifyConnectionAttempt3Failed(user) {
         const connectionAttempt3FailedEmail =
             new ConnectionAttempt3FailedEmail()
                 .setParams({
@@ -25,6 +28,7 @@ export class NotificationsServices {
         await EmailSender.send(connectionAttempt3FailedEmail)
     }
 
+    // EMAIL WHEN THE USER REGISTER FOR THE FIRST TIME
     static async notifyRegisterUser(user, accessLink) {
         const activation_link = `${process.env.APP_URL}/api/users/${user.id}/activate?a=${accessLink.identifier}`
         const registerEmail = new RegisterEmail()
@@ -36,6 +40,18 @@ export class NotificationsServices {
         await EmailSender.send(registerEmail)
     }
 
+    // EMAIL WHEN THE USER HAS ACTIVATED HIS ACCOUNT
+    static async notifyAccountActivated(user) {
+        const activatedAccountEmail = new AccountActivatedEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+            })
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
+
+        await EmailSender.send(activatedAccountEmail)
+    }
+
+    // EMAIL WHEN THE USER WANT TO RESET HIS PASSWORD
     static async notifyResetPassword(user, accessLink) {
         const password_reset_link = `${process.env.FRONT_END_URL}/reset-password?user_id=${user.id}&a=${accessLink.identifier}`
         const resetPasswordEmail = new ResetPasswordEmail()
@@ -48,6 +64,7 @@ export class NotificationsServices {
         await EmailSender.send(resetPasswordEmail)
     }
 
+    // EMAIL WHEN THE USER HAS CHANGED HIS PASSWORD SUCCESSFULLY -- NOT WORKING @TODO FIX
     static async notifyConfirmResetPassword(user) {
         const confirmResetPasswordEmail = new ConfirmResetPasswordEmail()
             .setParams({
@@ -58,6 +75,7 @@ export class NotificationsServices {
         await EmailSender.send(confirmResetPasswordEmail)
     }
 
+    // EMAIL AFTER 60 DAYS TO RENEW THE PASSWORD -- Not used
     static async notifyRenewedPassword(user) {
         const renewedPasswordEmail = new ResetPasswordEmail()
             .setParams({
@@ -68,6 +86,7 @@ export class NotificationsServices {
         await EmailSender.send(renewedPasswordEmail)
     }
 
+    // EMAIL WHEN THE USER HAS SUCCESSFULLY PAID -- NOT WORKING @TODO FIX
     static async notifySuccessPaymentCustomer(user, order) {
         const successPaymentEmail = new SuccessPaymentEmail()
             .setParams({
@@ -79,6 +98,7 @@ export class NotificationsServices {
         await EmailSender.send(successPaymentEmail)
     }
 
+    // EMAIL WHEN THE USER HAS FAILED TO PAY -- NOT WORKING @TODO FIX
     static async notifyFailedPaymentCustomer(user) {
         const failedPaymentEmail = new FailedPaymentEmail()
             .setParams({
@@ -89,26 +109,7 @@ export class NotificationsServices {
         await EmailSender.send(failedPaymentEmail)
     }
 
-    static async notifyAccountActivated(user) {
-        const activatedAccountEmail = new AccountActivatedEmail()
-            .setParams({
-                name: user.firstName + ' ' + user.lastName,
-            })
-            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-        await EmailSender.send(activatedAccountEmail)
-    }
-
-    static async notifyNewRefundRequest(refundRequest) {
-        console.log(`Sending new refund request notification to admins`)
-    }
-    static async notifyACKRefund(customer, refundRequest) {
-        console.log(`Sending refund ack notification to ${customer.email}`)
-    }
-    static notifyRefundApproved(customer, refund) {
-        console.log(`Sending refund approved notification to ${customer.email}`)
-    }
-
+    // EMAIL WHEN THE USER HAS MADE AN ORDER 
     static async notifyOrderSupported(user, order) {
         const orderLink = `${process.env.FRONT_END_URL}/profile/command/${order}`
         const orderSupportedEmail = new OrderSupportedEmail()
@@ -116,36 +117,59 @@ export class NotificationsServices {
                 name: user.firstName + ' ' + user.lastName,
                 order_id: orderLink,
             })
-            .addTo(
-                `${user.email}`,
-                `${user.firstName} ${user.lastName}`,
-            )
+            .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(orderSupportedEmail)
     }
 
-    // !!! NOT USED YET !!!
-    // ---------------------
-    // static async notifyDeliveryOrder(user, product, order) {
-    //     const notifyEmail = new DeliveryEmail()
-    //         .setParams({
-    //             user: user.firstName + ' ' + user.lastName,
-    //             product_name: product.name,
-    //             quantity: order.quantity,
-    //             order: order.number,
-    //         })
-    //         .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
-
-    //     await EmailSender.send(notifyEmail)
-    // }
-
-    static async notifyOrderStatusUpdate(order, status) {
-        //@TODO : send email to the customer to notify him that his order status has changed
+    // EMAIL WHEN THE ORDER STATUS OF THE USER HAS CHANGED
+    static async notifyOrderStatusUpdate(order) {
+        const orderLink = `${process.env.FRONT_END_URL}/profile/command/${order}`
+        const orderStatusChangedEmail = new OrderStatusChangedEmail()
+            .setParams({
+                order_id: orderLink,
+            })
+            .addTo('ilyamdupuis0903@gmail.com')
+        await EmailSender.send(orderStatusChangedEmail)
     }
 
-    static async notifLowStockProduct(product) {
-        const lowStockProductEmail = new LowStockProduct().setParams({
-            name: product.name,
+    /**
+     * Newsletter
+     */
+    static async notifyNewsletterSubscribe(email) {}
+
+    static async notifyNewsletterUnsubscribe(email) {}
+
+    /**
+     * USER NOTIFICATIONS
+     */
+    // EMAIL FOR THE STOCK KEPPER | ADMIN THAT HAVE THE NOTIFICATION FOR THE OUT OF STOCK PRODUCT
+    static async notifyOutOfStockProduct(product) {
+        const admins = await UserServices.retrieveAdminUsersMail()
+
+        await Promise.all(
+            admins.map(async (admin) => {
+                console.log('ADMIN', admin)
+                const outOfStockProductEmail = new OutOfStockProductEmail()
+                    .setParams({
+                        name: product.name,
+                    })
+                    .addTo(admin.email, 'Admin')
+
+                await EmailSender.send(outOfStockProductEmail)
+
+                console.log(
+                    `Sending out of stock notification to ${admin.email}`,
+                )
+            }),
+        )
+    }
+
+    // EMAIL FOR THE STOCK KEPPER | ADMIN THAT HAVE THE NOTIFICATION FOR THE LOW STOCK PRODUCT -- TO FIX
+    static async notifyLowStockProduct(product) {
+        const lowStockProductEmail = new LowStockProductEmail().setParams({
+            product_name: product.name,
+            stock_left: product.stock,
         })
         const adminMails = await UserServices.retrieveAdminUsersMail()
         adminMails.forEach((mail) => {
@@ -154,29 +178,7 @@ export class NotificationsServices {
         await EmailSender.send(lowStockProductEmail)
     }
 
-    static async notifNotifOutOfStockProduct(product) {
-        const outOfStockProductEmail = new OutOfStockProduct().setParams({
-            name: product.name,
-        })
-
-        const adminMails = await UserServices.retrieveAdminUsersMail()
-        adminMails.forEach((mail) => {
-            outOfStockProductEmail.addTo(mail.email, 'Admin')
-        })
-        await EmailSender.send(outOfStockProductEmail)
-    }
-    /**
-     * Newsletter
-     */
-
-    static async notifyNewsletterSubscribe(email) {}
-
-    static async notifyNewsletterUnsubscribe(email) {}
-
-    /**
-     * USER NOTIFICATIONS
-     */
-
+    // EMAIL WHEN THE USER THAT HAVE THE RESTOCK NOTIFICATION FOR THE PRODUCT -- TO FIX
     static async notifyProductRestock(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForProduct(
@@ -195,6 +197,7 @@ export class NotificationsServices {
         )
     }
 
+    // EMAIL WHEN THE USER THAT HAVE THE PRICE CHANGE NOTIFICATION FOR THE PRODUCT
     static async notifyProductPriceUpdate(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForProduct(
@@ -204,8 +207,17 @@ export class NotificationsServices {
                 },
             )
 
-        return Promise.all(
+        await Promise.all(
             users.map(async (user) => {
+                const productPriceChangeEmail = new ProductPriceChangeEmail()
+                    .setParams({
+                        name: product.name,
+                        price: product.price,
+                    })
+                    .addTo(user.email, `${user.firstName} ${user.lastName}`)
+
+                await EmailSender.send(productPriceChangeEmail)
+
                 console.log(
                     `Sending product price update notification to ${user.email}`,
                 )
@@ -213,6 +225,7 @@ export class NotificationsServices {
         )
     }
 
+    // EMAIL WHEN THE USER THAT HAVE THE NEW PRODUCT NOTIFICATION FOR THE COLLECTION
     static async notifyNewProductInCollection(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForCollection(
@@ -224,6 +237,16 @@ export class NotificationsServices {
 
         return Promise.all(
             users.map(async (user) => {
+                console.log('PRODUCT', product)
+                const newProductEmail = new NewProductEmail()
+                    .setParams({
+                        name: product.name,
+                        category: product.Collection,
+                    })
+                    .addTo(user.email, `${user.firstName} ${user.lastName}`)
+
+                await EmailSender.send(newProductEmail)
+
                 console.log(
                     `Sending new product in collection notification to ${user.email}`,
                 )
@@ -240,5 +263,15 @@ export class NotificationsServices {
         console.log(
             `Sending personal data job end notification to ${user.email} => url : ${url}`,
         )
+    }
+
+    static async notifyNewRefundRequest(refundRequest) {
+        console.log(`Sending new refund request notification to admins`)
+    }
+    static async notifyACKRefund(customer, refundRequest) {
+        console.log(`Sending refund ack notification to ${customer.email}`)
+    }
+    static notifyRefundApproved(customer, refund) {
+        console.log(`Sending refund approved notification to ${customer.email}`)
     }
 }
