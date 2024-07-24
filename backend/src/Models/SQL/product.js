@@ -66,7 +66,7 @@ function model(sequelize, DataTypes) {
                 replacements: { productId: this.id },
                 type: QueryTypes.SELECT,
             })
-            this.stock = Number(result.stock)
+            this._stock = Number(result.stock)
             return Number(result.stock)
         }
     }
@@ -91,6 +91,17 @@ function model(sequelize, DataTypes) {
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
             stock: {
+                type: DataTypes.VIRTUAL,
+                get(){
+                    if(this.StockTransactions){
+                        return this.StockTransactions.reduce((acc, transaction) => {
+                            return acc + transaction.quantity
+                        }, 0)
+                    }
+                    else return this._stock
+                }
+            },
+            _stock:{
                 type: DataTypes.VIRTUAL,
             },
             mainImage: {

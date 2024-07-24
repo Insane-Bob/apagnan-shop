@@ -3,16 +3,16 @@ import DataTable from '@/components/tables/DataTable.vue'
 import Button from '@/components/ui/button/Button.vue'
 import ProductForm from '@/components/views/admin/products/ProductForm.vue'
 import { TableColumns, TableActions } from '@types'
+import { useRoute, useRouter } from 'vue-router'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import StockForm from '../stocks/StockForm.vue'
-import {useRoute, useRouter} from 'vue-router'
 import { ApiClient } from '@/lib/apiClient'
 import { useFilters } from '@/composables/useFilters'
 import { useTable } from '@/composables/useTable'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import {computed, ref, watch} from "vue";
+import { computed, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import type { Product } from '@/types'
 import { toast } from '@/components/ui/toast'
@@ -23,19 +23,31 @@ const apiClient = new ApiClient()
 const router = useRouter()
 const route = useRoute()
 
+const selected = ref([])
+
 let filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     published: [],
     search: '',
-    id: filterId.value
+    id: filterId.value,
 })
 watch(filterId, () => {
     filters.id = filterId.value
 })
 
-
 const { fetch, rows, pagination, sorting } = useTable('/products', query)
 const selectedProduct = ref<Product | null>(null)
+
+const groupedActions = [
+    {
+        label: 'Supprimer',
+        icon: 'trash-outline',
+        class: 'text-red-500',
+        action(ids: number[]) {
+            massDelete(ids)
+        },
+    },
+]
 
 const columns: TableColumns[] = [
     {
@@ -73,7 +85,7 @@ const columns: TableColumns[] = [
         label: 'Collection',
         key: 'collectionId',
         sorting: true,
-        to: (row)=> `/admin/collections?id=${row.collectionId}`
+        to: (row) => `/admin/collections?id=${row.collectionId}`,
     },
 ]
 
@@ -108,9 +120,27 @@ const actions: TableActions[] = [
     },
 ]
 
-const deleteProduct = async (row: any) => {
-    await apiClient.patch('/products/' + row.slug, row)
-    fetch()
+const deleteProduct = (row: any) => {
+    ApiClient.handleError(async () => {
+        await apiClient.delete('/products/' + row.slug)
+        fetch()
+        toast({
+            title: `Le produit ${row.name} a bien été supprimé`,
+        })
+    })
+}
+
+function massDelete(ids: number[]) {
+    ApiClient.handleError(async () => {
+        let query = new URLSearchParams({
+            ids,
+        })
+        await apiClient.delete('/products?' + query.toString())
+        fetch()
+        toast({
+            title: `Les produits sélectionnés ont bien été supprimés`,
+        })
+    })
 }
 
 const fetchProductData = async () => {
@@ -130,7 +160,7 @@ const fetchProductData = async () => {
 
 <template>
     <Dialog v-if="!$route.params.slug || user.isStoreKeeper">
-                     
+
         <div  class="flex flex-col mx-6">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex gap-4 items-center">
@@ -155,6 +185,8 @@ const fetchProductData = async () => {
                 </Button>
             </div>
             <DataTable
+                v-model:selected="selected"
+                :multi-actions="groupedActions"
                 :columns="columns"
                 :rows="rows"
                 :pagination="pagination"
@@ -162,9 +194,6 @@ const fetchProductData = async () => {
                 :actions="actions"
             ></DataTable>
         </div>
-        <DialogTrigger>
-            <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
-        </DialogTrigger>
         <DialogContent>
             <StockForm
             :productId="selectedProduct?.id || 0"

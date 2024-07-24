@@ -1,7 +1,9 @@
 import { Controller } from '../../Core/Controller.js'
 import { SearchValidator } from '../../Validator/SearchValidator.js'
+import { FrontFilterValidator } from '../../Validator/FrontFilterValidator.js'
 import { Database } from '../../Models/index.js'
 import { SearchPolicy } from '../Policies/SearchPolicy.js'
+import { ProductServices } from '../../Services/ProductServices.js'
 
 export class SearchController extends Controller {
     get collectionsToSearch() {
@@ -12,15 +14,19 @@ export class SearchController extends Controller {
         ]
     }
 
-    async makeQuery(collection, searchString) {
-        let indexes = await collection.listIndexes()
-        let textIndex = indexes.find((index) => index.key._fts === 'text')
-        let attributes = Object.keys(textIndex.weights)
+    async makeQuery(
+        collection,
+        searchString,
+        matchCustom = [],
+        authorizeEmpty = false,
+        limit = 10
+    ) {
+        let attributes = collection.searchAttributes.map((attr) => attr.name)
         function escapeRegExp(string) {
             return string.trim().replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')
         }
         let regexString = escapeRegExp(searchString).replace(/\s+/g, '|')
-        if (regexString.length === 0) return []
+        if (regexString.length === 0 && !authorizeEmpty) return []
 
         let matchOrClause = attributes.map((attribute) => {
             return {
@@ -31,17 +37,36 @@ export class SearchController extends Controller {
             }
         })
 
-        return collection.aggregate([
+        const pipeline = [
             {
                 $match: {
-                    $or: matchOrClause,
+                    $and: [
+                        {
+                            $or: matchOrClause,
+                        },
+                        ...matchCustom,
+                    ],
                 },
             },
             {
                 $addFields: {
                     concatenatedFields: {
                         $concat: attributes.map((attr) => ({
-                            $ifNull: [`$${attr}`, ''],
+                            $cond: {
+                                if: {
+                                    $isArray: `$${attr}`,
+                                },
+                                then: {
+                                    $reduce: {
+                                        input: `$${attr}`,
+                                        initialValue: '',
+                                        in: {
+                                            $concat: ['$$value', ' ', '$$this'],
+                                        },
+                                    },
+                                },
+                                else: `$${attr}`,
+                            },
                         })),
                     },
                 },
@@ -72,14 +97,16 @@ export class SearchController extends Controller {
                 $sort: { score: -1 },
             },
             {
-                $limit: 10,
+                $limit: limit
             },
             {
                 $project: {
                     concatenatedFields: 0,
                 },
             },
-        ])
+        ]
+
+        return collection.aggregate(pipeline)
     }
 
     async search() {
@@ -108,5 +135,65 @@ export class SearchController extends Controller {
         ].sort((a, b) => b.score - a.score)
 
         this.res.json(contact)
+    }
+
+    async FrontProductSearch() {
+        const { min, max } = await ProductServices.getPricesRange()
+        const filters = this.validate(FrontFilterValidator)
+        const productIdWhereStockIsNotZero =
+            await ProductServices.getProductListIdWhereStockIsNotZero()
+
+        const results = await this.makeQuery(
+            Database.getInstance().mongoModels.Products,
+            filters.s || '',
+            [
+                filters.collection
+                    ? {
+                          'Collection.id': {
+                              $in: filters.collection.map(Number),
+                          },
+                      }
+                    : null,
+                {
+                    price: {
+                        $gte: filters.priceMin || min,
+                        $lte: filters.priceMax || max,
+                    },
+                },
+                filters.color
+                    ? {
+                          Specifics: {
+                              $elemMatch: {
+                                  content: {
+                                      $in: filters.color,
+                                  },
+                              },
+                          },
+                      }
+                    : null,
+                filters.onlyInStock
+                    ? {
+                          id: {
+                              $in: productIdWhereStockIsNotZero,
+                          },
+                      }
+                    : null,
+            ].filter(Boolean),
+            true,
+            20
+        )
+
+        let resultsWithImages = []
+
+        for(let product of results){
+            product.images = await Database.getInstance().models.ProductImage.findAll({
+                where: {
+                    productId: product.id
+                }
+            })
+            resultsWithImages.push(product)
+        }
+
+        this.res.json(results)
     }
 }

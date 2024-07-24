@@ -4,7 +4,7 @@ const animate = require('tailwindcss-animate')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  safelist: ["dark"],
+  safelist: ["dark","bg-slate-400"],
   prefix: "",
   
   content: [
@@ -13,7 +13,7 @@ module.exports = {
     './app/**/*.{ts,tsx,vue}',
     './src/**/*.{ts,tsx,vue}',
 	],
-  
+
   theme: {
     fontFamily: {
       'inria': ['Inria Serif', 'serif'],
