@@ -6,8 +6,31 @@ import {
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { NewsletterPolicy } from '../Policies/NewsletterPolicy.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
+import * as sea from 'node:sea'
 
 export class NewsletterController extends Controller {
+    async index() {
+        this.can(NewsletterPolicy.index)
+
+        const search = new SearchRequest(this.req, [], ['email'])
+
+        const emails =
+            await Database.getInstance().models.NewsletterEmail.findAll(
+                search.query,
+            )
+
+        const total = await Database.getInstance().models.NewsletterEmail.count(
+            search.queryWithoutPagination,
+        )
+
+        this.res.json({
+            data: emails,
+            total: total,
+        })
+    }
+
     async subscribe() {
         const { email } = this.validate(NewsletterValidator)
         const exists =

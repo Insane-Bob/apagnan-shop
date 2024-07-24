@@ -33,7 +33,7 @@ const pagination = computed(() => {
         class="ml-auto flex gap-3 justify-end items-center pt-6"
     >
         <div class="flex items-center space-x-2">
-            <p class="font-medium">Ligne par page</p>
+            <p class="font-medium">Lignes par page</p>
             <Select
                 :model-value="pagination.limit"
                 @update:model-value="pagination.setLimit"
