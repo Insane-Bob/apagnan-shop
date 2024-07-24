@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps, onMounted, reactive, ref } from 'vue'
+import { computed, defineProps, onMounted, reactive, ref, watch } from 'vue'
 import FormInput from '@/components/Inputs/FormInput.vue'
 import { Product, Collection } from '@types'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
@@ -30,6 +30,7 @@ const apiClient = new ApiClient()
 
 const { toast } = useToast()
 const router = useRouter()
+const emits = defineEmits(['close'])
 const props = defineProps<{
     cslug: string
 }>()
@@ -90,7 +91,7 @@ const createProduct = async () => {
             description: 'Le produit a bien été créer',
         })
         if (response.status === 201) {
-            router.push('/admin/products/' + response.data.product.slug)
+            router.push('/admin/products')
         }
     } catch (error: any) {
         if (error?.response?.status == 422) {
@@ -146,6 +147,7 @@ const onSubmit = () => {
     } else {
         updateProduct()
     }
+    emits('close')
 }
 
 onMounted(async () => {
@@ -159,6 +161,8 @@ onMounted(async () => {
 })
 
 const loading = computed(() => {
+    console.log(slug.value)
+    console.log(product)
     if (slug.value === 'new') {
         return {}
     } else {
@@ -289,6 +293,25 @@ const images = computed({
                         />
                     </template>
                 </FormInput>
+              <div class="flex gap-4 col-span-4">
+                  <Button type="submit">
+                      {{ slug === 'new' ? 'Créer' : 'Modifier' }}
+                  </Button>
+                  <Dialog>
+                      <DialogTrigger>
+                          <Button type="button" variant="outlineDashboard">Gestion du stock</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                          <StockForm
+                              :productId="product.product.id"
+                              @stockUpdated="fetchProductData"
+                          ></StockForm>
+                      </DialogContent>
+                  </Dialog>
+                  <RouterLink v-if="slug !== 'new'" target="_blank" :to="'/collections/' + collectionSlug + '/products/' + slug">
+                    <Button type="button" variant="outlineDashboard" class="flex items-center gap-x-1" >
+                      <ion-icon name="open-outline"></ion-icon>
+                      Voir la page produit
 
                 <div class="col-span-8">
                     <ImagePicker v-model="images" />
@@ -316,6 +339,7 @@ const images = computed({
                         </DialogContent>
                     </Dialog>
                     <RouterLink
+                        v-if="slug !== 'new'"
                         target="_blank"
                         :to="
                             '/collections/' +
@@ -338,6 +362,7 @@ const images = computed({
                         variant="outlineDashboard"
                         @click="router.push('/admin/products')"
                         >Annuler
+
                     </Button>
                 </div>
             </form>
