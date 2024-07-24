@@ -91,7 +91,7 @@ const routes = computed(() => {
                             class="flex items-center text-sm transition-all"
                             variant="ghost"
                         >
-                          <Button class="text-black" variant="ghost" >
+                          <Button class="text-red-500" variant="ghost" >
                             <ion-icon
                                 name="log-out-outline"
                                 class="mr-2"

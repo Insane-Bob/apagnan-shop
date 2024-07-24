@@ -161,8 +161,6 @@ onMounted(async () => {
 })
 
 const loading = computed(() => {
-    console.log(slug.value)
-    console.log(product)
     if (slug.value === 'new') {
         return {}
     } else {
@@ -293,49 +291,11 @@ const images = computed({
                         />
                     </template>
                 </FormInput>
-                <div class="flex gap-4 col-span-4">
-                    <Button type="submit">
-                        {{ slug === 'new' ? 'Créer' : 'Modifier' }}
-                    </Button>
-                    <Dialog>
-                        <DialogTrigger>
-                            <Button type="button" variant="outlineDashboard"
-                                >Gestion du stock</Button
-                            >
-                        </DialogTrigger>
-                        <DialogContent>
-                            <StockForm
-                                :productId="product.product.id"
-                                @stockUpdated="fetchProductData"
-                            ></StockForm>
-                        </DialogContent>
-                    </Dialog>
-                    <RouterLink
-                        v-if="slug !== 'new'"
-                        target="_blank"
-                        :to="
-                            '/collections/' +
-                            collectionSlug +
-                            '/products/' +
-                            slug
-                        "
-                    >
-                        <Button
-                            type="button"
-                            variant="outlineDashboard"
-                            class="flex items-center gap-x-1"
-                        >
-                            <ion-icon name="open-outline"></ion-icon>
-                            Voir la page produit
-                        </Button>
-                    </RouterLink>
-                </div>
-
                 <div class="col-span-8">
                     <ImagePicker v-model="images" />
                     <small class="text-slate-500"
                         >N'oubliez pas de sauvegarder le produit après avoir
-                        modifier les fichiers</small
+                        modifié les fichiers</small
                     >
                 </div>
 
@@ -378,8 +338,8 @@ const images = computed({
                     <Button
                         v-if="slug === 'new'"
                         variant="outlineDashboard"
-                        @click="router.push('/admin/products')"
-                        >Annuler
+                        @click="router.push('/admin/products')">
+                        Annuler
                     </Button>
                 </div>
             </form>

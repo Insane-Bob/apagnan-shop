@@ -21,11 +21,22 @@ export class AuthController extends Controller {
         const { email, password } = this.validate(LoginValidator)
 
         const user = await UserServices.retrieveUserByEmail(email)
-        UnprocessableEntity.abortIf(!user, 'Invalid credentials')
-        UnprocessableEntity.abortIf(
-            !(await user.canConnect()),
-            'Too many attempts',
-        )
+        ValidationException.abortIf(!user, [
+            {
+                path: 'email',
+                message: 'Les identifiants sont incorrects',
+            },
+            {
+                path: 'password',
+                message: 'Les identifiants sont incorrects',
+            },
+        ])
+        ValidationException.abortIf(!(await user.canConnect()), [
+            {
+                path: 'email',
+                message: 'Votre compte est bloqué',
+            },
+        ])
 
         const database = Database.getInstance()
 
@@ -111,7 +122,12 @@ export class AuthController extends Controller {
         this.validate(CGUCGVValidator)
 
         const userExist = await UserServices.retrieveUserByEmail(email)
-        UnprocessableEntity.abortIf(userExist, 'Email already used')
+        ValidationException.abortIf(userExist, [
+            {
+                path: 'email',
+                message: 'Email déjà utilisé',
+            },
+        ])
 
         try {
             const user = await UserServices.registerUser(

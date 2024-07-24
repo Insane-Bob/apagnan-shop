@@ -29,7 +29,10 @@ watch(filterId, () => {
     filters.id = filterId.value
 })
 
-const { rows, pagination, sorting, fetch } = useTable('/users', query)
+const { rows, pagination, sorting, fetch, exportCSV } = useTable(
+    '/users',
+    query,
+)
 
 const groupedActionLabel = computed(() => {
     return selected.value.length <= 1
@@ -271,6 +274,7 @@ function massActivate(ids: number[]) {
             :pagination="pagination"
             :sorting="sorting"
             :actions="actions"
+            :export="exportCSV"
         ></DataTable>
     </div>
 </template>

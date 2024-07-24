@@ -28,10 +28,7 @@ const pagination = computed(() => {
 </script>
 
 <template>
-    <div
-        v-if="pagination"
-        class="ml-auto flex gap-3 justify-end items-center pt-6"
-    >
+    <div v-if="pagination" class="flex gap-3 justify-end items-center">
         <div class="flex items-center space-x-2">
             <p class="font-medium">Lignes par page</p>
             <Select
