@@ -161,7 +161,7 @@ const deleteCollection = async (row: any) => {
 }
 </script>
 <template>
-    <Dialog>
+    <Dialog v-model:open="collectionModalOpen">
         <div class="flex flex-col mx-6">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex gap-4 items-center">

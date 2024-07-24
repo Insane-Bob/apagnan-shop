@@ -47,7 +47,7 @@ const paylodUpdate = computed(() => ({
     imageId: image.value?.id ?? null,
 }))
 const { submit: submitUpdate } = useForm(
-    '/collections/' + props.collection.slug,
+    '/collections/' + props.collection?.slug,
     paylodUpdate,
     'patch',
 )
@@ -92,7 +92,6 @@ const { submit: submitCreation } = useForm(
 function createCollection() {
     submitCreation(
         () => {
-            console.log('Collection created')
             toast({
                 title: 'Succés',
                 description: 'La collection a été créée avec succès',
