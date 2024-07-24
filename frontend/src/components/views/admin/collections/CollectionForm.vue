@@ -47,7 +47,7 @@ const paylodUpdate = computed(() => ({
     imageId: image.value?.id ?? null,
 }))
 const { submit: submitUpdate } = useForm(
-    '/collections/' + props.collection,
+    '/collections/' + props.collection.slug,
     paylodUpdate,
     'patch',
 )
