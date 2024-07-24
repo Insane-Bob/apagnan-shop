@@ -57,7 +57,7 @@
                 <ProductCard
                     :key="product.id"
                     :id="product.id"
-                    v-for="product in collection.Products"
+                    v-for="product in collection.Products.filter((p) => p.published)"
                     :collection="collection"
                     :name="product.name"
                     :slug="product.slug"
@@ -226,7 +226,6 @@ const collections = ref<Collection[]>([])
 async function fetchCollections() {
     const response = await apiClient.get('collections?withImage&limit=6&random&published=true')
     collections.value = response.data.data
-    console.log(collections.value)
 }
 
 const fetchPromotedCollection = async () => {
