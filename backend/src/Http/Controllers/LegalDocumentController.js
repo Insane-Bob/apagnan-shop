@@ -11,10 +11,17 @@ export class LegalDocumentController extends Controller {
         this.can(LegalDocumentPolicy.index)
 
         const search = new SearchRequest(this.req)
+        const conditions = {}
+        if (this.req.query.has('published')) conditions.published = true
+        let query = search.query
+        query.where = {
+            ...search.query.where,
+            ...conditions,
+        }
+
         const documents =
-            await Database.getInstance().models.LegalDocument.findAll(
-                search.query,
-            )
+            await Database.getInstance().models.LegalDocument.findAll(query)
+            
         const total = await Database.getInstance().models.LegalDocument.count(
             search.queryWithoutPagination,
         )

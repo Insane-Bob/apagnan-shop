@@ -1,13 +1,24 @@
 <script setup lang="ts">
 import CookiesModal from '@components/Modals/CookiesModal.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useCookie } from '@/composables/useCookie'
+import { ApiClient } from '@/lib/apiClient';
+import { RouterLink } from 'vue-router';
+
+const apiClient = new ApiClient()
 
 const {hasBeenAsked} = useCookie()
 const showCookiesModal = ref(!hasBeenAsked.value)
 function openCookie(){
   showCookiesModal.value = true
 }
+
+const legalDocuments = ref<any>([])
+
+onMounted(async () => {
+  const response = await apiClient.get('/legals-documents?published=true')
+  legalDocuments.value = response.data.data
+})
 
 window.openCookie = openCookie
 </script>
@@ -35,33 +46,10 @@ window.openCookie = openCookie
       <div>
         <h3 class="mb-4 font-title text-2xl">Information sur la société</h3>
         <ul class="flex flex-col gap-1">
-          <li>
-            <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >A propos de Apagnain</a
-            >
-          </li>
-          <li>
-            <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >Code éthique</a
-            >
-          </li>
-          <li>
-            <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >Juridique</a
-            >
-          </li>
-          <li>
-            <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >Politique de confidentialité</a
-            >
-          </li>
-          <li @click="openCookie" class="hover:underline cursor-pointer">
-             Gestions des cookies
-          </li>
-          <li>
-            <a href="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out"
-              >Information sur la société</a
-            >
+          <li v-for="(document, index) in legalDocuments" :key="index">
+            <RouterLink to="#" class="hover:underline cursor-pointer transition duration-300 ease-in-out">
+              {{document.name}}
+            </RouterLink>
           </li>
         </ul>
       </div>
