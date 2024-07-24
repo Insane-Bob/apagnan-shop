@@ -132,7 +132,6 @@ const actions: TableActions[] = [
 onMounted(async () => {
     const response = await apiClient.get('/collections')
     collections.value = response.data.data
-    console.log(collections.value)
 })
 
 const deleteProduct = (row: any) => {
