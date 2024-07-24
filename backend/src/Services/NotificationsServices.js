@@ -5,9 +5,16 @@ import { FailedPaymentEmail } from '../Emails/FailedPaymentEmail.js'
 import { LowStockProductEmail } from '../Emails/LowStockProductEmail.js'
 import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
 import { ProductPriceChangeEmail } from '../Emails/ProductPriceChangeEmail.js'
+import { LowStockProduct } from '../Emails/LowStockProduct.js'
+import { OrderSupportedEmail } from '../Emails/OrderSupportedEmail.js'
+import { OutOfStockProduct } from '../Emails/OutOfStockProduct.js'
 import { RegisterEmail } from '../Emails/RegisterEmail.js'
 import { ResetPasswordEmail } from '../Emails/ResetPasswordEmail.js'
 import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
+import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
+import { SubscribeNewsletterEmail } from '../Emails/SubscribeNewsletterEmail.js'
+import { SuccessPaymentEmail } from '../Emails/SuccessPaymentEmail.js'
+import { UnsubscribeNewsletterEmail } from '../Emails/UnsubscribeNewsletterEmail.js'
 import { NotificationSubscriptionType } from '../Enums/NotificationSubscriptionType.js'
 import { EmailSender } from '../lib/EmailSender.js'
 import { UserNotificationServices } from './UserNotificationServices.js'
@@ -175,7 +182,43 @@ export class NotificationsServices {
         await EmailSender.send(lowStockProductEmail)
     }
 
-    // EMAIL WHEN THE USER THAT HAVE THE RESTOCK NOTIFICATION FOR THE PRODUCT
+    static async notifNotifOutOfStockProduct(product) {
+        const outOfStockProductEmail = new OutOfStockProduct().setParams({
+            name: product.name,
+        })
+
+        const adminMails = await UserServices.retrieveAdminUsersMail()
+        adminMails.forEach((mail) => {
+            outOfStockProductEmail.addTo(mail.email, 'Admin')
+        })
+        await EmailSender.send(outOfStockProductEmail)
+    }
+    /**
+     * Newsletter
+     */
+    static async notifyNewsletterSubscribe(email) {
+        const unsubscribe_link = `${process.env.FRONT_END_URL}/unsubscribe`
+        const subscribeNewsletterEmail = new SubscribeNewsletterEmail()
+            .setParams({
+                email,
+                unsubscribe_link,
+            })
+            .addTo(`${email}`)
+        await EmailSender.send(subscribeNewsletterEmail)
+    }
+
+    static async notifyNewsletterUnsubscribe(email) {
+        const unsubcribeNewsletterEmail = new UnsubscribeNewsletterEmail()
+            .setParams({
+                email,
+            })
+            .addTo(`${email}`)
+        await EmailSender.send(unsubcribeNewsletterEmail)
+    }
+    /**
+     * USER NOTIFICATIONS
+     */
+
     static async notifyProductRestock(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForProduct(

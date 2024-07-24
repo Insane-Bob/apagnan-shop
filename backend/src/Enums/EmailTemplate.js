@@ -14,4 +14,6 @@ export class EmailTemplate {
     static NEW_PRODUCT = 16
     static ORDER_STATUS_CHANGED = 18
     static PRODUCT_RESTOCK = 19
+    static SUBSCRIBE_NEWSLETTER = 10
+    static UNSUBSCRIBE_NEWSLETTER = 13
 }

@@ -9,6 +9,7 @@ import { NotificationsServices } from '../../Services/NotificationsServices.js'
 import { NewsletterPolicy } from '../Policies/NewsletterPolicy.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import * as sea from 'node:sea'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 
 export class NewsletterController extends Controller {
     async index() {
@@ -39,6 +40,7 @@ export class NewsletterController extends Controller {
                     email,
                 },
             })
+
         UnprocessableEntity.abortIf(exists, 'Email already subscribed')
         const transaction = await Database.transaction()
         try {
@@ -48,6 +50,8 @@ export class NewsletterController extends Controller {
                 },
                 { transaction },
             )
+
+            const user = this.req.user
 
             await NotificationsServices.notifyNewsletterSubscribe(email)
             await transaction.commit()
