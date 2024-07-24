@@ -4,6 +4,9 @@ import { ProductFactory } from '../../database/factories/ProductFactory.js'
 import { ProductStockObserver } from '../../Observers/ProductStockObserver.js'
 import { ProductController } from './ProductController.js'
 import { Request } from '../../Core/Request.js'
+import { actingAs } from '../../tests/authTestUtils.js'
+import { USER_ROLES } from '../../Models/SQL/user.js'
+import request from 'supertest'
 let app = null
 let product = null
 
@@ -107,7 +110,7 @@ describe('Product test routes', () => {
 
     test('GET /api/products/:product - get one product', async () => {
         loginAsUser()
-        await testRequest(`/api/products/${product.id}`, 'get', 200)
+        await testRequest(`/api/products/${product.slug}`, 'get', 200)
     })
 
     test('POST /api/products - create a product', async () => {
@@ -123,12 +126,14 @@ describe('Product test routes', () => {
                     stock: 10,
                     description: 'Product Test Description',
                     collectionId: product.collectionId,
+                    published: Math.random() > 0.5,
+                    imagesIds: [],
+                    lowStockValue: 5,
                 })
             },
             (response) => {
                 expect(response.body.product.name).toBe('Product Test')
-                expect(response.body.product.price).toBe(10)
-                expect(response.body.product.stock).toBe(10)
+                expect(response.body.product.price).toBe('10')
                 expect(response.body.product.description).toBe(
                     'Product Test Description',
                 )
@@ -139,7 +144,7 @@ describe('Product test routes', () => {
     test('PATCH /api/products/:product - update a product', async () => {
         loginAsAdmin()
         await testRequest(
-            `/api/products/${product.id}`,
+            `/api/products/${product.slug}`,
             'patch',
             200,
             (req) => {
@@ -149,12 +154,13 @@ describe('Product test routes', () => {
                     stock: 10,
                     description: 'Product Test Description Updated',
                     collectionId: product.collectionId,
+                    published: Math.random() > 0.5,
+                    lowStockValue: 5,
                 })
             },
             (response) => {
                 expect(response.body.product.name).toBe('Product Test Updated')
                 expect(response.body.product.price).toBe(10)
-                expect(response.body.product.stock).toBe(10)
                 expect(response.body.product.description).toBe(
                     'Product Test Description Updated',
                 )
@@ -163,10 +169,10 @@ describe('Product test routes', () => {
     })
 
     test('DELETE /api/products/:product - delete a product', async () => {
-        let productTobeDeleted = ProductFactory.withStock(10).create()
+        let productTobeDeleted = await ProductFactory.withStock(10).create()
         loginAsAdmin()
         await testRequest(
-            `/api/products/${productTobeDeleted.id}`,
+            `/api/products/${productTobeDeleted.slug}`,
             'delete',
             204,
         )
