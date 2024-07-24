@@ -52,7 +52,7 @@ onMounted(fetchCustomers.get)
 
 const columns: TableColumns[] = [
     {
-        label: 'Order',
+        label: 'Commande',
         key: 'id',
         sorting: true,
         toDisplay: (value: number) => OrderFormat.formatOrderNumber(value),
@@ -72,6 +72,7 @@ const columns: TableColumns[] = [
         label: 'Statut',
         key: 'status',
         sorting: false,
+        toDisplay: (value: string) => OrderFormat.translatedStatus(value),
     },
     {
         label: 'Nombre de produits',
