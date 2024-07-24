@@ -92,7 +92,8 @@ export class UserUpdateValidator extends Validator {
                     message:
                         'Le numéro de téléphone doit comporter au moins 10 chiffres et uniquement des chiffres',
                 })
-                .optional(),
+                .optional()
+                .nullable(),
         })
     }
 }
