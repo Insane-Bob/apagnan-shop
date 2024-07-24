@@ -52,6 +52,6 @@ export class LegalDocumentController extends Controller {
     async delete() {
         this.can(LegalDocumentPolicy.index)
         await this.document.destroy()
-        this.res.sendStatus(200)
+        this.res.sendStatus(204)
     }
 }
