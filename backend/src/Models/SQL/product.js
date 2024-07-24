@@ -92,16 +92,18 @@ function model(sequelize, DataTypes) {
             deletedAt: DataTypes.DATE,
             stock: {
                 type: DataTypes.VIRTUAL,
-                get(){
-                    if(this.StockTransactions){
-                        return this.StockTransactions.reduce((acc, transaction) => {
-                            return acc + transaction.quantity
-                        }, 0)
-                    }
-                    else return this._stock
-                }
+                get() {
+                    if (this.StockTransactions) {
+                        return this.StockTransactions.reduce(
+                            (acc, transaction) => {
+                                return acc + transaction.quantity
+                            },
+                            0,
+                        )
+                    } else return this._stock
+                },
             },
-            _stock:{
+            _stock: {
                 type: DataTypes.VIRTUAL,
             },
             mainImage: {

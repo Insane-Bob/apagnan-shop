@@ -8,8 +8,12 @@ export class EmailTemplate {
     static ORDER_SUPPORTED = 7
     static ACCOUNT_ACTIVATED = 8
     static CONFIRM_RESET_PASSWORD = 9
+    static OUT_OF_STOCK = 14
+    static LOW_STOCK = 17
+    static PRODUCT_PRICE_CHANGE = 15
+    static NEW_PRODUCT = 16
+    static ORDER_STATUS_CHANGED = 18
+    static PRODUCT_RESTOCK = 19
     static SUBSCRIBE_NEWSLETTER = 10
     static UNSUBSCRIBE_NEWSLETTER = 13
-    //static LOW_STOCK = 'mettre le bon id brevo'
-    // static OUT_OF_STOCK = 'mettre le bon id brevo'
 }

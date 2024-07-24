@@ -108,7 +108,6 @@ export function useCookie() : {
 
 
   function handleChange(){
-    console.log("loadFromCookies changed")
     loadFromCookies(false)
   }
 

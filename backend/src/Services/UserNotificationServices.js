@@ -60,11 +60,14 @@ export class UserNotificationServices {
                 },
             )
 
-        return Database.getInstance().models.User.findAll({
-            where: {
-                id: usersIds.map((u) => u.userId),
-            },
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .findAll({
+                attributes: ['firstName', 'lastName', 'email'],
+                where: {
+                    id: usersIds.map((u) => u.userId),
+                },
+            })
     }
 
     static async getUserThatAreSubscribeForCollection(
@@ -85,10 +88,13 @@ export class UserNotificationServices {
                 },
             )
 
-        return Database.getInstance().models.User.findAll({
-            where: {
-                id: usersIds.map((u) => u.userId),
-            },
-        })
+        return Database.getInstance()
+            .models.User.unscoped()
+            .findAll({
+                attributes: ['firstName', 'lastName', 'email'],
+                where: {
+                    id: usersIds.map((u) => u.userId),
+                },
+            })
     }
 }

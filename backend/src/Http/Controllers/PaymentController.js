@@ -98,9 +98,12 @@ export class PaymentController extends Controller {
 
         await this.orderService.setStatus(OrderStatus.PAYMENT_FAILED)
 
-        await NotificationsServices.notifyFailedPaymentCustomer(
-            this.order.Customer.User,
-        )
+        const user = await (
+            await this.order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
+        await NotificationsServices.notifyFailedPaymentCustomer(user)
 
         this.res.redirect(
             process.env.FRONT_END_URL + '/order/fail?orderId=' + this.order.id,
@@ -197,11 +200,14 @@ export class PaymentController extends Controller {
         await service.setStatus(OrderStatus.PAID, undefined, false)
         await service.setStatus(OrderStatus.PROCESSING)
 
-        const user = await (await order.getCustomer()).getUser()
+        const user = await (
+            await order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
 
         await NotificationsServices.notifySuccessPaymentCustomer(
             user,
-            payment.Order.Customer.User,
             payment.Order,
         )
         //@TODO : send to the transport supplier
@@ -225,9 +231,11 @@ export class PaymentController extends Controller {
             status: PaymentStatus.FAILED,
         })
 
-        await NotificationsServices.notifyFailedPaymentCustomer(
-            payment.Order.Customer.User,
-            payment.Order,
-        )
+        const user = await (
+            await order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
+        await NotificationsServices.notifyFailedPaymentCustomer(user)
     }
 }

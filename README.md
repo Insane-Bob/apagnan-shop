@@ -11,6 +11,7 @@ Notre backend est inspiré des frameworks Symfony et Laravel. Il est conçu pour
 
 - Compte stripe (clé d'API + signature webhook)
 - Compte hCaptcha
+- Compte brevo (optionnel, mais si pas configuré, les emails ne seront pas envoyés)
 
 ## Installation et Configuration (Environment dev)
 

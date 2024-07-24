@@ -62,7 +62,7 @@ export class UserServices {
     static async retrieveAdminUsersMail() {
         return Database.getInstance().models.User.findAll({
             where: {
-                role: USER_ROLES.ADMIN,
+                role: USER_ROLES.ADMIN || USER_ROLES.STORE_KEEPER,
             },
             attributes: ['email'],
         })
