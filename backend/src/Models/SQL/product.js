@@ -85,6 +85,7 @@ function model(sequelize, DataTypes) {
             description: DataTypes.STRING,
             price: DataTypes.DECIMAL,
             published: DataTypes.BOOLEAN,
+            lowStockValue: DataTypes.INTEGER,
             collectionId: DataTypes.INTEGER,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,

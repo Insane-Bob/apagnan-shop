@@ -52,8 +52,8 @@ export class StockService {
         if (product.stock == 0) {
             await NotificationsServices.notifyOutOfStockProduct(product)
         }
-        if (product.stock < 5) {
-            await NotificationsServices.notifyLowStockProduct(product)
+        if (product.stock < product.lowStockValue) {
+            await NotificationsServices.notifLowStockProduct(product)
         }
     }
 }

@@ -202,5 +202,5 @@ const fetchProductData = async () => {
             ></StockForm>
         </DialogContent>
     </Dialog>
-    <ProductForm :cslug="Array.isArray($route.params.slug)? $route.params.slug[0]: $route.params.slug" v-else></ProductForm>
+    <ProductForm @close="fetch" :cslug="Array.isArray($route.params.slug)? $route.params.slug[0]: $route.params.slug" v-else></ProductForm>
 </template>

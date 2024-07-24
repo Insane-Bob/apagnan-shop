@@ -9,7 +9,7 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import Filter from '@components/tables/Filter.vue'
 import { useFilters } from '@/composables/useFilters'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const apiClient = new ApiClient()
 
@@ -20,14 +20,17 @@ const { filters, query } = useFilters({
     search: '',
     customersIds: [],
 })
-const { fetch, rows, pagination, sorting } = useTable('/refunds', query)
+const { fetch, rows, pagination, sorting, exportCSV } = useTable(
+    '/refunds',
+    query,
+)
 
 const columns: TableColumns[] = [
     {
         label: 'Order',
         key: 'orderId',
         sorting: true,
-        to : (row)=> `/admin/orders?id=${row.orderId}`
+        to: (row) => `/admin/orders?id=${row.orderId}`,
     },
 
     {
@@ -60,6 +63,7 @@ const actions: TableActions[] = [
         label: 'Approuver',
         icon: 'checkmark-circle',
         class: 'text-gray-400',
+        condition: (row: any) => !row.approved,
         action: async (row: any) => {
             try {
                 await apiClient.post(`/refunds/${row.id}/approve`)
@@ -76,6 +80,15 @@ const actions: TableActions[] = [
     },
 ]
 
+const multiActions = [
+    {
+        label: 'Valider',
+        icon: 'checkmark-circle',
+        action: (ids: number[]) => updateMass(ids),
+    },
+]
+const selected = ref([])
+
 const customers = computed(() => {
     let customers = rows.value.map((row: any) => {
         return {
@@ -87,6 +100,29 @@ const customers = computed(() => {
         (v, i, a) => a.findIndex((t) => t.value === v.value) === i,
     )
 })
+
+function updateMass(ids: number[]) {
+    let hasAlreadyApproved = rows.value.some(
+        (row: any) => ids.includes(row.id) && row.approved,
+    )
+
+    if (hasAlreadyApproved) {
+        toast({
+            title: 'Une ou plusieurs demandes de remboursement ont déjà été approuvées',
+            variant: 'destructive',
+        })
+        return
+    }
+
+    ApiClient.handleError(async () => {
+        for (let id of ids) await apiClient.post(`/refunds/${id}/approve`)
+        fetch()
+        selected.value = []
+        toast({
+            title: 'Les demandes de remboursement ont été mis à jour',
+        })
+    })
+}
 </script>
 <template>
     <Dialog>
@@ -117,6 +153,9 @@ const customers = computed(() => {
                 :actions="actions"
                 :pagination="pagination"
                 :sorting="sorting"
+                :export="exportCSV"
+                :multiActions="multiActions"
+                v-model:selected="selected"
             >
                 <template #row:approved="{ row: { approved } }">
                     <div v-if="approved">

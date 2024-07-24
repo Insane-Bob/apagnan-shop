@@ -8,11 +8,12 @@ import { computed, reactive, ref } from 'vue'
 import { TableColumns, TableActions, Page } from '@types'
 import MultipleActionMenu from '@components/tables/MultipleActionMenu.vue'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import ExportCSV from '@components/tables/ExportCSV.vue'
 
 const emit = defineEmits([
     'emitNextPage',
@@ -43,10 +44,12 @@ const props = defineProps<{
         direction: string
         changeSort: (key: string) => void
     }
+    export?: () => any[]
 }>()
 
 const selected = defineModel('selected')
 const isAllSelected = computed(() => {
+    if (props.rows.length === 0) return false
     return rows.value
         .map((r) => r.id)
         .every((id) => selected.value.includes(id))
@@ -250,13 +253,23 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                             : false,
                                     }"
                                 >
-                                    <div v-if="action.children && action.children.length">
+                                    <div
+                                        v-if="
+                                            action.children &&
+                                            action.children.length
+                                        "
+                                    >
                                         <DropdownMenu>
-                                            <DropdownMenuTrigger class="group relative">
+                                            <DropdownMenuTrigger
+                                                class="group relative"
+                                            >
                                                 <ion-icon
                                                     class="cursor-pointer hover:scale-105 duration-200 text-xl"
                                                     :class="action.class"
-                                                    :name="action.icon || 'ellipsis-vertical'"
+                                                    :name="
+                                                        action.icon ||
+                                                        'ellipsis-vertical'
+                                                    "
                                                 ></ion-icon>
                                                 <span
                                                     class="group-hover:block hidden text-white bg-black duration-100 absolute top-0 -translate-y-full -translate-x-full z-30 px-1 py-1 rounded-sm cursor-default select-none"
@@ -264,7 +277,16 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                                 >
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <DropdownMenuItem v-for="(a, index) in action.children" :key="index" :disabled="!a.condition(row)" @click="a.action(row)">
+                                                <DropdownMenuItem
+                                                    v-for="(
+                                                        a, index
+                                                    ) in action.children"
+                                                    :key="index"
+                                                    :disabled="
+                                                        !a.condition(row)
+                                                    "
+                                                    @click="a.action(row)"
+                                                >
                                                     <ion-icon
                                                         class="mr-2"
                                                         :class="a.class"
@@ -274,13 +296,15 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-
                                     </div>
-                                    <div v-else-if="
+                                    <div
+                                        v-else-if="
                                             (!action.trigger ||
-                                            action.trigger === false)
-                                            && !action.confirmation"
-                                        class="relative group transition delay-1000">
+                                                action.trigger === false) &&
+                                            !action.confirmation
+                                        "
+                                        class="relative group transition delay-1000"
+                                    >
                                         <ion-icon
                                             @click.stop="action.action(row)"
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"
@@ -293,7 +317,10 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         >
                                     </div>
                                     <DialogTrigger
-                                        v-if="action.trigger || action.trigger === true"
+                                        v-if="
+                                            action.trigger ||
+                                            action.trigger === true
+                                        "
                                         class="relative group transition delay-1000"
                                     >
                                         <ion-icon
@@ -308,14 +335,22 @@ function onExecMultiAction(callBack: (item: any) => void) {
                                         >
                                     </DialogTrigger>
 
-                                    <ConfirmationModal v-if="action.confirmation" 
-                                    :confirm="action.action"
-                                    :props="row"
-                                    :title="action.confirmation.title || ''" 
-                                    :message="action.confirmation.message || ''"
-                                    :style-confirm="action.confirmation.styleConfirm || ''"
-                                    :style-cancel="action.confirmation.styleCancel || ''"
-
+                                    <ConfirmationModal
+                                        v-if="action.confirmation"
+                                        :confirm="action.action"
+                                        :props="row"
+                                        :title="action.confirmation.title || ''"
+                                        :message="
+                                            action.confirmation.message || ''
+                                        "
+                                        :style-confirm="
+                                            action.confirmation.styleConfirm ||
+                                            ''
+                                        "
+                                        :style-cancel="
+                                            action.confirmation.styleCancel ||
+                                            ''
+                                        "
                                     >
                                         <ion-icon
                                             class="cursor-pointer hover:scale-105 duration-200 text-xl"
@@ -342,11 +377,18 @@ function onExecMultiAction(callBack: (item: any) => void) {
                 </tbody>
             </table>
         </div>
-        <SimplePagination
-            v-if="props.pagination"
-            :pagination="props.pagination"
-        >
-        </SimplePagination>
+        <div class="flex gap-6 items-center justify-end pt-6">
+            <ExportCSV
+                v-if="props.export"
+                :export="props.export"
+                :selected="selected"
+            />
+            <SimplePagination
+                v-if="props.pagination"
+                :pagination="props.pagination"
+            >
+            </SimplePagination>
+        </div>
     </div>
 </template>
 

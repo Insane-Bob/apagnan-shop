@@ -8,6 +8,7 @@ export interface Product extends Suggestion {
     price: number
     priceFormatted: string
     image: string
+    lowStockValue: number
     category: string
     createdAt: string
     updatedAt: string

@@ -4,13 +4,13 @@ export interface TableActions {
     class: string
     condition?: (row: any) => boolean
     action: (row: any) => void
-    children: TableActions[]
+    children?: TableActions[]
     trigger?: boolean
-    confirmation: {
+    confirmation?: {
         title: string
         message: string
-        styleConfirm: string
-        styleCancel: string
-        styleFooter: string
+        styleConfirm?: string
+        styleCancel?: string
+        styleFooter?: string
     }
 }
