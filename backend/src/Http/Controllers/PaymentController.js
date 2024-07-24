@@ -59,19 +59,20 @@ export class PaymentController extends Controller {
                     orderDetail.quantity,
                     transaction,
                 )
+            }
+            await transaction.commit()
 
-                await transaction.commit()
-
+            for (let orderDetail of orderDetails) {
                 await StockService.checkStockForAdminNotif(
                     orderDetail.productId,
                 )
-
-                this.res.redirect(
-                    process.env.FRONT_END_URL +
-                        '/order/success?orderId=' +
-                        this.order.id,
-                )
             }
+
+            this.res.redirect(
+                process.env.FRONT_END_URL +
+                    '/order/success?orderId=' +
+                    this.order.id,
+            )
         } catch (e) {
             console.error(e)
             await transaction.rollback()
@@ -119,8 +120,10 @@ export class PaymentController extends Controller {
             const type = payload.type
             const object = payload.data.object
 
-            if (type === 'checkout.session.completed'
-                || type === 'checkout.session.async_payment_succeeded') {
+            if (
+                type === 'checkout.session.completed' ||
+                type === 'checkout.session.async_payment_succeeded'
+            ) {
                 await this.onPaymentSucceeded(object)
             }
 
@@ -177,10 +180,9 @@ export class PaymentController extends Controller {
     async onPaymentSucceeded(checkoutSession) {
         if (!checkoutSession) return
 
-        const { payment } =
-            await this.webhookFetch({
-                id: checkoutSession.payment_intent,
-            })
+        const { payment } = await this.webhookFetch({
+            id: checkoutSession.payment_intent,
+        })
 
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
