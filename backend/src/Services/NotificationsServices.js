@@ -167,8 +167,8 @@ export class NotificationsServices {
     /**
      * Newsletter
      */
-    static async notifyNewsletterSubscribe(email, accessLink) {
-        const unsubscribe_link = `${process.env.FRONT_END_URL}/unsubscribe?a=${accessLink.identifier}`
+    static async notifyNewsletterSubscribe(email) {
+        const unsubscribe_link = `${process.env.FRONT_END_URL}/unsubscribe`
         const subscribeNewsletterEmail = new SubscribeNewsletterEmail()
             .setParams({
                 email,

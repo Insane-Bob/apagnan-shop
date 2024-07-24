@@ -52,17 +52,8 @@ export class NewsletterController extends Controller {
             )
 
             const user = this.req.user
-            const accessLink = await AccessLinkServices.createAccessLink(
-                user.id,
-                AccessLinkServices.getDate(),
-                AccessLinkServices.getDate(20),
-                1,
-            )
 
-            await NotificationsServices.notifyNewsletterSubscribe(
-                email,
-                accessLink,
-            )
+            await NotificationsServices.notifyNewsletterSubscribe(email)
             await transaction.commit()
             this.res.sendStatus(200)
         } catch (e) {
