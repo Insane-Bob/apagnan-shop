@@ -36,9 +36,11 @@
                     {{ collection.name }}
                 </p>
                 <RouterLink to="#promoted">
-                    <Button variant="secondary" class="uppercase"
-                        >Découvrir la collection</Button
+                    <Button
+                        class="uppercase font-bold text-white rounded-lg px-6 py-3 transition-all duration-300 ease-in-out hover:bg-white hover:text-gray-900 hover:border-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 shadow-md hover:shadow-lg active:scale-95"
                     >
+                        Découvrir la collection
+                    </Button>
                 </RouterLink>
             </div>
         </div>
@@ -51,6 +53,7 @@
                 id="promoted"
                 class="justify-items-center grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-20"
             >
+            
                 <ProductCard
                     :key="product.id"
                     :id="product.id"
@@ -73,18 +76,17 @@
             </div>
         </Section>
 
-        <Section class="bg-slate-100">
+        <Section v-if="collections.length" class="bg-slate-100">
             <h1 class="text-md uppercase font-medium text-center">
                 Nos collections
             </h1>
             <div
-                v-if="!loading"
                 id="collections"
                 class="justify-items-center max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
             >
-                <ProductCard2
+                <ProductCard
                     height="300px"
-                    v-for="collection in collections"
+                    v-for="collection in collections.slice(0, 6)"
                     :id="collection.id"
                     :key="collection.id"
                     :name="collection.name"
@@ -93,9 +95,7 @@
                     :image="collection?.image"
                 >
                     <template #action>
-                        <Button
-                            class="hover:text-primary transition uppercase"
-                        >
+                        <Button class="hover:text-primary transition uppercase">
                             Découvrir la collection
                             <ion-icon
                                 name="chevron-forward-outline"
@@ -103,7 +103,7 @@
                             />
                         </Button>
                     </template>
-                </ProductCard2>
+                </ProductCard>
             </div>
         </Section>
         <Section class="max-w-[1000px] mx-auto">
@@ -222,10 +222,11 @@ onMounted(async () => {
     loading.value = false
 })
 
-const collections = ref(null)
+const collections = ref<Collection[]>([])
 async function fetchCollections() {
     const response = await apiClient.get('collections?withImage&limit=6&random')
     collections.value = response.data.data
+    console.log(collections.value)
 }
 
 const fetchPromotedCollection = async () => {

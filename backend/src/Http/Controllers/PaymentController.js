@@ -59,19 +59,20 @@ export class PaymentController extends Controller {
                     orderDetail.quantity,
                     transaction,
                 )
+            }
+            await transaction.commit()
 
-                await transaction.commit()
-
+            for (let orderDetail of orderDetails) {
                 await StockService.checkStockForAdminNotif(
                     orderDetail.productId,
                 )
-
-                this.res.redirect(
-                    process.env.FRONT_END_URL +
-                        '/order/success?orderId=' +
-                        this.order.id,
-                )
             }
+
+            this.res.redirect(
+                process.env.FRONT_END_URL +
+                    '/order/success?orderId=' +
+                    this.order.id,
+            )
         } catch (e) {
             console.error(e)
             await transaction.rollback()
@@ -97,9 +98,12 @@ export class PaymentController extends Controller {
 
         await this.orderService.setStatus(OrderStatus.PAYMENT_FAILED)
 
-        await NotificationsServices.notifyFailedPaymentCustomer(
-            this.order.Customer.User,
-        )
+        const user = await (
+            await this.order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
+        await NotificationsServices.notifyFailedPaymentCustomer(user)
 
         this.res.redirect(
             process.env.FRONT_END_URL + '/order/fail?orderId=' + this.order.id,
@@ -119,8 +123,10 @@ export class PaymentController extends Controller {
             const type = payload.type
             const object = payload.data.object
 
-            if (type === 'checkout.session.completed'
-                || type === 'checkout.session.async_payment_succeeded') {
+            if (
+                type === 'checkout.session.completed' ||
+                type === 'checkout.session.async_payment_succeeded'
+            ) {
                 await this.onPaymentSucceeded(object)
             }
 
@@ -177,10 +183,9 @@ export class PaymentController extends Controller {
     async onPaymentSucceeded(checkoutSession) {
         if (!checkoutSession) return
 
-        const { payment } =
-            await this.webhookFetch({
-                id: checkoutSession.payment_intent,
-            })
+        const { payment } = await this.webhookFetch({
+            id: checkoutSession.payment_intent,
+        })
 
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
@@ -195,11 +200,14 @@ export class PaymentController extends Controller {
         await service.setStatus(OrderStatus.PAID, undefined, false)
         await service.setStatus(OrderStatus.PROCESSING)
 
-        const user = await (await order.getCustomer()).getUser()
+        const user = await (
+            await order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
 
         await NotificationsServices.notifySuccessPaymentCustomer(
             user,
-            payment.Order.Customer.User,
             payment.Order,
         )
         //@TODO : send to the transport supplier
@@ -223,9 +231,11 @@ export class PaymentController extends Controller {
             status: PaymentStatus.FAILED,
         })
 
-        await NotificationsServices.notifyFailedPaymentCustomer(
-            payment.Order.Customer.User,
-            payment.Order,
-        )
+        const user = await (
+            await order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
+        await NotificationsServices.notifyFailedPaymentCustomer(user)
     }
 }

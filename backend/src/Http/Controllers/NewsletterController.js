@@ -6,8 +6,32 @@ import {
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { NewsletterPolicy } from '../Policies/NewsletterPolicy.js'
+import { SearchRequest } from '../../lib/SearchRequest.js'
+import * as sea from 'node:sea'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 
 export class NewsletterController extends Controller {
+    async index() {
+        this.can(NewsletterPolicy.index)
+
+        const search = new SearchRequest(this.req, [], ['email'])
+
+        const emails =
+            await Database.getInstance().models.NewsletterEmail.findAll(
+                search.query,
+            )
+
+        const total = await Database.getInstance().models.NewsletterEmail.count(
+            search.queryWithoutPagination,
+        )
+
+        this.res.json({
+            data: emails,
+            total: total,
+        })
+    }
+
     async subscribe() {
         const { email } = this.validate(NewsletterValidator)
         const exists =
@@ -16,6 +40,7 @@ export class NewsletterController extends Controller {
                     email,
                 },
             })
+
         UnprocessableEntity.abortIf(exists, 'Email already subscribed')
         const transaction = await Database.transaction()
         try {
@@ -25,6 +50,8 @@ export class NewsletterController extends Controller {
                 },
                 { transaction },
             )
+
+            const user = this.req.user
 
             await NotificationsServices.notifyNewsletterSubscribe(email)
             await transaction.commit()

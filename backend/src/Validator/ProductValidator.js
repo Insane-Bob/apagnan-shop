@@ -12,8 +12,12 @@ const productSchema = z.object({
         message: 'Le prix du produit doit être supérieur à 0',
     }),
     published: z.boolean(),
+    lowStockValue: z.number().min(1, {
+        message: "Le seuil de l'alerte de stock bas doit être supérieur à 0",
+    }),
+    stock: z.number().nullable().optional(),
     collectionId: z.number(),
-    imagesIds: z.array(z.number()),
+    imagesIds: z.array(z.number()).optional(),
 })
 
 export class ProductValidator extends Validator {

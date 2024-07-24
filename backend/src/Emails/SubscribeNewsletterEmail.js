@@ -1,9 +1,9 @@
 import { Email } from '../lib/EmailSender.js'
 import { EmailTemplate } from '../Enums/EmailTemplate.js'
 
-export class OutOfStockProduct extends Email {
+export class SubscribeNewsletterEmail extends Email {
     constructor() {
         super()
-        this.setTemplate(EmailTemplate.OUT_OF_STOCK)
+        this.setTemplate(EmailTemplate.SUBSCRIBE_NEWSLETTER)
     }
 }

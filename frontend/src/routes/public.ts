@@ -2,7 +2,9 @@ import ProductsPage from '@components/views/ProductsPage.vue'
 import HeaderLayout from '@/layout/HeaderLayout.vue'
 import ProductView from '@/components/views/ProductView.vue'
 import ResetPasswordView from '@/components/views/auth/ResetPasswordView.vue'
-import CollectionView from "@components/views/CollectionView.vue";
+import CollectionView from '@components/views/CollectionView.vue'
+import UnsubscribeNewsletter from '@components/Newsletter/UnsubscribeNewsletter.vue'
+import LegalPage from '@components/views/LegalPage.vue'
 
 export const publicRoutes = [
     {
@@ -24,6 +26,14 @@ export const publicRoutes = [
             {
                 path: 'reset-password',
                 component: ResetPasswordView,
+            },
+            {
+                path: 'unsubscribe',
+                component: UnsubscribeNewsletter,
+            },
+            {
+                path: '/legal/:slug',
+                component: LegalPage,
             },
         ],
     },

@@ -4,7 +4,7 @@ import slugify from 'slugify'
 import { DenormalizableModel } from '../../lib/Denormalizer/DenormalizableModel.js'
 import { ProductDenormalizationTask } from '../../lib/Denormalizer/tasks/ProductDenormalizationTask.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
-import {Money} from "../../utils/money.js";
+import { Money } from '../../utils/money.js'
 
 function model(sequelize, DataTypes) {
     class Product extends DenormalizableModel {
@@ -85,39 +85,42 @@ function model(sequelize, DataTypes) {
             description: DataTypes.STRING,
             price: DataTypes.DECIMAL,
             published: DataTypes.BOOLEAN,
+            lowStockValue: DataTypes.INTEGER,
             collectionId: DataTypes.INTEGER,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
             deletedAt: DataTypes.DATE,
             stock: {
                 type: DataTypes.VIRTUAL,
-                get(){
-                    if(this.StockTransactions){
-                        return this.StockTransactions.reduce((acc, transaction) => {
-                            return acc + transaction.quantity
-                        }, 0)
-                    }
-                    else return this._stock
-                }
+                get() {
+                    if (this.StockTransactions) {
+                        return this.StockTransactions.reduce(
+                            (acc, transaction) => {
+                                return acc + transaction.quantity
+                            },
+                            0,
+                        )
+                    } else return this._stock
+                },
             },
-            _stock:{
+            _stock: {
                 type: DataTypes.VIRTUAL,
             },
-            mainImage:{
+            mainImage: {
                 type: DataTypes.VIRTUAL,
                 get() {
                     if (this.images && this.images.length > 0) {
                         return this.images[0]
                     }
                     return null
-                }
+                },
             },
             priceFormatted: {
                 type: DataTypes.VIRTUAL,
                 get() {
                     return Money.format(Number(this.price))
-                }
-            }
+                },
+            },
         },
         {
             sequelize,

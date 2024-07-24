@@ -76,7 +76,7 @@ export class DenormalizerTask {
             ' from ' +
             instance.constructor.name +
             ', done in'
-        console.time(msg)
+        if (process.env.NODE_ENV !== 'test') console.time(msg)
         try {
             let ids = this._instanceToIds(instance)
             const instances = await this.getInstances(instance)
@@ -100,7 +100,7 @@ export class DenormalizerTask {
         } catch (e) {
             this.onError(new DenormalizerExecption(this, instance, e))
         } finally {
-            console.timeEnd(msg)
+            if (process.env.NODE_ENV !== 'test') console.timeEnd(msg)
         }
     }
 
