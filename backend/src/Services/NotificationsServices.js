@@ -97,8 +97,6 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(successPaymentEmail)
-
-        console.log(`Sending success payment notification to ${user.email}`)
     }
 
     // EMAIL WHEN THE USER HAS FAILED TO PAY -- NOT WORKING @TODO FIX
@@ -159,10 +157,6 @@ export class NotificationsServices {
                     .addTo(admin.email, 'Admin')
 
                 await EmailSender.send(outOfStockProductEmail)
-
-                console.log(
-                    `Sending out of stock notification to ${admin.email}`,
-                )
             }),
         )
     }
@@ -200,10 +194,6 @@ export class NotificationsServices {
                     .addTo(user.email, `${user.firstName} ${user.lastName}`)
 
                 await EmailSender.send(productRestockEmail)
-
-                console.log(
-                    `Sending product restock notification to ${user.email}`,
-                )
             }),
         )
     }
@@ -228,10 +218,6 @@ export class NotificationsServices {
                     .addTo(user.email, `${user.firstName} ${user.lastName}`)
 
                 await EmailSender.send(productPriceChangeEmail)
-
-                console.log(
-                    `Sending product price update notification to ${user.email}`,
-                )
             }),
         )
     }
@@ -248,7 +234,6 @@ export class NotificationsServices {
 
         return Promise.all(
             users.map(async (user) => {
-                console.log('PRODUCT', product)
                 const newProductEmail = new NewProductEmail()
                     .setParams({
                         name: product.name,
@@ -257,10 +242,6 @@ export class NotificationsServices {
                     .addTo(user.email, `${user.firstName} ${user.lastName}`)
 
                 await EmailSender.send(newProductEmail)
-
-                console.log(
-                    `Sending new product in collection notification to ${user.email}`,
-                )
             }),
         )
     }

@@ -47,12 +47,14 @@ export class EmailSender {
     })
 
     static async send(email) {
+        console.log('ICI Sending email')
         if (!process.env.BREVO_API_KEY) return
         if (!(email instanceof Email))
             throw new Error('Email instance expected')
 
         try {
             const data = await EmailSender.apiInstance.post(url, email.json)
+            console.log('ICI Email sent')
             return data
         } catch (error) {
             console.error(error)
