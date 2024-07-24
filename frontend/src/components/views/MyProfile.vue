@@ -20,14 +20,14 @@
                     to="/profile/informations"
                     name="Mes informations"
                     shortDescription="Modifiez vos informations personnelles"
-                    image="/src/assets/images/profileMe.webp"
+                    image="/images/profileMe.webp"
                     class="hover:text-primary"
                 />
                 <LinkCard
                     to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
-                    image="/src/assets/images/commandesListe.webp"
+                    image="/images/commandesListe.webp"
                     class="hover:text-primary transition"
                 />
             </div>

@@ -3,7 +3,7 @@
         <form v-if="!isSubmitted" @submit.prevent="submit">
             <FormHeader class="flex flex-col justify-center items-center gap-3">
                 <img
-                    src="/src/assets/images/dwarfs/dwarf_sad.png"
+                    src="/images/dwarfs/dwarf_sad.png"
                     alt="Logo"
                     class="h-32 w-52"
                 />
@@ -68,10 +68,7 @@
             v-else
             class="flex flex-col items-center justify-center text-center gap-3 mt-20"
         >
-            <img
-                src="/src/assets/images/dwarfs/dwarf-happy.png"
-                class="h-32 w-32"
-            />
+            <img src="/images/dwarfs/dwarf-happy.png" class="h-32 w-32" />
             <h1 class="text-md text-primary-accent font-medium">
                 Votre mot de passe a été réinitialisé avec succès ! 🎉
             </h1>
