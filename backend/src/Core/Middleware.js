@@ -1,13 +1,14 @@
 import {RequestHandler} from "./RequestHandler.js";
-import {Request} from "./Request.js";
 
 export class Middleware extends RequestHandler{
-    // eslint-disable-next-line no-unused-vars
+    use = null
     handle(request,response,next){
         next()
     }
 
     getExpressHandler(){
+        if(this.use)
+            return this.use
         return (req,res,next) => {
             this.req = req.request //provided by middleware in router init
             this.res = res

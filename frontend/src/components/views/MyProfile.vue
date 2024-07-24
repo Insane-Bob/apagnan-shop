@@ -21,12 +21,14 @@
                     name="Mes informations"
                     shortDescription="Modifiez vos informations personnelles"
                     image="/src/assets/images/profileMe.webp"
+                    class="hover:text-primary"
                 />
                 <LinkCard
                     to="/profile/commands"
                     name="Mes commandes"
                     shortDescription="Consultez l'historique de vos commandes"
                     image="/src/assets/images/commandesListe.webp"
+                    class="hover:text-primary transition"
                 />
             </div>
         </main>

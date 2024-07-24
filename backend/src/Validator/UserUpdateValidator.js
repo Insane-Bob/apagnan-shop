@@ -37,6 +37,7 @@ export class UserUpdateValidator extends Validator {
                 })
                 .optional(),
             email: z.string().email({ message: 'Invalid email' }).optional(),
+            emailVerifiedAt: z.string().optional(),
             phone: z
                 .string()
                 .min(10, {

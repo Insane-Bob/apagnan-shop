@@ -88,6 +88,18 @@ function handleSubmit() {
                             </SelectItem>
                             <SelectItem value="shipped"> Expédiée </SelectItem>
                         </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>
+                            <ion-icon name="alert-circle-outline"></ion-icon>
+                            Statuts iréversibles
+                          </SelectLabel>
+                          <SelectItem value="delivered">
+                            Livrée
+                          </SelectItem>
+                          <SelectItem value="cancelled">
+                            Annulée
+                          </SelectItem>
+                        </SelectGroup>
                     </SelectContent>
                 </Select>
             </div>

@@ -13,6 +13,8 @@ import { OrderFormat } from '@/utils/orderFormat'
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 import OrderUpdateForm from '@components/views/admin/orders/orderUpdateForm.vue'
+import OutlinedInput from '@/components/ui/input/OutlinedInput.vue'
+import OrderDocument from '@components/views/admin/orders/OrderDocument.vue'
 
 const route = useRoute()
 const filterId = computed(() => route.query.id || '')
@@ -67,7 +69,6 @@ const columns: TableColumns[] = [
         label: 'Statut',
         key: 'status',
         sorting: false,
-        toDisplay: (value: string) => OrderFormat.translatedStatus(value),
     },
     {
         label: 'Nombre de produits',
@@ -93,8 +94,10 @@ const columns: TableColumns[] = [
             ),
     },
 ]
+
 const orderSelected = ref<Order | null>(null)
 const orderEditDialogOpen = ref(false)
+const orderDocumentDialogOpen = ref(false)
 const actions: TableActions[] = [
     {
         label: 'Changer le statut',
@@ -108,6 +111,17 @@ const actions: TableActions[] = [
             row.status !== 'cancelled' &&
             row.status !== 'refunded' &&
             row.status !== 'delivered',
+    },
+    {
+        label: 'Voir les documents',
+        icon: 'document-text-outline',
+        class: 'text-primary',
+        action: async (row: Order) => {
+            orderSelected.value = row
+            orderDocumentDialogOpen.value = true
+        },
+        condition: (row: Order) =>
+            row.statusHistory.some((status) => status.status === 'paid'),
     },
 ]
 </script>
@@ -131,7 +145,8 @@ const actions: TableActions[] = [
             </Filter>
             <Filter label="Client" v-model="filters.customerId">
                 <FilterItem
-                    v-for="customer in customers"
+                    v-for="(customer, index) in customers"
+                    :key="index"
                     :label="customer.label"
                     :value="customer.value"
                 />
@@ -143,7 +158,8 @@ const actions: TableActions[] = [
             :pagination="pagination"
             :sorting="sorting"
             :actions="actions"
-        ></DataTable>
+        >
+        </DataTable>
     </div>
     <Dialog v-model:open="orderEditDialogOpen">
         <OrderUpdateForm
@@ -154,6 +170,18 @@ const actions: TableActions[] = [
                     orderEditDialogOpen = false
                     orderSelected = null
                     fetch()
+                }
+            "
+        />
+    </Dialog>
+
+    <Dialog v-model:open="orderDocumentDialogOpen">
+        <OrderDocument
+            :order="orderSelected"
+            v-if="orderSelected"
+            @close="
+                () => {
+                    orderDocumentDialogOpen = false
                 }
             "
         />
