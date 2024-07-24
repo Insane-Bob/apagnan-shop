@@ -132,6 +132,8 @@ const fetchCollection = async () => {
         )
         const data = response.data
 
+
+
         if (product.value?.collectionId !== data.collection.id) {
             toast({
                 title: 'La collection ne correspond pas au produit',
@@ -141,6 +143,16 @@ const fetchCollection = async () => {
         }
 
         collection.value = data.collection
+
+
+        if(collection.value.published === false) {
+            toast({
+                title: "Ce produit est indisponible",
+                variant: 'destructive',
+            })
+            router.push('/home')
+        }
+
         if (data.collection.image) {
             collectionImage.value = data.collection.image
         } else {
