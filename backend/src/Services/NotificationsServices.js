@@ -16,6 +16,7 @@ import { NewProductEmail } from '../Emails/NewProductEmail.js'
 import { OutOfStockProductEmail } from '../Emails/OutOfStockProductEmail.js'
 import { OrderStatusChangedEmail } from '../Emails/OrderStatusChangedEmail.js'
 import { ProductRestockEmail } from '../Emails/ProductRestockEmail.js'
+import { UserPersonalInformationEmail } from '../Emails/UserPersonalInformationEmail.js'
 
 export class NotificationsServices {
     // EMAIL WHEN THE USER MAKE MORE THAN 3 CONNECTION ATTEMPT
@@ -87,7 +88,7 @@ export class NotificationsServices {
         await EmailSender.send(renewedPasswordEmail)
     }
 
-    // EMAIL WHEN THE USER HAS SUCCESSFULLY PAID -- NOT WORKING @TODO FIX
+    // EMAIL WHEN THE USER HAS SUCCESSFULLY PAID
     static async notifySuccessPaymentCustomer(user, order) {
         const successPaymentEmail = new SuccessPaymentEmail()
             .setParams({
@@ -99,7 +100,7 @@ export class NotificationsServices {
         await EmailSender.send(successPaymentEmail)
     }
 
-    // EMAIL WHEN THE USER HAS FAILED TO PAY -- NOT WORKING @TODO FIX
+    // EMAIL WHEN THE USER HAS FAILED TO PAY
     static async notifyFailedPaymentCustomer(user) {
         const failedPaymentEmail = new FailedPaymentEmail()
             .setParams({
@@ -252,9 +253,13 @@ export class NotificationsServices {
     static async notifyUserPersonalDataDeleted(user) {}
 
     static async notifyUserPersonalDataJobEnd(user, url) {
-        console.log(
-            `Sending personal data job end notification to ${user.email} => url : ${url}`,
-        )
+        let email = new UserPersonalInformationEmail()
+            .setParams({
+                name: user.firstName + ' ' + user.lastName,
+                url,
+            })
+            .addTo(user.email, `${user.firstName} ${user.lastName}`)
+        await EmailSender.send(email)
     }
 
     static async notifyNewRefundRequest(refundRequest) {
