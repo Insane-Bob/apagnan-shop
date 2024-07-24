@@ -7,6 +7,7 @@ import { ProductValidator } from '../../Validator/ProductValidator.js'
 import { ProductStockObserver } from '../../Observers/ProductStockObserver.js'
 import { SearchRequest } from '../../lib/SearchRequest.js'
 import { ProductDeleteValidator } from '../../Validator/ProductDeleteValidator.js'
+import { StockService } from '../../Services/StockService.js'
 
 export class ProductController extends Controller {
     collection /** @provide by CollectionProvider */
@@ -67,6 +68,8 @@ export class ProductController extends Controller {
         const product =
             await Database.getInstance().models.Product.create(payload)
         await ProductServices.syncImages(product, payload.imagesIds)
+        if (payload.stock)
+            await StockService.addStock(product.id, payload.stock)
         if (product) {
             this.res.status(201).json({
                 product: product,

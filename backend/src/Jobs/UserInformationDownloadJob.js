@@ -3,6 +3,7 @@ import { File } from '../lib/File.js'
 import { NotificationsServices } from '../Services/NotificationsServices.js'
 import { AccessLinkServices } from '../Services/AccessLinkServices.js'
 import { URLUtils } from '../utils/url.js'
+import { EncryptServices } from '../Services/EncryptServices.js'
 export class UserInformationDownloadJob {
     static start(...args) {
         return new this().execute(...args)
@@ -153,14 +154,19 @@ export class UserInformationDownloadJob {
         const file = new File()
         file.setData(JSON.stringify(translatedUserInfos))
         file.encryptFor(userId)
-        let filePath = file.save('uploads')
+
+        const encryptedPrefixBase64 = EncryptServices.encryptedPayloadToBase64(
+            EncryptServices.encrypt(`user_${userId}_`),
+        )
+
+        let filePath = file.save('uploads', 'u.' + encryptedPrefixBase64 + '.')
         let name = file.name
 
         Database.getInstance().models.Upload.create({
             name,
             hash: file.name,
             mime: 'application/json',
-            path: filePath
+            path: filePath,
         })
 
         const accessLink = await AccessLinkServices.createAccessLink(

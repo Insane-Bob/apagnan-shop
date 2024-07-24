@@ -53,7 +53,7 @@ const _slug = computed(() => {
 
                 <div v-else class="relative h-full w-full">
                     <img
-                        src="/src/assets/images/noPhotoAvailable.webp"
+                        src="/images/noPhotoAvailable.webp"
                         alt="product image"
                         class="w-full h-full object-cover relative"
                     />

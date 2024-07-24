@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
+
 import FormInput from '@/components/Inputs/FormInput.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { Switch } from '@/components/ui/switch'
@@ -41,11 +33,13 @@ const { toast } = useToast()
 
 // IF user select one of his address
 const customAddress = ref(false)
+const billingCustomAddress = ref(false)
 
 // IF user use same address for billing and shipping
 const sameAddress = ref<boolean>(true)
 
 const addressOption = ref('')
+const billingAddressOption = ref('')
 
 // VAR FOR Shipping FORM
 const shippingCountry = ref('')
@@ -106,6 +100,14 @@ const onSelectAddressOption = () => {
     }
 }
 
+const onSelectBillingAddressOption = () => {
+    if (billingAddressOption.value === 'custom') {
+        billingCustomAddress.value = true
+    } else {
+        billingCustomAddress.value = false
+    }
+}
+
 const goToPayment = async () => {
     let shippingAdresseId
     let billingAdresseId
@@ -134,7 +136,9 @@ const goToPayment = async () => {
     } else {
         shippingAdresseId = parseInt(addressOption.value)
     }
+    
     if (!sameAddress.value) {
+        if(billingAddressOption.value === 'custom') {
         billingAdresseId = await createBillingAddress()
         if (billingAdresseId === 0) {
             toast({
@@ -142,6 +146,11 @@ const goToPayment = async () => {
                 variant: 'destructive',
             })
             return
+        }
+        billingAddressOption.value = billingAdresseId.toString()
+        billingCustomAddress.value = false
+        } else {
+            billingAdresseId = parseInt(billingAddressOption.value)
         }
     } else {
         billingAdresseId = shippingAdresseId
@@ -368,55 +377,17 @@ const removePromo = () => {
                             <small class="font-light block mb-2">
                                 Où devons-nous effectuer la livraison?
                             </small>
-                            <Select
-                                v-model="addressOption"
-                                @update:modelValue="onSelectAddressOption()"
-                            >
-                                <SelectTrigger>
-                                    <SelectValue
-                                        placeholder="Choisir une adresse"
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="custom"
-                                        >-- Définir une adresse --</SelectItem
-                                    >
-                                    <SelectGroup
-                                        v-if="user.getAddresses.length > 0"
-                                        label="Adresses"
-                                    >
-                                        <SelectLabel
-                                            >Adresse Sauvegardée</SelectLabel
-                                        >
-                                        <SelectItem
-                                            v-for="(
-                                                address, index
-                                            ) in user.getAddresses"
-                                            :key="index"
-                                            :value="address.id.toString()"
-                                            >{{
-                                                address.street +
-                                                ', ' +
-                                                address.city +
-                                                ' ' +
-                                                address.postalCode +
-                                                ', ' +
-                                                address.country
-                                            }}</SelectItem
-                                        >
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            <form v-if="customAddress">
                                 <AddressForm
+                                    @updateSelect="onSelectAddressOption"
                                     :errors="shippingErrors"
+                                    v-model:customAddress="customAddress"
+                                    v-model:addressOption="addressOption"
                                     v-model:city="shippingCity"
                                     v-model:region="shippingRegion"
                                     v-model:country="shippingCountry"
                                     v-model:postal-code="shippingPostalCode"
                                     v-model:street="shippingStreet"
                                 />
-                            </form>
                         </CardContent>
                     </Card>
                     <Card>
@@ -436,9 +407,12 @@ const removePromo = () => {
                                 >
                                 <Switch v-model:checked="sameAddress" />
                             </div>
-                            <form v-if="!sameAddress">
+                            <form v-if="!sameAddress" class="pt-2">
                                 <AddressForm
                                     :errors="billingErrors"
+                                    @updateSelect="onSelectBillingAddressOption"
+                                    v-model:customAddress="billingCustomAddress"
+                                    v-model:addressOption="billingAddressOption"
                                     v-model:city="billingCity"
                                     v-model:region="billingRegion"
                                     v-model:country="billingCountry"

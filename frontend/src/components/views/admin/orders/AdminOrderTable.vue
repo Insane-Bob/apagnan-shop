@@ -27,7 +27,10 @@ watch(filterId, () => {
     filters.id = filterId.value
 })
 
-const { rows, pagination, sorting, fetch } = useTable('/orders', query)
+const { rows, pagination, sorting, fetch, exportCSV } = useTable(
+    '/orders',
+    query,
+)
 
 const customers = ref<{
     value: number
@@ -158,6 +161,7 @@ const actions: TableActions[] = [
             :pagination="pagination"
             :sorting="sorting"
             :actions="actions"
+            :export="exportCSV"
         >
         </DataTable>
     </div>
