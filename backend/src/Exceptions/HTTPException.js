@@ -5,6 +5,7 @@ export class HTTPException extends Error {
     }
 
     static abort(message = undefined) {
+        if (process.env.APP_ENV === 'production') throw new this()
         throw new this(message)
     }
 
