@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
+import { EncryptServices } from '../Services/EncryptServices.js'
 
 export class FileEncryptedException extends Error {}
 
@@ -33,8 +34,9 @@ export class File {
         return this
     }
 
-    save(dirPath = 'uploads') {
+    save(dirPath = 'uploads', prefix = '') {
         let exists = fs.existsSync(dirPath)
+        this.name = prefix + this.name
         if (!exists) {
             fs.mkdirSync(dirPath, {
                 recursive: true,
@@ -51,23 +53,14 @@ export class File {
 
     getBufferData() {
         if (this.encryptedFor) {
-            const iv = crypto.randomBytes(16)
-            const cipher = crypto.createCipheriv(
-                'aes-256-cbc',
-                crypto.scryptSync(process.env.APP_SECRET, 'salt', 32),
-                iv,
+            const encryptedPayload = EncryptServices.encrypt(this.buffer)
+            return Buffer.from(
+                JSON.stringify({
+                    ...encryptedPayload,
+                    encrypted: true,
+                    userId: this.encryptedFor,
+                }),
             )
-            const encrypted = Buffer.concat([
-                cipher.update(this.buffer),
-                cipher.final(),
-            ])
-            const encryptJSON = JSON.stringify({
-                encrypted: true,
-                userId: this.encryptedFor,
-                iv: iv.toString('hex'),
-                data: encrypted.toString('hex'),
-            })
-            return Buffer.from(encryptJSON)
         } else {
             return this.buffer
         }
@@ -95,18 +88,7 @@ export class File {
                     'User not allowed to decrypt this file',
                 )
             }
-
-            const iv = Buffer.from(json.iv, 'hex')
-            const data = Buffer.from(json.data, 'hex')
-            const decipher = crypto.createDecipheriv(
-                'aes-256-cbc',
-                crypto.scryptSync(process.env.APP_SECRET, 'salt', 32),
-                iv,
-            )
-            this.buffer = Buffer.concat([
-                decipher.update(data),
-                decipher.final(),
-            ])
+            this.buffer = EncryptServices.decrypt(json)
         }
     }
 
