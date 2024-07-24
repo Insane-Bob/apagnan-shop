@@ -28,7 +28,7 @@ import { useToast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 
-const {toast} = useToast()
+const { toast } = useToast()
 const router = useRouter()
 const emits = defineEmits(['close'])
 const props = defineProps<{
@@ -42,6 +42,7 @@ const product = reactive<{ product: Product }>({
         name: '',
         price: 0,
         description: '',
+        lowStockValue: 5,
         stock: 0,
         published: false,
         collectionId: 0,
@@ -78,6 +79,7 @@ function preParsePayload() {
         (image) => image.file.id,
     )
     product.product.price = Number(product.product.price)
+    product.product.lowStockValue = Number(product.product.lowStockValue)
 }
 
 const createProduct = async () => {
@@ -182,68 +184,68 @@ const images = computed({
         <Card class="p-6">
             <CardDescription class="mb-6">Fiche produit</CardDescription>
 
-          <form @submit.prevent="onSubmit" class="grid grid-cols-4 gap-6">
-
-              <FormInput :errors="errors" name="name" class="col-span-2">
-                  <template #label>Nom</template>
-                  <template #input="inputProps">
-                      <input
-                          type="text"
-                          v-model="product.product.name"
-                          v-bind="inputProps"
-                      />
-                  </template>
-              </FormInput>
-              <FormInput
-                  :errors="errors"
-                  name="collectionId"
-                  class="col-span-2"
-                  noBorder
-              >
-                <template #label>Collection</template>
-                <template #input="inputProps">
-                  <Select v-model="product.product.collectionId">
-                    <SelectTrigger class="w-full">
-                      <SelectValue placeholder="Select a collection" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Collections</SelectLabel>
-                        <SelectItem
-                            v-for="collection in collections"
-                            :key="collection.id"
-                            :value="collection.id"
-                        >
-                          {{ collection.name }}
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </template>
-              </FormInput>
-              <FormInput :errors="errors" name="price" class="col-span-2">
-                  <template #label>Prix</template>
-                  <template #input="inputProps">
-                      <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          v-model="product.product.price"
-                          v-bind="inputProps"
-                      />
-                  </template>
-              </FormInput>
-              <FormInput class="col-span-2">
-                  <template #label>Stock</template>
-                  <template #input="inputProps">
-                      <input
-                          type="number"
-                          v-model="product.product.stock"
-                          v-bind="inputProps"
-                          disabled
-                      />
-                  </template>
-              </FormInput>
+            <form @submit.prevent="onSubmit" class="grid grid-cols-4 gap-6">
+                <FormInput :errors="errors" name="name" class="col-span-2">
+                    <template #label>Nom</template>
+                    <template #input="inputProps">
+                        <input
+                            type="text"
+                            v-model="product.product.name"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
+                <FormInput
+                    :errors="errors"
+                    name="collectionId"
+                    class="col-span-2"
+                >
+                    <template #label>Collection</template>
+                    <template #input="inputProps">
+                        <Select v-model="product.product.collectionId">
+                            <SelectTrigger class="w-full">
+                                <SelectValue
+                                    placeholder="Select a collection"
+                                />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Collections</SelectLabel>
+                                    <SelectItem
+                                        v-for="collection in collections"
+                                        :key="collection.id"
+                                        :value="collection.id"
+                                    >
+                                        {{ collection.name }}
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </template>
+                </FormInput>
+                <FormInput :errors="errors" name="price" class="col-span-2">
+                    <template #label>Prix</template>
+                    <template #input="inputProps">
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            v-model="product.product.price"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
+                <FormInput class="col-span-2">
+                    <template #label>Stock</template>
+                    <template #input="inputProps">
+                        <input
+                            type="number"
+                            v-model="product.product.stock"
+                            v-bind="inputProps"
+                            disabled
+                        />
+                    </template>
+                </FormInput>
 
                 <FormInput
                     :errors="errors"
@@ -260,30 +262,37 @@ const images = computed({
                     </template>
                 </FormInput>
 
-              <div class="flex items-center gap-x-4">
-                  <Label
-                      @click="
-                          product.product.published = !product.product.published
-                      "
-                      for="published"
-                      class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
-                  >
-                      Publié
-                  </Label>
-                  <Switch
-                      name="published"
-                      :checked="product.product.published"
-                      @click="
-                          product.product.published = !product.product.published
-                      "
-                      class=""
-                  />
-              </div>
-              <div class="col-span-8">
-                  <ImagePicker name="imagesId" :errors="errors" v-model="images"/>
-                  <small class="text-slate-500">N'oubliez pas de sauvegarder le produit après avoir modifier les fichiers</small>
-              </div>
-
+                <div class="flex items-center gap-x-4">
+                    <Label
+                        @click="
+                            product.product.published =
+                                !product.product.published
+                        "
+                        for="published"
+                        class="h-4 block text-xs text-zinc-800 font-medium first-letter:uppercase whitespace-nowrap"
+                    >
+                        Publié
+                    </Label>
+                    <Switch
+                        name="published"
+                        :checked="product.product.published"
+                        @click="
+                            product.product.published =
+                                !product.product.published
+                        "
+                        class=""
+                    />
+                </div>
+                <FormInput class="flex flex-col justify-center">
+                    <template #label>Seuil d'alerte de stock</template>
+                    <template #input="inputProps">
+                        <input
+                            type="number"
+                            v-model="product.product.lowStockValue"
+                            v-bind="inputProps"
+                        />
+                    </template>
+                </FormInput>
               <div class="flex gap-4 col-span-4">
                   <Button type="submit">
                       {{ slug === 'new' ? 'Créer' : 'Modifier' }}
@@ -303,15 +312,60 @@ const images = computed({
                     <Button type="button" variant="outlineDashboard" class="flex items-center gap-x-1" >
                       <ion-icon name="open-outline"></ion-icon>
                       Voir la page produit
+
+                <div class="col-span-8">
+                    <ImagePicker v-model="images" />
+                    <small class="text-slate-500"
+                        >N'oubliez pas de sauvegarder le produit après avoir
+                        modifier les fichiers</small
+                    >
+                </div>
+
+                <div class="flex gap-4 col-span-4">
+                    <Button type="submit">
+                        {{ slug === 'new' ? 'Créer' : 'Modifier' }}
                     </Button>
-                  </RouterLink>
-                  <Button v-if="slug === 'new'"
-                      variant="outlineDashboard"
-                      @click="router.push('/admin/products')"
-                  >Annuler
-                  </Button>
-              </div>
-          </form>
+                    <Dialog>
+                        <DialogTrigger>
+                            <Button type="button" variant="outlineDashboard"
+                                >Gestion du stock</Button
+                            >
+                        </DialogTrigger>
+                        <DialogContent>
+                            <StockForm
+                                :productId="product.product.id"
+                                @stockUpdated="fetchProductData"
+                            ></StockForm>
+                        </DialogContent>
+                    </Dialog>
+                    <RouterLink
+                        v-if="slug !== 'new'"
+                        target="_blank"
+                        :to="
+                            '/collections/' +
+                            collectionSlug +
+                            '/products/' +
+                            slug
+                        "
+                    >
+                        <Button
+                            type="button"
+                            variant="outlineDashboard"
+                            class="flex items-center gap-x-1"
+                        >
+                            <ion-icon name="open-outline"></ion-icon>
+                            Voir la page produit
+                        </Button>
+                    </RouterLink>
+                    <Button
+                        v-if="slug === 'new'"
+                        variant="outlineDashboard"
+                        @click="router.push('/admin/products')"
+                        >Annuler
+
+                    </Button>
+                </div>
+            </form>
         </Card>
 
         <SpecificTable

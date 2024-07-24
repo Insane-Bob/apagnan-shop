@@ -22,7 +22,7 @@ import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
 const apiClient = new ApiClient()
 
 
-const { filters, query, resetFilters } = useFilters({
+const { filters, query} = useFilters({
     rate: [],
     approved: [],
     withProduct: 'true',
