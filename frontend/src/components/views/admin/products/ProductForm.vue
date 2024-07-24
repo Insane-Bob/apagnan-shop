@@ -291,7 +291,6 @@ const images = computed({
                         />
                     </template>
                 </FormInput>
-
                 <div class="col-span-8">
                     <ImagePicker v-model="images" />
                     <small class="text-slate-500"
@@ -339,8 +338,7 @@ const images = computed({
                     <Button
                         v-if="slug === 'new'"
                         variant="outlineDashboard"
-                        @click="router.push('/admin/products')"
-                    >
+                        @click="router.push('/admin/products')">
                         Annuler
                     </Button>
                 </div>
