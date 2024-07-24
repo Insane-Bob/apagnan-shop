@@ -6,6 +6,10 @@ export class ValidationException extends UnprocessableEntity {
         this.errors = errors
     }
 
+    static abort(message = undefined) {
+        throw new this(message)
+    }
+
     toJSON() {
         return {
             ...super.toJSON(),
