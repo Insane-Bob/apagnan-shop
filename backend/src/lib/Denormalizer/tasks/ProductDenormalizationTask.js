@@ -40,6 +40,10 @@ export class ProductDenormalizationTask extends DenormalizerTask {
                         ],
                         model: Database.getInstance().models.Collection,
                     },
+                    {
+                        model: Database.getInstance().models.Specific,
+                        attributes: ['id', 'name', 'content'],
+                    },
                 ],
             })
     }

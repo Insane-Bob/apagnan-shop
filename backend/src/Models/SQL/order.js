@@ -42,6 +42,7 @@ export class Order extends Model {
                     {
                         model: models.OrderStatus,
                         as: 'statusHistory',
+                        order: [['createdAt', 'ASC']],
                     },
                     {
                         model: models.OrderDetail,
@@ -72,7 +73,7 @@ export class Order extends Model {
                 {
                     model: models.OrderStatus,
                     as: 'statusHistory',
-                    order: [['createdAt', 'DESC']],
+                    order: [['createdAt', 'ASC']],
                 },
                 {
                     model: models.Promo,
@@ -82,12 +83,18 @@ export class Order extends Model {
                     include: [
                         {
                             model: models.Product,
+                            attributes: {exclude:['StockTransactions']},
                             include: [
                                 {
                                     association: 'images',
                                 },
+                                {
+                                    model: models.StockTransaction,
+
+                                }
                             ],
                         },
+
                     ],
                 },
                 {
@@ -190,6 +197,9 @@ function model(sequelize, DataTypes) {
                 type: DataTypes.VIRTUAL,
                 get() {
                     if (!this.Payments) return null
+                    let UNPAID_STATUSES = [OrderStatus.REFUNDED, OrderStatus.CANCELLED]
+                    let hasUnpaidStatus = this.statusHistory.some(status => UNPAID_STATUSES.includes(status.status))
+                    if(hasUnpaidStatus) return false
                     return (
                         this.Payments.reduce((acc, payment) => {
                             return payment.createdAt > acc.createdAt

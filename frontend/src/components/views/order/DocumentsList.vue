@@ -52,7 +52,8 @@ const fetch = useFetch(computed(() => `/orders/${props.order.id}/invoices`))
 
 onMounted(async () => {
     try {
-        documents.value = await fetch.get()
+        let { data } = await fetch.get()
+        documents.value = data
     } catch (e) {
         documents.value = []
     }

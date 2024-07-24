@@ -119,7 +119,8 @@ export class PaymentController extends Controller {
             const type = payload.type
             const object = payload.data.object
 
-            if (type === 'payment_intent.succeeded') {
+            if (type === 'checkout.session.completed'
+                || type === 'checkout.session.async_payment_succeeded') {
                 await this.onPaymentSucceeded(object)
             }
 
@@ -173,17 +174,19 @@ export class PaymentController extends Controller {
         }
     }
 
-    async onPaymentSucceeded(paymentIntent) {
-        if (!paymentIntent) return
+    async onPaymentSucceeded(checkoutSession) {
+        if (!checkoutSession) return
 
-        const { payment, checkoutSession } =
-            await this.webhookFetch(paymentIntent)
+        const { payment } =
+            await this.webhookFetch({
+                id: checkoutSession.payment_intent,
+            })
 
         if (!payment) return
         if (payment.status === PaymentStatus.SUCCEEDED) return
 
         await PaymentServices.updatePayment(checkoutSession.id, {
-            paymentIntentId: paymentIntent.id,
+            paymentIntentId: checkoutSession.payment_intent,
             status: PaymentStatus.SUCCEEDED,
         })
 
