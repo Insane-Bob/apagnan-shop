@@ -20,14 +20,17 @@ const { filters, query } = useFilters({
     search: '',
     customersIds: [],
 })
-const { fetch, rows, pagination, sorting } = useTable('/refunds', query)
+const { fetch, rows, pagination, sorting, exportCSV } = useTable(
+    '/refunds',
+    query,
+)
 
 const columns: TableColumns[] = [
     {
         label: 'Order',
         key: 'orderId',
         sorting: true,
-        to : (row)=> `/admin/orders?id=${row.orderId}`
+        to: (row) => `/admin/orders?id=${row.orderId}`,
     },
 
     {
@@ -117,6 +120,7 @@ const customers = computed(() => {
                 :actions="actions"
                 :pagination="pagination"
                 :sorting="sorting"
+                :export="exportCSV"
             >
                 <template #row:approved="{ row: { approved } }">
                     <div v-if="approved">

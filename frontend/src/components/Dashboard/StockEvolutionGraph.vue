@@ -6,16 +6,20 @@ import CardContent from '@components/ui/card/CardContent.vue'
 import CardHeader from '@components/ui/card/CardHeader.vue'
 import CardDescription from '@components/ui/card/CardDescription.vue'
 import CardTitle from '@components/ui/card/CardTitle.vue'
-import {useFetch} from "@/composables/useFetch";
-import Select from "@components/ui/select/Select.vue";
-import SelectItem from "@components/ui/select/SelectItem.vue";
-import SelectContent from "@components/ui/select/SelectContent.vue";
-import SelectTrigger from "@components/ui/select/SelectTrigger.vue";
-import SelectValue from "@components/ui/select/SelectValue.vue";
+import { useFetch } from '@/composables/useFetch'
+import Select from '@components/ui/select/Select.vue'
+import SelectItem from '@components/ui/select/SelectItem.vue'
+import SelectContent from '@components/ui/select/SelectContent.vue'
+import SelectTrigger from '@components/ui/select/SelectTrigger.vue'
+import SelectValue from '@components/ui/select/SelectValue.vue'
 
 const apiClient = new ApiClient()
 
 const props = defineProps({
+    productId: {
+        type: Number,
+        required: true,
+    },
     dateRange: {
         type: Object,
         required: true,
@@ -32,9 +36,9 @@ const interval = computed(() => props.interval)
 const data = ref(null)
 
 const products = ref([])
-const selectedProductId = ref(null)
-const url = computed(()=> '/products?attributes=name,id')
-const fetchProduct = useFetch(url,null, (data)=>{
+const selectedProductId = ref(props.productId ?? null)
+const url = computed(() => '/products?attributes=name,id')
+const fetchProduct = useFetch(url, null, (data) => {
     products.value = data.data
     selectedProductId.value = data.data[0].id
 })
@@ -54,40 +58,42 @@ async function fetch() {
 }
 
 onMounted(fetch)
-onMounted(fetchProduct.get)
-watch(selectedProductId,fetch)
+onMounted(() => {
+    if (!props.productId) fetchProduct.get()
+})
+watch(selectedProductId, fetch)
 
-watch(
-    [dateRange, interval],
-    fetch,
-    { deep: true },
-)
+watch([dateRange, interval], fetch, { deep: true })
 </script>
 
 <template>
     <div class="flex">
         <CardHeader class="w-full">
-          <div class="flex justify-between">
-            <div>
-              <CardTitle>Stock</CardTitle>
-              <CardDescription>Evolution du stock</CardDescription>
+            <div class="flex justify-between">
+                <div>
+                    <CardTitle>Stock</CardTitle>
+                    <CardDescription>Evolution du stock</CardDescription>
+                </div>
+
+                <div class="ml-auto" v-if="!props.productId">
+                    <Select v-model="selectedProductId">
+                        <SelectTrigger>
+                            <SelectValue
+                                placeholder="Sélectionner un produit"
+                            />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                :value="product.id"
+                                :key="product.id"
+                                v-for="product in products"
+                            >
+                                {{ product.name }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
-
-            <div class="ml-auto">
-              <Select v-model="selectedProductId">
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un produit" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem :value="product.id" :key="product.id" v-for="product in products">
-                    {{product.name}}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-
         </CardHeader>
     </div>
     <CardContent class="pl-2">

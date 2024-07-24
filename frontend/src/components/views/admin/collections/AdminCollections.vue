@@ -14,6 +14,7 @@ import { Collection, TableActions, TableColumns } from '@types'
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { computed, watch } from 'vue'
+import { toast } from '@components/ui/toast'
 
 const apiClient = new ApiClient()
 const route = useRoute()
@@ -22,7 +23,7 @@ const collectionModalOpen = ref(false)
 const filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     published: [],
-    search: '', 
+    search: '',
     withImage: true,
     withProductCount: true,
     id: filterId.value,
@@ -31,8 +32,8 @@ watch(filterId, () => {
     filters.id = filterId.value
 })
 
+const selected = ref([])
 const { fetch, rows, pagination, sorting } = useTable('/collections', query)
-
 const form = reactive<{ collection: Collection | null }>({
     collection: null,
 })
@@ -139,8 +140,17 @@ const actions: TableActions[] = [
         icon: 'trash-outline',
         class: 'text-red-800 opacity-40',
         condition: (row: any) => row.productCount != 0,
-        action: (row: any) => {
-            
+        action: (row: any) => {},
+    },
+]
+
+const groupedActions = [
+    {
+        label: 'Supprimer',
+        icon: 'trash-outline',
+        class: 'text-red-500',
+        action(ids: number[]) {
+            massDelete(ids)
         },
     },
 ]
@@ -158,6 +168,29 @@ const promoteCollection = async (row: any) => {
 const deleteCollection = async (row: any) => {
     await apiClient.delete('collections/' + row.slug)
     fetch()
+}
+
+async function massDelete(ids: number[]) {
+    let collections = ids.map((id) => rows.value.find((row) => row.id === id))
+
+    let hasProduct = collections.some(
+        (collection) => collection.productCount != 0,
+    )
+
+    if (hasProduct) {
+        toast({
+            title: 'Impossible de supprimer',
+            description:
+                'Il y a des produits dans une ou plusieurs collections sélectionnées',
+            variant: 'destructive',
+        })
+        return
+    }
+
+    for (let collection of collections)
+        await apiClient.delete('collections/' + collection.slug)
+    fetch()
+    selected.value = []
 }
 </script>
 <template>
@@ -196,6 +229,8 @@ const deleteCollection = async (row: any) => {
                 :pagination="pagination"
                 :sorting="sorting"
                 :actions="actions"
+                :multi-actions="groupedActions"
+                v-model:selected="selected"
             ></DataTable>
         </div>
 

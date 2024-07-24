@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog'
 import { ref, defineProps, defineEmits } from 'vue'
 import { ApiClient } from '@/lib/apiClient'
+import StockEvolutionGraph from '@components/Dashboard/StockEvolutionGraph.vue'
+import { CalendarDate } from '@internationalized/date'
 
 const apiClient = new ApiClient()
 
@@ -42,16 +44,33 @@ const removeStock = async () => {
         emit('stockUpdated')
     }
 }
+const now = new Date()
+const dateRange = ref({
+    start: new CalendarDate(now.getFullYear(), now.getMonth() - 4, 0),
+    end: new CalendarDate(
+        now.getFullYear(),
+        now.getMonth() + 4,
+        now.getDate() + 100,
+    ),
+})
 </script>
 
 <template>
     <DialogContent>
         <form>
             <DialogHeader>
+                <StockEvolutionGraph
+                    :date-range="dateRange"
+                    :product-id="productId"
+                    interval="week"
+                />
+                <small class="text-slate-500"
+                    >Mise a jour effectué tous les jours à 00h00</small
+                >
+                <br />
                 <DialogTitle>Gestion du stock</DialogTitle>
                 <span v-if="actualStock">Stock actuel: {{ actualStock }}</span>
             </DialogHeader>
-
 
             <FormGrid>
                 <FormInput
