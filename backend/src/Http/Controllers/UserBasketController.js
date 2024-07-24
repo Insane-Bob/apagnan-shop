@@ -26,6 +26,7 @@ export class UserBasketController extends Controller {
             InternalError.abort('Failed to fetch user basket')
         }
     }
+    
     async put() {
         this.can(UserBasketPolicy.show, this.user_resource)
 

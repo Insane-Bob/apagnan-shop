@@ -19,6 +19,7 @@
     "password": "postgres",
     "database": "postgres",
     "host": "db",
-    "dialect": "postgres"
+    "dialect": "postgres",
+    "logging": false
   }
 }

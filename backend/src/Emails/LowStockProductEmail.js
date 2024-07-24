@@ -1,7 +1,7 @@
-import { Email } from '../lib/EmailSender.js'
 import { EmailTemplate } from '../Enums/EmailTemplate.js'
+import { Email } from '../lib/EmailSender.js'
 
-export class LowStockProduct extends Email {
+export class LowStockProductEmail extends Email {
     constructor() {
         super()
         this.setTemplate(EmailTemplate.LOW_STOCK)
