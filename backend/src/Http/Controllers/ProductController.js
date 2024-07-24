@@ -20,7 +20,7 @@ export class ProductController extends Controller {
         } else {
             let search = new SearchRequest(
                 this.req,
-                ['published', 'id'],
+                ['published', 'id', 'collectionId'],
                 ['name'],
             )
 

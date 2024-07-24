@@ -11,20 +11,27 @@ export class CollectionController extends Controller {
 
         let model = Database.getInstance().models.Collection
         const scopes = []
+        const conditions = {}
         if (this.req.query.has('withProductCount'))
             scopes.push('withProductCount')
         if (this.req.query.has('withImage')) scopes.push('withImage')
+        if (this.req.query.has('published')) conditions.published = true
 
         model = model.scope(scopes)
 
         const total = await model.count(search.queryWithoutPagination)
 
         let query = { ...search.query }
+        query.where = {
+            ...query.where,
+            ...conditions,
+        }
         if (this.req.query.has('random')) {
             query.limit = search.query.limit || 1
-            query.offset = Math.floor(
-                Math.random() * (total - search.query.limit),
-            )
+            query.offset =
+                total > search.query.limit
+                    ? Math.floor(Math.random() * (total - search.query.limit))
+                    : 1
         }
 
         const data = await model.findAll(query)
