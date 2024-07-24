@@ -18,7 +18,7 @@ export class UserController extends Controller {
         this.can(UserPolicy.index)
         let search = new SearchRequest(
             this.req,
-            ['role','id'],
+            ['role', 'id'],
             ['email', 'firstName', 'lastName'],
         )
 
@@ -42,7 +42,7 @@ export class UserController extends Controller {
 
     async update() {
         this.can(UserPolicy.update, this.user_resource)
-        
+
         const payload = this.validate(
             UserUpdateValidator,
             this.req.getUser().hasRole(USER_ROLES.ADMIN)
@@ -69,8 +69,8 @@ export class UserController extends Controller {
             )
         }
 
-        if (payload.email != this.user_resource.email)
-            await NotificationsServices.notifyValidateEmail(this.user_resource)
+        // if (payload.email != this.user_resource.email)
+        //     await NotificationsServices.notifyValidateEmail(this.user_resource)
 
         this.res.json(this.user_resource)
     }

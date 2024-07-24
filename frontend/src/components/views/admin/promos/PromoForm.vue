@@ -39,7 +39,7 @@ const available = ref(false)
 const errors = ref<any[]>([])
 
 const payload = computed(() => ({
-    code: code.value,
+    code: code.value.toUpperCase(),
     value: value.value,
     type: type.value,
     promoted: promoted.value,
@@ -55,6 +55,11 @@ function handleSubmit() {
                 title: 'Succés',
                 description: 'La code promo a été créée avec succès',
             })
+            code.value = ''
+            value.value = ''
+            type.value = ''
+            promoted.value = false
+            available.value = false
             emits('close')
         },
         (e) => {

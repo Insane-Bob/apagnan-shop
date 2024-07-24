@@ -45,7 +45,7 @@ export class UserServices {
     static retrieveUserByEmail(email) {
         return Database.getInstance()
             .models.User.unscoped()
-            .scope('notDeleted')
+            .scope(['notDeleted', 'withCustomer'])
             .findOne({
                 where: {
                     email,

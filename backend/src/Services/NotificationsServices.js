@@ -128,12 +128,18 @@ export class NotificationsServices {
 
     // EMAIL WHEN THE ORDER STATUS OF THE USER HAS CHANGED
     static async notifyOrderStatusUpdate(order) {
+        let user = await (
+            await order.getCustomer()
+        ).getUser({
+            attributes: ['email', 'firstName', 'lastName'],
+        })
         const orderLink = `${process.env.FRONT_END_URL}/profile/command/${order}`
         const orderStatusChangedEmail = new OrderStatusChangedEmail()
             .setParams({
+                user: `${user.firstName} ${user.lastName}`,
                 order_id: orderLink,
             })
-            .addTo('ilyamdupuis0903@gmail.com')
+            .addTo(user.email, `${user.firstName} ${user.lastName}`)
         await EmailSender.send(orderStatusChangedEmail)
     }
 

@@ -48,7 +48,12 @@
                                 <template #label>Adresse e-mail</template>
                                 <template #input="inputProps">
                                     <input
-                                        v-model="form.email"
+                                        disabled
+                                        class="opacity-50"
+                                        :value="form.email"
+                                        @input.prevent="
+                                            (e) => (e.target.value = form.email)
+                                        "
                                         type="email"
                                         v-bind="inputProps"
                                     />

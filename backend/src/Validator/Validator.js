@@ -16,6 +16,8 @@ export class Validator {
             return xss(payload)
         } else if (Array.isArray(payload)) {
             return payload.map((item) => this.sanitizePayload(item))
+        } else if (payload instanceof Date) {
+            return payload
         } else if (typeof payload === 'object' && payload !== null) {
             const sanitizedObject = {}
             for (const key in payload) {
@@ -25,6 +27,7 @@ export class Validator {
             }
             return sanitizedObject
         }
+
         return payload
     }
 

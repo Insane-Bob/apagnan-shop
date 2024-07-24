@@ -224,7 +224,7 @@ onMounted(async () => {
 
 const collections = ref<Collection[]>([])
 async function fetchCollections() {
-    const response = await apiClient.get('collections?withImage&limit=6&random')
+    const response = await apiClient.get('collections?withImage&limit=6&random&published=true')
     collections.value = response.data.data
     console.log(collections.value)
 }
