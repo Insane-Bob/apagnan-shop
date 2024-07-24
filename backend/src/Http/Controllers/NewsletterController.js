@@ -6,6 +6,7 @@ import {
     UnprocessableEntity,
 } from '../../Exceptions/HTTPException.js'
 import { NotificationsServices } from '../../Services/NotificationsServices.js'
+import { AccessLinkServices } from '../../Services/AccessLinkServices.js'
 
 export class NewsletterController extends Controller {
     async subscribe() {
@@ -16,6 +17,7 @@ export class NewsletterController extends Controller {
                     email,
                 },
             })
+
         UnprocessableEntity.abortIf(exists, 'Email already subscribed')
         const transaction = await Database.transaction()
         try {
@@ -26,7 +28,18 @@ export class NewsletterController extends Controller {
                 { transaction },
             )
 
-            await NotificationsServices.notifyNewsletterSubscribe(email)
+            const user = this.req.user
+            const accessLink = await AccessLinkServices.createAccessLink(
+                user.id,
+                AccessLinkServices.getDate(),
+                AccessLinkServices.getDate(20),
+                1,
+            )
+
+            await NotificationsServices.notifyNewsletterSubscribe(
+                email,
+                accessLink,
+            )
             await transaction.commit()
             this.res.sendStatus(200)
         } catch (e) {

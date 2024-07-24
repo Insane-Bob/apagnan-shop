@@ -36,9 +36,11 @@
                     {{ collection.name }}
                 </p>
                 <RouterLink to="#promoted">
-                    <Button variant="secondary" class="uppercase"
-                        >Découvrir la collection</Button
+                    <Button
+                        class="uppercase font-bold text-white rounded-lg px-6 py-3 transition-all duration-300 ease-in-out hover:bg-white hover:text-gray-900 hover:border-gray-900 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 shadow-md hover:shadow-lg active:scale-95"
                     >
+                        Découvrir la collection
+                    </Button>
                 </RouterLink>
             </div>
         </div>
@@ -93,9 +95,7 @@
                     :image="collection?.image"
                 >
                     <template #action>
-                        <Button
-                            class="hover:text-primary transition uppercase"
-                        >
+                        <Button class="hover:text-primary transition uppercase">
                             Découvrir la collection
                             <ion-icon
                                 name="chevron-forward-outline"
