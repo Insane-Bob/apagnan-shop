@@ -115,6 +115,11 @@ const actions: TableActions[] = [
         label: 'Supprimer',
         icon: 'trash-outline',
         class: 'text-red-500',
+        confirmation: {
+            title: 'Supprimer le produit',
+            message: 'Êtes-vous sûr de vouloir supprimer ce produit ?',
+            styleConfirm: 'bg-red-500 hover:bg-red-600',
+        },
         condition: () => user.isAdmin,
         action: (row: any) => {
             deleteProduct({ ...row, deletedAt: new Date(), published: false })
