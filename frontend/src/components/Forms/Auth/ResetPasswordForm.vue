@@ -5,11 +5,11 @@
                 <FormHeader
                     class="flex flex-col justify-center items-center gap-3"
                 >
-                    <img
+                    <!-- <img
                         src="/src/assets/images/dwarfs/dwarf_sad.png"
                         alt="Logo"
                         class="h-32 w-52"
-                    />
+                    /> -->
                     <h1 class="text-md text-primary-accent font-medium">
                         Oups, un de nos nains a égaré votre mot de passe ! 😲
                     </h1>
@@ -85,10 +85,10 @@
                 <div
                     class="flex flex-col items-center justify-center text-center gap-3 p-4"
                 >
-                    <img
+                    <!-- <img
                         src="/src/assets/images/dwarfs/dwarf-happy.png"
                         class="h-32 w-32"
-                    />
+                    /> -->
                     <h1 class="text-md text-primary-accent font-medium">
                         Votre mot de passe a été réinitialisé avec succès ! 🎉
                     </h1>

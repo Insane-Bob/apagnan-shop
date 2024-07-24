@@ -48,12 +48,12 @@ export class StockService {
     static async checkStockForAdminNotif(productId) {
         const product =
             await Database.getInstance().models.Product.findByPk(productId)
-        console.log(product)
-        if (product.stock == 0) {
+        await ProductServices.loadRemainingStock(product)
+        if (product.stock === 0) {
             await NotificationsServices.notifyOutOfStockProduct(product)
         }
         if (product.stock < product.lowStockValue) {
-            await NotificationsServices.notifLowStockProduct(product)
+            await NotificationsServices.notifyLowStockProduct(product)
         }
     }
 }

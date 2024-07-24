@@ -13,6 +13,5 @@ export class EmailTemplate {
     static PRODUCT_PRICE_CHANGE = 15
     static NEW_PRODUCT = 16
     static ORDER_STATUS_CHANGED = 18
-    //static LOW_STOCK = 'mettre le bon id brevo'
-    // static OUT_OF_STOCK = 'mettre le bon id brevo'
+    static PRODUCT_RESTOCK = 19
 }

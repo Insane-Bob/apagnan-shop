@@ -15,6 +15,7 @@ import { UserServices } from './UserServices.js'
 import { NewProductEmail } from '../Emails/NewProductEmail.js'
 import { OutOfStockProductEmail } from '../Emails/OutOfStockProductEmail.js'
 import { OrderStatusChangedEmail } from '../Emails/OrderStatusChangedEmail.js'
+import { ProductRestockEmail } from '../Emails/ProductRestockEmail.js'
 
 export class NotificationsServices {
     // EMAIL WHEN THE USER MAKE MORE THAN 3 CONNECTION ATTEMPT
@@ -64,7 +65,7 @@ export class NotificationsServices {
         await EmailSender.send(resetPasswordEmail)
     }
 
-    // EMAIL WHEN THE USER HAS CHANGED HIS PASSWORD SUCCESSFULLY -- NOT WORKING @TODO FIX
+    // EMAIL WHEN THE USER HAS CHANGED HIS PASSWORD SUCCESSFULLY
     static async notifyConfirmResetPassword(user) {
         const confirmResetPasswordEmail = new ConfirmResetPasswordEmail()
             .setParams({
@@ -96,6 +97,8 @@ export class NotificationsServices {
             .addTo(`${user.email}`, `${user.firstName} ${user.lastName}`)
 
         await EmailSender.send(successPaymentEmail)
+
+        console.log(`Sending success payment notification to ${user.email}`)
     }
 
     // EMAIL WHEN THE USER HAS FAILED TO PAY -- NOT WORKING @TODO FIX
@@ -109,7 +112,7 @@ export class NotificationsServices {
         await EmailSender.send(failedPaymentEmail)
     }
 
-    // EMAIL WHEN THE USER HAS MADE AN ORDER 
+    // EMAIL WHEN THE USER HAS MADE AN ORDER
     static async notifyOrderSupported(user, order) {
         const orderLink = `${process.env.FRONT_END_URL}/profile/command/${order}`
         const orderSupportedEmail = new OrderSupportedEmail()
@@ -149,7 +152,6 @@ export class NotificationsServices {
 
         await Promise.all(
             admins.map(async (admin) => {
-                console.log('ADMIN', admin)
                 const outOfStockProductEmail = new OutOfStockProductEmail()
                     .setParams({
                         name: product.name,
@@ -165,7 +167,7 @@ export class NotificationsServices {
         )
     }
 
-    // EMAIL FOR THE STOCK KEPPER | ADMIN THAT HAVE THE NOTIFICATION FOR THE LOW STOCK PRODUCT -- TO FIX
+    // EMAIL FOR THE STOCK KEPPER | ADMIN THAT HAVE THE NOTIFICATION FOR THE LOW STOCK PRODUCT
     static async notifyLowStockProduct(product) {
         const lowStockProductEmail = new LowStockProductEmail().setParams({
             product_name: product.name,
@@ -178,7 +180,7 @@ export class NotificationsServices {
         await EmailSender.send(lowStockProductEmail)
     }
 
-    // EMAIL WHEN THE USER THAT HAVE THE RESTOCK NOTIFICATION FOR THE PRODUCT -- TO FIX
+    // EMAIL WHEN THE USER THAT HAVE THE RESTOCK NOTIFICATION FOR THE PRODUCT
     static async notifyProductRestock(product) {
         const users =
             await UserNotificationServices.getUserThatAreSubscribeForProduct(
@@ -190,6 +192,15 @@ export class NotificationsServices {
 
         return Promise.all(
             users.map(async (user) => {
+                const productRestockEmail = new ProductRestockEmail()
+                    .setParams({
+                        product_name: product.name,
+                        stock: product.stock,
+                    })
+                    .addTo(user.email, `${user.firstName} ${user.lastName}`)
+
+                await EmailSender.send(productRestockEmail)
+
                 console.log(
                     `Sending product restock notification to ${user.email}`,
                 )
