@@ -30,6 +30,7 @@ const { filters, query } = useFilters({
     published: [],
     search: '',
     id: filterId.value,
+    withCollection: 'true',
 })
 watch(filterId, () => {
     filters.id = filterId.value
@@ -83,14 +84,15 @@ const columns: TableColumns[] = [
     },
     {
         label: 'Collection',
-        key: 'collectionId',
+        key: 'Collection',
+        toDisplay: (value: any) => value.name,
         sorting: true,
         to: (row) => `/admin/collections?id=${row.collectionId}`,
     },
 ]
 
 const actions: TableActions[] = [
-{
+    {
         label: 'Gérer les stocks',
         icon: 'sync-outline',
         class: 'text-blue-500',
@@ -144,14 +146,17 @@ function massDelete(ids: number[]) {
 }
 
 const fetchProductData = async () => {
-    if(!selectedProduct.value) return
-    try{
-        await apiClient.get('products/' + selectedProduct.value.slug + "?withImages")
-    }catch(e){
+    if (!selectedProduct.value) return
+    try {
+        await apiClient.get(
+            'products/' + selectedProduct.value.slug + '?withImages',
+        )
+    } catch (e) {
         toast({
             title: 'Erreur',
-            description: 'Une erreur est survenue lors de la récupération des données du produit',
-            variant: 'destructive'
+            description:
+                'Une erreur est survenue lors de la récupération des données du produit',
+            variant: 'destructive',
         })
     }
     fetch()
@@ -160,8 +165,7 @@ const fetchProductData = async () => {
 
 <template>
     <Dialog v-if="!$route.params.slug || user.isStoreKeeper">
-
-        <div  class="flex flex-col mx-6">
+        <div class="flex flex-col mx-6">
             <div class="flex justify-between items-center mb-3">
                 <div class="flex gap-4 items-center">
                     <OutlinedInput
@@ -181,7 +185,10 @@ const fetchProductData = async () => {
                     class="w-min whitespace-nowrap flex justify-center items-center gap-x-2"
                 >
                     <span>Créer un nouveau produit</span>
-                    <ion-icon class="text-lg" name="add-circle-outline"></ion-icon>
+                    <ion-icon
+                        class="text-lg"
+                        name="add-circle-outline"
+                    ></ion-icon>
                 </Button>
             </div>
             <DataTable
@@ -196,11 +203,19 @@ const fetchProductData = async () => {
         </div>
         <DialogContent>
             <StockForm
-            :productId="selectedProduct?.id || 0"
-            :actualStock="selectedProduct?.stock || 0"
-            @stockUpdated="fetchProductData"
+                :productId="selectedProduct?.id || 0"
+                :actualStock="selectedProduct?.stock || 0"
+                @stockUpdated="fetchProductData"
             ></StockForm>
         </DialogContent>
     </Dialog>
-    <ProductForm @close="fetch" :cslug="Array.isArray($route.params.slug)? $route.params.slug[0]: $route.params.slug" v-else></ProductForm>
+    <ProductForm
+        @close="fetch"
+        :cslug="
+            Array.isArray($route.params.slug)
+                ? $route.params.slug[0]
+                : $route.params.slug
+        "
+        v-else
+    ></ProductForm>
 </template>
