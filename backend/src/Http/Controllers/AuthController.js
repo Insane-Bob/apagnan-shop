@@ -57,7 +57,16 @@ export class AuthController extends Controller {
                     accessLink.identifier,
                 )
             }
-            UnauthorizedException.abort()
+            ValidationException.abort([
+                {
+                    path: 'email',
+                    message: 'Les identifiants sont incorrects',
+                },
+                {
+                    path: 'password',
+                    message: 'Les identifiants sont incorrects',
+                },
+            ])
         } else {
             await database.models.UserConnectionAttempt.create({
                 userId: user.id,
