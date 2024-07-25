@@ -58,6 +58,7 @@ export const useUserNotificationsStore = () => {
                         modelType,
                     }
                 }
+                const apiClient = new ApiClient()
                 const response = await apiClient.post(
                     `/users/${user.get.id}/notifications/${type}`,
                     body,
