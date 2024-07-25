@@ -20,7 +20,7 @@ export class ProductController extends Controller {
         } else {
             let search = new SearchRequest(
                 this.req,
-                ['published', 'id'],
+                ['published', 'id', 'collectionId'],
                 ['name'],
             )
 
@@ -29,11 +29,19 @@ export class ProductController extends Controller {
 
             let scopes = []
 
+            let conditions = {}
+
             if (this.req.query.has('withCollection'))
                 scopes.push('withCollection')
             if (this.req.query.has('withImages')) scopes.push('withImages')
 
+            if (this.req.query.has('published')) conditions.published = true
+
             let query = { ...search.query }
+            query.where = {
+                ...query.where,
+                ...conditions,
+            }
             if (this.req.query.has('random')) {
                 query.limit = search.query.limit || 1
                 query.offset = Math.floor(

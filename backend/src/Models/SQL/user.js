@@ -34,6 +34,13 @@ export class User extends DenormalizableModel {
                 },
             },
         })
+        models.User.addScope('withCustomer', {
+            include: [
+                {
+                    model: models.Customer,
+                },
+            ],
+        })
 
         models.User.addScope('notDeleted', {
             where: {

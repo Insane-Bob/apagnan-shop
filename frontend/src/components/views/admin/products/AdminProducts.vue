@@ -12,9 +12,9 @@ import { useTable } from '@/composables/useTable'
 import Filter from '@components/tables/Filter.vue'
 import FilterItem from '@components/tables/FilterItem.vue'
 import OutlinedInput from '@components/ui/input/OutlinedInput.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
-import type { Product } from '@/types'
+import type { Collection, Product } from '@/types'
 import { toast } from '@/components/ui/toast'
 
 const user = useUserStore()
@@ -23,11 +23,13 @@ const apiClient = new ApiClient()
 const router = useRouter()
 const route = useRoute()
 
+const collections = ref<Collection[]>([])
 const selected = ref([])
 
 let filterId = computed(() => route.query.id || '')
 const { filters, query } = useFilters({
     published: [],
+    collectionId: [],
     search: '',
     id: filterId.value,
     withCollection: 'true',
@@ -115,12 +117,22 @@ const actions: TableActions[] = [
         label: 'Supprimer',
         icon: 'trash-outline',
         class: 'text-red-500',
+        confirmation: {
+            title: 'Supprimer le produit',
+            message: 'Êtes-vous sûr de vouloir supprimer ce produit ?',
+            styleConfirm: 'bg-red-500 hover:bg-red-600',
+        },
         condition: () => user.isAdmin,
         action: (row: any) => {
             deleteProduct({ ...row, deletedAt: new Date(), published: false })
         },
     },
 ]
+
+onMounted(async () => {
+    const response = await apiClient.get('/collections')
+    collections.value = response.data.data
+})
 
 const deleteProduct = (row: any) => {
     ApiClient.handleError(async () => {
@@ -178,6 +190,15 @@ const fetchProductData = async () => {
                     <Filter label="Status" v-model="filters.published">
                         <FilterItem value="true" label="Publié" />
                         <FilterItem value="false" label="Non publié" />
+                    </Filter>
+
+                    <Filter label="Collection" v-model="filters.collectionId">
+                        <FilterItem
+                            v-for="(collection, index) in collections"
+                            :key="index"
+                            :label="collection.name"
+                            :value="collection.id"
+                        />
                     </Filter>
                 </div>
                 <Button

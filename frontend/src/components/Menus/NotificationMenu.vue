@@ -5,11 +5,12 @@ import DropdownMenuTrigger from '@components/ui/dropdown-menu/DropdownMenuTrigge
 import DropdownMenuContent from '@components/ui/dropdown-menu/DropdownMenuContent.vue'
 import DropdownMenuItem from '@components/ui/dropdown-menu/DropdownMenuItem.vue'
 import { useUserNotificationsStore } from '@/stores/userNotificationsStore'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import Button from '@components/ui/button/Button.vue'
+import { useUserStore } from '@/stores/user'
 
 const userNotification = useUserNotificationsStore()
-
+const userStore = useUserStore()
 const props = defineProps<{
     modelType: string
     id: number
@@ -17,6 +18,13 @@ const props = defineProps<{
 
 const menuItems = computed(() => {
     return userNotification.getDropdownMenuItems(props.modelType, props.id)
+})
+const isAuth = computed(() => userStore.isAuthenticated)
+watch(isAuth, (val) => {
+    if (val && !userNotification.fetched) userNotification.fetchPreferences()
+    else {
+        userNotification.reset()
+    }
 })
 </script>
 
