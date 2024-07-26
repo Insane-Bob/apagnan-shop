@@ -147,6 +147,7 @@ export class UserController extends Controller {
         this.can(UserPolicy.I, this.user_resource)
         const user = this.req.getUser()
         UserInformationDownloadJob.start(user.id).then((r) => console.log(r))
+        await NotificationsServices.notifyUserPersonalDataJobEnd(user)
         this.res.status(202).json({
             message: 'User informations requested',
             success: true,

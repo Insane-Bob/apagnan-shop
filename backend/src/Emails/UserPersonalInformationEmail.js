@@ -5,7 +5,7 @@ export class UserPersonalInformationEmail extends Email {
     constructor() {
         super()
         this.setTemplate(
-            EmailTemplate.PAYMENT_SUCCESS,
-        ) /** @TODO change to USER_PERSONAL_INFORMATION */
+            EmailTemplate.USER_PERSONAL_INFORMATION,
+        )
     }
 }
