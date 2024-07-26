@@ -47,7 +47,7 @@ window.openCookie = openCookie
         <h3 class="mb-4 font-title text-2xl">Information sur la société</h3>
         <ul class="flex flex-col gap-1">
           <li v-for="(document, index) in legalDocuments" :key="index">
-            <RouterLink :to="'legal/'+document.slug" class="hover:underline cursor-pointer transition duration-300 ease-in-out">
+            <RouterLink :to="'/legal/'+document.slug" class="hover:underline cursor-pointer transition duration-300 ease-in-out">
               {{document.name}}
             </RouterLink>
           </li>

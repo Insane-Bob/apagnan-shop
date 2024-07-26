@@ -1,5 +1,7 @@
 # Getting Started
 
+> Le site de production est disponible a l'addresse suivante: [apaganain.agweb.dev](https://apaganain.agweb.dev)
+
 ## Introduction
 ### Objectif
 
@@ -254,7 +256,10 @@ Pour lancer en production :
     docker-compose run frontend npm run build
     ```
 5. Changez `NODE_ENV` à `production` dans `.env`.
-6. Redémarrez Docker Compose (backend seulement):
+
+6. Pour Cachez les détails des erreurs en définisant le `APP_ENV=production` dans `backend/.env`
+
+7. Redémarrez Docker Compose (backend seulement):
     ```bash
     docker-compose down
     docker-compose up nginx
