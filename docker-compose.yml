@@ -3,6 +3,8 @@ services:
     build:
         context: ./docker
         dockerfile: ./nginx.Dockerfile
+        args:
+          confFile: "${CONF_FILE}"
     ports:
       - "80:80"
     volumes:
