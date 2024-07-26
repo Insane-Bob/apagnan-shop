@@ -57,7 +57,10 @@ export class PaymentServices {
             payment_method_types: ['card'],
             line_items: lineItems,
             currency: 'eur',
-            discounts: Boolean(discounts) && discounts.filter(Boolean).length ? discounts.filter(Boolean) : undefined,
+            discounts:
+                Boolean(discounts) && discounts.filter(Boolean).length
+                    ? discounts.filter(Boolean)
+                    : undefined,
             mode: 'payment',
             currency: 'eur',
             automatic_tax: {
@@ -85,7 +88,7 @@ export class PaymentServices {
      * @param amount
      * @returns {Promise<Model<any, TModelAttributes>>}
      */
-    static async askForRefund(order, reason, amount = undefined) {
+    static async askForRefund(order, reason) {
         const orderService = new OrderServices(order)
 
         const payment = await orderService.getLastSuccessPayment()
@@ -102,13 +105,21 @@ export class PaymentServices {
             'Already asked for refund',
         )
 
+        const promo = await order.getPromo()
+
+        const amount = promo
+            ? promo.type === 'percent'
+                ? (orderService.total * promo.value) / 100
+                : orderService.total - promo.value
+            : orderService.total
+
         const refundRequest =
             await Database.getInstance().models.RefundRequestOrder.create({
                 orderId: order.id,
                 sessionId: payment.sessionId,
                 reason: reason,
                 approved: false,
-                amount: amount || orderService.total,
+                amount,
             })
 
         return refundRequest
