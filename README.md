@@ -1,6 +1,12 @@
 # Getting Started
 
 > Le site de production est disponible a l'addresse suivante: [apaganain.agweb.dev](https://apaganain.agweb.dev)
+>
+> Comptes Github de chacun :
+> https://github.com/Prumme
+> https://github.com/Axel77g
+> https://github.com/Robiinf
+> https://github.com/Insane-Bob
 
 ## Introduction
 ### Objectif
@@ -279,3 +285,21 @@ Fichier : `/github/workflows/backend-test.yml`
 
 Le déploiement suit globalement les étapes décrites dans la section "Lancement en production". Il build le backend et le frontend au niveau du job GitHub pour ne pas charger notre serveur et profiter des ressources de leur serveur. Ensuite, il upload les artefacts sur notre serveur de production et déploie l'application en lançant uniquement Nginx, le backend et les bases de données.
 Fichier : `/github/workflows/deploy.yml`
+
+## Liste détaillé des tâches par personnes
+
+<ins>Fonctionnalités principales :</ins>
+- Rédaction des documents concernant le droit et la RGDP => **Tous les membres**
+- Authentification => **Axel & Ilyam**
+- Recherche Produits => **Axel & Robin**
+- Gestions des produits, catégories => **Robin**
+- Gestions d'alertes par mail + template Brevo => **Ilyam & Axel**
+- Panier avec système de réservation => **Axel et Aurélien**
+- Gestions des stocks => **Axel & Ilyam**
+- Historique de commandes => **Axel & Aurélien & Ilyam**
+- Panel Adminstration => **Tous les membres**
+
+<ins>Fonctionnalités bonus :</ins>
+- Téléchargement des données personnelles + Export CSV => **Axel**
+- Gestion de code promos => **Aurélien**
+- Pouvoir se connecter en tant qu'un utilisateur => **Aurélien**
