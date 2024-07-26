@@ -298,8 +298,10 @@ Fichier : `/github/workflows/deploy.yml`
 - Gestions des stocks => **Axel & Ilyam**
 - Historique de commandes => **Axel & Aurélien & Ilyam**
 - Panel Adminstration => **Tous les membres**
+- Dénormalisation des données => **Axel**
 
 <ins>Fonctionnalités bonus :</ins>
 - Téléchargement des données personnelles + Export CSV => **Axel**
 - Gestion de code promos => **Aurélien**
 - Pouvoir se connecter en tant qu'un utilisateur => **Aurélien**
+- Mise en place d'un SEE pour le stock => **Axel**
