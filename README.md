@@ -2,10 +2,10 @@
 
 > Le site de production est disponible a l'addresse suivante: [apaganain.agweb.dev](https://apaganain.agweb.dev)
 >
-> Comptes Github de chacun :
-> https://github.com/Prumme
-> https://github.com/Axel77g
-> https://github.com/Robiinf
+> Comptes Github de chacun : 
+> https://github.com/Prumme <br>
+> https://github.com/Axel77g <br>
+> https://github.com/Robiinf <br>
 > https://github.com/Insane-Bob
 
 ## Introduction
