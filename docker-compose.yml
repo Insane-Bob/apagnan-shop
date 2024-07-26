@@ -70,8 +70,6 @@ services:
       - app-network
   db:
     image: postgres:12
-    ports:
-      - "5433:5432"
     volumes:
       - db:/var/lib/postgresql/data
     environment:
@@ -82,8 +80,6 @@ services:
       - app-network
   mongodb:
     image: mongo:4
-    ports:
-      - "27017:27017"
     volumes:
         - mongodb:/data/db
     networks:
