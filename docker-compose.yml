@@ -4,7 +4,7 @@ services:
         context: ./docker
         dockerfile: ./nginx.Dockerfile
         args:
-          confFile: "${CONF_FILE}"
+          confFile: "${CONF_FILE:-nginx.conf}"
     ports:
       - "80:80"
       - "443:443"
