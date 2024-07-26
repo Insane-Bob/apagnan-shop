@@ -292,7 +292,7 @@ Fichier : `/github/workflows/deploy.yml`
 - Rédaction des documents concernant le droit et la RGDP => **Tous les membres**
 - Authentification => **Axel & Ilyam**
 - Recherche Produits => **Axel & Robin**
-- Gestions des produits, catégories => **Robin**
+- Gestions des produits, catégories, reviews => **Robin**
 - Gestions d'alertes par mail + template Brevo => **Ilyam & Axel**
 - Panier avec système de réservation => **Axel et Aurélien**
 - Gestions des stocks => **Axel & Ilyam**
