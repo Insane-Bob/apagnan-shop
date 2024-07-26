@@ -4,6 +4,8 @@ FROM nginx:1.27
 ARG confFile
 COPY ./nginx/${confFile} /etc/nginx/conf.d/default.conf
 
+COPY ./ssl /etc/nginx/ssl
+
 RUN ln -s /etc/nginx/sites-available /etc/nginx/sites-enabled
 
 EXPOSE 80
