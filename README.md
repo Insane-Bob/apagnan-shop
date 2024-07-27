@@ -45,7 +45,7 @@ docker-compose exec backend npm run key:generate
 ```bash
 docker compose run backend npm run migrate
 ```
-> Vous pouvez aussi lancer les migrations et les seeders en même temps avec `npm run migrate:fresh`. 
+> Vous pouvez aussi lancer les migrations et les seeders en même temps avec `npm run seed:fresh`. 
 > 
 > **Attention** : cela supprimera toutes les données de la base de données.
 
