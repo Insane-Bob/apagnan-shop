@@ -1,6 +1,9 @@
 # Getting Started
 
 > Le site de production est disponible a l'addresse suivante: [apagnain.agweb.dev](https://apagnain.agweb.dev)
+> Connexion admin backoffice :
+> Email : admin@email.com
+> MDP : admin@email.comA2024
 >
 > Comptes Github de chacun : <br>
 > https://github.com/Prumme <br>
